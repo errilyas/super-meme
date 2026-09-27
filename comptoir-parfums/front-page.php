@@ -133,17 +133,25 @@ list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
       <div class="f-reflect"></div>
       <div class="f-shadow"></div>
 
-      <!-- Floating note cards -->
-      <div class="h-note-card h-nc-1" id="hnc1">
-        <div class="h-note-card-brand">Dior</div>
-        <div class="h-note-card-name">Sauvage Elixir</div>
-        <div class="h-note-card-price">349 DH</div>
+      <!-- Floating note cards — nom et prix lus dans produits.php, comme
+           partout ailleurs : un prix ecrit en dur finit par mentir. Une
+           reference retiree du catalogue fait simplement disparaitre sa carte. -->
+      <?php
+      $cp_cartes = array( 'hnc1' => 'dior--sauvage-elixir', 'hnc2' => 'chanel--coco-mademoiselle' );
+      $cp_n      = 0;
+      foreach ( $cp_cartes as $cp_id => $cp_slug ) :
+      	$cp_n++;
+      	$cp_p = comptoir_produit_by_slug( $cp_slug );
+      	if ( ! $cp_p ) {
+      		continue;
+      	}
+      	?>
+      <div class="h-note-card h-nc-<?php echo (int) $cp_n; ?>" id="<?php echo esc_attr( $cp_id ); ?>">
+        <div class="h-note-card-brand"><?php echo esc_html( $cp_p['b'] ); ?></div>
+        <div class="h-note-card-name"><?php echo esc_html( $cp_p['n'] ); ?></div>
+        <div class="h-note-card-price"><?php echo esc_html( $cp_p['pr'] ); ?></div>
       </div>
-      <div class="h-note-card h-nc-2" id="hnc2">
-        <div class="h-note-card-brand">Chanel</div>
-        <div class="h-note-card-name">Coco Mademoiselle</div>
-        <div class="h-note-card-price">349 DH</div>
-      </div>
+      <?php endforeach; ?>
 
       <!-- Particles container -->
       <div class="f-particles" id="f-particles" aria-hidden="true"></div>

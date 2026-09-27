@@ -1250,9 +1250,27 @@ if(ham && mobMenu){
       gsap.to(spans[2],{rotation:0,y:0,duration:.3});
     }
   }
-  ham.addEventListener('click',toggleMenu);
+  ham.addEventListener('click',()=>{
+    toggleMenu();
+    /* Le menu se declare modal (aria-modal) : le focus y entre a l'ouverture
+       et revient au bouton a la fermeture, au lieu de rester derriere lui. */
+    if(menuOpen){ const l=mobMenu.querySelector('.mob-link'); if(l) setTimeout(()=>l.focus({preventScroll:true}),60); }
+  });
   document.querySelectorAll('[data-close]').forEach(a=>a.addEventListener('click',()=>{if(menuOpen)toggleMenu()}));
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menuOpen)toggleMenu()});
+  document.addEventListener('keydown',e=>{
+    if(!menuOpen) return;
+    if(e.key==='Escape'){ toggleMenu(); ham.focus(); return; }
+    /* Tab tourne entre le bouton du menu et les liens : la page cachee
+       dessous ne recoit pas le focus. */
+    if(e.key==='Tab'){
+      const pieges=[ham,...mobMenu.querySelectorAll('a[href]')];
+      const i=pieges.indexOf(document.activeElement), fin=pieges.length-1;
+      let cible=null;
+      if(e.shiftKey){ cible = i<=0 ? pieges[fin] : i===1 ? ham : null; }
+      else { cible = i===fin ? ham : i<=0 ? pieges[1] : null; }
+      if(cible){ e.preventDefault(); cible.focus(); }
+    }
+  });
 }
 
 /* ══════════════════════════════════════════════════════════════

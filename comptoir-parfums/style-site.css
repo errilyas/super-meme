@@ -108,7 +108,7 @@
 :root[data-theme="light"] #nav.stuck{background:rgba(248,243,233,.92)}
 :root[data-theme="light"] #mob-menu{background:var(--void)}
 :root[data-theme="light"] .h-note-card{background:rgba(249,244,235,.94);border-color:rgba(122,92,52,.22)}
-:root[data-theme="light"] .g-card .hl{background:rgba(156,114,44,.18)}
+:root[data-theme="light"] .g-card .hl{background:rgba(156,114,44,.12)}
 :root[data-theme="light"] body{-webkit-font-smoothing:auto}
 /* Pastilles dorées : en clair l'or fait un mauvais fond de bouton → bouton encre, texte crème */
 :root[data-theme="light"] .nav-pill,
@@ -2466,6 +2466,13 @@ main.cp-secours{ padding:180px 24px 120px; max-width:760px; margin:0 auto; }
   --label-track:.28em;
 }
 :root[data-theme="light"]{
+  /* Contraste AA (4,5:1) des petits libellés dorés sur les quatre crèmes du
+     thème clair (#f8f3ea à #e1d5bc) : l'or v2 (#8a6a2c, #8c6824) n'y faisait
+     que 3,5 à 4,6. Même famille de teinte, un cran plus profonde. */
+  --amber:#735623;
+  --ember:#705421;
+  --sand:#6b5424;
+  --smoke:rgba(var(--fg-rgb),.70);
   --au-grad:linear-gradient(180deg,#3a2c24 0%,#261a22 100%);
   --au-grad-hover:linear-gradient(180deg,#4a3a2e 0%,#33242d 100%);
   --au-edge:inset 0 1px 0 rgba(255,255,255,.08);
@@ -2633,6 +2640,9 @@ button.btn-a,button.btn-b,button.btn-fin,button.btn-fin-g{
   box-shadow:inset 0 0 0 5px rgba(0,0,0,.18);
 }
 .preuve:hover{transform:translateY(-4px);border-color:rgba(var(--au-rgb),.45)}
+/* La rangée défile : elle doit pouvoir recevoir le focus pour se parcourir
+   aux flèches du clavier (functions.php lui donne tabindex et un nom). */
+.preuves-rang:focus-visible{outline:1px solid var(--ember);outline-offset:6px;border-radius:18px}
 .preuve img{width:100%;height:100%;object-fit:cover;object-position:center}
 /* Grand écran : trois captures tiennent de front, inutile d'en couper une
    au bord comme dans un carrousel. Au-delà de trois, la rangée défile. */
@@ -2686,6 +2696,7 @@ body.tpl-commander .foot-col-maison{display:none}
 .foot-brand .foot-logo .foot-seal{width:46px;height:46px}
 .foot-brand .foot-wm-serif{font-size:24px;color:var(--ember)}
 .foot-brand .foot-wm-sans{font-size:9px}
+:root[data-theme="light"] .foot-logo .foot-wm-sans{color:rgba(var(--fg-rgb),.72)}
 .foot-devise{
   margin-top:22px;font-family:var(--serif);font-style:italic;font-weight:300;
   font-size:21px;line-height:1.3;color:var(--bone);max-width:22ch;

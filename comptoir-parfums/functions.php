@@ -1460,7 +1460,9 @@ function comptoir_bloc_preuves( $classe = '' ) {
 	echo '<section class="preuves' . ( $classe ? ' ' . esc_attr( $classe ) : '' ) . '" aria-label="Clients livrés">';
 	echo '<div class="preuves-head"><h2>Ils ont reçu leur parfum</h2>'
 		. '<p>Messages et colis de nos clients, tels quels.</p></div>';
-	echo '<div class="preuves-rang">';
+	// tabindex + nom : la rangee defile, et une zone qui defile sans rien de
+	// focalisable ne se parcourt pas au clavier.
+	echo '<div class="preuves-rang" role="region" tabindex="0" aria-label="Captures de clients, faites défiler">';
 	foreach ( array_slice( $preuves, 0, 12 ) as $f ) {
 		printf(
 			'<figure class="preuve"><img src="%s" alt="Message ou colis d\'un client" loading="lazy" decoding="async"></figure>',

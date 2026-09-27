@@ -9,6 +9,28 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.2.2 — AUDIT ET CORRECTIONS
+  Vérifié : 33 tests fonctionnels (catalogue, recherche, filtres, tri, voir
+  plus, onglets, FAQ, thème, langue, panier, commande), 28 tests de liens,
+  d'ancres et d'images, commande de bout en bout en français et en arabe,
+  72 contrôles de mise en page (6 pages × 2 langues × 360–1 920 px), audit
+  d'accessibilité axe-core (WCAG 2.1 AA) en thème sombre et clair, données
+  des 209 fiches, relecture de sécurité du PHP.
+  Corrigé :
+    - Bascule de langue sans effet quand l'adresse portait une ancre
+      (#catalogue après un clic de menu ou un filtre) : la langue était
+      enregistrée mais la page ne se rechargeait pas.
+    - Thème clair : petits libellés dorés sous le contraste AA (3,5 à 4,6:1)
+      — or plus profond (#735623, #705421, #6b5424), gris secondaires à 70 %.
+    - Menu mobile déclaré modal sans en avoir le comportement : le focus y
+      entre à l'ouverture, Tab y reste, Échap le rend au bouton.
+    - Rangée des preuves : atteignable et défilable au clavier.
+    - Cartes flottantes du héros : nom et prix lus dans produits.php au lieu
+      d'être écrits en dur.
+    - Code mort retiré (fiche parfum, page Vente) ; « Notes » non affiché
+      pour un parfum sans notes.
+    - README : le relais vers la feuille Google décrit tel qu'il fonctionne.
+
 VERSION 3.2 — TOUT LE RESTE
   Page Vente (/?vente=1, publicités)
     - Héros avec l'italique d'or de la promesse et un éventail de trois
@@ -223,14 +245,16 @@ Pourquoi avant, et pas après : le client qui remplit le formulaire puis
 n'appuie pas sur « Envoyer » dans WhatsApp laisse quand même son numéro. C'est
 lui qu'on rappelle, et c'est la moitié du métier en paiement à la livraison.
 
-CHAQUE COMMANDE PART DEUX FOIS VERS LA FEUILLE : une fois depuis le navigateur
-du client, une fois depuis WordPress. C'est volontaire. Le navigateur peut
-échouer — réseau qui coupe au changement d'application, extension qui bloque
-les requêtes vers Google, onglet fermé trop vite — et le serveur, lui, ne
-connaît aucun de ces aléas. La feuille reconnaît les doublons à la référence
-et n'écrit jamais deux fois la même commande.
+SUR LE SITE, C'EST WORDPRESS QUI ÉCRIT DANS LA FEUILLE (panier.js, depose).
+Le navigateur envoie la commande à WordPress seulement ; WordPress l'enregistre
+puis la relaie à la feuille depuis le serveur, qui ne connaît ni le réseau qui
+coupe au changement d'application, ni l'extension qui bloque Google, ni
+l'onglet fermé trop vite. Le navigateur n'écrit directement dans la feuille
+que lorsqu'il n'y a pas de WordPress derrière lui (la maquette statique). La
+feuille reconnaît les doublons à la référence et n'écrit jamais deux fois la
+même commande.
 
-Si les deux échouent, la commande est marquée dans l'admin (colonne Feuille,
+Si le relais échoue, la commande est marquée dans l'admin (colonne Feuille,
 symbole ⟳) et WordPress la renvoie tout seul, chaque heure, jusqu'à ce qu'elle
 passe. Une commande ne peut donc pas se perdre entre le site et la feuille.
 

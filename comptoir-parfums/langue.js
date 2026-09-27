@@ -530,6 +530,9 @@
 
   /* ── Textes d'attributs : champs vides et libellés d'accessibilité ── */
   var ATTRS = {
+    'Captures de clients, faites défiler': 'صور من زبنائنا، اسحب للتصفح',
+    'Menu principal': 'القائمة الرئيسية',
+    'Parfums les plus demandés': 'العطور الأكثر طلبًا',
     'Un parfum, une maison…': 'عطر أو دار عطور…',
     '06 12 34 56 78': '06 12 34 56 78',
     'Rue, numéro, immeuble, étage': 'الشارع، الرقم، العمارة، الطابق',
@@ -801,8 +804,18 @@
         /* Rechargement plutôt que bascule à chaud : le panier, le tunnel et
            la confirmation se reconstruisent proprement, sans état bâtard. */
         var u = new URL(location.href);
-        u.searchParams.delete('lang');
-        location.href = u.toString();
+        /* Une adresse qui ne change que par son ancre (#catalogue, apres un
+           clic de menu ou un filtre) ne recharge PAS la page quand on
+           l'affecte a location.href : la langue etait enregistree, mais
+           l'ecran restait dans l'autre jusqu'au rafraichissement suivant.
+           On ne navigue donc que s'il y a un ?lang= a retirer, sinon on
+           recharge. */
+        if (u.searchParams.has('lang')) {
+          u.searchParams.delete('lang');
+          location.href = u.toString();
+        } else {
+          location.reload();
+        }
       });
     });
   }

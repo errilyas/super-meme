@@ -7,10 +7,12 @@
  *
  * Ordre (v3.1) : achat, puis le parfum et sa pyramide, la fiche, les
  * preuves, le testeur explique, la meme maison. La maquette parfum.html
- * garde l'ordre v2 ; une difference de plus avec elle : ici tout est rendu par PHP. La maquette construit la fiche en
- * JavaScript, donc son contenu est invisible pour les moteurs de recherche
- * et pour un partage WhatsApp. Sur le site reel, c'est le contraire qui
- * compte : la fiche doit exister dans le HTML.
+ * garde l'ordre v2.
+ *
+ * Autre difference avec la maquette : ici tout est rendu par PHP. La
+ * maquette construit la fiche en JavaScript, donc son contenu est invisible
+ * pour les moteurs de recherche et pour un partage WhatsApp. Sur le site
+ * reel, c'est le contraire qui compte : la fiche doit exister dans le HTML.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -36,10 +38,6 @@ get_header();
 </main>
 
 <?php else :
-
-	$cp_notes = static function ( $arr ) {
-		return implode( ' · ', (array) $arr );
-	};
 
 	// La photo n'est servie que si le fichier existe : pas de 404, pas de
 	// glyphe d'image cassee. Sinon la silhouette doree de .is-empty suffit.
@@ -85,7 +83,9 @@ get_header();
       <div class="pf-meta"><?php echo esc_html( $cp_parfum['x'] . ' · ' . $cp_parfum['g'] ); ?></div>
       <?php /* Les notes, dites tout de suite : c'est ce qu'on cherche en
                ouvrant une fiche. La pyramide complete suit sous le bloc. */ ?>
+      <?php if ( comptoir_notes_courtes( $cp_parfum ) ) : ?>
       <a class="pf-notes-cle" href="#pf-histoire"><span class="pf-notes-lib">Notes</span><span><?php echo esc_html( comptoir_notes_courtes( $cp_parfum ) ); ?></span></a>
+      <?php endif; ?>
       <div class="pf-price">
         <span class="now"><?php echo esc_html( $cp_parfum['pr'] ); ?></span>
         <span class="pf-price-note">Testeur original · 100 % authentique</span>

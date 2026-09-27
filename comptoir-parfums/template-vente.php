@@ -75,7 +75,9 @@ get_header();
         <div class="pf-brand"><?php echo esc_html( $cp_vedette['b'] ); ?></div>
         <h1 class="pf-name"><?php echo esc_html( $cp_vedette['n'] ); ?></h1>
         <div class="pf-meta"><?php echo esc_html( $cp_vedette['x'] . ' · ' . $cp_vedette['g'] ); ?></div>
+        <?php if ( comptoir_notes_courtes( $cp_vedette ) ) : ?>
         <a class="pf-notes-cle" href="<?php echo esc_url( comptoir_parfum_url( $cp_vedette['s'] ) ); ?>#pf-histoire"><span class="pf-notes-lib">Notes</span><span><?php echo esc_html( comptoir_notes_courtes( $cp_vedette ) ); ?></span></a>
+        <?php endif; ?>
         <div class="pf-price">
           <span class="now"><?php echo esc_html( $cp_vedette['pr'] ); ?></span>
           <span class="pf-price-note">Testeur original · 100 % authentique</span>
@@ -114,18 +116,16 @@ get_header();
        a montre, on le retrouve en arrivant. Visuels de la vitrine de
        l'accueil (img/heros/), deja au format WebP et a fond transparent ;
        une maison dont le visuel manque est simplement omise. */
-    $cp_trio = array( 'dior' => 'Dior', 'tom-ford' => 'Tom Ford', 'parfums-de-marly' => 'Parfums de Marly' );
     $cp_trio = array_filter(
-    	$cp_trio,
+    	array( 'dior', 'tom-ford', 'parfums-de-marly' ),
     	static function ( $m ) {
     		return file_exists( get_template_directory() . '/img/heros/' . $m . '.webp' );
-    	},
-    	ARRAY_FILTER_USE_KEY
+    	}
     );
     if ( $cp_trio ) :
     	?>
     <div class="lp-trio" aria-hidden="true">
-      <?php foreach ( $cp_trio as $cp_m => $cp_nom ) : ?>
+      <?php foreach ( $cp_trio as $cp_m ) : ?>
       <img src="<?php echo esc_url( get_template_directory_uri() . '/img/heros/' . $cp_m . '.webp' ); ?>" alt="" width="900" height="900" decoding="async">
       <?php endforeach; ?>
       <span class="lp-trio-sol"></span>
