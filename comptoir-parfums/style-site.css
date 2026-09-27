@@ -2739,6 +2739,207 @@ body.tpl-commander .foot-col-maison{display:none}
    bien visible en thème clair. L'ombre n'existe plus que tiroir ouvert. */
 .pnr-drawer:not(.is-open){box-shadow:none}
 
+/* ══════════════════════════════════════════
+   FICHE PARFUM — ÉDITION MAISON (v3.1)
+   Le parfum passe en premier sous l'achat : son récit en grande citation,
+   sa pyramide en trois temps. Les preuves et le testeur expliqué suivent.
+══════════════════════════════════════════ */
+/* L'écrin de la photo : un halo doré derrière le flacon, comme sous le
+   spot d'une vitrine, au lieu d'un aplat. */
+.pf-visual{
+  border-color:rgba(var(--au-rgb),.16);border-radius:4px;
+  background:radial-gradient(ellipse 60% 55% at 50% 58%,rgba(var(--au-rgb),.10),transparent 70%),var(--deep);
+}
+.pf-visual::after{
+  content:'';position:absolute;left:22%;right:22%;bottom:9%;height:18px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(0,0,0,.45),transparent 70%);filter:blur(6px);pointer-events:none;
+}
+:root[data-theme="light"] .pf-visual::after{background:radial-gradient(ellipse,rgba(70,48,26,.22),transparent 70%)}
+.pf-visual img{z-index:1;padding:6%}
+.pf-name{font-size:clamp(38px,5vw,64px);letter-spacing:-.02em;line-height:1}
+.pf-brand{letter-spacing:.3em;color:var(--amber)}
+.pf-price .now{font-size:38px;font-weight:500}
+
+/* Grand écran : c'est la photo qui accompagne la lecture, plus le bloc
+   d'achat — plus long qu'elle, il laissait un grand vide sous le flacon. */
+@media(min-width:901px){
+  .pf-buy{position:static}
+  .pf-visual{position:sticky;top:110px}
+}
+
+/* Les notes-clés, dans le bloc d'achat */
+.pf-notes-cle{
+  display:flex;align-items:baseline;gap:14px;margin:-12px 0 28px;text-decoration:none;
+  padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+}
+.pf-notes-lib{font-size:var(--label);letter-spacing:var(--label-track);text-transform:uppercase;color:var(--amber);flex:none}
+.pf-notes-cle span:last-child{font-family:var(--serif);font-style:italic;font-size:18px;color:var(--bone);transition:color .2s}
+.pf-notes-cle:hover span:last-child{color:var(--gilt)}
+
+/* Le récit et la pyramide */
+.pf-histoire{
+  display:grid;grid-template-columns:1.05fr 1fr;gap:88px;align-items:start;
+  margin-top:112px;padding-top:72px;border-top:1px solid rgba(var(--au-rgb),.16);
+  scroll-margin-top:100px;
+}
+.pf-kicker{
+  font-family:var(--sans);font-size:var(--label);font-weight:400;letter-spacing:var(--label-track);
+  text-transform:uppercase;color:var(--amber);margin-bottom:28px;display:flex;align-items:center;gap:16px;
+}
+.pf-kicker::before{content:'';width:36px;height:1px;background:linear-gradient(90deg,var(--amber),rgba(var(--au-rgb),.15))}
+.pf-histoire .pf-desc{
+  position:relative;font-size:clamp(28px,3.1vw,42px);line-height:1.22;letter-spacing:-.012em;
+  max-width:20ch;padding-top:34px;
+}
+.pf-histoire .pf-desc::before{
+  content:'\201C';position:absolute;top:-18px;left:-6px;
+  font-family:var(--serif);font-size:96px;line-height:1;
+  background:var(--au-grad);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+}
+:root[data-theme="light"] .pf-histoire .pf-desc::before{background:none;color:var(--ember);-webkit-text-fill-color:currentColor}
+.pf-signature{
+  margin-top:26px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--smoke);
+}
+
+/* Pyramide : trois étages reliés par un fil d'or, du plus volatil au plus tenace */
+.pyr2{list-style:none;position:relative;padding-left:30px}
+.pyr2::before{
+  content:'';position:absolute;left:5px;top:14px;bottom:30px;width:1px;
+  background:linear-gradient(180deg,var(--amber),rgba(var(--au-rgb),.12));
+}
+.pyr2-etage{position:relative;padding:0 0 30px}
+.pyr2-etage:last-child{padding-bottom:0}
+.pyr2-etage::before{
+  content:'';position:absolute;left:-30px;top:9px;width:11px;height:11px;border-radius:50%;
+  background:var(--void);border:1px solid var(--amber);
+}
+.pyr2-etage:nth-child(1)::before{background:rgba(var(--au-rgb),.25)}
+.pyr2-etage:nth-child(2)::before{background:rgba(var(--au-rgb),.55)}
+.pyr2-etage:nth-child(3)::before{background:var(--ember)}
+.pyr2-tete{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
+.pyr2-nom{font-family:var(--serif);font-style:italic;font-size:26px;font-weight:400;color:var(--ember);line-height:1}
+.pyr2-quand{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--smoke)}
+.pyr2-notes{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.pyr2-notes li{
+  font-size:14px;color:var(--bone);padding:8px 16px;border-radius:999px;
+  border:1px solid rgba(var(--au-rgb),.26);background:rgba(var(--au-rgb),.04);
+}
+
+/* La fiche : moins de cases, plus d'air */
+.fiche{background:transparent;border:none;border-top:1px solid var(--line);grid-template-columns:repeat(3,1fr);gap:0}
+.fiche div{background:transparent;padding:22px 24px 22px 0;border-bottom:1px solid var(--line)}
+.fiche dt{font-size:10px;letter-spacing:.24em}
+.fiche dd{font-size:15px;margin-top:4px}
+.pf-block{margin-top:88px;padding-top:0;border-top:none}
+.pf-block h2{font-size:var(--label);letter-spacing:var(--label-track);margin-bottom:28px}
+.pf-block h2::before{width:36px;background:linear-gradient(90deg,var(--amber),rgba(var(--au-rgb),.15))}
+.preuves-pf{margin-top:88px}
+.testeur-pf{margin-top:88px}
+
+/* Même maison : l'en-tête porte le lien, les cartes reprennent celles du catalogue */
+.pf-block-tete{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:28px}
+.pf-block-tete h2{margin-bottom:0}
+.pf-block-tete .pf-all{margin-top:0}
+.pf-sib{border-color:var(--line);border-radius:4px;padding:18px 18px 22px;position:relative}
+.pf-sib::after{
+  content:'';position:absolute;left:18px;right:18px;bottom:0;height:1px;
+  background:var(--au-grad);transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease-out);
+}
+.pf-sib:hover::after{transform:scaleX(1)}
+.pf-sib-name{font-size:18px;font-weight:400}
+.pf-sib-price{font-family:var(--serif);font-size:18px;font-weight:500}
+
+@media(max-width:900px){
+  .pf-histoire{grid-template-columns:1fr;gap:56px;margin-top:72px;padding-top:52px}
+  .pf-histoire .pf-desc{max-width:none}
+  .fiche{grid-template-columns:1fr 1fr}
+  .pf-block,.preuves-pf,.testeur-pf{margin-top:64px}
+}
+@media(max-width:640px){
+  .pf-notes-cle{margin:-4px 0 20px;flex-direction:column;gap:4px}
+  .pf-histoire .pf-desc{font-size:26px}
+  .pyr2-nom{font-size:22px}
+  .pyr2-tete{flex-direction:column;gap:4px}
+  .pyr2-notes li{font-size:13px;padding:7px 13px}
+  .fiche{grid-template-columns:1fr}
+  .pf-block-tete{flex-direction:column;align-items:flex-start;gap:12px}
+}
+[data-lang="ar"] .pyr2{padding-left:0;padding-right:30px}
+[data-lang="ar"] .pyr2::before{left:auto;right:5px}
+[data-lang="ar"] .pyr2-etage::before{left:auto;right:-30px}
+[data-lang="ar"] .fiche div{padding:22px 0 22px 24px}
+[data-lang="ar"] .pf-histoire .pf-desc::before{left:auto;right:-6px;content:'\201D'}
+[data-lang="ar"] .pf-kicker,[data-lang="ar"] .pf-notes-lib,[data-lang="ar"] .pyr2-quand,
+[data-lang="ar"] .pf-signature{letter-spacing:0;text-transform:none}
+[data-lang="ar"] .pyr2-nom,[data-lang="ar"] .pf-notes-cle span:last-child{font-family:'Tajawal',var(--sans);font-style:normal}
+
+/* ══════════════════════════════════════════
+   PAGE COMMANDE — ÉDITION MAISON (v3.1)
+   Grand écran : le formulaire à gauche, le récapitulatif à droite, collé
+   à l'écran pendant la saisie — le total reste sous les yeux jusqu'au
+   bouton. Téléphone : l'ordre du HTML (panier puis livraison) ne change pas.
+══════════════════════════════════════════ */
+main.ck-root{max-width:1120px}
+body.tpl-commander .foot-inner{max-width:1120px}
+body.tpl-commander .foot-top{max-width:1120px}
+/* Étapes : une frise, pas trois mots posés */
+.steps{gap:0;margin-bottom:52px;font-size:10.5px;letter-spacing:.2em}
+.steps span{display:flex;align-items:center;gap:10px;padding-right:18px}
+.steps span + span::before{content:'';width:34px;height:1px;background:var(--line2);margin-right:18px}
+.steps b{
+  display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;margin:0;
+  border:1px solid rgba(var(--au-rgb),.4);border-radius:50%;font-size:10px;letter-spacing:0;
+}
+.steps .en-cours b{background:var(--au-grad);color:var(--ink);border-color:transparent}
+:root[data-theme="light"] .steps .en-cours b{color:#f8f3ea}
+.steps .faite{opacity:.7}
+.steps .faite b{background:rgba(var(--au-rgb),.18)}
+h1.ck-h{font-size:clamp(38px,4.6vw,60px);letter-spacing:-.02em;margin-bottom:16px}
+.ck-intro{font-size:16px;font-weight:300;line-height:1.75;margin-bottom:26px}
+.gages-ck{justify-content:flex-start;margin:0 0 48px}
+
+@media(min-width:901px){
+  .ck-grid{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:40px}
+  .ck-carte-panier{order:2;position:sticky;top:104px}
+}
+.ck-carte{border-radius:4px;border-color:rgba(var(--au-rgb),.14);padding:36px 34px}
+.ck-carte h2{font-size:var(--label);letter-spacing:var(--label-track);margin-bottom:28px}
+.ck-carte h2::before{width:36px;background:linear-gradient(90deg,var(--amber),rgba(var(--au-rgb),.15))}
+.ck-carte-panier{background:linear-gradient(180deg,rgba(var(--au-rgb),.05),transparent 40%),var(--deep)}
+
+/* Champs : plus hauts, libellés lisibles, focus doré */
+.ck-field{margin-bottom:22px}
+.ck-field span{font-size:10.5px;letter-spacing:.2em;color:var(--text-dim);margin-bottom:9px}
+.ck-field input,.ck-field select{
+  min-height:54px;padding:14px 16px;border-radius:3px;background:var(--void);
+  border-color:rgba(var(--fg-rgb),.16);transition:border-color .2s,box-shadow .2s;
+}
+.ck-field input::placeholder{color:rgba(var(--fg-rgb),.38)}
+.ck-field input:focus,.ck-field select:focus{border-color:var(--ember);box-shadow:0 0 0 3px rgba(var(--au-rgb),.14)}
+.ck-rassure{border-radius:4px;padding:16px 18px}
+.ck-rassure p{font-weight:300;font-size:13px}
+.ck-go{min-height:60px;margin-top:28px;border-radius:0;font-size:12px;letter-spacing:.22em}
+.ck-franco{border-color:rgba(var(--au-rgb),.4);border-radius:4px;padding:16px;margin-top:24px}
+
+@media(max-width:900px){
+  main.ck-root{max-width:none}
+  .ck-carte{padding:26px 20px}
+  .steps span{padding-right:10px}
+  .steps span + span::before{width:18px;margin-right:10px}
+}
+/* Téléphone : seule l'étape en cours garde son nom, les autres leur
+   numéro — la frise tient sur une ligne au lieu d'en laisser une orpheline. */
+@media(max-width:560px){
+  .steps{flex-wrap:nowrap;font-size:10px;letter-spacing:.14em;margin-bottom:34px}
+  .steps span:not(.en-cours){font-size:0;gap:0}
+  .steps span:not(.en-cours) b{font-size:10px}
+  .steps span + span::before{width:22px;margin-right:10px}
+  .steps span{padding-right:10px}
+  .ck-go{font-size:11px;letter-spacing:.12em;gap:8px;padding:0 16px}
+}
+[data-lang="ar"] .steps span{padding-right:0;padding-left:18px}
+[data-lang="ar"] .steps span + span::before{margin-right:0;margin-left:18px}
+
 /* ── Arabe : la finition ne doit rien casser ─────────────────── */
 [data-lang="ar"] .sect-kicker span,[data-lang="ar"] .foot-col h3,
 [data-lang="ar"] .nb-label,[data-lang="ar"] .preuves-head h2{letter-spacing:0;text-transform:none}

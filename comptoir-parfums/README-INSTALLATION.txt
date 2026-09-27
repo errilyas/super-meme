@@ -1,13 +1,34 @@
 LE COMPTOIR DES PARFUMS — thème WordPress sur-mesure
 =====================================================
 
-VERSION 3.0 — ÉDITION MAISON
-============================
+VERSIONS 3.x — ÉDITION MAISON
+=============================
 Même identité — aubergine, or du sceau, Cormorant Garamond + Jost, sceau
 CP — avec un fini de maison de parfum. Tout le visuel nouveau vit dans UN
 bloc, en fin de style-site.css (« ÉDITION MAISON — COUCHE DE FINITION ») :
 le retirer rend exactement la v2.
 
+VERSION 3.1 — FICHE PARFUM ET PAGE COMMANDE
+  Fiche parfum
+    - Nouvel ordre : l'achat, puis LE PARFUM (son récit en grande citation)
+      et SA PYRAMIDE (tête, cœur, fond, reliés par un fil d'or, avec
+      « les premières minutes / après une heure / des heures durant »),
+      puis la fiche, les preuves, le testeur expliqué, la même maison.
+      Avant, le client lisait les preuves et l'explication du testeur avant
+      de découvrir le parfum qu'il regardait.
+    - Les notes principales dès le bloc d'achat, avec un lien vers la
+      pyramide complète.
+    - Photo dans un écrin (halo doré, ombre au sol) ; sur grand écran, c'est
+      elle qui suit le défilement, plus le bloc d'achat.
+  Page commande
+    - Grand écran : formulaire à gauche, récapitulatif à droite, collé à
+      l'écran pendant la saisie. Téléphone : panier puis livraison, comme
+      avant.
+    - Les suggestions « deuxième parfum » passent sous le panier au lieu
+      de couper le formulaire entre l'adresse et le bouton.
+    - Étapes en frise numérotée ; champs plus hauts avec focus doré.
+
+VERSION 3.0
 Ce qui change à l'œil
   - Texte courant en Jost 300 au lieu de 200 (le 200 se délavait sur le
     fond sombre), gris secondaires remontés, libellés en capitales un peu

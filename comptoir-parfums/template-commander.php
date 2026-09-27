@@ -65,10 +65,14 @@ get_header();
   <div id="ck-full" hidden>
     <div class="ck-grid">
 
-      <section class="ck-carte">
+      <section class="ck-carte ck-carte-panier">
         <h2>Votre panier</h2>
         <div id="ck-items"></div>
         <div id="ck-sums"></div>
+        <!-- Les suggestions « deuxieme parfum » vivent avec le panier, pas au
+             milieu du formulaire : on les lit en regardant ce qu'on achete,
+             sans interrompre la saisie de l'adresse. -->
+        <div class="ck-franco" id="ck-franco" hidden></div>
         <a class="ck-add" href="<?php echo esc_url( $cp_home ); ?>#catalogue">＋ Ajouter un autre parfum</a>
       </section>
 
@@ -147,8 +151,6 @@ get_header();
           </span>
           <p><b>Casablanca en 24 à 48 heures.</b> Le reste du Maroc en 2 à 4 jours ouvrables. <?php echo esc_html( comptoir_note_livraison() ); ?></p>
         </div>
-
-        <p class="ck-franco" id="ck-franco" hidden></p>
 
         <button class="ck-go" id="ck-go" type="submit" form="ck-form">
           <?php comptoir_icone_whatsapp(); ?>

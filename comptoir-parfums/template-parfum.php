@@ -5,9 +5,9 @@
  * Fiche parfum. Servie automatiquement par functions.php des qu'une URL porte
  * ?parfum=<slug> : aucune page a creer dans l'admin.
  *
- * Meme design et meme structure que parfum.html cote maquette (LE PARFUM /
- * LA PYRAMIDE OLFACTIVE / LA FICHE / Dans la meme maison), a une difference
- * pres : ici tout est rendu par PHP. La maquette construit la fiche en
+ * Ordre (v3.1) : achat, puis le parfum et sa pyramide, la fiche, les
+ * preuves, le testeur explique, la meme maison. La maquette parfum.html
+ * garde l'ordre v2 ; une difference de plus avec elle : ici tout est rendu par PHP. La maquette construit la fiche en
  * JavaScript, donc son contenu est invisible pour les moteurs de recherche
  * et pour un partage WhatsApp. Sur le site reel, c'est le contraire qui
  * compte : la fiche doit exister dans le HTML.
@@ -83,6 +83,9 @@ get_header();
       <div class="pf-brand"><?php echo esc_html( $cp_parfum['b'] ); ?></div>
       <h1 class="pf-name"><?php echo esc_html( $cp_parfum['n'] ); ?></h1>
       <div class="pf-meta"><?php echo esc_html( $cp_parfum['x'] . ' · ' . $cp_parfum['g'] ); ?></div>
+      <?php /* Les notes, dites tout de suite : c'est ce qu'on cherche en
+               ouvrant une fiche. La pyramide complete suit sous le bloc. */ ?>
+      <a class="pf-notes-cle" href="#pf-histoire"><span class="pf-notes-lib">Notes</span><span><?php echo esc_html( comptoir_notes_courtes( $cp_parfum ) ); ?></span></a>
       <div class="pf-price">
         <span class="now"><?php echo esc_html( $cp_parfum['pr'] ); ?></span>
         <span class="pf-price-note">Testeur original · 100 % authentique</span>
@@ -125,22 +128,38 @@ get_header();
     </div>
   </div>
 
-  <?php comptoir_bloc_preuves( 'preuves-pf' ); ?>
+  <?php /* Le parfum d'abord : son histoire et sa pyramide sont ce qui fait
+           rever, elles passent avant les preuves et l'explication du
+           testeur, qui rassurent ensuite. */ ?>
+  <section class="pf-histoire" id="pf-histoire">
+    <div class="pf-histoire-recit">
+      <h2 class="pf-kicker">Le parfum</h2>
+      <p class="pf-desc"><?php echo esc_html( $cp_parfum['d'] ); ?></p>
+      <p class="pf-signature"><span class="pf-signature-maison"><?php echo esc_html( $cp_parfum['b'] ); ?></span> <span aria-hidden="true">—</span> <?php echo esc_html( $cp_parfum['fam'] ); ?></p>
+    </div>
 
-  <?php comptoir_bloc_testeur( 'testeur-pf' ); ?>
-
-  <section class="pf-block">
-    <h2>Le parfum</h2>
-    <p class="pf-desc"><?php echo esc_html( $cp_parfum['d'] ); ?></p>
-  </section>
-
-  <section class="pf-block">
-    <h2>La pyramide olfactive</h2>
-    <dl class="pyr">
-      <div class="pyr-row"><dt>Tête</dt><dd><?php echo esc_html( $cp_notes( $cp_parfum['t'] ) ); ?></dd></div>
-      <div class="pyr-row"><dt>Cœur</dt><dd><?php echo esc_html( $cp_notes( $cp_parfum['c'] ) ); ?></dd></div>
-      <div class="pyr-row"><dt>Fond</dt><dd><?php echo esc_html( $cp_notes( $cp_parfum['f'] ) ); ?></dd></div>
-    </dl>
+    <div class="pf-histoire-pyr">
+      <h2 class="pf-kicker">La pyramide olfactive</h2>
+      <ol class="pyr2">
+		<?php
+		$cp_etages = array(
+			array( 'Tête', 'Les premières minutes', $cp_parfum['t'] ),
+			array( 'Cœur', 'Après une heure', $cp_parfum['c'] ),
+			array( 'Fond', 'Des heures durant', $cp_parfum['f'] ),
+		);
+		foreach ( $cp_etages as $cp_e ) :
+			?>
+        <li class="pyr2-etage">
+          <div class="pyr2-tete"><span class="pyr2-nom"><?php echo esc_html( $cp_e[0] ); ?></span><span class="pyr2-quand"><?php echo esc_html( $cp_e[1] ); ?></span></div>
+          <ul class="pyr2-notes">
+			<?php foreach ( (array) $cp_e[2] as $cp_n ) : ?>
+            <li><?php echo esc_html( $cp_n ); ?></li>
+			<?php endforeach; ?>
+          </ul>
+        </li>
+		<?php endforeach; ?>
+      </ol>
+    </div>
   </section>
 
   <section class="pf-block">
@@ -155,9 +174,16 @@ get_header();
     </dl>
   </section>
 
+  <?php comptoir_bloc_preuves( 'preuves-pf' ); ?>
+
+  <?php comptoir_bloc_testeur( 'testeur-pf' ); ?>
+
 	<?php if ( $cp_sibs ) : ?>
-  <section class="pf-block">
-    <h2>Dans la même maison</h2>
+  <section class="pf-block pf-block-sibs">
+    <div class="pf-block-tete">
+      <h2>Dans la même maison</h2>
+      <a class="pf-all" href="<?php echo esc_url( $cp_home ); ?>#catalogue">Voir tout le catalogue</a>
+    </div>
     <div class="pf-sibs">
 		<?php foreach ( $cp_sibs as $cp_p ) : ?>
       <a class="pf-sib" href="<?php echo esc_url( comptoir_parfum_url( $cp_p['s'] ) ); ?>">
@@ -168,7 +194,6 @@ get_header();
       </a>
 		<?php endforeach; ?>
     </div>
-    <a class="pf-all" href="<?php echo esc_url( $cp_home ); ?>#catalogue">Voir tout le catalogue</a>
   </section>
 	<?php endif; ?>
 
