@@ -661,9 +661,10 @@ Environ 30 minutes, une seule fois. Tout se fait dans le business Meta
 6. DANS WORDPRESS : Réglages > Confirmation WhatsApp
    Identifiant du numéro (« Phone number ID », WhatsApp > Configuration de
    l'API), jeton permanent, clé secrète. Mettez votre propre numéro dans
-   « Envoyer un test » et enregistrez : le message de confirmation doit
-   arriver sur votre téléphone. Appuyez sur « Je confirme » : l'accusé
-   « commande confirmée » doit revenir. Cochez alors « Activer ».
+   « Envoyer un test » et enregistrez : le message de confirmation (commande
+   fictive CP-TEST) doit arriver sur votre téléphone. Appuyez sur « Je
+   confirme » : la réponse « ✅ Test réussi » doit revenir, preuve que le
+   webhook fonctionne. Aucune commande n'est touchée. Cochez alors « Activer ».
 
 AU QUOTIDIEN
    - Commandes > colonne WhatsApp : « ✓ confirmée » = à expédier ;

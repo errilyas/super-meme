@@ -9,6 +9,16 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.5.1 — RELECTURE DE LA CONFIRMATION WHATSAPP
+  - Message de test (CP-TEST) : un appui sur « Je confirme » renvoie
+    « ✅ Test réussi » sans toucher aucune commande (avant : pas de réponse,
+    et le clic pouvait s'appliquer à une vraie commande du même numéro).
+  - Réponses tapées à la main : elles ne comptent que pour une commande qui
+    attend sa confirmation. Un « non » écrit plus tard, en réponse à autre
+    chose, n'annule plus un colis déjà confirmé (les boutons restent décisifs).
+  - « Oui » compris seulement dans un message court : « oui mais je veux
+    changer de ville » part en « message à lire » au lieu de confirmer.
+
 VERSION 3.5.0 — CONFIRMATION DES COMMANDES SUR WHATSAPP
   Après chaque commande, le client reçoit un message WhatsApp avec deux
   boutons « ✅ Je confirme » / « ❌ Annuler ». Sans réponse après 2 h (jamais
@@ -681,9 +691,10 @@ Environ 30 minutes, une seule fois. Tout se fait dans le business Meta
 6. DANS WORDPRESS : Réglages > Confirmation WhatsApp
    Identifiant du numéro (« Phone number ID », WhatsApp > Configuration de
    l'API), jeton permanent, clé secrète. Mettez votre propre numéro dans
-   « Envoyer un test » et enregistrez : le message de confirmation doit
-   arriver sur votre téléphone. Appuyez sur « Je confirme » : l'accusé
-   « commande confirmée » doit revenir. Cochez alors « Activer ».
+   « Envoyer un test » et enregistrez : le message de confirmation (commande
+   fictive CP-TEST) doit arriver sur votre téléphone. Appuyez sur « Je
+   confirme » : la réponse « ✅ Test réussi » doit revenir, preuve que le
+   webhook fonctionne. Aucune commande n'est touchée. Cochez alors « Activer ».
 
 AU QUOTIDIEN
    - Commandes > colonne WhatsApp : « ✓ confirmée » = à expédier ;

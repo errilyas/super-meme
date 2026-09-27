@@ -396,8 +396,10 @@ function comptoir_wa_trouve_commande( $ref = '', $msg_id = '', $wa_id = '' ) {
 /** Lit l'intention d'un message tape a la main. */
 function comptoir_wa_intention( $texte ) {
 	$t = comptoir_minuscules( trim( (string) $texte ) );
-	$t = trim( preg_replace( '/[!.?،,]+/u', ' ', $t ) );
-	if ( preg_match( '/^(1|oui|ok|okay|d.accord|je confirme|confirm\w*|wakha|wah|iyeh|ayeh|نعم|واخا|اه|آه|أكيد|مؤكد|✅|👍)(\s|$)/u', $t ) ) {
+	$t = trim( preg_replace( '/\s+/u', ' ', preg_replace( '/[!.?،,;:]+/u', ' ', $t ) ) );
+	// Confirmation : un message court seulement. « oui mais je veux changer de
+	// ville » n'est pas un feu vert pour expedier : il part en « message a lire ».
+	if ( preg_match( '/^(1|oui|ok|okay|d.accord|je confirme|confirm\w*|wakha|wah|iyeh|ayeh|نعم|واخا|اه|آه|أكيد|مؤكد|✅|👍)( merci| svp| stp| je confirme| c.est bon| شكرا| الله يخليك)?( ?[✅👍🙏]+)?$/u', $t ) ) {
 		return 'ok';
 	}
 	// Annulation : le message entier doit etre un refus. « la commande arrive
@@ -493,9 +495,24 @@ function comptoir_wa_webhook_recoit( $req ) {
 					$intention = comptoir_wa_intention( $texte );
 				}
 
+				// Message de test envoye depuis les reglages : on accuse reception
+				// sans toucher a aucune commande.
+				if ( 'CP-TEST' === $ref ) {
+					comptoir_wa_texte( $wa_id, 'ok' === $intention
+						? '✅ Test réussi : la confirmation arrive bien sur le site. Commande fictive CP-TEST, rien ne sera expédié.'
+						: 'Test réussi : l\'annulation arrive bien sur le site. Commande fictive CP-TEST.' );
+					continue;
+				}
+
 				$id = comptoir_wa_trouve_commande( $ref, $ctx, $wa_id );
 				if ( ! $id ) {
 					continue;
+				}
+				// Reponse tapee a la main (pas un bouton) : elle ne compte que pour
+				// une commande qui attend encore sa confirmation. Un « non » ecrit
+				// plus tard, en reponse a autre chose, n'annule pas un colis parti.
+				if ( ! $ref && $intention && ! in_array( get_post_meta( $id, 'cp_wa_statut', true ), array( 'envoye', 'sans_reponse' ), true ) ) {
+					$intention = '';
 				}
 				if ( $texte ) {
 					update_post_meta( $id, 'cp_wa_dernier', comptoir_coupe( sanitize_text_field( $texte ), 300 ) );
