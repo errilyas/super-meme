@@ -1,24 +1,4 @@
-LE COMPTOIR DES PARFUMS — thème WordPress sur-mesure
-=====================================================
-
-VERSIONS 3.x — ÉDITION MAISON
-=============================
-Même identité — aubergine, or du sceau, Cormorant Garamond + Jost, sceau
-CP — avec un fini de maison de parfum. Le CSS nouveau vit en fin de
-style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
-page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
-404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
-
-VERSION 3.5.0 — CONFIRMATION DES COMMANDES SUR WHATSAPP
-  Après chaque commande, le client reçoit un message WhatsApp avec deux
-  boutons « ✅ Je confirme » / « ❌ Annuler ». Sans réponse après 2 h (jamais
-  la nuit), une relance part ; 24 h après, la commande passe « sans réponse ».
-  Le jour de l'expédition, un rappel « votre colis arrive aujourd'hui » part
-  depuis la liste des commandes. Les réponses mettent à jour la nouvelle
-  colonne « WhatsApp » des commandes. API officielle de Meta (WhatsApp Cloud) :
-  pas de risque de blocage du numéro, pas d'abonnement.
-  Inactif tant que Réglages > Confirmation WhatsApp n'est pas rempli. Voir la
-  partie « CONFIRMATION WHATSAPP — MISE EN ROUTE » plus bas.
+CONFIRMATION WHATSAPP — MISE EN ROUTE » plus bas.
 
 VERSION 3.4.0 — SCEAU REDESSINÉ
   Même identité (sceau rond, monogramme CP italique, or du thème), redessinée

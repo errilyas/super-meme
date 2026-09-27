@@ -14,6 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Donnees produit partagees : catalogue + fiches parfum.
 require_once get_template_directory() . '/produits.php';
+// Confirmation des commandes sur WhatsApp (API officielle Meta), inactive tant qu'elle n'est pas reglee.
+require_once get_template_directory() . '/inc/whatsapp.php';
 
 /* ══════════════════════════════════════════════════════════════
    REGLAGES DU COMMERCE
@@ -663,6 +665,8 @@ function comptoir_recoit_commande() {
 	// prendre son temps sans rien ralentir a l'ecran.
 	$feuille = comptoir_envoie_feuille( $id );
 	comptoir_capi_achat( $id, $lignes );
+	// Message WhatsApp « je confirme / annuler » (sans effet si le module n'est pas regle).
+	comptoir_wa_confirmation( $id );
 
 	wp_send_json_success( array( 'id' => $id, 'feuille' => $feuille ) );
 }
