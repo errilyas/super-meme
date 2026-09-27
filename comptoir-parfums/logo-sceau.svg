@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Le Comptoir des Parfums">
+  <defs>
+    <linearGradient id="cpAu" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4e0ac"/><stop offset=".38" stop-color="#e0b268"/>
+      <stop offset=".7" stop-color="#c08f3f"/><stop offset="1" stop-color="#8f6a2c"/>
+    </linearGradient>
+    <linearGradient id="cpAuF" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9b673"/><stop offset="1" stop-color="#8f6a2c"/>
+    </linearGradient>
+  </defs>
+  <circle cx="48" cy="48" r="45" fill="none" stroke="url(#cpAu)" stroke-width="1.4"/>
+  <circle cx="48" cy="48" r="41.5" fill="none" stroke="url(#cpAuF)" stroke-width=".6" opacity=".55"/>
+  <circle cx="48" cy="48" r="36.5" fill="none" stroke="url(#cpAu)" stroke-width="1.35" stroke-linecap="round" stroke-dasharray="0.5 4.1"/>
+  <text x="49" y="65" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+        font-style="italic" font-weight="600" font-size="42" letter-spacing="-1.5" fill="url(#cpAu)">CP</text>
+</svg>

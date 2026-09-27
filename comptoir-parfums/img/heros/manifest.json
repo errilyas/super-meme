@@ -1,0 +1,470 @@
+{
+ "azzaro": {
+  "bordsCoupes": 0,
+  "cote": 840,
+  "detourage": "alpha",
+  "maison": "Azzaro",
+  "source": "azzaro--the-most-wanted",
+  "sujet": [
+   778,
+   752
+  ],
+  "webp": "img/heros/azzaro.webp"
+ },
+ "burberry": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Burberry",
+  "source": "burberry--goddess",
+  "sujet": [
+   572,
+   894
+  ],
+  "webp": "img/heros/burberry.webp"
+ },
+ "carolina-herrera": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Carolina Herrera",
+  "source": "carolina-herrera--good-girl-blush",
+  "sujet": [
+   368,
+   850
+  ],
+  "webp": "img/heros/carolina-herrera.webp"
+ },
+ "chanel": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Chanel",
+  "source": "chanel--bleu-de-chanel-parfum",
+  "sujet": [
+   615,
+   862
+  ],
+  "webp": "img/heros/chanel.webp"
+ },
+ "chloe": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Chloé",
+  "source": "chloe--love-story",
+  "sujet": [
+   747,
+   878
+  ],
+  "webp": "img/heros/chloe.webp"
+ },
+ "creed": {
+  "bordsCoupes": 0,
+  "cote": 860,
+  "detourage": "alpha",
+  "maison": "Creed",
+  "source": "creed--absolu-aventus",
+  "sujet": [
+   451,
+   797
+  ],
+  "webp": "img/heros/creed.webp"
+ },
+ "dior": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Dior",
+  "source": "dior--sauvage-eau-de-parfum",
+  "sujet": [
+   389,
+   894
+  ],
+  "webp": "img/heros/dior.webp"
+ },
+ "dolce-gabbana": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Dolce & Gabbana",
+  "source": "dolce-gabbana--light-blue-capri-in-love",
+  "sujet": [
+   490,
+   860
+  ],
+  "webp": "img/heros/dolce-gabbana.webp"
+ },
+ "elie-saab": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Elie Saab",
+  "source": "elie-saab--girl-of-now",
+  "sujet": [
+   557,
+   852
+  ],
+  "webp": "img/heros/elie-saab.webp"
+ },
+ "emporio-armani": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Emporio Armani",
+  "source": "emporio-armani--stronger-with-you-amber-edp",
+  "sujet": [
+   494,
+   846
+  ],
+  "webp": "img/heros/emporio-armani.webp"
+ },
+ "giardini-di-toscana": {
+  "bordsCoupes": 0,
+  "cote": 846,
+  "detourage": "alpha",
+  "maison": "Giardini di Toscana",
+  "source": "giardini-di-toscana--bianco-latte",
+  "sujet": [
+   427,
+   784
+  ],
+  "webp": "img/heros/giardini-di-toscana.webp"
+ },
+ "giorgio-armani": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Giorgio Armani",
+  "source": "giorgio-armani--my-way-edp",
+  "sujet": [
+   496,
+   877
+  ],
+  "webp": "img/heros/giorgio-armani.webp"
+ },
+ "givenchy": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Givenchy",
+  "source": "givenchy--linterdit-edp-rouge",
+  "sujet": [
+   442,
+   885
+  ],
+  "webp": "img/heros/givenchy.webp"
+ },
+ "gucci": {
+  "bordsCoupes": 0,
+  "cote": 879,
+  "detourage": "alpha",
+  "maison": "Gucci",
+  "source": "gucci--flora-gorgeous-gardenia-intense",
+  "sujet": [
+   332,
+   814
+  ],
+  "webp": "img/heros/gucci.webp"
+ },
+ "guerlain": {
+  "bordsCoupes": 0,
+  "cote": 650,
+  "detourage": "alpha",
+  "maison": "Guerlain",
+  "source": "guerlain--mon-guerlain",
+  "sujet": [
+   421,
+   602
+  ],
+  "webp": "img/heros/guerlain.webp"
+ },
+ "hermes": {
+  "bordsCoupes": 0,
+  "cote": 658,
+  "detourage": "alpha",
+  "maison": "Hermès",
+  "source": "hermes--terre-dhermes-edp-intense",
+  "sujet": [
+   337,
+   610
+  ],
+  "webp": "img/heros/hermes.webp"
+ },
+ "hugo-boss": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Hugo Boss",
+  "source": "hugo-boss--bottled",
+  "sujet": [
+   372,
+   856
+  ],
+  "webp": "img/heros/hugo-boss.webp"
+ },
+ "jean-paul-gaultier": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Jean Paul Gaultier",
+  "source": "jean-paul-gaultier--gaultier-divine-edp",
+  "sujet": [
+   402,
+   889
+  ],
+  "webp": "img/heros/jean-paul-gaultier.webp"
+ },
+ "kayali": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Kayali",
+  "source": "kayali--vanilla-candy-rock-sugar-42",
+  "sujet": [
+   448,
+   880
+  ],
+  "webp": "img/heros/kayali.webp"
+ },
+ "lacoste": {
+  "bordsCoupes": 0,
+  "cote": 493,
+  "detourage": "alpha",
+  "maison": "Lacoste",
+  "source": "lacoste--essential-edt",
+  "sujet": [
+   432,
+   457
+  ],
+  "webp": "img/heros/lacoste.webp"
+ },
+ "lancome": {
+  "bordsCoupes": 0,
+  "cote": 827,
+  "detourage": "alpha",
+  "maison": "Lancôme",
+  "source": "lancome--tresor-in-love-edp",
+  "sujet": [
+   242,
+   766
+  ],
+  "webp": "img/heros/lancome.webp"
+ },
+ "louis-vuitton": {
+  "bordsCoupes": 0,
+  "cote": 808,
+  "detourage": "alpha",
+  "maison": "Louis Vuitton",
+  "source": "louis-vuitton--imagination",
+  "sujet": [
+   314,
+   749
+  ],
+  "webp": "img/heros/louis-vuitton.webp"
+ },
+ "maison-francis-kurkdjian": {
+  "bordsCoupes": 0,
+  "cote": 896,
+  "detourage": "alpha",
+  "maison": "Maison Francis Kurkdjian",
+  "source": "maison-francis-kurkdjian--baccarat-rouge-540",
+  "sujet": [
+   504,
+   830
+  ],
+  "webp": "img/heros/maison-francis-kurkdjian.webp"
+ },
+ "montblanc": {
+  "bordsCoupes": 0,
+  "cote": 581,
+  "detourage": "alpha",
+  "maison": "Montblanc",
+  "source": "montblanc--explorer-extreme",
+  "sujet": [
+   271,
+   538
+  ],
+  "webp": "img/heros/montblanc.webp"
+ },
+ "moschino": {
+  "bordsCoupes": 0,
+  "cote": 857,
+  "detourage": "alpha",
+  "maison": "Moschino",
+  "source": "moschino--toy-boy",
+  "sujet": [
+   437,
+   794
+  ],
+  "webp": "img/heros/moschino.webp"
+ },
+ "narciso-rodriguez": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Narciso Rodriguez",
+  "source": "narciso-rodriguez--musc-noir-rose-for-her",
+  "sujet": [
+   462,
+   862
+  ],
+  "webp": "img/heros/narciso-rodriguez.webp"
+ },
+ "nishane": {
+  "bordsCoupes": 0,
+  "cote": 892,
+  "detourage": "alpha",
+  "maison": "Nishane",
+  "source": "nishane--hacivat",
+  "sujet": [
+   515,
+   826
+  ],
+  "webp": "img/heros/nishane.webp"
+ },
+ "parfums-de-marly": {
+  "bordsCoupes": 0,
+  "cote": 857,
+  "detourage": "alpha",
+  "maison": "Parfums de Marly",
+  "source": "parfums-de-marly--delina-exclusif",
+  "sujet": [
+   394,
+   794
+  ],
+  "webp": "img/heros/parfums-de-marly.webp"
+ },
+ "prada": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Prada",
+  "source": "prada--paradigme",
+  "sujet": [
+   497,
+   892
+  ],
+  "webp": "img/heros/prada.webp"
+ },
+ "rabanne": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Rabanne",
+  "source": "rabanne--1-million-royal",
+  "sujet": [
+   306,
+   861
+  ],
+  "webp": "img/heros/rabanne.webp"
+ },
+ "stephane-humbert-lucas-777": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Stéphane Humbert Lucas 777",
+  "source": "stephane-humbert-lucas-777--god-of-fire",
+  "sujet": [
+   354,
+   873
+  ],
+  "webp": "img/heros/stephane-humbert-lucas-777.webp"
+ },
+ "tom-ford": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Tom Ford",
+  "source": "tom-ford--oud-minerale",
+  "sujet": [
+   554,
+   878
+  ],
+  "webp": "img/heros/tom-ford.webp"
+ },
+ "valentino": {
+  "bordsCoupes": 0,
+  "cote": 719,
+  "detourage": "alpha",
+  "maison": "Valentino",
+  "source": "valentino--donna-born-in-roma-intense",
+  "sujet": [
+   474,
+   666
+  ],
+  "webp": "img/heros/valentino.webp"
+ },
+ "versace": {
+  "bordsCoupes": 0,
+  "cote": 899,
+  "detourage": "alpha",
+  "maison": "Versace",
+  "source": "versace--eros-energy-pour-homme-edp",
+  "sujet": [
+   610,
+   833
+  ],
+  "webp": "img/heros/versace.webp"
+ },
+ "victorias-secret": {
+  "bordsCoupes": 0,
+  "cote": 814,
+  "detourage": "alpha",
+  "maison": "Victoria's Secret",
+  "source": "victorias-secret--bombshell-seduction-edp",
+  "sujet": [
+   610,
+   754
+  ],
+  "webp": "img/heros/victorias-secret.webp"
+ },
+ "viktor-rolf": {
+  "bordsCoupes": 0,
+  "cote": 722,
+  "detourage": "alpha",
+  "maison": "Viktor&Rolf",
+  "source": "viktor-rolf--spicebomb-extreme",
+  "sujet": [
+   392,
+   669
+  ],
+  "webp": "img/heros/viktor-rolf.webp"
+ },
+ "xerjoff": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Xerjoff",
+  "source": "xerjoff--erba-pura",
+  "sujet": [
+   359,
+   840
+  ],
+  "webp": "img/heros/xerjoff.webp"
+ },
+ "yves-saint-laurent": {
+  "bordsCoupes": 0,
+  "cote": 900,
+  "detourage": "alpha",
+  "maison": "Yves Saint Laurent",
+  "source": "yves-saint-laurent--myslf-edp",
+  "sujet": [
+   235,
+   885
+  ],
+  "webp": "img/heros/yves-saint-laurent.webp"
+ },
+ "zadig-voltaire": {
+  "bordsCoupes": 1,
+  "cote": 714,
+  "detourage": "alpha",
+  "maison": "Zadig & Voltaire",
+  "source": "zadig-voltaire--this-is-her",
+  "sujet": [
+   346,
+   662
+  ],
+  "webp": "img/heros/zadig-voltaire.webp"
+ }
+}
