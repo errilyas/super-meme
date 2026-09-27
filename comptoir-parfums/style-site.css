@@ -2616,13 +2616,14 @@ button.btn-a,button.btn-b,button.btn-fin,button.btn-fin-g{
 /* Des captures de hauteurs différentes, posées nues : la rangée faisait
    brouillon. Même format pour toutes — 4:3, la moyenne des captures
    actuelles (de 1:1 à 10:7), pour ne rogner qu'un peu de marge — et des
-   coins adoucis comme un écran de téléphone. */
+   coins adoucis comme un écran de téléphone. Sur téléphone, 78 vw : la
+   capture suivante dépasse au bord, on voit que la rangée se fait glisser. */
 .preuves-head{display:flex;flex-direction:column;gap:6px;margin-bottom:28px}
 .preuves-head h2{margin-bottom:6px}
 .preuves-head p{font-size:15px;margin-bottom:0;color:var(--text-dim)}
 .preuves-rang{gap:20px;padding-bottom:18px;scrollbar-color:rgba(var(--au-rgb),.35) transparent}
 .preuve{
-  width:min(84vw,400px);aspect-ratio:4/3;border-radius:16px;
+  width:min(78vw,400px);aspect-ratio:4/3;border-radius:16px;
   border:1px solid rgba(var(--au-rgb),.22);background:var(--well);
   box-shadow:var(--lift-shadow);position:relative;
   transition:transform .5s var(--ease-out),border-color .3s;
@@ -2637,6 +2638,9 @@ button.btn-a,button.btn-b,button.btn-fin,button.btn-fin-g{
    au bord comme dans un carrousel. Au-delà de trois, la rangée défile. */
 @media(min-width:1100px){
   .preuves-rang{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 40px)/3);overflow-x:auto}
+  /* Dès quatre captures, quatre de front : la quatrième ne se cache pas
+     hors du cadre d'une rangée qui ne montre pas qu'elle défile. */
+  .preuves-rang:has(.preuve:nth-child(4)){grid-auto-columns:calc((100% - 60px)/4)}
   .preuve{width:auto}
 }
 
