@@ -1,0 +1,52 @@
+<!--
+  « Un testeur, c'est quoi ? » — l'explication complete, ecrite UNE fois.
+  Inseree par comptoir_bloc_testeur() (functions.php) sur l'accueil, la
+  landing page vente et chaque fiche parfum, et par tools/apercu-theme.py
+  pour l'apercu local. {CLASSE}, {PRIX_MIN} et {PRIX_MAX} sont remplaces a
+  l'insertion.
+
+  Tout ce qui est affirme ici a ete confirme par la boutique : boite blanche
+  neutre marquee « Tester », bouchon toujours present, meme volume qu'en
+  boutique, flacon plein et neuf, code de lot de la maison. Ne rien ajouter
+  qui n'ait pas ete confirme de la meme facon.
+-->
+<section class="testeur{CLASSE}" id="testeur" aria-label="Qu'est-ce qu'un testeur ?">
+  <div class="testeur-head">
+    <h2>Un testeur, c'est quoi ?</h2>
+    <p class="testeur-def">Le flacon que la maison fabrique pour faire sentir son parfum en boutique. Même maison, même jus, même flacon. Seul l'emballage change, et c'est lui qui fait l'écart de prix.</p>
+  </div>
+  <div class="testeur-cols">
+    <div class="testeur-col testeur-pareil">
+      <h3>Identique au flacon du rayon</h3>
+      <ul>
+        <li>Le jus : même concentration, même tenue, même sillage</li>
+        <li>Le flacon original, plein et neuf, jamais vaporisé</li>
+        <li>Son bouchon</li>
+        <li>Le même volume qu'en boutique</li>
+        <li>Le code de lot de la maison</li>
+      </ul>
+    </div>
+    <div class="testeur-col testeur-change">
+      <h3>Ce qui change</h3>
+      <ul>
+        <li>Une boîte blanche, sans décor, au lieu du coffret de luxe</li>
+        <li>La mention « Tester » sur la boîte ou le flacon</li>
+        <li>Le prix : <span data-prix-min>{PRIX_MIN}</span> à <span data-prix-max>{PRIX_MAX}</span> DH, au lieu de 1 200 à 4 000 DH en boutique</li>
+      </ul>
+    </div>
+  </div>
+  <div class="testeur-points">
+    <div class="testeur-point">
+      <h3>Pourquoi moins cher ?</h3>
+      <p>Dans le prix d'un parfum de luxe, vous payez aussi le coffret, la publicité et la vitrine. Un testeur n'a ni coffret ni vitrine : vous ne payez que le parfum.</p>
+    </div>
+    <div class="testeur-point">
+      <h3>Comment vérifier ?</h3>
+      <p>Chaque flacon porte le code de lot de la maison. Tapez-le sur un site de vérification comme CheckFresh : il vous donne sa date de fabrication.</p>
+    </div>
+    <div class="testeur-point">
+      <h3>Et si ça ne va pas ?</h3>
+      <p>Vous payez à la livraison, jamais avant. Un souci après ouverture ? Écrivez-nous, nous vous remboursons.</p>
+    </div>
+  </div>
+</section>
