@@ -1430,6 +1430,12 @@ if(mqTrack){
       if(autoStopped) return;
       const a=list[autoIdx++ % list.length];
       aimAt(a); preview(slugOf(a)); markActive(a);
+      /* Tactile : la bande glisse jusqu'à la maison montrée. Sans ça, la
+         photo du héros changeait toutes les 2,6 s pendant qu'une autre
+         maison restait au centre du ruban — photo et nom ne collaient pas. */
+      if(!HAS_HOVER && mqHost && mqHost.classList.contains('is-swipe')){
+        mqHost.scrollTo({left:a.offsetLeft-(mqHost.clientWidth-a.clientWidth)/2, behavior:'smooth'});
+      }
     };
     step();
     autoTimer=setInterval(step,2600);

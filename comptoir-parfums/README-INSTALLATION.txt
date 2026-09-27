@@ -9,6 +9,17 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.3.1 — CORRECTIFS TÉLÉPHONE (CATALOGUE, VITRINE)
+  - iPhone : toucher la recherche ou un filtre du catalogue zoomait la page
+    (champs en 12,5 px, Safari zoome sous 16 px) et la laissait décalée.
+    Champs à 16 px ; « Maison » et « Famille » sur toute la largeur pour que
+    « Toutes les maisons / familles » tienne en entier.
+  - Héros : le grand « Chanel » décoratif passait derrière la photo d'une
+    autre maison (Dior, Tom Ford…). Noms décoratifs masqués sur téléphone.
+  - Vitrine : sur téléphone, la photo du héros changeait toutes les 2,6 s
+    pendant qu'une autre maison restait au centre du ruban. La bande glisse
+    maintenant jusqu'à la maison montrée.
+
 VERSION 3.3.0 — TÉLÉPHONE ET CONVERSION
   97 % des visites arrivent sur téléphone, surtout en 4G. Mesuré en 4G lente
   (150 ms, 1,6 Mb/s, processeur ralenti ×4) sur un écran de 390 × 844.

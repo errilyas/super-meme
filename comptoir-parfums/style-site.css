@@ -3183,3 +3183,20 @@ main.cp-secours{max-width:1280px;padding:168px 72px 120px;text-align:center;posi
   .ck-fixe .ck-go{margin:0;width:100%}
 }
 @media(prefers-reduced-motion:reduce){ .ck-fixe{transition:none} }
+/* Téléphone (v3.3.1)
+   - Champs du catalogue à 16 px : en dessous, Safari iOS zoome la page au
+     toucher de la recherche ou d'un filtre, et elle reste décalée.
+   - Noms de maisons décoratifs du héros masqués : empilés sous le texte, le
+     « Chanel » géant passait derrière la photo d'une autre maison. */
+@media(max-width:900px){
+  .cat-filtres input,.cat-filtres select,.cat-champ input,.cat-champ select{font-size:16px}
+  /* À 16 px, « Toutes les maisons » et « Toutes les familles » ne tiennent
+     plus sur une demi-largeur : ces deux listes prennent toute la ligne,
+     « Pour » et « Trier par » restent côte à côte. */
+  .cat-champ:has(#cat-maison),.cat-champ:has(#cat-famille){grid-column:1/-1}
+  .cat-champ:has(#cat-maison){order:1}
+  .cat-champ:has(#cat-famille){order:2}
+  .cat-champ:has(#cat-genre){order:3}
+  .cat-champ:has(#cat-tri){order:4}
+  .h-brand-float{display:none!important}
+}
