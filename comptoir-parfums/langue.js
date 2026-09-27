@@ -58,6 +58,12 @@
     'Panier (': 'السلة (',
     'WhatsApp →': 'واتساب ←',
     'Passer': 'تخطّي',
+    /* Pied de page, édition v3 */
+    "L'art du parfum, sans le prix de la vitrine.": 'فنّ العطر، بلا ثمن الواجهة.',
+    'Testeurs originaux des grandes maisons, livrés partout au Maroc. Vous payez à la réception.': 'تستر أصلي من كبرى دور العطور، يوصلك لأي مدينة في المغرب. تدفع عند الاستلام.',
+    'La maison': 'الدار',
+    'Nous écrire': 'راسلنا',
+    'Réponse en moins de 2h': 'نجيبك في أقل من ساعتين',
     'Défiler': 'مرّر للأسفل',
     'Glissez pour tourner la vitrine': 'اسحب لتدوير الواجهة',
     'Paiement à la livraison': 'الدفع عند الاستلام',

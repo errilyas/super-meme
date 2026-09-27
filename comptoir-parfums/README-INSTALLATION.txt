@@ -1,6 +1,48 @@
 LE COMPTOIR DES PARFUMS — thème WordPress sur-mesure
 =====================================================
 
+VERSION 3.0 — ÉDITION MAISON
+============================
+Même identité — aubergine, or du sceau, Cormorant Garamond + Jost, sceau
+CP — avec un fini de maison de parfum. Tout le visuel nouveau vit dans UN
+bloc, en fin de style-site.css (« ÉDITION MAISON — COUCHE DE FINITION ») :
+le retirer rend exactement la v2.
+
+Ce qui change à l'œil
+  - Texte courant en Jost 300 au lieu de 200 (le 200 se délavait sur le
+    fond sombre), gris secondaires remontés, libellés en capitales un peu
+    plus grands et moins espacés.
+  - Un seul or, celui du sceau, en dégradé sur TOUS les boutons d'achat :
+    accueil, fiche parfum, tiroir du panier, page commande, barre mobile.
+    Reflet qui traverse le bouton au survol.
+  - En-tête : panier avec icône de sac et pastille ; sur téléphone, le sac
+    seul et sa pastille, pour dégager la barre.
+  - Héros allégé : les trois chiffres (références, maisons, 0 DH) quittent
+    le héros — ils sont en grand dans le bandeau « Chiffres clés » plus bas.
+    La vitrine de flacons s'estompe sur les bords au lieu d'être coupée net.
+  - Preuves clients : même format pour toutes (4:3), coins d'écran de
+    téléphone, trois de front sur grand écran.
+  - Cartes produit : filet d'or qui se trace sous la carte au survol,
+    nom et prix plus présents.
+  - Pied de page complet : marque et devise, la maison, nos engagements,
+    nous écrire (WhatsApp, téléphone), réseaux. Traduit en arabe.
+
+Défauts corrigés (présents en v2, y compris sur le site en ligne)
+  - « Voir plus de parfums (185) » : bouton au fond gris du navigateur,
+    texte crème illisible.
+  - Bandeau des chiffres : deux bandes grises sur les côtés.
+  - Héros : les chiffres passaient sous l'indicateur « Défiler ».
+  - Tiroir du panier fermé : son ombre dépassait sur le bord droit de
+    chaque page (bande grise en thème clair).
+  - ARABE : la page faisait 10 000 px de large (lien d'évitement rangé à
+    left:-9999px, qui devient une zone défilable en lecture droite-gauche).
+    Sur téléphone, la page glissait de côté dans le vide.
+
+Vérifié : accueil, fiche parfum et commande, en français et en arabe, en
+thème sombre et clair, sans débordement horizontal de 375 à 1 920 px,
+aucune erreur JavaScript, panier (ajout, tiroir, suggestions) fonctionnel.
+
+
 INSTALLATION
 1. Apparence > Thèmes > Ajouter > Téléverser un thème.
 2. Envoyer le dossier zippé (comptoir-parfums.zip).

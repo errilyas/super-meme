@@ -1736,12 +1736,17 @@ html,body{overflow-x:hidden;overflow-x:clip}
 }
 
 /* Lien d'évitement — premier élément focusable, visible au focus seulement. */
+/* Rangé au-dessus de l'écran, pas à left:-9999px : en arabe (dir="rtl"),
+   un débordement à gauche devient une zone qu'on peut faire défiler, et la
+   page prenait 10 000 px de large — sur téléphone, elle glissait de côté
+   dans le vide. Vers le haut, rien ne se fait défiler, quelle que soit la
+   langue. */
 .skip-link{
-  position:absolute;left:-9999px;top:0;z-index:200;
+  position:absolute;left:0;top:0;z-index:200;transform:translateY(-110%);
   background:var(--gilt);color:var(--ink);padding:12px 20px;
   font-family:var(--sans);font-size:13px;letter-spacing:.06em;border-radius:0 0 3px 0;
 }
-.skip-link:focus{left:0}
+.skip-link:focus{transform:none}
 
 /* ══════════════════════════════════════════
    PLANCHER TYPOGRAPHIQUE MOBILE
@@ -2430,4 +2435,318 @@ main.cp-secours{ padding:180px 24px 120px; max-width:760px; margin:0 auto; }
 @media(prefers-reduced-motion:reduce){
   .pc-img,.pf-visual img,.pc-photo::after{transition:none}
   .pc:hover .pc-img,.pf-visual:hover img{transform:none}
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ÉDITION MAISON — COUCHE DE FINITION (v3)
+   Même identité : aubergine, or du sceau, Cormorant + Jost, sceau CP.
+   Ce qui change est le fini, pas la marque :
+     · une typographie lisible — le Jost 200 sur fond sombre se délave,
+       on passe les textes porteurs en 300 et les gris à 4,5:1 minimum ;
+     · un seul or, celui du sceau, en dégradé sur les boutons d'action ;
+     · des libellés en capitales un peu plus grands et moins espacés ;
+     · les défauts corrigés (bouton « Voir plus » gris, bandes grises du
+       bandeau des chiffres, chevauchement « Défiler » dans le héros).
+   Placée en fin de feuille : elle gagne sur tout ce qui précède, sans
+   rien réécrire ailleurs. Retirer ce bloc rend exactement la v2.
+══════════════════════════════════════════════════════════════ */
+
+:root{
+  --smoke:rgba(var(--fg-rgb),.64);
+  --text-dim:rgba(var(--fg-rgb),.78);
+  --line:rgba(var(--fg-rgb),.08);
+  --line2:rgba(var(--fg-rgb),.14);
+  /* L'or du sceau, en matière : clair en haut, bronze en bas. */
+  --au-grad:linear-gradient(180deg,#f1d7a0 0%,#e0b268 42%,#c9973f 78%,#b3843a 100%);
+  --au-grad-hover:linear-gradient(180deg,#f6e2b6 0%,#e8c07a 42%,#d3a44c 78%,#bd8d40 100%);
+  --au-edge:inset 0 1px 0 rgba(255,244,214,.55),inset 0 -1px 0 rgba(90,60,20,.35);
+  --lift-shadow:0 18px 40px -18px rgba(0,0,0,.6);
+  --label:10.5px;
+  --label-track:.28em;
+}
+:root[data-theme="light"]{
+  --au-grad:linear-gradient(180deg,#3a2c24 0%,#261a22 100%);
+  --au-grad-hover:linear-gradient(180deg,#4a3a2e 0%,#33242d 100%);
+  --au-edge:inset 0 1px 0 rgba(255,255,255,.08);
+  --lift-shadow:0 18px 40px -22px rgba(70,48,26,.45);
+}
+
+/* ── Texte courant : plus de corps, jamais en 200 ─────────────── */
+body{font-weight:300}
+.hero-sub,.sect-body,.fin-body,.dist-list li,.preuves-head p,
+.faq-ans p,.wa-block p,.nb-label,.ht-item span,.fin-ou a,.fin-trust-item,
+.foot-copy,.foot-links a,.pc-meta,.gage{font-weight:300}
+.hero-sub{font-size:16px;line-height:1.8;color:var(--text-dim)}
+.sect-body,.fin-body{font-size:16px;line-height:1.8;color:var(--text-dim)}
+.dist-list li{font-size:14px;color:var(--text-dim)}
+
+/* ── Titres : un cran plus présents, interlignage resserré ───── */
+.sect-h2{font-size:clamp(34px,3.9vw,58px);line-height:1.06;letter-spacing:-.02em}
+.sect-h2 em{font-style:italic;color:var(--ember)}
+.fin-h2{font-size:clamp(40px,4.8vw,68px);line-height:1.04}
+
+/* ── Libellés en capitales : lisibles, moins « tapés à la machine » */
+.sect-kicker span,.fin-kicker,.dist-col-tag,.h-eye-text,.h-badge-text,
+.preuves-head h2{font-size:var(--label);letter-spacing:var(--label-track);font-weight:400}
+.sect-kicker{gap:16px;margin-bottom:22px}
+.sect-kicker::before,.preuves-head h2::before{width:36px;background:linear-gradient(90deg,var(--amber),rgba(var(--au-rgb),.15))}
+.nav-links a{font-size:10.5px;letter-spacing:.22em;font-weight:400;position:relative;padding:6px 0}
+.nav-links a::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:var(--ember);transform:scaleX(0);transform-origin:right;
+  transition:transform .45s var(--ease-out);
+}
+.nav-links a:hover::after,.nav-links a:focus-visible::after{transform:scaleX(1);transform-origin:left}
+
+/* ── Boutons ──────────────────────────────────────────────────── */
+/* Le reset qui manquait : un <button class="btn-b"> héritait du fond
+   gris du navigateur (#efefef) et son texte crème devenait illisible —
+   c'était le « Voir plus de parfums » du catalogue. */
+button.btn-a,button.btn-b,button.btn-fin,button.btn-fin-g{
+  background:transparent;font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;
+}
+.btn-a,.btn-fin,.nav-pill{
+  background:var(--au-grad);box-shadow:var(--au-edge);color:var(--ink);
+  position:relative;overflow:hidden;isolation:isolate;
+  transition:box-shadow .3s var(--ease-out),transform .3s var(--ease-out);
+}
+/* reflet qui traverse le bouton au survol, comme la lumière sur un flacon */
+.btn-a::before,.btn-fin::before,.nav-pill::before{
+  content:'';position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(110deg,transparent 30%,rgba(255,248,228,.45) 48%,transparent 66%);
+  transform:translateX(-120%);transition:transform .9s var(--ease-out);
+}
+.btn-a:hover::before,.btn-fin:hover::before,.nav-pill:hover::before{transform:translateX(120%)}
+.btn-a:hover,.btn-fin:hover,.nav-pill:hover{background:var(--au-grad-hover);box-shadow:var(--au-edge),0 14px 30px -14px rgba(214,162,81,.55)}
+:root[data-theme="light"] .btn-a,:root[data-theme="light"] .btn-fin,:root[data-theme="light"] .nav-pill{background:var(--au-grad);color:#f8f3ea}
+:root[data-theme="light"] .btn-a:hover,:root[data-theme="light"] .btn-fin:hover,:root[data-theme="light"] .nav-pill:hover{background:var(--au-grad-hover);box-shadow:var(--au-edge),0 14px 30px -16px rgba(58,40,26,.5)}
+.btn-a,.btn-b,.btn-fin,.btn-fin-g{
+  min-height:54px;padding:0 34px;font-size:11px;letter-spacing:.24em;
+  display:inline-flex;align-items:center;justify-content:center;gap:14px;
+}
+.btn-a,.btn-fin{font-weight:500}
+.btn-b,.btn-fin-g{
+  font-weight:400;color:var(--bone);border:1px solid rgba(var(--au-rgb),.42);
+  background:rgba(var(--au-rgb),.03);
+  transition:border-color .3s,background .3s,color .3s;
+}
+.btn-b:hover,.btn-fin-g:hover{border-color:var(--ember);background:rgba(var(--au-rgb),.09);color:var(--bone)}
+.cat-plus-btn{min-width:280px}
+@media(max-width:600px){
+  .btn-a,.btn-b,.btn-fin,.btn-fin-g{min-height:52px;padding:0 24px;letter-spacing:.18em}
+}
+
+/* ── En-tête ─────────────────────────────────────────────────── */
+#nav{padding:28px var(--nav-pad-x)}
+#nav.stuck{
+  padding:14px var(--nav-pad-x);
+  background:rgba(17,8,20,.78);
+  backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);
+  border-color:rgba(var(--au-rgb),.14);
+}
+:root[data-theme="light"] #nav.stuck{background:rgba(248,243,234,.84)}
+.nav-pill{padding:0 22px;gap:10px;font-weight:500;letter-spacing:.2em}
+.nav-pill .np-ico{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.nav-pill [data-panier-count]{
+  min-width:20px;height:20px;padding:0 6px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(21,10,18,.14);font-size:10px;letter-spacing:0;
+}
+:root[data-theme="light"] .nav-pill [data-panier-count]{background:rgba(248,243,234,.16)}
+.nav-right{gap:14px}
+.langue-bascule,.theme-toggle{opacity:.82;transition:opacity .2s,color .2s,border-color .2s}
+.langue-bascule:hover,.theme-toggle:hover{opacity:1}
+/* Téléphone : le panier devient un sac et sa pastille, le sceau respire */
+@media(max-width:600px){
+  .nav-pill{padding:0 14px;min-width:64px;justify-content:center}
+  .nav-pill .np-txt{display:none}
+  .nav-right{gap:8px}
+}
+
+/* ── Héros ───────────────────────────────────────────────────── */
+/* Sept blocs empilés à gauche, c'était deux de trop : les chiffres
+   reviennent en grand plus bas (bandeau « Chiffres clés ») et se
+   posaient sous l'indicateur « Défiler » dès 900 px de haut. */
+.hero-trust{display:none}
+.hero-h1{font-size:clamp(46px,6vw,96px);line-height:.96;letter-spacing:-.03em}
+.hero-h1 em{
+  background:var(--au-grad);-webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;padding-right:.08em;
+}
+:root[data-theme="light"] .hero-h1 em{background:none;color:var(--ember);-webkit-text-fill-color:currentColor}
+.h-eyebrow{margin-bottom:34px}
+.h-badge{margin-top:32px;border-color:rgba(var(--au-rgb),.3);background:rgba(var(--au-rgb),.07);padding:9px 16px 9px 12px}
+.hero-actions{margin-top:36px}
+.gages-hero{margin-top:30px;padding-top:26px;border-top:1px solid var(--line)}
+.gage{font-size:12px;letter-spacing:.04em;color:var(--text-dim)}
+.h-brand-float{color:rgba(var(--fg-rgb),.028)}
+.scroll-hint{left:auto;right:72px}
+@media(max-height:820px){.scroll-hint{display:none}}
+@media(max-width:900px){.scroll-hint{display:none}}
+
+/* La vitrine s'arrêtait net sur le bord de sa colonne : un flacon coupé
+   au cutter. Fondu sur les deux bords, comme une vitrine qui s'éloigne ;
+   les cartes « note » flottantes, que l'anneau recouvrait à moitié, se
+   retirent quand il tourne. */
+.vitrine canvas{
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14%,#000 86%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 14%,#000 86%,transparent 100%);
+}
+.hero-visual.vitrine-on .h-note-card{opacity:0!important;visibility:hidden}
+.vitrine-hint{font-weight:300;color:rgba(var(--fg-rgb),.62)}
+
+/* ── Bandeau des chiffres ────────────────────────────────────── */
+/* Le fond --line du conteneur peignait aussi ses 72 px de marge : deux
+   bandes grises encadraient les chiffres. Les filets passent sur les
+   cases elles-mêmes. */
+.numbers-inner{background:transparent;gap:0}
+.nb-item{box-shadow:inset -1px 0 0 var(--line);padding:56px 28px}
+.nb-item:last-child{box-shadow:none}
+.nb-num{margin-bottom:12px}
+.nb-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--smoke)}
+@media(max-width:860px){
+  .nb-item{box-shadow:inset 0 -1px 0 var(--line),inset -1px 0 0 var(--line);padding:40px 16px}
+  .nb-item:nth-child(2n){box-shadow:inset 0 -1px 0 var(--line)}
+  .nb-item:nth-child(n+3){box-shadow:inset -1px 0 0 var(--line)}
+  .nb-item:nth-child(4){box-shadow:none}
+}
+
+/* ── Preuves clients ─────────────────────────────────────────── */
+/* Des captures de hauteurs différentes, posées nues : la rangée faisait
+   brouillon. Même format pour toutes — 4:3, la moyenne des captures
+   actuelles (de 1:1 à 10:7), pour ne rogner qu'un peu de marge — et des
+   coins adoucis comme un écran de téléphone. */
+.preuves-head{display:flex;flex-direction:column;gap:6px;margin-bottom:28px}
+.preuves-head h2{margin-bottom:6px}
+.preuves-head p{font-size:15px;margin-bottom:0;color:var(--text-dim)}
+.preuves-rang{gap:20px;padding-bottom:18px;scrollbar-color:rgba(var(--au-rgb),.35) transparent}
+.preuve{
+  width:min(84vw,400px);aspect-ratio:4/3;border-radius:16px;
+  border:1px solid rgba(var(--au-rgb),.22);background:var(--well);
+  box-shadow:var(--lift-shadow);position:relative;
+  transition:transform .5s var(--ease-out),border-color .3s;
+}
+.preuve::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:inset 0 0 0 5px rgba(0,0,0,.18);
+}
+.preuve:hover{transform:translateY(-4px);border-color:rgba(var(--au-rgb),.45)}
+.preuve img{width:100%;height:100%;object-fit:cover;object-position:center}
+/* Grand écran : trois captures tiennent de front, inutile d'en couper une
+   au bord comme dans un carrousel. Au-delà de trois, la rangée défile. */
+@media(min-width:1100px){
+  .preuves-rang{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 40px)/3);overflow-x:auto}
+  .preuve{width:auto}
+}
+
+/* ── Cartes produit ──────────────────────────────────────────── */
+.pc{padding:22px 22px 26px;position:relative}
+.pc::after{
+  content:'';position:absolute;left:22px;right:22px;bottom:0;height:1px;
+  background:var(--au-grad);transform:scaleX(0);transform-origin:left;
+  transition:transform .6s var(--ease-out);
+}
+.pc:hover::after,.pc:focus-visible::after{transform:scaleX(1)}
+.pc-photo{margin-bottom:20px}
+.pc-maison{font-size:9.5px;letter-spacing:.26em;font-weight:400;color:rgba(var(--fg-rgb),.66)}
+.pc-nom{font-size:18.5px;font-weight:400;letter-spacing:-.005em}
+.pc-meta{font-size:11px;letter-spacing:.04em;color:var(--smoke)}
+.pc-prix{font-size:21px;font-weight:500}
+@media(max-width:620px){
+  .pc{padding:14px 14px 20px}
+  .pc::after{left:14px;right:14px}
+  .pc-nom{font-size:16px}
+  .pc-prix{font-size:18px}
+}
+
+/* ── Clôture ─────────────────────────────────────────────────── */
+.finale::before{
+  width:900px;height:900px;top:-380px;
+  background:radial-gradient(circle,rgba(214,162,81,.11),transparent 60%);
+}
+.fin-trust-item{font-size:12px;letter-spacing:.06em}
+
+/* ── Pied de page ────────────────────────────────────────────── */
+/* Une ligne, c'était le pied d'une page de test. Celui d'une maison dit
+   qui répond, où, et ce qui est garanti — les questions qu'on se pose
+   juste avant de payer. */
+footer.foot{padding:0;border-top:1px solid rgba(var(--au-rgb),.16);background:var(--void)}
+.foot-top{
+  max-width:1280px;margin:0 auto;padding:88px 72px 64px;
+  display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:48px;
+}
+body.tpl-commander .foot-top{max-width:960px;padding:64px 56px 48px;grid-template-columns:1.4fr 1fr 1.2fr}
+body.tpl-commander .foot-col-maison{display:none}
+.foot-brand .foot-logo{text-decoration:none}
+.foot-brand .foot-logo .foot-seal{width:46px;height:46px}
+.foot-brand .foot-wm-serif{font-size:24px;color:var(--ember)}
+.foot-brand .foot-wm-sans{font-size:9px}
+.foot-devise{
+  margin-top:22px;font-family:var(--serif);font-style:italic;font-weight:300;
+  font-size:21px;line-height:1.3;color:var(--bone);max-width:22ch;
+}
+.foot-texte{margin-top:12px;font-size:14px;line-height:1.75;color:var(--smoke);max-width:36ch}
+.foot-col h3{
+  font-family:var(--sans);font-size:var(--label);font-weight:400;letter-spacing:var(--label-track);
+  text-transform:uppercase;color:var(--amber);margin-bottom:20px;
+}
+.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.foot-col a,.foot-col li{font-size:14px;color:var(--text-dim);text-decoration:none;transition:color .2s}
+.foot-col a:hover{color:var(--gilt)}
+.foot-col .foot-wa{
+  display:inline-flex;align-items:center;gap:10px;color:var(--bone);
+  border-bottom:1px solid rgba(var(--au-rgb),.4);padding-bottom:3px;
+}
+.foot-col .foot-wa svg{width:16px;height:16px;fill:var(--ember);flex:none}
+.foot-bas{
+  border-top:1px solid var(--line);
+}
+.foot-bas .foot-inner{padding-top:24px;padding-bottom:24px}
+.foot-bas .foot-copy{font-size:12px;color:var(--smoke)}
+.foot-bas .foot-links{gap:26px}
+.foot-bas .foot-links a{font-size:10px;letter-spacing:.22em;font-weight:400}
+@media(max-width:980px){
+  .foot-top{grid-template-columns:1fr 1fr;gap:44px 32px;padding:64px 24px 44px}
+  body.tpl-commander .foot-top{grid-template-columns:1fr 1fr;padding:56px 24px 40px}
+  .foot-brand{grid-column:1/-1}
+}
+@media(max-width:768px){
+  .foot-bas .foot-inner{flex-direction:column-reverse;align-items:flex-start}
+}
+@media(max-width:460px){
+  .foot-top{grid-template-columns:1fr}
+}
+
+/* ── Un seul or pour tous les boutons d'achat ─────────────────
+   Fiche parfum, tiroir du panier, page commande, barre mobile : le même
+   dégradé que les boutons de l'accueil, pour que « acheter » ait partout
+   la même matière. panier.js injecte sa feuille APRÈS celle-ci : le
+   « body » donne aux règles du tiroir le poids qui leur manque. */
+.pf-cta:not(.pf-cta-2),body .pnr-cta,.ck-go,.cta-fixe{
+  background:var(--au-grad);background-image:var(--au-grad);color:var(--ink);border-color:transparent;
+}
+.pf-cta:not(.pf-cta-2),.ck-go{box-shadow:var(--au-edge),0 10px 28px -14px rgba(var(--au-rgb),.5)}
+.pf-cta:not(.pf-cta-2):hover,body .pnr-cta:hover,.ck-go:hover{background:var(--au-grad-hover);background-image:var(--au-grad-hover);filter:none}
+.cta-fixe-principal,.cta-fixe-wa{color:var(--ink)}
+:root[data-theme="light"] .pf-cta:not(.pf-cta-2),:root[data-theme="light"] body .pnr-cta,
+:root[data-theme="light"] .ck-go,:root[data-theme="light"] .cta-fixe,
+:root[data-theme="light"] .cta-fixe-principal,:root[data-theme="light"] .cta-fixe-wa{color:#f8f3ea}
+:root[data-theme="light"] .cta-fixe-wa{border-left-color:rgba(255,255,255,.14)}
+.pf-cta:not(.pf-cta-2) .pf-cta-prix{color:inherit}
+
+/* Le tiroir du panier, rangé hors de l'écran à 102 %, laissait dépasser
+   ses 60 px d'ombre sur le bord droit de chaque page — une bande grise
+   bien visible en thème clair. L'ombre n'existe plus que tiroir ouvert. */
+.pnr-drawer:not(.is-open){box-shadow:none}
+
+/* ── Arabe : la finition ne doit rien casser ─────────────────── */
+[data-lang="ar"] .sect-kicker span,[data-lang="ar"] .foot-col h3,
+[data-lang="ar"] .nb-label,[data-lang="ar"] .preuves-head h2{letter-spacing:0;text-transform:none}
+[data-lang="ar"] .foot-top{direction:rtl}
+[data-lang="ar"] .foot-devise{font-family:'Tajawal',var(--sans);font-style:normal}
+[data-lang="ar"] .hero-h1 em{padding-right:0;padding-left:.08em}
+
+@media(prefers-reduced-motion:reduce){
+  .btn-a::before,.btn-fin::before,.nav-pill::before{display:none}
+  .pc::after,.nav-links a::after,.preuve{transition:none}
 }

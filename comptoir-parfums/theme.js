@@ -1711,7 +1711,7 @@ if(!REDUCED){
   }
 
   /* Footer */
-  gsap.fromTo('.foot-inner',{opacity:0,y:14},{opacity:1,y:0,duration:.6,
+  gsap.fromTo('.foot-top,.foot-inner',{opacity:0,y:14},{opacity:1,y:0,duration:.6,
     scrollTrigger:{trigger:'footer',start:'top 92%'}
   });
 
@@ -1722,7 +1722,7 @@ if(!REDUCED){
   const REVEAL_SEL='.sect-kicker,.sect-h2,.sect-body,.dist-col,.dist-list li,.stab,'+
     '.scent-card,.cat-filtres,.cat-grille,.proc-step,.g-item,.nb-item,.faq-item,'+
     '.faq-sidebar,.trust-inner>*,.fin-kicker,.fin-h2,.fin-body,.fin-actions>*,'+
-    '.fin-trust-item,.foot-inner';
+    '.fin-trust-item,.foot-top,.foot-inner';
   function revealStuck(){
     ScrollTrigger.refresh();
     document.querySelectorAll(REVEAL_SEL).forEach(el=>{

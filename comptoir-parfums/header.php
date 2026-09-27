@@ -137,7 +137,7 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
     <li><a href="<?php echo esc_url( $cp_home ); ?>#process">Commander</a></li>
   </ul>
   <div class="nav-right">
-    <button type="button" class="nav-pill" data-panier-open aria-label="Ouvrir le panier">Panier&nbsp;·&nbsp;<span data-panier-count>0</span></button>
+    <button type="button" class="nav-pill" data-panier-open aria-label="Ouvrir le panier"><svg class="np-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg><span class="np-txt">Panier</span><span data-panier-count>0</span></button>
     <button id="nav-ham" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mob-menu">
       <span></span><span></span><span></span>
     </button>
@@ -163,7 +163,7 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
     <li><a href="<?php echo esc_url( $cp_home ); ?>#catalogue">Catalogue</a></li>
   </ul>
   <div class="nav-right">
-    <button type="button" class="nav-pill" data-panier-open aria-label="Ouvrir le panier">Panier&nbsp;·&nbsp;<span data-panier-count>0</span></button>
+    <button type="button" class="nav-pill" data-panier-open aria-label="Ouvrir le panier"><svg class="np-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg><span class="np-txt">Panier</span><span data-panier-count>0</span></button>
     <button type="button" class="langue-bascule" data-langue-bascule aria-label="التبديل إلى العربية">ع</button>
     <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Basculer en mode clair" aria-pressed="false">
       <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.9 1.9M17.5 17.5l1.9 1.9M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.9-1.9M17.5 6.5l1.9-1.9"/></svg>
