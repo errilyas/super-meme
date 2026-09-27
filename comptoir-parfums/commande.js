@@ -98,6 +98,9 @@
        de le dire, panier sous les yeux, avant de remplir l'adresse. */
     var franco = document.getElementById('ck-franco');
     if(franco){
+      /* Telephone : les trois cartes poussaient le formulaire a l'ecran
+         suivant. Repliees derriere une ligne, elles restent a un toucher. */
+      var plie = !francoOuvert && manquePlie();
       var manque = P.manquePourFranco();
       franco.hidden = manque !== 1;
       /* Trois flacons voisins a ajouter sans quitter la page (Panier
@@ -105,8 +108,10 @@
          formulaire au moment le plus fragile. Il reste, pour qui veut choisir. */
       franco.innerHTML = manque === 1
         ? (P.suggestionsHTML ? P.suggestionsHTML(3) : '')
+          + (plie ? '<button type="button" class="ck-franco-voir" aria-expanded="false">'+T('Voir les suggestions')+'</button>' : '')
           + '<a class="sug-cat" href="'+P.cfg.home+'#catalogue">'+T('Voir le catalogue')+'</a>'
         : '';
+      franco.classList.toggle('is-plie', plie);
     }
 
     /* Le meme total sur le bouton : le client sait ce qu'il tendra au livreur
@@ -115,6 +120,15 @@
       el.textContent = P.fmt(P.total());
     });
   }
+
+  var francoOuvert = false;
+  function manquePlie(){ return !!(window.matchMedia && matchMedia('(max-width:900px)').matches); }
+  var francoEl = document.getElementById('ck-franco');
+  if(francoEl) francoEl.addEventListener('click', function(e){
+    if(!e.target.closest('.ck-franco-voir')) return;
+    francoOuvert = true; draw();
+    var b = francoEl.querySelector('.sug-add'); if(b) b.focus();
+  });
 
   P.onChange(draw);
   draw();
@@ -358,4 +372,34 @@
   }
   document.getElementById('ck-go').addEventListener('click', submitOrder);
   form.addEventListener('submit', submitOrder);
+
+  /* Barre de confirmation fixe (telephone, CSS) : sortie tant que le vrai
+     bouton est plus bas que l'ecran, repliee pendant la saisie et quand le
+     champ telephone est visible. */
+  var fixe = document.getElementById('ck-fixe'), go = document.getElementById('ck-go');
+  if(fixe && go){
+    var goSous = true, saisie = false, telVu = false;
+    var majFixe = function(){
+      var r = !goSous || saisie || telVu;
+      fixe.classList.toggle('repli', r);
+      fixe.inert = r;   /* repliee hors ecran : ni Tab ni lecteur d'ecran */
+    };
+    var tel = form.querySelector('input[name=tel]');
+    if('IntersectionObserver' in window){
+      /* Le champ telephone deja a l'ecran dit lui-meme ou commencer : la
+         barre ne vient pas le couvrir. */
+      if(tel) new IntersectionObserver(function(en){ telVu = en[0].isIntersecting; majFixe(); },
+        {rootMargin:'0px 0px -96px 0px'}).observe(tel);
+      new IntersectionObserver(function(en){
+        var e = en[0];
+        goSous = !e.isIntersecting && e.boundingClientRect.top > 0;
+        majFixe();
+      }).observe(go);
+    }
+    form.addEventListener('focusin', function(){ saisie = true; majFixe(); });
+    form.addEventListener('focusout', function(){
+      setTimeout(function(){ saisie = form.contains(document.activeElement); majFixe(); }, 80);
+    });
+    document.getElementById('ck-fixe-go').addEventListener('click', submitOrder);
+  }
 })();

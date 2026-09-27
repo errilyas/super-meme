@@ -1063,6 +1063,12 @@ if(alreadyPlayed || cpSautePrechargeur()){
 ══════════════════════════════════════════════════════════════ */
 function initHeroSequence(){
   if(REDUCED) return; /* already visible via CSS */
+  /* Telephone : le titre et les boutons sont affiches par la CSS des
+     l'arrivee de la page (bloc « MOBILE — CONVERSION »). Une entree animee
+     les remettrait a opacity:0 pendant ~2 s, le temps ou l'on perd le plus
+     de visiteurs venus d'une pub. Pas de particules non plus : du calcul en
+     continu sur des telephones modestes. */
+  if(matchMedia('(max-width:900px)').matches) return;
 
   const master = gsap.timeline({delay:0.05});
 
@@ -1862,9 +1868,13 @@ document.querySelectorAll('.stab').forEach(tab=>{
 const ctaFixe = document.querySelector('.cta-fixe');
 if(ctaFixe){
   const heros  = document.querySelector('#hero');
-  /* Sur une fiche parfum, les boutons de la fiche jouent le role du bloc
-     final : tant qu'ils sont a l'ecran, la barre n'a rien a ajouter. */
-  const finale = document.querySelector('.finale') || document.querySelector('.pf-actions');
+  /* Les boutons de la fiche (fiche parfum, parfum vedette de la page Vente)
+     et le bloc final « Commander maintenant » : tant que l'un d'eux est a
+     l'ecran, la barre n'a rien a ajouter. Les boutons de la fiche tiennent
+     dans le premier ecran d'un telephone, d'ou leur marge plus courte. */
+  const cibles = [['.pf-actions','-8%'],['.finale','-25%']]
+    .map(([s,m]) => [document.querySelector(s),m]).filter(([el]) => el);
+  const vus = new Set();
   let horsHeros = !heros, surFinale = false;
   const majCta = () => ctaFixe.classList.toggle('repli', !horsHeros || surFinale);
 
@@ -1875,10 +1885,12 @@ if(ctaFixe){
         majCta();
       }, {threshold:[0, 0.35, 1]}).observe(heros);
     }
-    if(finale){
-      new IntersectionObserver(([e]) => { surFinale = e.isIntersecting; majCta(); },
-        {rootMargin:'0px 0px -25% 0px'}).observe(finale);
-    }
+    cibles.forEach(([el,m]) => {
+      new IntersectionObserver(([e]) => {
+        e.isIntersecting ? vus.add(el) : vus.delete(el);
+        surFinale = vus.size > 0; majCta();
+      }, {rootMargin:'0px 0px '+m+' 0px'}).observe(el);
+    });
   }else{
     horsHeros = true;   /* sans IntersectionObserver, on la laisse sortie */
   }

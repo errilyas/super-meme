@@ -982,17 +982,28 @@ function comptoir_parfums_assets() {
 	// chaque fiche parfum, a la page commande et a la page 404 — cher pour
 	// une clientele majoritairement en 4G.
 	$deps_theme = array( 'cp-gsap', 'cp-scrolltrigger', 'comptoir-panier' );
+	// Sur telephone (97 % des visites, surtout en 4G), three.js (600 Ko) et la
+	// vitrine ne sont PLUS telecharges : le heros garde l'apercu photo, prevu
+	// comme repli (theme.js teste window.THREE et window.CP_VITRINE). Sur
+	// grand ecran, un petit chargeur les ecrit dans la page AVANT theme.js,
+	// en scripts bloquants : l'ordre three -> vitrine -> theme est conserve.
 	if ( comptoir_est_accueil() ) {
-		wp_enqueue_script( 'cp-three', 'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.140.0/three.min.js', array(), '0.140.0', true );
-		$deps_theme[] = 'cp-three';
-
-		// L'anneau de flacons, sous la MEME condition que three.js : sans lui
-		// et sans #vitrine, il ne peut pas demarrer. Tant qu'il vivait dans
-		// theme.js, ses 176 lignes partaient aussi sur chaque fiche parfum,
-		// sur la page commande et sur la 404, ou elles ne s'executent jamais.
 		$ver_vit = file_exists( $abs . '/vitrine.js' ) ? filemtime( $abs . '/vitrine.js' ) : '2.0';
-		wp_enqueue_script( 'comptoir-vitrine', $dir . '/vitrine.js', array( 'cp-three' ), $ver_vit, true );
-		$deps_theme[] = 'comptoir-vitrine';
+		$cp_src  = array(
+			'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.140.0/three.min.js',
+			$dir . '/vitrine.js?ver=' . $ver_vit,
+		);
+		$cp_tags = '';
+		foreach ( $cp_src as $u ) {
+			$cp_tags .= '<script src="' . esc_url( $u ) . '"></script>';
+		}
+		wp_register_script( 'cp-vitrine-chargeur', false, array(), $ver_vit, true );
+		wp_enqueue_script( 'cp-vitrine-chargeur' );
+		wp_add_inline_script(
+			'cp-vitrine-chargeur',
+			'if(window.matchMedia&&matchMedia("(min-width:901px)").matches){document.write(' . wp_json_encode( $cp_tags ) . ');}'
+		);
+		$deps_theme[] = 'cp-vitrine-chargeur';
 	}
 
 	// Bascule francais / arabe. Chargee AVANT le panier : elle expose CP_T(),

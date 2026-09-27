@@ -3133,3 +3133,53 @@ main.cp-secours{max-width:1280px;padding:168px 72px 120px;text-align:center;posi
   .btn-a::before,.btn-fin::before,.nav-pill::before{display:none}
   .pc::after,.nav-links a::after,.preuve{transition:none}
 }
+
+/* ══════════════════════════════════════════
+   MOBILE — CONVERSION (v3.3)
+   97 % des visites arrivent sur telephone, en 4G. Le heros s'affiche des
+   la premiere peinture : aucun texte ni bouton n'attend un script.
+══════════════════════════════════════════ */
+@media(max-width:900px){
+  .h-eyebrow,.hero-h1,.hero-h1 .h1-inner,.h-badge,.hero-sub,.hero-actions,.hero-visual{
+    opacity:1!important;transform:none!important;filter:none!important;transition:none!important}
+}
+/* Fiche parfum et page Vente : prix et bouton « Commander » dans le premier
+   ecran d'un telephone courant (390 x 844), sans avoir a faire defiler. */
+@media(max-width:900px){
+  .pf-visual{height:clamp(190px,28vh,250px)}
+}
+@media(max-width:860px){ .lp-vedette{padding-top:92px} }
+.ck-franco-voir{display:none}
+@media(max-width:900px){
+  .ck-franco.is-plie .sug-rang,.ck-franco.is-plie .sug-cat{display:none}
+  .ck-franco.is-plie .sug-titre{margin-bottom:6px}
+  .ck-franco.is-plie .ck-franco-voir{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0;background:none;border:0;
+    color:var(--ember);font:inherit;font-size:12px;letter-spacing:var(--label-track,.18em);text-transform:uppercase;cursor:pointer}
+  .ck-franco.is-plie .ck-franco-voir::after{content:"↓"}
+}
+/* Page commande, telephone : le formulaire remonte d'environ un ecran —
+   titre plus court, cartes moins rembourrees, lien « ajouter » discret. */
+@media(max-width:900px){
+  .ck-root #ck-steps{margin-bottom:18px}
+  .ck-root .ck-h{font-size:clamp(30px,8.6vw,38px);margin-top:0;margin-bottom:14px}
+  .ck-carte-panier #ck-sums{margin-top:12px;padding-top:12px}
+  /* Le bloc « deuxieme parfum » propose deja d'ajouter un flacon (et le
+     catalogue) : le lien qui ferait quitter la page commande est de trop. */
+  .ck-franco:not([hidden]) + .ck-add{display:none}
+  .ck-carte{padding:22px 18px}
+  .ck-carte h2{margin-bottom:14px}
+  .ck-item{padding:12px 0}
+  .ck-franco{margin-top:16px;padding:12px 14px}
+  .ck-add{margin-top:12px}
+  .ck-grid{gap:14px}
+}
+.ck-fixe{display:none}
+@media(max-width:900px){
+  .ck-fixe{display:block;position:fixed;left:0;right:0;bottom:0;z-index:48;
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));
+    background:var(--deep);border-top:1px solid rgba(var(--au-rgb),.22);
+    box-shadow:0 -14px 34px rgba(0,0,0,.42);transition:transform .32s var(--ease-out)}
+  .ck-fixe.repli{transform:translateY(120%)}
+  .ck-fixe .ck-go{margin:0;width:100%}
+}
+@media(prefers-reduced-motion:reduce){ .ck-fixe{transition:none} }

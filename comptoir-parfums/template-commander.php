@@ -84,10 +84,10 @@ get_header();
                a rien. -->
           <div class="ck-duo">
             <label class="ck-field" data-f="tel"><span>Téléphone *</span>
-              <input type="tel" name="tel" autocomplete="tel" inputmode="tel" placeholder="06 12 34 56 78" required>
+              <input type="tel" name="tel" autocomplete="tel" inputmode="tel" enterkeyhint="next" placeholder="06 12 34 56 78" required>
               <small class="fe">Numéro marocain attendu, par exemple 06 12 34 56 78.</small></label>
             <label class="ck-field" data-f="nom"><span>Nom complet *</span>
-              <input type="text" name="nom" autocomplete="name" required>
+              <input type="text" name="nom" autocomplete="name" enterkeyhint="next" required>
               <small class="fe">Merci d'indiquer votre nom.</small></label>
           </div>
           <!-- La ville en liste : « Casa », « casablanca », « CASABLANCA » sont
@@ -135,7 +135,7 @@ get_header();
             <input type="text" name="ville_autre" autocomplete="address-level2" placeholder="Nom de votre ville">
             <small class="fe">Indiquez le nom de votre ville.</small></label>
           <label class="ck-field" data-f="adresse"><span>Adresse complète *</span>
-            <input type="text" name="adresse" autocomplete="street-address" placeholder="Rue, numéro, immeuble, étage" required>
+            <input type="text" name="adresse" autocomplete="street-address" enterkeyhint="send" placeholder="Rue, numéro, immeuble, étage" required>
             <small class="fe">C'est cette adresse que le livreur suivra.</small></label>
         </form>
 
@@ -162,6 +162,17 @@ get_header();
         Une question avant ? <a href="#" id="ck-ask">Écrivez-nous</a></p>
       </section>
 
+    </div>
+
+    <!-- Telephone : le bouton de confirmation est a plus d'un ecran du haut.
+         Cette barre le garde sous le pouce tant qu'il est plus bas ; elle se
+         retire pendant la saisie (clavier ouvert) et des qu'il est visible.
+         Formulaire incomplet : le toucher mene au premier champ a remplir. -->
+    <div class="ck-fixe repli" id="ck-fixe" inert>
+      <button class="ck-go ck-fixe-go" id="ck-fixe-go" type="button">
+        <span>Confirmer la commande</span>
+        <b class="ck-go-total" data-ck-total></b>
+      </button>
     </div>
   </div>
 

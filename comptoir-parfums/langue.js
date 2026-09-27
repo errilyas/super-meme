@@ -260,6 +260,7 @@
     'Un deuxième parfum ? La livraison devient offerte.': 'عطر ثانٍ؟ يصبح التوصيل مجانيًا.',
     'Un deuxième parfum ?': 'عطر ثانٍ؟',
     '+ Ajouter': '+ أضف',
+    'Voir les suggestions': 'شاهد الاقتراحات',
     'Voir plus de parfums': 'شاهد عطورًا أخرى',
     /* Testeur : ce que vous recevez, et l'explication complete (testeur.html) */
     'Ce que vous recevez': 'ما تتوصّل به',

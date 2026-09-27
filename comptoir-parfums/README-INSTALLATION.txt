@@ -9,6 +9,38 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.3.0 — TÉLÉPHONE ET CONVERSION
+  97 % des visites arrivent sur téléphone, surtout en 4G. Mesuré en 4G lente
+  (150 ms, 1,6 Mb/s, processeur ralenti ×4) sur un écran de 390 × 844.
+  Accueil
+    - three.js (600 Ko) et la vitrine 3D ne sont plus téléchargés sur
+      téléphone : le héros montre la photo du flacon, qui suit le ruban des
+      maisons. Sur grand écran (≥ 901 px), rien ne change. Poids de la page
+      sur téléphone : 1 672 Ko → 909 Ko.
+    - Titre, texte et boutons du héros affichés dès la première peinture,
+      sans attendre l'animation d'entrée : bouton « Voir le catalogue »
+      visible vers 2,3 s au lieu de 7,7 s.
+  Fiche parfum et page Vente (publicités)
+    - Prix et bouton « Commander » dans le premier écran, sans défiler
+      (photo un peu moins haute sur téléphone, espace vide retiré en haut de
+      la page Vente).
+    - La barre d'achat du bas se retire tant que les boutons de la fiche
+      sont à l'écran : plus deux fois le même bouton.
+  Page commande
+    - Le champ Téléphone apparaît dans le premier écran (titre, marges et
+      cartes resserrés).
+    - Les trois suggestions « deuxième parfum » sont repliées derrière
+      « Voir les suggestions » sur téléphone (ouvertes sur ordinateur).
+    - Lien « Ajouter un autre parfum » masqué quand les suggestions sont là :
+      il faisait quitter la page commande.
+    - Barre « Confirmer la commande · total » en bas de l'écran tant que le
+      vrai bouton est plus bas ; elle se retire pendant la saisie (clavier
+      ouvert), quand le champ Téléphone est visible et quand le bouton est à
+      l'écran. Formulaire incomplet : le toucher mène au premier champ à
+      remplir. Même envoi, même suivi (Pixel, CAPI) que le bouton principal.
+    - Touche « suivant » du clavier sur Téléphone et Nom, « envoyer » sur
+      l'adresse.
+
 VERSION 3.2.2 — AUDIT ET CORRECTIONS
   Vérifié : 33 tests fonctionnels (catalogue, recherche, filtres, tri, voir
   plus, onglets, FAQ, thème, langue, panier, commande), 28 tests de liens,
