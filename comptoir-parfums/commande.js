@@ -40,6 +40,11 @@
   var checkoutMesure = false;
 
   function draw(){
+    /* Remerciement affiche : le panier vient d'etre vide, et chaque signal de
+       changement qui suit (P.onChange) rouvrait « Votre panier est vide » sous
+       le « Merci » — deux ecrans empiles, dont un qui dit le contraire. */
+    var ecranMerci = document.getElementById('ck-merci');
+    if(ecranMerci && !ecranMerci.hidden){ full.hidden = true; empty.hidden = true; return; }
     var items = P.items();
     full.hidden = !items.length;
     empty.hidden = !!items.length;

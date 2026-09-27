@@ -64,6 +64,10 @@
     'La maison': 'الدار',
     'Nous écrire': 'راسلنا',
     'Réponse en moins de 2h': 'نجيبك في أقل من ساعتين',
+    'Cette page': 'هذه الصفحة',
+    "n'existe pas.": 'غير موجودة.',
+    'Les plus demandés': 'الأكثر طلبًا',
+    'Paiement à la livraison · Livraison partout au Maroc': 'الدفع عند الاستلام · التوصيل إلى كل المغرب',
     'Défiler': 'مرّر للأسفل',
     'Glissez pour tourner la vitrine': 'اسحب لتدوير الواجهة',
     'Paiement à la livraison': 'الدفع عند الاستلام',
@@ -583,6 +587,7 @@
     [/^(\d+) maisons, de (.+) à (.+) DH\. Chaque flacon a sa fiche complète : pyramide olfactive, prix, disponibilité\.$/, '$1 دار عطور، من $2 إلى $3 درهم. لكل قارورة بطاقتها الكاملة: الهرم العطري، السعر، التوفر.'],
     [/^Le reste du Maroc en 2 à 4 jours ouvrables\. (\d+) DH de livraison, partout — offerte dès le deuxième parfum\.$/, 'باقي المغرب خلال 2 إلى 4 أيام عمل. التوصيل بـ$1 درهم في كل المغرب — مجاني ابتداءً من العطر الثاني.'],
     [/^(\d+) DH de livraison, partout\.$/, 'التوصيل بـ$1 درهم في كل المغرب.'],
+    [/^Le lien est peut-être incomplet, ou la page a été retirée\. Le catalogue, lui, est toujours là : (\d+) parfums, (\d+) maisons, livrés partout au Maroc\.$/, 'ربما الرابط غير مكتمل، أو أُزيلت الصفحة. أمّا الكتالوج فما زال هنا: $1 عطر و$2 دار عطور، مع التوصيل إلى كل المغرب.'],
     [/^Frais de livraison confirmés à la commande\.$/, 'تُحدَّد رسوم التوصيل عند الطلب.']
   ];
 

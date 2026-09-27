@@ -51,14 +51,43 @@ get_header();
 
 	<?php else : ?>
 
-		<h1>Cette page n'existe pas.</h1>
+		<svg class="cp-sceau" viewBox="0 0 96 96" aria-hidden="true"><use href="#cp-seal"/></svg>
+		<p class="cp-code" aria-hidden="true">404</p>
+		<h1>Cette page <em>n'existe pas.</em></h1>
 		<p class="cp-intro">Le lien est peut-être incomplet, ou la page a été retirée.
 		Le catalogue, lui, est toujours là&nbsp;: <?php echo (int) count( comptoir_produits() ); ?> parfums,
 		<?php echo (int) count( comptoir_catalogue_par_maison() ); ?> maisons, livrés partout au Maroc.</p>
+		<div class="cp-actions">
+			<a class="btn-a" href="<?php echo esc_url( home_url( '/' ) ); ?>#catalogue">Voir le catalogue</a>
+			<a class="btn-b" href="<?php echo esc_url( 'https://wa.me/' . comptoir_wa_numero() ); ?>" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
+		</div>
+
+		<?php
+		/* Une impasse qui propose quelque chose : quatre flacons parmi les plus
+		   demandes (comptoir_selection), plutot qu'une page qui n'offre que le
+		   retour en arriere. */
+		$cp_suggestions = array();
+		foreach ( comptoir_selection() as $cp_bloc ) {
+			foreach ( $cp_bloc['parfums'] as $cp_p ) {
+				$cp_suggestions[] = $cp_p;
+			}
+		}
+		$cp_suggestions = array_slice( $cp_suggestions, 0, 4 );
+		if ( $cp_suggestions ) :
+			?>
+		<section class="cp-suggestions" aria-label="Parfums les plus demandés">
+			<h2 class="cp-sugg-titre">Les plus demandés</h2>
+			<div class="cat-grille" role="list">
+				<?php foreach ( $cp_suggestions as $cp_p ) { comptoir_carte_produit( $cp_p ); } ?>
+			</div>
+		</section>
+		<?php endif; ?>
 
 	<?php endif; ?>
 
+	<?php if ( have_posts() || is_search() ) : ?>
 	<a class="cp-retour" href="<?php echo esc_url( home_url( '/' ) ); ?>#catalogue">Voir le catalogue &rarr;</a>
+	<?php endif; ?>
 </main>
 
 <?php get_footer(); ?>

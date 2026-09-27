@@ -114,11 +114,19 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
 
 <!-- ─── MOBILE MENU ─── -->
 <div id="mob-menu" role="dialog" aria-modal="true" aria-label="Menu">
-  <a href="<?php echo esc_url( $cp_home ); ?>#scents" class="mob-link" data-close>Sélection</a>
-  <a href="<?php echo esc_url( $cp_home ); ?>#distinction" class="mob-link" data-close>Notre approche</a>
-  <a href="<?php echo esc_url( $cp_home ); ?>#catalogue" class="mob-link" data-close>Catalogue</a>
-  <a href="#" class="mob-link" data-close data-panier-open>Panier (<span data-panier-count>0</span>)</a>
-  <a href="<?php echo esc_url( $cp_wa ); ?>" class="mob-link mob-wa" target="_blank" rel="noopener" data-close>WhatsApp →</a>
+  <nav class="mob-nav" aria-label="Menu principal">
+    <a href="<?php echo esc_url( $cp_home ); ?>#scents" class="mob-link" data-close><span class="mob-num" aria-hidden="true">01</span>Sélection</a>
+    <a href="<?php echo esc_url( $cp_home ); ?>#distinction" class="mob-link" data-close><span class="mob-num" aria-hidden="true">02</span>Notre approche</a>
+    <a href="<?php echo esc_url( $cp_home ); ?>#catalogue" class="mob-link" data-close><span class="mob-num" aria-hidden="true">03</span>Catalogue</a>
+    <a href="<?php echo esc_url( $cp_home ); ?>#process" class="mob-link" data-close><span class="mob-num" aria-hidden="true">04</span>Commander</a>
+    <a href="#" class="mob-link" data-close data-panier-open><span class="mob-num" aria-hidden="true">05</span>Panier (<span data-panier-count>0</span>)</a>
+  </nav>
+  <!-- Le pied du menu : la voie directe (WhatsApp) et la promesse, a portee
+       de pouce, la ou le visiteur hesite. -->
+  <div class="mob-pied">
+    <a href="<?php echo esc_url( $cp_wa ); ?>" class="mob-link mob-wa" target="_blank" rel="noopener" data-close>WhatsApp →</a>
+    <p class="mob-gages">Paiement à la livraison · Livraison partout au Maroc</p>
+  </div>
 </div>
 
 <!-- ─── NAV ─── -->

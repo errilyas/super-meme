@@ -4,9 +4,34 @@ LE COMPTOIR DES PARFUMS — thème WordPress sur-mesure
 VERSIONS 3.x — ÉDITION MAISON
 =============================
 Même identité — aubergine, or du sceau, Cormorant Garamond + Jost, sceau
-CP — avec un fini de maison de parfum. Tout le visuel nouveau vit dans UN
-bloc, en fin de style-site.css (« ÉDITION MAISON — COUCHE DE FINITION ») :
-le retirer rend exactement la v2.
+CP — avec un fini de maison de parfum. Le CSS nouveau vit en fin de
+style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
+page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
+404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
+
+VERSION 3.2 — TOUT LE RESTE
+  Page Vente (/?vente=1, publicités)
+    - Héros avec l'italique d'or de la promesse et un éventail de trois
+      flacons détourés (img/heros/) posés sur un halo.
+    - Pleine largeur : main.lp portait .wrap en plus des conteneurs de
+      chaque section — marges doublées, clôture enfermée dans une boîte.
+    - Aperçu du catalogue en 4 colonnes (3 avec un parfum en vedette) :
+      plus de dernière rangée à moitié vide.
+    - Vedette (?vente=1&p=slug) : les notes principales dans le bloc d'achat.
+  Menu mobile
+    - Table des matières numérotée, lien « Commander » ajouté, WhatsApp et
+      la promesse en pied de menu.
+  Tiroir du panier et notification
+    - Liseré d'or ; la notification « ajouté au panier » monte en haut de
+      l'écran quand le tiroir est ouvert (elle couvrait « Commander »).
+  Page 404
+    - Sceau, « 404 » en filigrane, deux issues (catalogue, WhatsApp) et les
+      quatre parfums les plus demandés.
+  Panier vide et remerciement
+    - Pictogramme de sac, boutons à l'or unifié ; étapes du remerciement
+      numérotées.
+    - CORRIGÉ : après une commande, « Votre panier est vide » s'affichait
+      sous le « Merci » (le panier vidé relançait draw()).
 
 VERSION 3.1 — FICHE PARFUM ET PAGE COMMANDE
   Fiche parfum

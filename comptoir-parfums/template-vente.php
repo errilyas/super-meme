@@ -75,6 +75,7 @@ get_header();
         <div class="pf-brand"><?php echo esc_html( $cp_vedette['b'] ); ?></div>
         <h1 class="pf-name"><?php echo esc_html( $cp_vedette['n'] ); ?></h1>
         <div class="pf-meta"><?php echo esc_html( $cp_vedette['x'] . ' · ' . $cp_vedette['g'] ); ?></div>
+        <a class="pf-notes-cle" href="<?php echo esc_url( comptoir_parfum_url( $cp_vedette['s'] ) ); ?>#pf-histoire"><span class="pf-notes-lib">Notes</span><span><?php echo esc_html( comptoir_notes_courtes( $cp_vedette ) ); ?></span></a>
         <div class="pf-price">
           <span class="now"><?php echo esc_html( $cp_vedette['pr'] ); ?></span>
           <span class="pf-price-note">Testeur original · 100 % authentique</span>
@@ -101,13 +102,35 @@ get_header();
   <section class="lp-hero" aria-label="Présentation">
     <div class="lp-hero-inner r">
       <div class="sect-kicker"><span>Testeurs originaux · Livraison partout au Maroc</span></div>
-      <h1 class="hero-h1">Le parfum que vous voulez.<br>Au prix qui vous convient.</h1>
+      <h1 class="hero-h1">Le parfum que vous voulez.<br><em>Au prix qui vous convient.</em></h1>
       <p class="hero-sub">Chanel, Dior, Tom Ford — testeurs 100&nbsp;% originaux, le même jus qu'en boutique. Vous payez à la réception, jamais avant.</p>
       <div class="hero-actions">
         <a href="#lp-produits" class="btn-a" data-cursor-label="Voir la sélection">Voir la sélection</a>
       </div>
       <?php comptoir_gages( 'gages-hero' ); ?>
     </div>
+    <?php
+    /* Trois flacons detoures, en eventail sous la promesse : ce que la pub
+       a montre, on le retrouve en arrivant. Visuels de la vitrine de
+       l'accueil (img/heros/), deja au format WebP et a fond transparent ;
+       une maison dont le visuel manque est simplement omise. */
+    $cp_trio = array( 'dior' => 'Dior', 'tom-ford' => 'Tom Ford', 'parfums-de-marly' => 'Parfums de Marly' );
+    $cp_trio = array_filter(
+    	$cp_trio,
+    	static function ( $m ) {
+    		return file_exists( get_template_directory() . '/img/heros/' . $m . '.webp' );
+    	},
+    	ARRAY_FILTER_USE_KEY
+    );
+    if ( $cp_trio ) :
+    	?>
+    <div class="lp-trio" aria-hidden="true">
+      <?php foreach ( $cp_trio as $cp_m => $cp_nom ) : ?>
+      <img src="<?php echo esc_url( get_template_directory_uri() . '/img/heros/' . $cp_m . '.webp' ); ?>" alt="" width="900" height="900" decoding="async">
+      <?php endforeach; ?>
+      <span class="lp-trio-sol"></span>
+    </div>
+    <?php endif; ?>
   </section>
   <?php endif; ?>
 
