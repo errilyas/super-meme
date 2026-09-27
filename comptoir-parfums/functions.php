@@ -1706,12 +1706,10 @@ add_action( 'wp_head', function () {
 	if ( has_site_icon() ) {
 		return;
 	}
-	echo '<link rel="icon" href="data:image/svg+xml,'
-		. "%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E"
-		. "%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%23170c1b'/%3E"
-		. "%3Ccircle%20cx='16'%20cy='16'%20r='12'%20fill='none'%20stroke='%23c9993f'%20stroke-width='1'/%3E"
-		. "%3Ctext%20x='16.5'%20y='21.6'%20text-anchor='middle'%20font-family='Georgia%2Cserif'%20font-style='italic'%20font-weight='600'%20font-size='15'%20fill='%23e8c079'%3ECP%3C/text%3E"
-		. "%3C/svg%3E\">\n";
+	// Sceau compact vectorise (favicon.svg), lisible a 16 px ; l'ancien
+	// favicon ecrivait « CP » en Georgia faute de police chargee.
+	$ico = get_template_directory_uri() . '/favicon.svg';
+	echo '<link rel="icon" type="image/svg+xml" href="' . esc_url( $ico ) . '">' . "\n";
 }, 1 );
 
 /**

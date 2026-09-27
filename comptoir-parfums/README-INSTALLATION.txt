@@ -9,6 +9,24 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.4.0 — SCEAU REDESSINÉ
+  Même identité (sceau rond, monogramme CP italique, or du thème), redessinée
+  pour tenir à toutes les tailles :
+    - Lettres vectorisées : « CP » et la légende sont des tracés tirés de
+      Cormorant Garamond et de Jost, plus du texte. Le logo ne dépend plus de
+      la police chargée (avant : Georgia au premier affichage et dans le
+      favicon).
+    - Deux versions : #cp-seal, compacte (anneaux épais, CP en gras), lisible
+      dès 30 px — en-tête, pied de page, 404, bloc final ; #cp-seal-full,
+      sceau complet avec « LE COMPTOIR DES PARFUMS · MAROC » en légende
+      circulaire — héros (repli sans 3D) et écran de chargement.
+    - Thème clair : or plus profond, le haut du dégradé ne disparaît plus sur
+      le fond crème.
+    - Favicon : favicon.svg (sceau compact sur fond aubergine), lisible à 16 px.
+  Fichiers : logo-sceau.svg (complet), logo-sceau-compact.svg, favicon.svg.
+  Exports PNG pour les réseaux (profil Instagram/Facebook/WhatsApp) : dans
+  dist/marque/ du dépôt.
+
 VERSION 3.3.1 — CORRECTIFS TÉLÉPHONE (CATALOGUE, VITRINE)
   - iPhone : toucher la recherche ou un filtre du catalogue zoomait la page
     (champs en 12,5 px, Safari zoome sous 16 px) et la laissait décalée.

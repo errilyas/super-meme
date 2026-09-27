@@ -3200,3 +3200,10 @@ main.cp-secours{max-width:1280px;padding:168px 72px 120px;text-align:center;posi
   .cat-champ:has(#cat-tri){order:4}
   .h-brand-float{display:none!important}
 }
+
+/* Sceau v3.4 — or plus profond en thème clair : le haut du dégradé (#f4e0ac)
+   disparaissait presque sur le fond crème. */
+:root[data-theme="light"] .cpg0{stop-color:#c9a45c}
+:root[data-theme="light"] .cpg1{stop-color:#a8803d}
+:root[data-theme="light"] .cpg2{stop-color:#8a6428}
+:root[data-theme="light"] .cpg3{stop-color:#624519}

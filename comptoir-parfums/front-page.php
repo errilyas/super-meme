@@ -111,7 +111,7 @@ list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
       <!-- Logo 3D — flacon-sceau « CP » (WebGL, cf. bloc script en bas de page) -->
       <div class="flacon-stage" id="flacon-stage">
         <div class="flacon3d" id="flacon3d">
-          <svg class="flacon3d-fallback" viewBox="0 0 96 96" aria-hidden="true"><use href="#cp-seal"/></svg>
+          <svg class="flacon3d-fallback" viewBox="0 0 96 96" aria-hidden="true"><use href="#cp-seal-full"/></svg>
         </div>
         <!-- Aperçu : vraie photo produit de la maison survolée/centrée dans le ruban -->
         <div class="hero-shot" id="hero-shot" aria-hidden="true">
