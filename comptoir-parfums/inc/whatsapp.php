@@ -36,7 +36,7 @@ function comptoir_wa_reglages() {
 	return wp_parse_args( is_array( $r ) ? $r : array(), array(
 		'actif'         => 0,
 		'phone_id'      => '',
-		'langue'        => 'fr',
+		'langue'        => 'ar',
 		'tpl_confirm'   => 'cp_confirmation_commande',
 		'tpl_relance'   => 'cp_relance_confirmation',
 		'tpl_livraison' => 'cp_rappel_livraison',
@@ -185,9 +185,11 @@ function comptoir_wa_commande( $id ) {
 	return array(
 		'ref'     => (string) get_post_meta( $id, 'cp_ref', true ),
 		'to'      => comptoir_capi_tel_e164( get_post_meta( $id, 'cp_tel', true ) ),
-		'prenom'  => $prenom ? $prenom : 'et bienvenue',
-		'panier'  => $lignes ? implode( ' · ', $lignes ) : 'votre commande',
-		'total'   => (int) get_post_meta( $id, 'cp_total', true ) . ' DH',
+		// Messages en darija. Sans prenom, « السلام {{1}} » devient « السلام عليكم ».
+		'prenom'  => $prenom ? $prenom : 'عليكم',
+		'nom_ok'  => $prenom,
+		'panier'  => $lignes ? implode( ' · ', $lignes ) : 'الطلبية ديالك',
+		'total'   => (int) get_post_meta( $id, 'cp_total', true ) . ' درهم',
 		'adresse' => trim( $adresse . ( $ville ? ', ' . $ville : '' ) ),
 	);
 }
@@ -399,12 +401,12 @@ function comptoir_wa_intention( $texte ) {
 	$t = trim( preg_replace( '/\s+/u', ' ', preg_replace( '/[!.?،,;:]+/u', ' ', $t ) ) );
 	// Confirmation : un message court seulement. « oui mais je veux changer de
 	// ville » n'est pas un feu vert pour expedier : il part en « message a lire ».
-	if ( preg_match( '/^(1|oui|ok|okay|d.accord|je confirme|confirm\w*|wakha|wah|iyeh|ayeh|نعم|واخا|اه|آه|أكيد|مؤكد|✅|👍)( merci| svp| stp| je confirme| c.est bon| شكرا| الله يخليك)?( ?[✅👍🙏]+)?$/u', $t ) ) {
+	if ( preg_match( '/^(1|oui|ok|okay|d.accord|je confirme|confirm\w*|wakha|wa5a|waxa|waha|wah|iyeh|ayeh|ah|eh|safi|نعم|واخا|وخا|اه|آه|إيه|ايه|ييه|صافي|أكيد|اكيد|مؤكد|أكد|✅|👍)( merci| svp| stp| je confirme| c.est bon| شكرا| الله يخليك| نصيفطوها| صيفطوها| صيفطها)?( ?[✅👍🙏]+)?$/u', $t ) ) {
 		return 'ok';
 	}
 	// Annulation : le message entier doit etre un refus. « la commande arrive
 	// quand ? » commence par « la » (non, en darija) et ne doit rien annuler.
-	if ( preg_match( '/^(2|non|annul\w*|la|lla|لا|ألغي|الغي|❌)( merci| svp| stp| la commande| الطلب)?$/u', $t ) ) {
+	if ( preg_match( '/^(2|non|annul\w*|la|lla|la2|lala|mabghitch|ma bghitch|لا|لالا|ألغي|الغي|ما بغيتش|مابغيتش|❌)( merci| svp| stp| la commande| شكرا| الطلب| الطلبية)?$/u', $t ) ) {
 		return 'no';
 	}
 	return '';
@@ -421,8 +423,8 @@ function comptoir_wa_applique( $id, $intention, $wa_id ) {
 		update_post_meta( $id, 'cp_wa_statut', 'confirme' );
 		update_post_meta( $id, 'cp_etat', 'confirmee' );
 		comptoir_wa_texte( $wa_id, sprintf(
-			"✅ Merci %s, votre commande %s est confirmée.\nElle part au plus vite ; le livreur vous appellera avant de passer.\nÀ payer à la réception : %s.\n\nتأكدات الطلبية ديالك، شكرا 🙏",
-			$c['prenom'], $c['ref'], $c['total']
+			"✅ شكرا%s، تأكدات الطلبية ديالك %s.\nغادي نصيفطوها فأقرب وقت، ومول التوصيل غادي يعيط ليك قبل ما يجي.\nالمبلغ لي غادي تخلص فالاستلام: %s.\nمرحبا بيك 🙏",
+			$c['nom_ok'] ? ' ' . $c['nom_ok'] : '', $c['ref'], $c['total']
 		) );
 	} elseif ( 'no' === $intention ) {
 		if ( 'annule' === get_post_meta( $id, 'cp_wa_statut', true ) ) {
@@ -431,7 +433,7 @@ function comptoir_wa_applique( $id, $intention, $wa_id ) {
 		update_post_meta( $id, 'cp_wa_statut', 'annule' );
 		update_post_meta( $id, 'cp_etat', 'annulee' );
 		comptoir_wa_texte( $wa_id, sprintf(
-			"Votre commande %s est annulée. Si c'est une erreur, répondez simplement à ce message.\nتلغات الطلبية. إلا كانت غلطة، جاوبنا هنا.",
+			"تلغات الطلبية ديالك %s.\nإلا كانت غلطة، غير جاوبنا هنا ونرجعوها ليك 🙏",
 			$c['ref']
 		) );
 		$r = comptoir_wa_reglages();
@@ -499,8 +501,8 @@ function comptoir_wa_webhook_recoit( $req ) {
 				// sans toucher a aucune commande.
 				if ( 'CP-TEST' === $ref ) {
 					comptoir_wa_texte( $wa_id, 'ok' === $intention
-						? '✅ Test réussi : la confirmation arrive bien sur le site. Commande fictive CP-TEST, rien ne sera expédié.'
-						: 'Test réussi : l\'annulation arrive bien sur le site. Commande fictive CP-TEST.' );
+						? '✅ التجربة نجحات: التأكيد كيوصل للموقع. هادي طلبية تجريبية CP-TEST، والو ما غادي يتصيفط.'
+						: '✅ التجربة نجحات: الإلغاء كيوصل للموقع. طلبية تجريبية CP-TEST.' );
 					continue;
 				}
 
@@ -740,7 +742,7 @@ function comptoir_wa_page() {
 		if ( $test ) {
 			$test = comptoir_capi_tel_e164( $test );
 			$res  = ( $r['phone_id'] && comptoir_wa_jeton() )
-				? comptoir_wa_modele( $test, $r['tpl_confirm'], array( 'Test', 'CP-TEST', '1× Jean Paul Gaultier Le Male Elixir', '354 DH', '3 av. Mohammed V, Rabat' ), array( 'CP_OK|CP-TEST', 'CP_NO|CP-TEST' ) )
+				? comptoir_wa_modele( $test, $r['tpl_confirm'], array( 'Salma', 'CP-TEST', '1× Jean Paul Gaultier Le Male Elixir', '354 درهم', '3 av. Mohammed V, Rabat' ), array( 'CP_OK|CP-TEST', 'CP_NO|CP-TEST' ) )
 				: new WP_Error( 'cp_wa', 'Identifiant du numéro et jeton requis.' );
 			if ( is_wp_error( $res ) ) {
 				$avis = 'Réglages enregistrés, mais le message de test a échoué : ' . $res->get_error_message();
