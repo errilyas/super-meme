@@ -9,53 +9,50 @@ ignored.
 
 ## Status
 
-- filled: no
-- source: template
-- updated: --
+- filled: yes
+- source: rédigé à partir du site (thème v3.5.2) et du guide WhatsApp ; à corriger avec de vrais posts
+- updated: 2026-10-01
 
-## 1. Voice fingerprint
+## 1. Voix
 
-- Sentence rhythm:
-- Signature openers:
-- Punctuation habits:
-- Words and phrases you use a lot:
-- Words and phrases you NEVER use:
-- Emoji:
-- Formatting (Instagram): hook in the first line before the fold; hashtags in first comment; Reels vs carousel
+- Sentence rhythm: phrases courtes, concrètes, une idée par ligne. Ton chaleureux et direct, comme un conseiller de boutique, pas comme une pub.
+- Signature openers: le parfum ou la situation d'abord ("Le Male Elixir, version soirée."), jamais "Découvrez".
+- Punctuation habits: peu de points d'exclamation (1 max par post), pas de majuscules criardes.
+- Words and phrases you use a lot: parfum authentique, livraison partout au Maroc, paiement à la réception, 24 à 72 h, grandes marques (Dior, Tom Ford, Armani, Xerjoff, Kurkdjian).
+- Words and phrases you NEVER use: "meilleur prix du Maroc", "stock limité" sans vrai stock, "promo folle", "100 % original" sans preuve, comparaisons dénigrantes avec des concurrents.
+- Emoji: sobres, 0 à 2 par post (🧴 📦 ✨), jamais en rafale.
+- Langue: français par défaut ; darija (écrite en arabe) pour les réponses WhatsApp et quand le public le demande. Ne pas mélanger les deux dans une même phrase.
+- Formatting (Instagram): accroche dans les 125 premiers caractères ; hashtags en premier commentaire ; Reels pour l'ambiance et la découverte, carrousels pour comparer ou conseiller ("quel parfum pour quelle occasion").
 
-## 2. Who you are and who you write for
+## 2. Qui est la marque, et pour qui
 
-- You are:
-- Your audience (ICP):
-- Your content pillars:
+- You are: Le Comptoir des Parfums, boutique en ligne de parfums de marque au Maroc, livraison dans tout le pays, paiement en espèces à la réception.
+- Your audience (ICP): hommes et femmes, 22-45 ans, dans les grandes villes (Casablanca, Rabat, Marrakech, Tanger), qui veulent un parfum de niche ou de marque sans risque : ils craignent les contrefaçons et ne paient pas d'avance.
+- Your content pillars: (1) un parfum, une ambiance (notes, saison, occasion) ; (2) preuves clients et livraisons ; (3) conseils ("comment choisir", "tenue du parfum", "où le vaporiser") ; (4) confiance (paiement à la réception, livraison offerte dès le deuxième parfum, confirmation WhatsApp).
 
-## 3. Hard rules (always / never)
+## 3. Règles
 
-- Always:
-- Never:
+- Always: indiquer le prix en DH quand il est cité ; rappeler le paiement à la réception quand on parle d'achat ; une seule action demandée par post.
+- Never: promettre une durée de tenue précise ; affirmer une authenticité sans pouvoir la justifier ; inventer un avis client ; publier sans validation.
 
-## 4. Links and CTA
+## 4. Liens et appel à l'action
 
-- Primary link you point people to:
-- Where it goes:
-- Your CTA style:
+- Primary link you point people to: https://comptoirparfums.com.
+- Where it goes: page du parfum concerné, sinon la boutique.
+- Your CTA style: doux et pratique ("Commande en 1 minute, tu paies à la livraison", "Écris-nous sur WhatsApp"). Pas d'urgence artificielle.
 
-## 5. Signature examples
+## 5. Exemples signature
 
-Paste 2-4 of your own real Instagram lines or posts that sound most like you. The
-writing skills mirror the rhythm and word choice of these, not a generic voice.
+À compléter avec 2-4 vraies légendes de @le_comptoir_parfums : les skills imiteront leur rythme.
 
 -
 -
 -
 
-## 6. Brand assets (for illustrations)
+## 6. Éléments de marque
 
-Used by the illustration step (`lib.illustrate`) to keep every generated image
-on-brand via a pixel-exact overlay. All optional; leave blank to skip the overlay.
-
-- Handle to stamp on images: (e.g. @yourname)
-- Brand color (hex): (e.g. #0A66C2)
-- Logo: (path or Pixfaro `logo_id`, if you have one)
-- Overlay position: (e.g. bottom-right)
-- Visual style default: (e.g. minimal flat vector; bold editorial; muted photo)
+- Handle to stamp on images: @le_comptoir_parfums
+- Brand color (hex): #150a12 (fond aubergine profond) avec accents ivoire #e8dfc8 et or
+- Logo: sceau du thème (comptoir-parfums)
+- Overlay position: bottom-right
+- Visual style default: sombre et luxueux, fond aubergine, lumière chaude, photo produit nette
