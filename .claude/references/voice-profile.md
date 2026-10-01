@@ -37,7 +37,7 @@ ignored.
 
 ## 4. Liens et appel à l'action
 
-- Primary link you point people to: le site du Comptoir des Parfums (URL à compléter).
+- Primary link you point people to: https://comptoirparfums.com.
 - Where it goes: page du parfum concerné, sinon la boutique.
 - Your CTA style: doux et pratique ("Commande en 1 minute, tu paies à la livraison", "Écris-nous sur WhatsApp"). Pas d'urgence artificielle.
 
