@@ -105,6 +105,10 @@ body.cpb-a #nav.stuck{top:0}
    CALQUES (recherche, quiz, favoris) — socle commun
 ══════════════════════════════════════════ */
 html.cpb-lock{overflow:hidden}
+/* La bulle WhatsApp de l'extension Joinchat flotte tres haut (z-index 9000) :
+   elle couvrirait le bas de la recherche et du quiz. Masquee le temps qu'un
+   calque est ouvert, elle revient a la fermeture. */
+html.cpb-lock .joinchat{display:none!important}
 .cpb-calque{
   position:fixed;inset:0;z-index:1350;
   display:flex;justify-content:center;align-items:flex-start;
