@@ -122,6 +122,31 @@
     'Recommencer': 'أعد الاختبار',
     'Voir tout le catalogue': 'شاهد الكتالوج كاملاً',
     'Dans le même esprit': 'بنفس الروح',
+    'Commander en 30 secondes': 'اطلب في 30 ثانية',
+    'Rien à payer maintenant : vous réglez en espèces au livreur.': 'لا شيء تدفعه الآن: تدفع نقدًا لعامل التوصيل.',
+    '1 flacon': 'قارورة واحدة',
+    '2 flacons': 'قارورتان',
+    'Livraison offerte': 'التوصيل مجاني',
+    'Téléphone': 'الهاتف',
+    'Nom complet': 'الاسم الكامل',
+    'Ville': 'المدينة',
+    'Choisissez votre ville': 'اختر مدينتك',
+    'Autre ville…': 'مدينة أخرى…',
+    'Laquelle ?': 'أي مدينة؟',
+    'Adresse complète': 'العنوان الكامل',
+    'Rue, numéro, immeuble, étage': 'الشارع، الرقم، العمارة، الطابق',
+    'Nom de votre ville': 'اسم مدينتك',
+    'Numéro marocain attendu, par exemple 06 12 34 56 78.': 'رقم مغربي، مثلًا 06 12 34 56 78.',
+    'Merci d’indiquer votre nom.': 'المرجو كتابة اسمك.',
+    'Choisissez votre ville dans la liste.': 'اختر مدينتك من القائمة.',
+    'Indiquez le nom de votre ville.': 'اكتب اسم مدينتك.',
+    'C’est cette adresse que le livreur suivra.': 'هذا هو العنوان الذي سيتبعه عامل التوصيل.',
+    'Confirmer la commande': 'تأكيد الطلب',
+    'Livraison : {l}': 'التوصيل: {l}',
+    'offerte': 'مجاني',
+    '+ {n} parfum(s) déjà dans votre panier': '+ {n} عطر موجود في سلتك',
+    'Total à payer au livreur : {t}': 'المبلغ الذي تدفعه لعامل التوصيل: {t}',
+    'WhatsApp s’ouvre ensuite avec votre commande déjà écrite.': 'سيُفتح واتساب بعد ذلك وطلبك مكتوب.',
     'En commun :': 'مشترك:',
     'Vous hésitez ?': 'محتار؟',
     'Trouvez votre parfum en 4 questions': 'اكتشف عطرك في 4 أسئلة',
@@ -1241,6 +1266,203 @@
   }
 
   /* ══════════════════════════════════════════════════════════════
+     6. COMMANDE EXPRESS SUR LA FICHE PARFUM
+     Le formulaire de la page commande, pose sous le prix : en paiement a la
+     livraison, chaque page de plus entre l'envie et l'adresse coute des
+     commandes. L'envoi suit EXACTEMENT le chemin de commande.js (theme) :
+       Panier.depose()  -> carnet WordPress, feuille Google, CAPI, WhatsApp
+       mesure « Lead »  -> meme reference que la commande
+       cp_commande_faite + ?commander=1&merci=1 -> la page de remerciement du
+       theme ouvre WhatsApp et compte l'achat (Purchase) une seule fois.
+     Rien n'est recalcule ici : le serveur recalcule le total depuis le
+     catalogue, comme pour toute commande.
+  ══════════════════════════════════════════════════════════════ */
+  var VILLES_FR = ['Agadir', 'Al Hoceïma', 'Berkane', 'Berrechid', 'Béni Mellal', 'Casablanca', 'Dakhla',
+    'El Jadida', 'Errachidia', 'Essaouira', 'Fès', 'Guelmim', 'Ifrane', 'Khouribga', 'Kénitra', 'Larache',
+    'Laâyoune', 'Marrakech', 'Meknès', 'Mohammedia', 'Nador', 'Ouarzazate', 'Oujda', 'Rabat', 'Safi', 'Salé',
+    'Settat', 'Sidi Slimane', 'Tanger', 'Taza', 'Témara', 'Tétouan'];
+
+  /* Meme regle que commande.js : 0X + 8 chiffres, ou 212 + 9. */
+  function telValide(v) {
+    var n = String(v).replace(/[\s().-]/g, '').replace(/^(?:\+|00)/, '');
+    return /^212[5-7][0-9]{8}$/.test(n) || /^0[5-7][0-9]{8}$/.test(n);
+  }
+
+  /* Ce que sera le panier une fois ce flacon pris en quantite q, sans le
+     modifier : total et livraison affiches avant l'envoi. Meme regle que
+     Panier.fraisLivraison(). */
+  function apercuPanier(s, q) {
+    var c = P.cfg || {}, lignes = {}, autres = 0, n = 0, sous = 0;
+    P.items().forEach(function (x) { lignes[x.s] = x.q; });
+    if (!lignes[s] || lignes[s] < q) { lignes[s] = q; }
+    Object.keys(lignes).forEach(function (k) {
+      var p = produit(k);
+      if (!p) { return; }
+      n += lignes[k];
+      sous += P.prix(p) * lignes[k];
+      if (k !== s) { autres += lignes[k]; }
+    });
+    var frais = !n ? 0 : (c.franco && n >= c.franco ? 0 : (c.livraison || 0));
+    return { n: n, autres: autres, sous: sous, frais: frais, total: sous + frais };
+  }
+
+  function expressFiche() {
+    var ref = CFG.slug ? produit(CFG.slug) : null;
+    var buy = document.querySelector('main.pf .pf-buy');
+    if (!ref || !buy || !P.depose || !P.reference) { return; }
+    var ancre = buy.querySelector('.pf-rassure-cta') || buy.querySelector('.pf-actions');
+    if (!ancre) { return; }
+    var c = P.cfg || {};
+    var deuxOffert = c.franco === 2 && c.livraison > 0;
+    var ville = function (fr) { return window.CP_VILLE ? window.CP_VILLE(fr) : fr; };
+
+    var bloc = document.createElement('form');
+    bloc.className = 'cpb cpb-express';
+    bloc.setAttribute('novalidate', '');
+    bloc.setAttribute('aria-label', t('Commander en 30 secondes'));
+    bloc.innerHTML =
+      '<p class="cpb-titre-petit">' + esc(t('Commander en 30 secondes')) + '</p>' +
+      '<div class="cpb-x-qte" role="radiogroup" aria-label="' + esc(t('Commander en 30 secondes')) + '">' +
+        '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="1" checked><span>' + esc(t('1 flacon')) +
+          '<b>' + P.fmt(P.prix(ref)) + '</b></span></label>' +
+        '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="2"><span>' + esc(t('2 flacons')) +
+          '<b>' + P.fmt(P.prix(ref) * 2) + '</b>' +
+          (deuxOffert ? '<em>' + esc(t('Livraison offerte')) + '</em>' : '') + '</span></label>' +
+      '</div>' +
+      '<label class="cpb-x-champ" data-f="tel"><span>' + esc(t('Téléphone')) + ' *</span>' +
+        '<input type="tel" name="tel" autocomplete="tel" inputmode="tel" enterkeyhint="next" placeholder="06 12 34 56 78" required>' +
+        '<small>' + esc(t('Numéro marocain attendu, par exemple 06 12 34 56 78.')) + '</small></label>' +
+      '<label class="cpb-x-champ" data-f="nom"><span>' + esc(t('Nom complet')) + ' *</span>' +
+        '<input type="text" name="nom" autocomplete="name" enterkeyhint="next" required>' +
+        '<small>' + esc(t('Merci d’indiquer votre nom.')) + '</small></label>' +
+      '<label class="cpb-x-champ" data-f="ville"><span>' + esc(t('Ville')) + ' *</span>' +
+        '<select name="ville" autocomplete="address-level2" required><option value="">' + esc(t('Choisissez votre ville')) + '</option>' +
+        VILLES_FR.map(function (v) { return '<option value="' + esc(v) + '">' + esc(ville(v)) + '</option>'; }).join('') +
+        '<option value="autre">' + esc(t('Autre ville…')) + '</option></select>' +
+        '<small>' + esc(t('Choisissez votre ville dans la liste.')) + '</small></label>' +
+      '<label class="cpb-x-champ" data-f="ville_autre" hidden><span>' + esc(t('Laquelle ?')) + '</span>' +
+        '<input type="text" name="ville_autre" autocomplete="address-level2" placeholder="' + esc(t('Nom de votre ville')) + '">' +
+        '<small>' + esc(t('Indiquez le nom de votre ville.')) + '</small></label>' +
+      '<label class="cpb-x-champ" data-f="adresse"><span>' + esc(t('Adresse complète')) + ' *</span>' +
+        '<input type="text" name="adresse" autocomplete="street-address" enterkeyhint="send" placeholder="' + esc(t('Rue, numéro, immeuble, étage')) + '" required>' +
+        '<small>' + esc(t('C’est cette adresse que le livreur suivra.')) + '</small></label>' +
+      '<p class="cpb-x-recap" aria-live="polite"></p>' +
+      '<button type="submit" class="cpb-btn-plein cpb-x-go">' + SVG.wa + '<span>' + esc(t('Confirmer la commande')) + '</span><b class="cpb-x-total"></b></button>' +
+      '<p class="cpb-x-note">' + esc(t('Rien à payer maintenant : vous réglez en espèces au livreur.')) + ' ' +
+        esc(t('WhatsApp s’ouvre ensuite avec votre commande déjà écrite.')) + '</p>';
+    ancre.parentNode.insertBefore(bloc, ancre.nextSibling);
+    /* Un seul chemin principal : le bouton « Commander » du theme menait a la
+       page commande, ce formulaire la remplace sur la fiche. « Ajouter au
+       panier » reste, pour qui veut un autre parfum. */
+    buy.classList.add('cpb-express-on');
+
+    var champ = function (n) { return bloc.querySelector('[name="' + n + '"]'); };
+    var selVille = champ('ville'), blocAutre = bloc.querySelector('[data-f="ville_autre"]');
+    var qte = function () { var r = bloc.querySelector('[name="cpb_q"]:checked'); return r ? parseInt(r.value, 10) : 1; };
+
+    function recap() {
+      var a = apercuPanier(ref.s, qte());
+      var lignes = [];
+      if (a.autres) { lignes.push(t('+ {n} parfum(s) déjà dans votre panier', { n: a.autres })); }
+      lignes.push(t('Livraison : {l}', { l: a.frais ? P.fmt(a.frais) : t('offerte') }));
+      lignes.push(t('Total à payer au livreur : {t}', { t: P.fmt(a.total) }));
+      bloc.querySelector('.cpb-x-recap').textContent = lignes.join(' · ');
+      bloc.querySelector('.cpb-x-total').textContent = P.fmt(a.total);
+    }
+    recap();
+    bloc.addEventListener('change', function (e) {
+      if (e.target === selVille) {
+        blocAutre.hidden = selVille.value !== 'autre';
+        if (!blocAutre.hidden) { champ('ville_autre').focus(); }
+      }
+      recap();
+    });
+    P.onChange(recap);
+    bloc.addEventListener('input', function (e) {
+      var f = e.target.closest('.cpb-x-champ');
+      if (f) { f.classList.remove('err'); }
+    });
+
+    /* InitiateCheckout, une fois : au premier champ touche, comme la page
+       commande le mesure a son ouverture. */
+    var debut = false;
+    bloc.addEventListener('focusin', function () {
+      if (debut) { return; }
+      debut = true;
+      var a = apercuPanier(ref.s, qte());
+      P.mesure('InitiateCheckout', { value: a.total, currency: 'MAD', num_items: a.n, content_type: 'product', content_ids: [ref.s] },
+        P.idEvenement ? P.idEvenement('ic') : '');
+    });
+
+    function invalide(n) {
+      var el = champ(n), v = el ? el.value.trim() : '';
+      if (n === 'tel') { return !telValide(v); }
+      if (n === 'adresse') { return v.length < 8; }
+      if (n === 'ville') { return !v || (v === 'autre' && !champ('ville_autre').value.trim()); }
+      return !v;
+    }
+
+    var envoi = false;
+    bloc.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (envoi) { return; }
+      var premier = null;
+      ['tel', 'nom', 'ville', 'adresse'].forEach(function (n) {
+        var bad = invalide(n);
+        var f = bloc.querySelector('[data-f="' + n + '"]');
+        if (n === 'ville' && champ('ville').value === 'autre') { f = blocAutre; }
+        if (f) { f.classList.toggle('err', bad); }
+        if (bad && !premier) { premier = f && f.querySelector('input,select'); }
+      });
+      if (premier) { premier.focus(); return; }
+
+      envoi = true;
+      /* Le flacon entre au panier dans la quantite choisie (AddToCart part
+         comme pour un ajout normal), puis la commande suit commande.js. */
+      var q = qte(), deja = 0;
+      P.items().forEach(function (x) { if (x.s === ref.s) { deja = x.q; } });
+      if (!deja) { P.add(ref.s, q, true); } else if (deja < q) { P.setQty(ref.s, q); }
+      if (!P.count()) { envoi = false; return; }
+
+      var data = {
+        nom: champ('nom').value.trim(),
+        tel: champ('tel').value.trim(),
+        ville: champ('ville').value === 'autre' ? champ('ville_autre').value.trim() : champ('ville').value,
+        adresse: champ('adresse').value.trim()
+      };
+      data.ref = P.reference();
+      var montant = P.total(), articles = P.count(), lien = P.waHref(data);
+      var lignes = P.items().map(function (x) {
+        return { s: x.p.s, nom: x.p.b + ' ' + x.p.n, q: x.q, prix: P.prix(x.p) * x.q };
+      });
+      var confirmation = {
+        ref: data.ref, prenom: data.nom.split(/\s+/)[0], ville: data.ville, lien: lien,
+        montant: montant, articles: articles, lignes: lignes,
+        livraison: P.fraisLivraison(), sousTotal: P.subtotal(), t: Date.now()
+      };
+
+      P.depose(data);
+      P.mesure('Lead', {
+        value: montant, currency: 'MAD', num_items: articles, content_type: 'product',
+        content_ids: lignes.map(function (l) { return l.s; })
+      }, data.ref);
+
+      var garde = false;
+      try { localStorage.setItem('cp_commande_faite', JSON.stringify(confirmation)); garde = true; } catch (err) {}
+      var cible = c.commander || '?commander=1';
+      if (!garde) {
+        /* Stockage bloque : la page de remerciement ne pourrait rien relire.
+           On ouvre WhatsApp tout de suite, dans le geste du clic. */
+        P.clear();
+        location.href = lien;
+        return;
+      }
+      P.clear();
+      location.href = cible + (cible.indexOf('?') >= 0 ? '&' : '?') + 'merci=1';
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════
      BOUTONS DE LA NAVIGATION
   ══════════════════════════════════════════════════════════════ */
   function boutonsNav() {
@@ -1273,7 +1495,7 @@
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, fiche, majFavoris].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, fiche, expressFiche, majFavoris].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

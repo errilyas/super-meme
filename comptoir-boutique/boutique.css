@@ -436,3 +436,49 @@ html.cpb-lock .joinchat{display:none!important}
 :root[data-theme="light"] .cpb-nav-btn .cpb-pastille,
 :root[data-theme="light"] .cpb-res-ruban{color:#f8f3ea}
 :root[data-theme="light"] .cpb-bandeau{color:var(--ivory)}
+
+/* ══════════════════════════════════════════
+   COMMANDE EXPRESS (fiche parfum)
+   Le bouton « Commander » du theme menait a la page commande : le
+   formulaire le remplace ici. « Ajouter au panier » reste.
+══════════════════════════════════════════ */
+.cpb-express-on .pf-cta-achat{display:none}
+.cpb-express-on .pf-actions .pf-cta-2{flex:1}
+.cpb-express{
+  margin:18px 0 6px;padding:22px 22px 18px;
+  border:1px solid rgba(var(--au-rgb),.35);
+  background:linear-gradient(180deg,rgba(var(--au-rgb),.06),transparent 70%),var(--deep);
+}
+.cpb-express .cpb-titre-petit{margin-bottom:16px}
+.cpb-x-qte{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.cpb-x-q{position:relative;cursor:pointer}
+.cpb-x-q input{position:absolute;opacity:0;pointer-events:none}
+.cpb-x-q span{
+  display:flex;flex-direction:column;gap:3px;min-height:64px;justify-content:center;
+  padding:10px 14px;border:1px solid var(--line2);border-radius:2px;
+  font-size:13px;color:var(--text-dim);transition:border-color .2s,background .2s;
+}
+.cpb-x-q b{font-weight:500;color:var(--bone);font-size:15px}
+.cpb-x-q em{font-style:normal;font-size:11px;color:var(--ember);letter-spacing:.06em}
+.cpb-x-q input:checked + span{border-color:var(--ember);background:rgba(var(--au-rgb),.1)}
+.cpb-x-q input:focus-visible + span{outline:2px solid var(--ember);outline-offset:2px}
+.cpb-x-champ{display:block;margin-bottom:12px}
+.cpb-x-champ > span{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--smoke);margin-bottom:6px}
+[data-lang="ar"] .cpb-x-champ > span{letter-spacing:0;font-size:13px;text-transform:none}
+.cpb-x-champ input,.cpb-x-champ select{
+  width:100%;min-height:48px;padding:0 14px;border:1px solid var(--line2);border-radius:2px;
+  background:var(--void);color:var(--bone);font:400 16px/1.2 var(--sans);
+}
+[data-lang="ar"] .cpb-x-champ input,[data-lang="ar"] .cpb-x-champ select{font-family:var(--arabe)}
+.cpb-x-champ input:focus,.cpb-x-champ select:focus{outline:none;border-color:var(--ember)}
+.cpb-x-champ small{display:none;font-size:12px;color:#e0766a;margin-top:5px}
+:root[data-theme="light"] .cpb-x-champ small{color:#a3362a}
+.cpb-x-champ.err input,.cpb-x-champ.err select{border-color:#e0766a}
+.cpb-x-champ.err small{display:block}
+.cpb-x-recap{font-size:13px;line-height:1.6;color:var(--text-dim);margin:4px 0 14px}
+.cpb-x-go{width:100%;justify-content:space-between;gap:12px}
+.cpb-x-go svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;flex:none}
+.cpb-x-go span{flex:1;text-align:start}
+.cpb-x-total{font-size:15px;letter-spacing:0;white-space:nowrap}
+.cpb-x-note{font-size:12px;line-height:1.6;color:var(--smoke);margin:10px 0 0}
+@media(max-width:600px){ .cpb-express{padding:18px 16px 14px} }

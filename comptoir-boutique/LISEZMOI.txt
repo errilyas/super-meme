@@ -32,6 +32,14 @@ Ce qu'elle ajoute au site, sans modifier le thème :
    les mêmes notes (affichées sous chaque carte).
    « Vus récemment » : les fiches que le client a déjà ouvertes.
 
+6. COMMANDE EXPRESS SUR CHAQUE FICHE (version 1.1.0)
+   « Commander en 30 secondes » : 1 ou 2 flacons (le 2e rend la livraison
+   offerte), téléphone, nom, ville, adresse, total sur le bouton. L'envoi
+   suit exactement la page commande du thème : carnet WordPress, feuille
+   Google, Meta, puis page de remerciement qui ouvre WhatsApp. Le bouton
+   « Commander » de la fiche est masqué (le formulaire le remplace) ;
+   « Ajouter au panier » reste.
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient
