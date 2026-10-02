@@ -507,3 +507,49 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-x-err{display:block;font-size:12px;color:#e0766a;margin-top:8px}
 :root[data-theme="light"] .cpb-x-err{color:#a3362a}
 .cpb-x-vide{font-size:13px;color:var(--smoke);margin:4px 0}
+
+/* ══════════════════════════════════════════
+   VISUELS D'AMBIANCE (images de l'extension)
+══════════════════════════════════════════ */
+/* Univers du quiz : la photo en fond, le texte en bas sur un voile */
+.cpb-option-photo{min-height:170px;justify-content:flex-end;overflow:hidden;isolation:isolate;border-color:rgba(var(--au-rgb),.25)}
+.cpb-option-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transform:scale(1.02);transition:transform .6s var(--ease-out),filter .3s}
+.cpb-option-photo::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(12,5,14,.05) 25%,rgba(12,5,14,.88) 100%)}
+.cpb-option-photo .cpb-option-titre,.cpb-option-photo .cpb-option-sous{color:#f5f0e8}
+.cpb-option-photo .cpb-option-sous{opacity:.82}
+.cpb-option-photo:hover .cpb-option-img,.cpb-option-photo:focus-visible .cpb-option-img{transform:scale(1.07)}
+.cpb-option-photo[aria-pressed="true"]{border-color:var(--gilt);box-shadow:inset 0 0 0 1px var(--gilt)}
+.cpb-option-photo[aria-pressed="true"] .cpb-option-img{filter:brightness(1.08)}
+@media(max-width:700px){ .cpb-option-photo{min-height:120px} }
+@media(prefers-reduced-motion:reduce){ .cpb-option-img{transition:none} }
+
+/* Appel au quiz : la banniere occupe la carte, le texte reste a gauche */
+.cpb-qa-photo{position:relative;isolation:isolate;min-height:420px}
+.cpb-qa-fond{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center;z-index:-2}
+.cpb-qa-photo::before{content:'';position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(90deg,rgba(17,8,20,.96) 0%,rgba(17,8,20,.85) 42%,rgba(17,8,20,.15) 75%,rgba(17,8,20,0) 100%)}
+[dir="rtl"] .cpb-qa-photo::before{background:linear-gradient(270deg,rgba(17,8,20,.96) 0%,rgba(17,8,20,.85) 42%,rgba(17,8,20,.15) 75%,rgba(17,8,20,0) 100%)}
+[dir="rtl"] .cpb-qa-fond{transform:scaleX(-1)}
+.cpb-qa-photo .cpb-qa-etapes li{background:rgba(17,8,20,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+/* Le texte pose sur la photo reste clair, meme en theme clair */
+.cpb-qa-photo .sect-h2{color:#f5f0e8}
+.cpb-qa-photo p,.cpb-qa-photo .cpb-qa-etapes li{color:rgba(245,240,232,.82)}
+@media(max-width:900px){
+  .cpb-qa-photo{min-height:0}
+  .cpb-qa-fond{object-position:70% center}
+  .cpb-qa-photo::before,[dir="rtl"] .cpb-qa-photo::before{background:linear-gradient(180deg,rgba(17,8,20,.55) 0%,rgba(17,8,20,.9) 45%,rgba(17,8,20,.97) 100%)}
+}
+/* Avec la photo, la liste des quatre etapes masquerait le flacon : la photo
+   et le titre suffisent. */
+.cpb-qa-photo{grid-template-columns:minmax(0,1.1fr) 1fr;min-height:400px}
+.cpb-qa-photo .cpb-qa-etapes{display:none}
+@media(max-width:900px){ .cpb-qa-photo{min-height:440px;align-content:end} }
+/* Telephone : une colonne, la photo en haut, bien visible, le texte dessous */
+@media(max-width:900px){
+  .cpb-qa-photo{grid-template-columns:1fr;min-height:0;align-content:start;padding-top:calc(58vw - 8px)}
+  .cpb-qa-fond{height:62vw;bottom:auto;object-position:62% 40%}
+  [dir="rtl"] .cpb-qa-fond{transform:scaleX(-1)}
+  .cpb-qa-photo::before,[dir="rtl"] .cpb-qa-photo::before{
+    background:linear-gradient(180deg,rgba(17,8,20,0) 0,rgba(17,8,20,.1) calc(62vw - 160px),rgba(17,8,20,.97) 62vw,rgba(17,8,20,.97) 100%);
+  }
+}

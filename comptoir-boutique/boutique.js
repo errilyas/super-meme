@@ -1045,7 +1045,10 @@
     } else {
       html += '<div class="cpb-choix' + (q.options.length === 3 ? ' cpb-choix-3' : '') + '" role="group" aria-label="' + esc(t(q.titre)) + '">' +
         q.options.map(function (o) {
-          return '<button type="button" class="cpb-option" data-cpb-rep="' + o[0] + '" aria-pressed="' + (etat[q.cle] === o[0]) + '">' +
+          /* Les univers ont leur photo d'ambiance quand elle est livree. */
+          var vis = q.cle === 'univers' && CFG.visuels && CFG.visuels[o[0]];
+          return '<button type="button" class="cpb-option' + (vis ? ' cpb-option-photo' : '') + '" data-cpb-rep="' + o[0] + '" aria-pressed="' + (etat[q.cle] === o[0]) + '">' +
+            (vis ? '<img class="cpb-option-img" src="' + esc(vis) + '" alt="" width="600" height="600" decoding="async">' : '') +
             '<span class="cpb-option-titre">' + esc(t(o[1])) + '</span>' +
             '<span class="cpb-option-sous">' + esc(t(o[2])) + '</span></button>';
         }).join('') + '</div>';
@@ -1147,13 +1150,17 @@
     s.className = 'cpb cpb-quiz-appel';
     s.id = 'trouver-mon-parfum';
     s.setAttribute('aria-label', t('Trouver mon parfum'));
+    var ban = CFG.visuels && CFG.visuels.banniere;
     s.innerHTML =
-      '<div class="cpb-qa-carte">' +
+      '<div class="cpb-qa-carte' + (ban ? ' cpb-qa-photo' : '') + '">' +
+        (ban ? '<img class="cpb-qa-fond" src="' + esc(ban) + '" alt="" width="1600" height="900" loading="lazy" decoding="async">' : '') +
         '<div>' +
           '<div class="sect-kicker"><span>' + esc(t('Conseil personnalisé')) + '</span></div>' +
           '<h2 class="sect-h2">' + esc(t('Vous hésitez ? Trouvez votre parfum en 4 questions.')) + '</h2>' +
           '<p>' + esc(t('Dites-nous pour qui, quelle ambiance et quelles notes vous aimez : nous choisissons dans le catalogue les flacons qui vous ressemblent.')) + '</p>' +
-          '<button type="button" class="btn-a" data-cpb-quiz>' + esc(t('Commencer le quiz')) + '</button>' +
+          /* Un lien et non un <button> : le theme remet a transparent le fond
+             de tout button.btn-a, et le bouton dore devenait invisible. */
+          '<a href="#trouver-mon-parfum" class="btn-a" role="button" data-cpb-quiz>' + esc(t('Commencer le quiz')) + '</a>' +
         '</div>' +
         '<ol class="cpb-qa-etapes">' +
           QUESTIONS.map(function (q) { return '<li>' + esc(t(q.court)) + '</li>'; }).join('') +

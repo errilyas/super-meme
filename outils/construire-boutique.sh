@@ -24,6 +24,8 @@ cp "$SRC/comptoir-boutique.php" "$TRAVAIL/comptoir-boutique/"
 npx --yes terser@5 "$SRC/boutique.js" --ecma 5 --compress --mangle --comments false \
   -o "$TRAVAIL/comptoir-boutique/boutique.js"
 npx --yes lightningcss-cli@1 --minify "$SRC/boutique.css" -o "$TRAVAIL/comptoir-boutique/boutique.css"
+# Visuels d'ambiance (WebP deja optimises), s'il y en a.
+if [ -d "$SRC/img" ]; then cp -R "$SRC/img" "$TRAVAIL/comptoir-boutique/img"; fi
 node --check "$TRAVAIL/comptoir-boutique/boutique.js"
 
 mkdir -p "$RACINE/dist"

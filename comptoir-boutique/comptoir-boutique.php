@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.2.0
+ * Version:           1.3.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.2.0' );
+define( 'CPB_VERSION', '1.3.0' );
 
 /**
  * Mode de diffusion.
@@ -91,12 +91,30 @@ add_action( 'wp_enqueue_scripts', function () {
 		'accueil'    => function_exists( 'comptoir_est_accueil' ) ? comptoir_est_accueil() : is_front_page(),
 		'home'       => home_url( '/' ),
 		'populaires' => cpb_populaires(),
+		'visuels'    => cpb_visuels(),
 		// En apercu, les liens internes gardent le parametre : sans lui, la page
 		// suivante s'ouvrirait sans les nouveautes et le parcours serait coupe.
 		'suffixe'    => 'apercu' === CPB_MODE ? 'apercu=boutique' : '',
 	);
 	wp_add_inline_script( 'comptoir-boutique', 'window.CPB=' . wp_json_encode( $cfg ) . ';', 'before' );
 }, 20 );
+
+/**
+ * Visuels d'ambiance livres avec l'extension (img/*.webp) : les quatre
+ * univers du quiz et la banniere de l'appel au quiz. Seuls ceux presents sur
+ * le disque sont annonces, avec une empreinte de version contre le cache.
+ */
+function cpb_visuels() {
+	$out = array();
+	$abs = plugin_dir_path( __FILE__ ) . 'img/';
+	$url = plugin_dir_url( __FILE__ ) . 'img/';
+	foreach ( array( 'frais', 'floral', 'gourmand', 'boise', 'banniere' ) as $nom ) {
+		if ( file_exists( $abs . $nom . '.webp' ) ) {
+			$out[ $nom ] = $url . $nom . '.webp?v=' . (int) filemtime( $abs . $nom . '.webp' );
+		}
+	}
+	return $out;
+}
 
 /** Classe <body> : le CSS du bandeau s'y accroche. */
 add_filter( 'body_class', function ( $classes ) {
