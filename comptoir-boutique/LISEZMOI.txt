@@ -33,7 +33,8 @@ Ce qu'elle ajoute au site, sans modifier le thème :
    « Vus récemment » : les fiches que le client a déjà ouvertes.
 
 6. COMMANDE EXPRESS SUR CHAQUE FICHE (version 1.1.0)
-   « Commander en 30 secondes » : 1 ou 2 flacons (le 2e rend la livraison
+   « Commander en 30 secondes » : 1 ou 2 parfums (le 2e, un AUTRE parfum
+   choisi dans une liste ou par recherche, rend la livraison
    offerte), téléphone, nom, ville, adresse, total sur le bouton. L'envoi
    suit exactement la page commande du thème : carnet WordPress, feuille
    Google, Meta, puis page de remerciement qui ouvre WhatsApp. Le bouton

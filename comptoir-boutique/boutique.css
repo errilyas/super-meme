@@ -482,3 +482,28 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-x-total{font-size:15px;letter-spacing:0;white-space:nowrap}
 .cpb-x-note{font-size:12px;line-height:1.6;color:var(--smoke);margin:10px 0 0}
 @media(max-width:600px){ .cpb-express{padding:18px 16px 14px} }
+
+/* Deuxieme parfum au choix (commande express) */
+.cpb-x-q2{font-size:13px!important;color:var(--ember)!important}
+.cpb-x-second{margin:-4px 0 16px;padding:14px;border:1px dashed rgba(var(--au-rgb),.4);background:rgba(var(--au-rgb),.04)}
+.cpb-x-second.err{border-color:#e0766a;border-style:solid}
+.cpb-x-sous-titre{font-size:13px;color:var(--bone);margin:0 0 10px}
+.cpb-x-cherche{width:100%;min-height:44px;padding:0 12px;margin-bottom:10px;border:1px solid var(--line2);border-radius:2px;background:var(--void);color:var(--bone);font:400 16px/1.2 var(--sans)}
+[data-lang="ar"] .cpb-x-cherche{font-family:var(--arabe)}
+.cpb-x-cherche:focus{outline:none;border-color:var(--ember)}
+.cpb-x-props{display:grid;gap:6px;max-height:300px;overflow-y:auto;overscroll-behavior:contain}
+.cpb-x-prop{
+  display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;width:100%;
+  padding:6px 10px 6px 6px;text-align:start;cursor:pointer;
+  background:var(--void);border:1px solid var(--line2);border-radius:2px;color:var(--bone);font-family:inherit;
+  transition:border-color .2s,background .2s;
+}
+.cpb-x-prop:hover,.cpb-x-prop:focus-visible{border-color:rgba(var(--au-rgb),.6);outline:none}
+.cpb-x-prop[aria-pressed="true"]{border-color:var(--ember);background:rgba(var(--au-rgb),.12)}
+.cpb-x-prop .cpb-vignette{width:48px;height:48px;border-radius:2px}
+.cpb-x-prop-txt{min-width:0}
+.cpb-x-prop-nom{display:block;font-family:var(--serif);font-size:16px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cpb-x-prop-prix{font-size:13px;color:var(--ember);white-space:nowrap}
+.cpb-x-err{display:block;font-size:12px;color:#e0766a;margin-top:8px}
+:root[data-theme="light"] .cpb-x-err{color:#a3362a}
+.cpb-x-vide{font-size:13px;color:var(--smoke);margin:4px 0}

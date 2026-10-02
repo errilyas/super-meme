@@ -125,7 +125,15 @@
     'Commander en 30 secondes': 'اطلب في 30 ثانية',
     'Rien à payer maintenant : vous réglez en espèces au livreur.': 'لا شيء تدفعه الآن: تدفع نقدًا لعامل التوصيل.',
     '1 flacon': 'قارورة واحدة',
+    '1 parfum': 'عطر واحد',
     '2 flacons': 'قارورتان',
+    '2 parfums': 'عطران',
+    '+ un 2e parfum au choix': '+ عطر ثانٍ من اختيارك',
+    'Choisissez votre 2e parfum': 'اختر عطرك الثاني',
+    'Chercher un autre parfum…': 'ابحث عن عطر آخر…',
+    'Choisissez votre deuxième parfum dans la liste.': 'اختر عطرك الثاني من القائمة.',
+    'Aucun parfum trouvé.': 'لم يتم العثور على أي عطر.',
+    '2e parfum : {nom}': 'العطر الثاني: {nom}',
     'Livraison offerte': 'التوصيل مجاني',
     'Téléphone': 'الهاتف',
     'Nom complet': 'الاسم الكامل',
@@ -1291,16 +1299,16 @@
   /* Ce que sera le panier une fois ce flacon pris en quantite q, sans le
      modifier : total et livraison affiches avant l'envoi. Meme regle que
      Panier.fraisLivraison(). */
-  function apercuPanier(s, q) {
+  function apercuPanier(voulus) {
     var c = P.cfg || {}, lignes = {}, autres = 0, n = 0, sous = 0;
     P.items().forEach(function (x) { lignes[x.s] = x.q; });
-    if (!lignes[s] || lignes[s] < q) { lignes[s] = q; }
+    voulus.forEach(function (s) { if (!lignes[s]) { lignes[s] = 1; } });
     Object.keys(lignes).forEach(function (k) {
       var p = produit(k);
       if (!p) { return; }
       n += lignes[k];
       sous += P.prix(p) * lignes[k];
-      if (k !== s) { autres += lignes[k]; }
+      if (voulus.indexOf(k) < 0) { autres += lignes[k]; }
     });
     var frais = !n ? 0 : (c.franco && n >= c.franco ? 0 : (c.livraison || 0));
     return { n: n, autres: autres, sous: sous, frais: frais, total: sous + frais };
@@ -1325,9 +1333,17 @@
       '<div class="cpb-x-qte" role="radiogroup" aria-label="' + esc(t('Commander en 30 secondes')) + '">' +
         '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="1" checked><span>' + esc(t('1 flacon')) +
           '<b>' + P.fmt(P.prix(ref)) + '</b></span></label>' +
-        '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="2"><span>' + esc(t('2 flacons')) +
-          '<b>' + P.fmt(P.prix(ref) * 2) + '</b>' +
+        '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="2"><span>' + esc(t('2 parfums')) +
+          '<b class="cpb-x-q2">' + esc(t('+ un 2e parfum au choix')) + '</b>' +
           (deuxOffert ? '<em>' + esc(t('Livraison offerte')) + '</em>' : '') + '</span></label>' +
+      '</div>' +
+      /* Le deuxieme flacon est un AUTRE parfum, choisi ici : proches du
+         premier par les notes, ou trouve par la recherche. Jamais le meme. */
+      '<div class="cpb-x-second" hidden>' +
+        '<p class="cpb-x-sous-titre">' + esc(t('Choisissez votre 2e parfum')) + '</p>' +
+        '<input type="search" class="cpb-x-cherche" autocomplete="off" enterkeyhint="search" placeholder="' + esc(t('Chercher un autre parfum…')) + '" aria-label="' + esc(t('Chercher un autre parfum…')) + '">' +
+        '<div class="cpb-x-props" role="group" aria-label="' + esc(t('Choisissez votre 2e parfum')) + '"></div>' +
+        '<small class="cpb-x-err" hidden>' + esc(t('Choisissez votre deuxième parfum dans la liste.')) + '</small>' +
       '</div>' +
       '<label class="cpb-x-champ" data-f="tel"><span>' + esc(t('Téléphone')) + ' *</span>' +
         '<input type="tel" name="tel" autocomplete="tel" inputmode="tel" enterkeyhint="next" placeholder="06 12 34 56 78" required>' +
@@ -1359,21 +1375,83 @@
     var champ = function (n) { return bloc.querySelector('[name="' + n + '"]'); };
     var selVille = champ('ville'), blocAutre = bloc.querySelector('[data-f="ville_autre"]');
     var qte = function () { var r = bloc.querySelector('[name="cpb_q"]:checked'); return r ? parseInt(r.value, 10) : 1; };
+    var second = null;
+    var panneau2 = bloc.querySelector('.cpb-x-second'), props = bloc.querySelector('.cpb-x-props');
+    var cherche2 = bloc.querySelector('.cpb-x-cherche'), err2 = bloc.querySelector('.cpb-x-err');
+    /* Ce que la commande va contenir, en plus de ce qui est deja au panier. */
+    var voulus = function () { return qte() === 2 && second ? [ref.s, second] : [ref.s]; };
+
+    /* Les propositions : sans recherche, les parfums proches du premier
+       (« Dans le meme esprit »), completes par des flacons du meme public
+       a prix voisin ; avec recherche, le moteur de la loupe. Jamais le
+       parfum de la fiche. */
+    function propositions(q) {
+      if (q) { return cherche(q).filter(function (p) { return p.s !== ref.s; }).slice(0, 6); }
+      var out = proches(ref, 6).map(function (r) { return r.p; }), vus = {};
+      vus[ref.s] = 1;
+      out.forEach(function (p) { vus[p.s] = 1; });
+      LISTE.filter(function (p) {
+        return !vus[p.s] && P.aPhoto(p.s) && (p.g === ref.g || p.g === 'Mixte' || ref.g === 'Mixte');
+      }).sort(function (a, b) {
+        return Math.abs(P.prix(a) - P.prix(ref)) - Math.abs(P.prix(b) - P.prix(ref)) || (a.s < b.s ? -1 : 1);
+      }).forEach(function (p) { if (out.length < 6) { out.push(p); } });
+      return out;
+    }
+    function rendProps() {
+      var q = cherche2.value.trim();
+      var liste = propositions(q);
+      /* Le parfum choisi reste visible en tete, meme hors des resultats. */
+      if (second && !liste.some(function (p) { return p.s === second; })) { liste.unshift(produit(second)); }
+      props.innerHTML = liste.length ? liste.map(function (p) {
+        return '<button type="button" class="cpb-x-prop" data-cpb-second="' + esc(p.s) + '" aria-pressed="' + (p.s === second) + '">' +
+          vignette(p, 'cpb-vignette', 48, 48) +
+          '<span class="cpb-x-prop-txt"><span class="cpb-ligne-maison">' + maisonHTML(p) + '</span>' +
+          '<span class="cpb-x-prop-nom">' + nomHTML(p) + '</span></span>' +
+          '<span class="cpb-x-prop-prix">' + prixTexte(p) + '</span></button>';
+      }).join('') : '<p class="cpb-x-vide">' + esc(t('Aucun parfum trouvé.')) + '</p>';
+      /* Petites vignettes dans une liste qui defile : chargees tout de suite,
+         sinon les cases du bas restent vides jusqu'au defilement. */
+      [].forEach.call(props.querySelectorAll('img'), function (im) { im.loading = 'eager'; });
+    }
+    props.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cpb-second]');
+      if (!b) { return; }
+      second = b.getAttribute('data-cpb-second');
+      err2.hidden = true;
+      panneau2.classList.remove('err');
+      [].forEach.call(props.querySelectorAll('[data-cpb-second]'), function (x) {
+        x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+      });
+      recap();
+    });
+    cherche2.addEventListener('input', rendProps);
+    /* Entree dans la recherche ne doit pas envoyer la commande. */
+    cherche2.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); } });
 
     function recap() {
-      var a = apercuPanier(ref.s, qte());
+      var a = apercuPanier(voulus());
       var lignes = [];
+      var manque = qte() === 2 && !second;
+      if (qte() === 2 && second) { lignes.push(t('2e parfum : {nom}', { nom: produit(second).b + ' ' + produit(second).n })); }
       if (a.autres) { lignes.push(t('+ {n} parfum(s) déjà dans votre panier', { n: a.autres })); }
-      lignes.push(t('Livraison : {l}', { l: a.frais ? P.fmt(a.frais) : t('offerte') }));
-      lignes.push(t('Total à payer au livreur : {t}', { t: P.fmt(a.total) }));
+      if (manque) {
+        lignes.push(t('Choisissez votre 2e parfum'));
+      } else {
+        lignes.push(t('Livraison : {l}', { l: a.frais ? P.fmt(a.frais) : t('offerte') }));
+        lignes.push(t('Total à payer au livreur : {t}', { t: P.fmt(a.total) }));
+      }
       bloc.querySelector('.cpb-x-recap').textContent = lignes.join(' · ');
-      bloc.querySelector('.cpb-x-total').textContent = P.fmt(a.total);
+      bloc.querySelector('.cpb-x-total').textContent = manque ? '' : P.fmt(a.total);
     }
     recap();
     bloc.addEventListener('change', function (e) {
       if (e.target === selVille) {
         blocAutre.hidden = selVille.value !== 'autre';
         if (!blocAutre.hidden) { champ('ville_autre').focus(); }
+      }
+      if (e.target.name === 'cpb_q') {
+        panneau2.hidden = qte() !== 2;
+        if (!panneau2.hidden && !props.children.length) { rendProps(); }
       }
       recap();
     });
@@ -1389,8 +1467,8 @@
     bloc.addEventListener('focusin', function () {
       if (debut) { return; }
       debut = true;
-      var a = apercuPanier(ref.s, qte());
-      P.mesure('InitiateCheckout', { value: a.total, currency: 'MAD', num_items: a.n, content_type: 'product', content_ids: [ref.s] },
+      var a = apercuPanier(voulus());
+      P.mesure('InitiateCheckout', { value: a.total, currency: 'MAD', num_items: a.n, content_type: 'product', content_ids: voulus() },
         P.idEvenement ? P.idEvenement('ic') : '');
     });
 
@@ -1414,14 +1492,23 @@
         if (f) { f.classList.toggle('err', bad); }
         if (bad && !premier) { premier = f && f.querySelector('input,select'); }
       });
+      var manque2 = qte() === 2 && !second;
+      err2.hidden = !manque2;
+      panneau2.classList.toggle('err', manque2);
+      if (manque2) {
+        panneau2.scrollIntoView({ block: 'center', behavior: REDUIT ? 'auto' : 'smooth' });
+        var p1 = props.querySelector('[data-cpb-second]');
+        if (p1) { try { p1.focus({ preventScroll: true }); } catch (x) { p1.focus(); } }
+        return;
+      }
       if (premier) { premier.focus(); return; }
 
       envoi = true;
-      /* Le flacon entre au panier dans la quantite choisie (AddToCart part
+      /* Chaque parfum voulu entre au panier s'il n'y est pas (AddToCart part
          comme pour un ajout normal), puis la commande suit commande.js. */
-      var q = qte(), deja = 0;
-      P.items().forEach(function (x) { if (x.s === ref.s) { deja = x.q; } });
-      if (!deja) { P.add(ref.s, q, true); } else if (deja < q) { P.setQty(ref.s, q); }
+      var dans = {};
+      P.items().forEach(function (x) { dans[x.s] = 1; });
+      voulus().forEach(function (s) { if (!dans[s]) { P.add(s, 1, true); } });
       if (!P.count()) { envoi = false; return; }
 
       var data = {
