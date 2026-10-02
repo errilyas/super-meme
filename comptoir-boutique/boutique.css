@@ -16,14 +16,20 @@
 
 /* ══════════════════════════════════════════
    BANDEAU D'ANNONCE
-   En haut de page, dans le flux : il defile avec la page. La barre de
-   navigation, fixe, descend de sa hauteur tant qu'il est visible
-   (boutique.js suit le defilement ; sans JavaScript elle reste dessous).
+   En haut de page, dans le flux : il pousse la page de sa hauteur et
+   defile avec elle (sous la barre d'administration quand on est
+   connecte, puisque WordPress decale alors <html>). La navigation, fixe,
+   descend sous lui en haut de page :
+     - boutique.js la colle au bas du bandeau a chaque defilement ;
+     - sans lui, le CSS seul suffit : le theme pose .stuck sur la
+       navigation passe 80 px, et elle remonte alors en haut. Avant cela
+       elle est transparente, l'ecart au-dessus d'elle ne se voit pas.
 ══════════════════════════════════════════ */
-body.cpb-a{--cpb-bandeau-h:34px;padding-top:var(--cpb-bandeau-h)}
+body.cpb-a{--cpb-bandeau-h:34px}
 body.cpb-a #nav{top:var(--cpb-bandeau-h)}
+body.cpb-a #nav.stuck{top:0}
 .cpb-bandeau{
-  position:absolute;top:0;left:0;right:0;z-index:47;
+  position:relative;z-index:47;
   height:var(--cpb-bandeau-h,34px);overflow:hidden;
   background:linear-gradient(90deg,var(--deep),var(--well) 50%,var(--deep));
   border-bottom:1px solid rgba(var(--au-rgb),.18);
@@ -345,16 +351,11 @@ html.cpb-lock{overflow:hidden}
 }
 .cpb-option:hover,.cpb-option:focus-visible{border-color:rgba(var(--au-rgb),.6);background:rgba(var(--au-rgb),.06);outline:none}
 .cpb-option:active{transform:scale(.99)}
-.cpb-option[aria-pressed="true"],.cpb-option[aria-checked="true"]{border-color:var(--ember);background:rgba(var(--au-rgb),.12)}
+.cpb-option[aria-pressed="true"]{border-color:var(--ember);background:rgba(var(--au-rgb),.12)}
 .cpb-option-titre{font-family:var(--serif);font-size:22px;font-weight:400;line-height:1.15}
 [data-lang="ar"] .cpb-option-titre{font-family:var(--arabe);font-size:18px;font-weight:500}
 .cpb-option-sous{font-size:12.5px;color:var(--smoke);line-height:1.5}
-.cpb-option-pastille{
-  position:absolute;top:14px;inset-inline-end:14px;width:20px;height:20px;border-radius:50%;
-  border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;
-}
-.cpb-option[aria-checked="true"] .cpb-option-pastille{background:var(--ember);border-color:var(--ember)}
-.cpb-option[aria-checked="true"] .cpb-option-pastille::after{content:'';width:8px;height:4px;border:solid var(--ink);border-width:0 0 1.6px 1.6px;transform:translateY(-1px) rotate(-45deg)}
+.cpb-quiz-q:focus{outline:none}
 .cpb-notes{display:flex;flex-wrap:wrap;gap:10px}
 .cpb-notes .cpb-option{min-height:48px;padding:0 20px;flex-direction:row;align-items:center;border-radius:999px}
 .cpb-notes .cpb-option-titre{font-family:var(--sans);font-size:14px}
@@ -427,5 +428,4 @@ html.cpb-lock{overflow:hidden}
 :root[data-theme="light"] .cpb-btn-ajout:focus-visible,
 :root[data-theme="light"] .cpb-nav-btn .cpb-pastille,
 :root[data-theme="light"] .cpb-res-ruban{color:#f8f3ea}
-:root[data-theme="light"] .cpb-option[aria-checked="true"] .cpb-option-pastille::after{border-color:#f8f3ea}
 :root[data-theme="light"] .cpb-bandeau{color:var(--ivory)}

@@ -312,14 +312,15 @@
     if (!b) { return; }
     var nav = document.getElementById('nav');
 
-    /* La navigation est fixe : elle descend sous le bandeau en haut de page,
-       puis remonte a mesure que le bandeau sort de l'ecran. */
+    /* La navigation est fixe : elle se colle au bas du bandeau, et remonte a
+       mesure qu'il sort de l'ecran. On lit sa position reelle plutot que sa
+       hauteur : la barre d'administration de WordPress, quand on est
+       connecte, decale tout de 32 ou 46 px. */
     if (nav) {
       var attente = false;
       var place = function () {
         attente = false;
-        var h = b.offsetHeight;
-        nav.style.top = Math.max(0, h - (window.pageYOffset || document.documentElement.scrollTop || 0)) + 'px';
+        nav.style.top = Math.max(0, Math.round(b.getBoundingClientRect().bottom)) + 'px';
       };
       var demande = function () {
         if (attente) { return; }
@@ -334,7 +335,10 @@
     /* Sur telephone, une promesse a la fois. */
     var msgs = b.querySelectorAll('.cpb-bandeau-msg');
     if (msgs.length < 2) { return; }
-    var i = 0, minuteur = null, pause = false;
+    /* Le minuteur n'est jamais arrete : quand la page part dans le cache
+       « precedent / suivant » du navigateur, il est gele avec elle et
+       repart tout seul au retour. */
+    var i = 0, pause = false;
     var etroit = window.matchMedia ? window.matchMedia('(max-width: 1239px)') : null;
     var tourne = function () {
       if (pause || document.hidden || (etroit && !etroit.matches)) { return; }
@@ -342,12 +346,11 @@
       i = (i + 1) % msgs.length;
       msgs[i].classList.add('is-on');
     };
-    minuteur = setInterval(tourne, 4200);
+    setInterval(tourne, 4200);
     b.addEventListener('mouseenter', function () { pause = true; });
     b.addEventListener('mouseleave', function () { pause = false; });
     b.addEventListener('focusin', function () { pause = true; });
     b.addEventListener('focusout', function () { pause = false; });
-    window.addEventListener('pagehide', function () { clearInterval(minuteur); });
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -404,6 +407,11 @@
   window.addEventListener('storage', function (e) {
     if (e.key === CLE_FAV || e.key === null) { favMem = null; majFavoris(); }
   });
+  /* Retour par le bouton « precedent » : la page sort du cache telle
+     qu'elle etait, sans les favoris ajoutes entre-temps sur une autre. */
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) { favMem = null; majFavoris(); }
+  });
 
   function coeurHTML(s, rond) {
     var p = produit(s);
@@ -436,8 +444,13 @@
           return;
         }
         if (b.hasAttribute('data-cpb-tout')) {
-          favoris().forEach(function (s) { if (!dansPanier(s)) { P.add(s, 1, true); } });
+          /* On ferme d'abord : le focus retourne au bouton qui a ouvert les
+             favoris, et c'est lui que le panier rendra a sa fermeture. Un
+             AddToCart par flacon ajoute, comme un ajout un par un. */
+          var deja = {};
+          P.items().forEach(function (x) { deja[x.s] = 1; });
           fermer();
+          favoris().forEach(function (s) { if (!deja[s]) { P.add(s, 1, true); } });
           P.open();
         }
       });
@@ -495,7 +508,9 @@
       e.preventDefault();
       var s = b.getAttribute('data-cpb-ajout');
       if (!produit(s)) { return; }
-      if (dansPanier(s)) { fermer(true); dernierFocus = null; P.open(); return; }
+      /* Deja au panier : on l'ouvre. Le calque se ferme d'abord et rend le
+         focus a ce qui l'avait ouvert, pour que le panier le retrouve. */
+      if (dansPanier(s)) { fermer(); P.open(); return; }
       P.add(s, 1, true);
       b.classList.add('is-fait');
       b.textContent = t('Ajouté · voir le panier');
@@ -549,7 +564,7 @@
   /* L'arabe tape au clavier : on ramene les mots les plus cherches vers le
      catalogue, ecrit en lettres latines. */
   var AR_REQ = {
-    'شانيل': 'chanel', 'ديور': 'dior', 'توم فورد': 'tom ford', 'كريد': 'creed', 'فرساتشي': 'versace',
+    'شانيل': 'chanel', 'ديور': 'dior', 'توم فورد': 'tom ford', 'فورد': 'ford', 'كريد': 'creed', 'فرساتشي': 'versace',
     'فيرساتشي': 'versace', 'ارماني': 'armani', 'اماني': 'armani', 'ايف سان لوران': 'yves saint laurent',
     'سان لوران': 'saint laurent', 'غوتشي': 'gucci', 'قوتشي': 'gucci', 'جوتشي': 'gucci', 'برادا': 'prada',
     'فالنتينو': 'valentino', 'هوغو بوس': 'hugo boss', 'هوجو بوس': 'hugo boss', 'بوس': 'boss',
@@ -574,10 +589,19 @@
     return String(s).replace(/[ً-ٰٟـ]/g, '')
       .replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه');
   }
+  /* Mot entier seulement : « فورد » (Ford) contient « ورد » (rose), et
+     un remplacement au milieu d'un mot envoyait Tom Ford vers les roses.
+     L'article « ال » colle au mot (« العود ») est accepte. Les clefs les
+     plus longues passent d'abord : « توم فورد » avant « فورد ». */
   function requeteLatine(q) {
     if (!/[؀-ۿ]/.test(q)) { return q; }
-    var s = normAr(q);
-    AR_CLES.forEach(function (k) { if (s.indexOf(k) > -1) { s = s.split(k).join(' ' + AR_VAL[k] + ' '); } });
+    var s = ' ' + normAr(q).replace(/\s+/g, ' ') + ' ';
+    AR_CLES.forEach(function (k) {
+      [k, 'ال' + k].forEach(function (forme) {
+        var motif = ' ' + forme + ' ';
+        while (s.indexOf(motif) > -1) { s = s.replace(motif, ' ' + AR_VAL[k] + ' '); }
+      });
+    });
     return s.replace(/[؀-ۿ]+/g, ' ');
   }
 
@@ -821,12 +845,15 @@
     return hits;
   }
 
-  /* Le classement : un score par parfum, a partir des reponses. Aucun
-     parfum n'est « pousse » : seuls le genre, la famille, la concentration
-     et les notes ecrites dans produits.php comptent. */
-  function classement() {
-    var g = etat.genre;
-    var u = etat.univers ? UNIVERS[etat.univers] : null;
+  /* Le classement : un score par parfum, a partir des reponses (r : genre,
+     univers, moment, notes). Aucun parfum n'est « pousse » : seuls le
+     genre, la famille, la concentration et les notes ecrites dans
+     produits.php comptent. Fonction pure : elle ne touche pas a l'etat
+     du quiz. */
+  function classement(r) {
+    var g = r.genre;
+    var u = r.univers ? UNIVERS[r.univers] : null;
+    var notesVoulues = r.notes || [];
     var cands = LISTE.filter(function (p) {
       if (g === 'elle') { return p.g === 'Femme' || p.g === 'Mixte'; }
       if (g === 'lui') { return p.g === 'Homme' || p.g === 'Mixte'; }
@@ -852,21 +879,22 @@
 
       var fort = /(elixir|extrait|intense|absolu)/.test(x) || x === 'parfum' || x === 'esprit de parfum';
       var leger = /(eau de toilette|eau fraiche|eau pour la nuit)/.test(x);
-      if (etat.moment === 'jour') {
+      if (r.moment === 'jour') {
         if (leger) { s += 2; } else if (x === 'eau de parfum') { s += 1; }
         if (fort) { s -= 1.5; }
         if (lourd) { s -= 1; }
         if (frais) { s += 1; }
-      } else if (etat.moment === 'soir') {
+      } else if (r.moment === 'soir') {
         if (fort) { s += 2; } else if (x === 'eau de parfum') { s += 0.75; }
         if (leger) { s -= 1; }
         if (lourd) { s += 1; }
         if (frais) { s -= 0.75; }
-      } else if (etat.moment === 'toujours') {
+      } else if (r.moment === 'toujours') {
         if (x === 'eau de parfum') { s += 1; }
       }
 
-      etat.notes.forEach(function (k) {
+      notesVoulues.forEach(function (k) {
+        if (!GROUPES[k]) { return; }
         var h = correspond(nc, GROUPES[k]);
         if (h.length) {
           s += 2.5 + (h.length > 1 ? 0.5 : 0);
@@ -885,14 +913,19 @@
     /* Trois maisons differentes quand c'est possible : trois flacons de la
        meme maison, c'est un seul choix presente trois fois. */
     var choisis = [], maisons = {};
-    notees.forEach(function (r) {
-      if (choisis.length < 3 && !maisons[r.p.b]) { choisis.push(r); maisons[r.p.b] = 1; }
+    notees.forEach(function (n) {
+      if (choisis.length < 3 && !maisons[n.p.b]) { choisis.push(n); maisons[n.p.b] = 1; }
     });
-    notees.forEach(function (r) {
-      if (choisis.length < 3 && choisis.indexOf(r) < 0) { choisis.push(r); }
+    notees.forEach(function (n) {
+      if (choisis.length < 3 && choisis.indexOf(n) < 0) { choisis.push(n); }
     });
     return choisis;
   }
+
+  /* Un choix fait avance d'une question apres un court temps de lecture.
+     Pendant ce temps, les autres appuis sont ignores : un double appui
+     sautait sinon la question suivante sans qu'on l'ait vue. */
+  var avanceEnCours = false;
 
   var quiz = null, corpsQuiz = null;
   function construitQuiz() {
@@ -910,7 +943,9 @@
     corpsQuiz.addEventListener('click', function (e) {
       var o = e.target.closest('[data-cpb-rep]');
       if (o) {
+        if (avanceEnCours) { return; }
         var q = QUESTIONS[etat.etape];
+        if (!q) { return; }
         var v = o.getAttribute('data-cpb-rep');
         if (q.multi) {
           var i = etat.notes.indexOf(v);
@@ -923,9 +958,15 @@
         [].forEach.call(corpsQuiz.querySelectorAll('[data-cpb-rep]'), function (b) {
           b.setAttribute('aria-pressed', b === o ? 'true' : 'false');
         });
-        setTimeout(function () { etat.etape++; rendQuiz(); }, REDUIT ? 0 : 180);
+        var pas = etat.etape;
+        avanceEnCours = true;
+        setTimeout(function () {
+          avanceEnCours = false;
+          if (etat.etape === pas) { etat.etape++; rendQuiz(); }
+        }, REDUIT ? 0 : 180);
         return;
       }
+      if (avanceEnCours) { return; }
       var a = e.target.closest('[data-cpb-act]');
       if (!a) { return; }
       var act = a.getAttribute('data-cpb-act');
@@ -997,7 +1038,7 @@
   }
 
   function rendResultats(etapeTxt, barre) {
-    var choix = classement();
+    var choix = classement(etat);
     etapeTxt.textContent = t('Votre sélection');
     barre.style.width = '100%';
 
@@ -1186,10 +1227,14 @@
       if (sibs) { main.insertBefore(bloc, sibs); } else { main.appendChild(bloc); }
     }
 
-    /* « Vus recemment » ferme la fiche : c'est le chemin du retour. */
+    /* « Vus recemment » ferme la fiche : c'est le chemin du retour. Sans
+       les flacons deja montres plus haut, ni ceux de la meme maison, que
+       le bloc « Dans la meme maison » du theme affiche deja. */
     var deja = {};
     pr.forEach(function (r) { deja[r.p.s] = 1; });
-    var vus = anciens.filter(function (s) { return !deja[s]; }).slice(0, 4).map(produit).filter(Boolean);
+    var vus = anciens.map(produit).filter(function (p) {
+      return p && !deja[p.s] && p.b !== ref.b;
+    }).slice(0, 4);
     if (vus.length) {
       main.appendChild(blocSibs(t('Vus récemment'), vus.map(function (p) { return carteSib(p, null); }).join('')));
     }
@@ -1236,10 +1281,10 @@
     if (location.hash === '#trouver-mon-parfum') {
       setTimeout(function () { try { ouvrirQuiz(); } catch (e) {} }, 300);
     }
-    window.CPB_API = { recherche: ouvrirRecherche, quiz: ouvrirQuiz, favoris: ouvrirFavoris, cherche: cherche, proches: proches, classement: function (r) {
-      etat = { etape: QUESTIONS.length, genre: r.genre || null, univers: r.univers || null, moment: r.moment || null, notes: r.notes || [] };
-      return classement();
-    } };
+    /* Points d'entree, pour un bouton ajoute plus tard dans une page (ou
+       [data-cpb-quiz], [data-cpb-recherche], [data-cpb-favoris]) et pour
+       les tests. Aucun ne modifie l'etat du visiteur. */
+    window.CPB_API = { recherche: ouvrirRecherche, quiz: ouvrirQuiz, favoris: ouvrirFavoris, cherche: cherche, proches: proches, classement: classement };
   }
 
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', demarre); }

@@ -87,10 +87,8 @@ add_action( 'wp_enqueue_scripts', function () {
 	$parfum = ( $slug && function_exists( 'comptoir_produit_by_slug' ) && comptoir_produit_by_slug( $slug ) ) ? $slug : '';
 
 	$cfg = array(
-		'version'    => CPB_VERSION,
 		'slug'       => $parfum,
 		'accueil'    => function_exists( 'comptoir_est_accueil' ) ? comptoir_est_accueil() : is_front_page(),
-		'commande'   => function_exists( 'comptoir_commander_demande' ) ? comptoir_commander_demande() : false,
 		'home'       => home_url( '/' ),
 		'populaires' => cpb_populaires(),
 		// En apercu, les liens internes gardent le parametre : sans lui, la page
@@ -118,21 +116,48 @@ add_filter( 'body_class', function ( $classes ) {
    du theme a posee sur <html data-lang>, avant le rendu.
 ══════════════════════════════════════════════════════════════ */
 
-/** Les messages du bandeau, chacun en francais et en arabe. */
-function cpb_messages_bandeau() {
+/**
+ * La promesse de livraison, calquee sur la regle du panier
+ * (Panier.fraisLivraison dans panier.js) : livraison offerte des que le
+ * panier compte au moins comptoir_franco_articles() flacons, sinon
+ * comptoir_livraison_dh(). Frais a 0 = « a confirmer » cote panier :
+ * on ne promet alors rien.
+ *
+ * @return array|null array( francais, arabe ), ou null s'il n'y a rien a dire.
+ */
+function cpb_promesse_livraison() {
 	$frais  = function_exists( 'comptoir_livraison_dh' ) ? (int) comptoir_livraison_dh() : 0;
 	$franco = function_exists( 'comptoir_franco_articles' ) ? (int) comptoir_franco_articles() : 0;
 
+	if ( $frais <= 0 ) {
+		return null;
+	}
+	if ( 1 === $franco ) {
+		return array( 'Livraison offerte, partout au Maroc', 'التوصيل مجاني، في كل المغرب' );
+	}
+	if ( 2 === $franco ) {
+		return array( 'Livraison offerte dès le deuxième parfum', 'التوصيل مجاني ابتداءً من العطر الثاني' );
+	}
+	if ( $franco > 2 ) {
+		return array(
+			sprintf( 'Livraison offerte dès %d parfums', $franco ),
+			sprintf( 'التوصيل مجاني ابتداءً من %d عطور', $franco ),
+		);
+	}
+	return array(
+		sprintf( 'Livraison %d DH, partout au Maroc', $frais ),
+		sprintf( 'التوصيل بـ%d درهم في كل المغرب', $frais ),
+	);
+}
+
+/** Les messages du bandeau, chacun en francais et en arabe. */
+function cpb_messages_bandeau() {
 	$m = array(
 		array( 'Paiement à la livraison, partout au Maroc', 'الدفع عند الاستلام، في كل المغرب' ),
 	);
-	if ( $frais && $franco >= 2 ) {
-		$m[] = array( 'Livraison offerte dès le deuxième parfum', 'التوصيل مجاني ابتداءً من العطر الثاني' );
-	} elseif ( $frais ) {
-		$m[] = array(
-			sprintf( 'Livraison %d DH, partout au Maroc', $frais ),
-			sprintf( 'التوصيل بـ%d درهم في كل المغرب', $frais ),
-		);
+	$livraison = cpb_promesse_livraison();
+	if ( $livraison ) {
+		$m[] = $livraison;
 	}
 	$m[] = array( 'Testeurs 100 % originaux · Satisfait ou remboursé', 'تستر أصلي 100% · راضٍ أو تسترجع مالك' );
 	return $m;
