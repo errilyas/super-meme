@@ -9,6 +9,13 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.5.3 — IMAGE DE PARTAGE DES FICHES
+  Les fiches parfum annonçaient à Facebook et WhatsApp une image de
+  1200 × 630 alors que la photo fait 720 × 900 : la taille réelle n'était
+  jamais lue (l'empreinte « ?v=… » de l'adresse empêchait de trouver le
+  fichier). Elle l'est maintenant ; l'aperçu partagé n'est plus recadré
+  au hasard.
+
 VERSION 3.5.2 — MESSAGES EN DARIJA
   Modèles, réponses automatiques et message de test en darija (modèles en
   langue « Arabe » chez Meta) ; plus de façons de répondre comprises

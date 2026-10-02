@@ -573,3 +573,8 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-404-visuel{max-width:960px;margin:48px auto 8px;border:1px solid rgba(var(--au-rgb),.18);overflow:hidden}
 .cpb-404-img{display:block;width:100%;aspect-ratio:21/9;height:auto;object-fit:cover;object-position:70% 55%}
 @media(max-width:700px){ .cpb-404-img{aspect-ratio:16/10} }
+
+/* ── Commande : etapes deja faites lisibles ──
+   Le theme les estompait a 70 % : l'or sur aubergine passait sous le
+   contraste minimal (WCAG AA). La pastille doree suffit a les distinguer. */
+.cpb-a .steps .faite{opacity:1}

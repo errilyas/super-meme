@@ -48,6 +48,14 @@ Ce qu'elle ajoute au site, sans modifier le thème :
    maintenant » (thème sombre seulement) et un visuel sur la page 404.
    Retirer un fichier de img/ suffit à retirer le visuel correspondant.
 
+8. AUDIT ET CORRECTIFS (version 1.5.0)
+   - Plan du site (/wp-sitemap.xml) : les 209 fiches parfum y sont, pour
+     Google. Le plan des auteurs est retiré.
+   - L'identifiant de connexion de l'administrateur n'est plus visible :
+     les pages d'auteur (/author/…, /?author=1) renvoient à l'accueil et
+     la liste des utilisateurs de l'API n'est plus publique.
+   - Page commande : les étapes déjà faites sont lisibles (contraste).
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient

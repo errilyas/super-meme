@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.4.0
+ * Version:           1.5.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.4.0' );
+define( 'CPB_VERSION', '1.5.0' );
 
 /**
  * Mode de diffusion.
@@ -115,6 +115,73 @@ function cpb_visuels() {
 	}
 	return $out;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   PLAN DU SITE (wp-sitemap.xml)
+   Le plan de WordPress ne connait que les articles et les pages : les
+   fiches parfum (/?parfum=…), qui sont le catalogue, n'y figuraient pas,
+   et Google devait les trouver seul, lien par lien. On les y ajoute, avec
+   la meme adresse que la balise canonical du theme.
+   Le plan des auteurs est retire : il publiait l'identifiant de connexion
+   de l'administrateur (/author/<identifiant>/) et ne sert a rien ici.
+══════════════════════════════════════════════════════════════ */
+add_filter( 'wp_sitemaps_add_provider', function ( $provider, $name ) {
+	return 'users' === $name ? false : $provider;
+}, 10, 2 );
+
+add_action( 'init', function () {
+	if ( ! function_exists( 'comptoir_produits' ) || ! function_exists( 'wp_register_sitemap_provider' ) || ! class_exists( 'WP_Sitemaps_Provider' ) ) {
+		return;
+	}
+	if ( ! class_exists( 'CPB_Plan_Parfums' ) ) {
+		/** Les fiches parfum, une URL par parfum du catalogue du theme. */
+		class CPB_Plan_Parfums extends WP_Sitemaps_Provider {
+			public function __construct() {
+				$this->name        = 'parfums';
+				$this->object_type = 'parfums';
+			}
+			public function get_url_list( $page_num, $object_subtype = '' ) {
+				$par_page = wp_sitemaps_get_max_urls( $this->object_type );
+				$out      = array();
+				foreach ( array_slice( comptoir_produits(), ( $page_num - 1 ) * $par_page, $par_page ) as $p ) {
+					$out[] = array( 'loc' => home_url( '/?parfum=' . $p['s'] ) );
+				}
+				return $out;
+			}
+			public function get_max_num_pages( $object_subtype = '' ) {
+				return (int) ceil( count( comptoir_produits() ) / wp_sitemaps_get_max_urls( $this->object_type ) );
+			}
+		}
+	}
+	wp_register_sitemap_provider( 'parfums', new CPB_Plan_Parfums() );
+} );
+
+/**
+ * Pages d'auteur (/author/…, /?author=1) : vides sur une boutique, et elles
+ * donnaient a n'importe qui l'identifiant de connexion de l'administrateur,
+ * la moitie de ce qu'il faut pour tenter de deviner un mot de passe.
+ * Retour a l'accueil.
+ */
+add_action( 'template_redirect', function () {
+	// Avant redirect_canonical (priorite 10), qui sinon envoie d'abord
+	// /?author=1 vers /author/<identifiant>/ et le revele dans l'en-tete.
+	if ( is_author() || isset( $_GET['author'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		wp_safe_redirect( home_url( '/' ), 301 );
+		exit;
+	}
+}, 1 );
+
+/**
+ * Meme fuite par l'API : /wp-json/wp/v2/users listait l'identifiant a tout
+ * visiteur. Les outils connectes (application WordPress, Jetpack) passent
+ * authentifies et gardent l'acces.
+ */
+add_filter( 'rest_endpoints', function ( $routes ) {
+	if ( ! is_user_logged_in() ) {
+		unset( $routes['/wp/v2/users'], $routes['/wp/v2/users/(?P<id>[\d]+)'] );
+	}
+	return $routes;
+} );
 
 /** Classe <body> : le CSS du bandeau s'y accroche. */
 add_filter( 'body_class', function ( $classes ) {

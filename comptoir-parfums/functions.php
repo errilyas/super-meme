@@ -1667,7 +1667,9 @@ add_action( 'wp_head', function () {
 	$h    = 630;
 
 	if ( $meta['image'] ) {
-		$fichier = str_replace( get_template_directory_uri(), get_template_directory(), $meta['image'] );
+		// Sans le « ?v=… » d'empreinte : avec, le fichier n'etait jamais trouve
+		// et chaque fiche annoncait 1200 x 630 pour une photo de 720 x 900.
+		$fichier = str_replace( get_template_directory_uri(), get_template_directory(), strtok( $meta['image'], '?' ) );
 		$taille  = @getimagesize( $fichier );
 		if ( $taille ) {
 			$w = $taille[0];

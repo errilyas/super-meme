@@ -125,7 +125,6 @@
     'Commander en 30 secondes': 'اطلب في 30 ثانية',
     'Rien à payer maintenant : vous réglez en espèces au livreur.': 'لا شيء تدفعه الآن: تدفع نقدًا لعامل التوصيل.',
     '1 flacon': 'قارورة واحدة',
-    '1 parfum': 'عطر واحد',
     '2 flacons': 'قارورتان',
     '2 parfums': 'عطران',
     '+ un 2e parfum au choix': '+ عطر ثانٍ من اختيارك',
