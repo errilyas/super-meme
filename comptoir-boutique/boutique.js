@@ -1,0 +1,1247 @@
+/* ══════════════════════════════════════════════════════════════
+   COMPTOIR BOUTIQUE — boutique.js
+   Les outils des grandes boutiques de parfum, poses sur le theme :
+     1. bandeau d'annonce (rendu par PHP, anime ici) ;
+     2. recherche instantanee, depuis l'en-tete de chaque page ;
+     3. quiz « Trouver mon parfum » ;
+     4. favoris (coeur sur la fiche, tiroir) ;
+     5. fiche parfum : « Dans le meme esprit » et « Vus recemment ».
+
+   Une seule source : window.PRODUITS, injecte par le theme depuis
+   produits.php. Le panier passe par window.Panier (panier.js du theme) :
+   aucun calcul de prix ou de livraison n'est refait ici.
+
+   Ecrit sans syntaxe recente (var, function) : une bonne part de la
+   clientele navigue sur des telephones Android d'entree de gamme.
+══════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  var CFG = window.CPB || {};
+  var P = window.Panier;
+  var LISTE = window.PRODUITS || [];
+  /* Sans le panier ou le catalogue du theme, il n'y a rien a brancher. */
+  if (!P || !LISTE.length) { return; }
+
+  var AR = false;
+  try { AR = typeof window.CP_LANGUE === 'function' && window.CP_LANGUE() === 'ar'; } catch (e) {}
+
+  var REDUIT = false;
+  try { REDUIT = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+  /* ══════════════════════════════════════════════════════════════
+     TEXTES — francais en clef, arabe en valeur
+     Les noms de maisons et de parfums ne passent jamais par ici : ils
+     restent tels qu'ecrits sur le flacon.
+  ══════════════════════════════════════════════════════════════ */
+  var AR_TXT = {
+    'Rechercher un parfum': 'ابحث عن عطر',
+    'Un parfum, une maison, une note…': 'عطر، دار عطور، أو نوتة…',
+    'Fermer': 'إغلاق',
+    'Vus récemment': 'شاهدتها مؤخرًا',
+    'Les plus demandés': 'الأكثر طلبًا',
+    '1 parfum': 'عطر واحد',
+    '{n} parfums': '{n} عطر',
+    'Affinez avec une note ou une maison pour voir les autres.': 'أضف نوتة أو اسم دار لرؤية الباقي.',
+    'Aucun parfum ne correspond à « {q} ».': 'لا يوجد عطر يطابق « {q} ».',
+    'Essayez une maison (Dior), une note (vanille) ou une famille (boisé).': 'جرّب اسم دار (Dior)، أو نوتة (فانيليا)، أو عائلة (خشبي).',
+    'Trouver mon parfum en 4 questions': 'اكتشف عطرك في 4 أسئلة',
+    'Mes favoris': 'مفضّلاتي',
+    'Mes favoris ({n})': 'مفضّلاتي ({n})',
+    'Recherches rapides': 'بحث سريع',
+    'Ajouter à mes favoris': 'أضف إلى مفضّلاتي',
+    'Dans vos favoris': 'في مفضّلاتك',
+    'Retirer des favoris': 'إزالة من المفضّلات',
+    'Ajouter {nom} à mes favoris': 'أضف {nom} إلى مفضّلاتي',
+    'Retirer {nom} de mes favoris': 'إزالة {nom} من مفضّلاتي',
+    'Aucun favori pour l’instant.': 'لا توجد مفضّلات بعد.',
+    'Touchez le cœur d’une fiche parfum pour la garder ici.': 'اضغط على القلب في صفحة العطر لتحفظه هنا.',
+    'Parcourir le catalogue': 'تصفّح الكتالوج',
+    'Ajouter au panier': 'أضف إلى السلة',
+    'Ajouté · voir le panier': 'أُضيف · عرض السلة',
+    'Retirer': 'حذف',
+    'Tout ajouter au panier': 'أضف الكل إلى السلة',
+    'Voir la fiche': 'التفاصيل',
+    'Trouver mon parfum': 'اكتشف عطرك',
+    'Conseil personnalisé': 'نصيحة على مقاسك',
+    'Vous hésitez ? Trouvez votre parfum en 4 questions.': 'محتار؟ اكتشف عطرك في 4 أسئلة.',
+    'Dites-nous pour qui, quelle ambiance et quelles notes vous aimez : nous choisissons dans le catalogue les flacons qui vous ressemblent.': 'قل لنا لمن العطر، وأي أجواء تحب، وأي نوتات: نختار لك من الكتالوج القوارير التي تشبهك.',
+    'Commencer le quiz': 'ابدأ الاختبار',
+    'Pour qui ?': 'لمن العطر؟',
+    'Quelle ambiance ?': 'أي أجواء؟',
+    'Quel moment ?': 'متى تضعه؟',
+    'Vos notes préférées': 'نوتاتك المفضّلة',
+    'Question {i} sur {n}': 'السؤال {i} من {n}',
+    'Votre sélection': 'اختيارك',
+    'Pour qui est ce parfum ?': 'لمن هذا العطر؟',
+    'Pour elle': 'لها',
+    'Pour lui': 'له',
+    'Peu importe': 'لا يهم',
+    'Féminins et mixtes': 'نسائية وللجنسين',
+    'Masculins et mixtes': 'رجالية وللجنسين',
+    'Tout le catalogue': 'كل الكتالوج',
+    'Quelle ambiance vous attire ?': 'أي أجواء تجذبك؟',
+    'Frais et lumineux': 'منعش ومشرق',
+    'Agrumes, lavande, notes marines': 'حمضيات، خزامى، نوتات بحرية',
+    'Floral': 'زهري',
+    'Rose, jasmin, fleur d’oranger': 'ورد، ياسمين، زهر البرتقال',
+    'Gourmand et vanillé': 'حلو وبالفانيليا',
+    'Vanille, caramel, fève tonka': 'فانيليا، كراميل، تونكا',
+    'Boisé et oriental': 'خشبي وشرقي',
+    'Oud, santal, ambre, cuir': 'عود، صندل، عنبر، جلد',
+    'Quand le porterez-vous ?': 'متى ستضعه؟',
+    'En journée, au bureau': 'في النهار، في العمل',
+    'Léger, propre, jamais envahissant': 'خفيف، نظيف، غير مزعج',
+    'Le soir, pour les occasions': 'في المساء والمناسبات',
+    'Intense, qui laisse un sillage': 'قوي، يترك أثرًا',
+    'Tous les jours, partout': 'كل يوم، في كل مكان',
+    'Polyvalent, du matin au soir': 'متعدد الاستعمال، من الصباح إلى المساء',
+    'Des notes que vous aimez ?': 'نوتات تحبها؟',
+    'Plusieurs choix possibles. Rien ne vous parle ? Passez.': 'يمكنك اختيار أكثر من واحدة. لا شيء يناسبك؟ تابع.',
+    'Vanille': 'فانيليا',
+    'Rose': 'ورد',
+    'Oud': 'عود',
+    'Agrumes': 'حمضيات',
+    'Musc': 'مسك',
+    'Ambre': 'عنبر',
+    'Café et cacao': 'قهوة وكاكاو',
+    'Fruits': 'فواكه',
+    'Fleur d’oranger': 'زهر البرتقال',
+    'Lavande': 'خزامى',
+    'Bois': 'أخشاب',
+    'Épices': 'توابل',
+    'Retour': 'رجوع',
+    'Voir mes parfums': 'شاهد عطوري',
+    'Passer cette question': 'تخطَّ هذا السؤال',
+    'Trois parfums pour vous.': 'ثلاثة عطور لك.',
+    'Choisis parmi les {n} références du catalogue, d’après vos réponses.': 'مختارة من بين {n} مرجعًا في الكتالوج، حسب أجوبتك.',
+    'Le plus proche': 'الأقرب إليك',
+    'Pourquoi :': 'لماذا:',
+    'Un deuxième avis ? Un conseiller vous répond sur WhatsApp.': 'تريد رأيًا ثانيًا؟ مستشارنا يجيبك على واتساب.',
+    'Demander conseil': 'اطلب النصيحة',
+    'Recommencer': 'أعد الاختبار',
+    'Voir tout le catalogue': 'شاهد الكتالوج كاملاً',
+    'Dans le même esprit': 'بنفس الروح',
+    'En commun :': 'مشترك:',
+    'Vous hésitez ?': 'محتار؟',
+    'Trouvez votre parfum en 4 questions': 'اكتشف عطرك في 4 أسئلة',
+    'pour elle': 'لها',
+    'pour lui': 'له',
+    'pour tous': 'للجميع',
+    'notes : {l}': 'النوتات: {l}',
+    'Bonjour, j’ai fait le quiz « Trouver mon parfum » ({r}). Il me propose : {l}. Pouvez-vous me conseiller ?': 'السلام عليكم، أجبت على اختبار « اكتشف عطرك » ({r}). اقترح عليّ: {l}. هل يمكنكم نصحي؟'
+  };
+
+  function t(fr, r) {
+    var s = (AR && AR_TXT[fr] != null) ? AR_TXT[fr] : fr;
+    if (r) {
+      Object.keys(r).forEach(function (k) { s = s.split('{' + k + '}').join(String(r[k])); });
+    }
+    return s;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     OUTILS
+  ══════════════════════════════════════════════════════════════ */
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* Cle de recherche : minuscules, sans accents. Meme regle que
+     cleRecherche() du theme : « hermes » trouve « Hermès ». */
+  function cle(s) {
+    s = String(s == null ? '' : s);
+    if (s.normalize) { s = s.normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+    return s.toLowerCase();
+  }
+
+  var INDEX = {};
+  LISTE.forEach(function (p) { if (p && p.s) { INDEX[p.s] = p; } });
+  function produit(s) { return Object.prototype.hasOwnProperty.call(INDEX, s) ? INDEX[s] : null; }
+
+  function prixTexte(p) { return P.fmt(P.prix(p)); }
+
+  /* Meme adresse que celle du panier, empreinte comprise : le navigateur
+     reutilise l'image deja en cache. */
+  function photo(p) {
+    if (!P.aPhoto(p.s)) { return ''; }
+    var c = P.cfg || {};
+    return (c.imgBase || '') + p.s + '.webp' + (c.imgVer ? '?v=' + c.imgVer : '');
+  }
+
+  var VIDE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5'%3E%3C/svg%3E";
+
+  function vignette(p, classe, l, h) {
+    var src = photo(p);
+    return '<img class="' + classe + (src ? '' : ' is-empty') + '" alt="" width="' + l + '" height="' + h +
+      '" loading="lazy" decoding="async" src="' + esc(src || VIDE) + '">';
+  }
+
+  /* En apercu, les liens internes gardent ?apercu=boutique. */
+  function avecSuffixe(u) {
+    if (!CFG.suffixe) { return u; }
+    var ancre = '', i = u.indexOf('#');
+    if (i > -1) { ancre = u.slice(i); u = u.slice(0, i); }
+    return u + (u.indexOf('?') > -1 ? '&' : '?') + CFG.suffixe + ancre;
+  }
+  function urlFiche(s) {
+    var base = window.CP_PARFUM_BASE || ((CFG.home || '/') + '?parfum=');
+    return avecSuffixe(base + encodeURIComponent(s));
+  }
+  function urlAccueil(ancre) { return avecSuffixe((CFG.home || '/') + (ancre || '')); }
+
+  /* Les noms propres portent .pnr-brand / .pnr-name : la bascule arabe du
+     theme ne traduit jamais ce qui est dans ces zones. */
+  function maisonHTML(p) { return '<span class="pnr-brand cpb-maison">' + esc(p.b) + '</span>'; }
+  function nomHTML(p) { return '<span class="pnr-name cpb-nom">' + esc(p.n) + '</span>'; }
+
+  function notesDe(p) { return [].concat(p.t || [], p.c || [], p.f || []); }
+  function famillePrincipale(p) { return String(p.fam || '').trim().split(/\s+/)[0] || ''; }
+
+  function lireLS(k, defaut) {
+    try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? defaut : v; } catch (e) { return defaut; }
+  }
+  function ecrireLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  function dansPanier(s) {
+    return P.items().some(function (x) { return x.s === s; });
+  }
+
+  var SVG = {
+    loupe: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/></svg>',
+    coeur: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.3s-7.6-4.6-9.2-9.4C1.7 7.4 3.9 4 7.4 4c2 0 3.4 1.1 4.6 2.7C13.2 5.1 14.6 4 16.6 4c3.5 0 5.7 3.4 4.6 6.9-1.6 4.8-9.2 9.4-9.2 9.4z"/></svg>',
+    croix: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    etincelle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></svg>',
+    wa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'
+  };
+
+  /* Une photo qui echoue garde sa case : on retire juste le src, la
+     silhouette doree (.is-empty) prend le relais. */
+  document.addEventListener('error', function (e) {
+    var im = e.target;
+    if (im && im.tagName === 'IMG' && im.closest && im.closest('.cpb') && im.getAttribute('src') !== VIDE) {
+      im.setAttribute('src', VIDE);
+      im.classList.add('is-empty');
+    }
+  }, true);
+
+  /* ══════════════════════════════════════════════════════════════
+     CALQUES — un seul ouvert a la fois, modal, focus piege
+  ══════════════════════════════════════════════════════════════ */
+  var ouvert = null, dernierFocus = null;
+  var FOCUSABLES = 'a[href],button:not([disabled]),input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])';
+
+  function creeCalque(classe, libelle) {
+    var d = document.createElement('div');
+    d.className = 'cpb cpb-calque ' + classe;
+    d.hidden = true;
+    d.setAttribute('role', 'dialog');
+    d.setAttribute('aria-modal', 'true');
+    d.setAttribute('aria-label', libelle);
+    d.addEventListener('click', function (e) { if (e.target === d) { fermer(); } });
+    document.body.appendChild(d);
+    return d;
+  }
+
+  function visibles(racine) {
+    return [].slice.call(racine.querySelectorAll(FOCUSABLES)).filter(function (el) {
+      return el.offsetWidth || el.offsetHeight || el.getClientRects().length;
+    });
+  }
+
+  function ouvrir(calque, cible) {
+    if (ouvert && ouvert !== calque) { fermer(true); }
+    if (P.isOpen && P.isOpen()) { P.close(); }
+    if (!dernierFocus) { dernierFocus = document.activeElement; }
+    calque.hidden = false;
+    document.documentElement.classList.add('cpb-lock');
+    void calque.offsetWidth;            /* le fondu part de l'etat ferme */
+    calque.classList.add('is-open');
+    ouvert = calque;
+    var f = cible ? calque.querySelector(cible) : null;
+    if (!f) { f = visibles(calque)[0]; }
+    if (f) { try { f.focus({ preventScroll: true }); } catch (e) { f.focus(); } }
+  }
+
+  /* garderFocus : on enchaine sur un autre calque, le focus reviendra plus
+     tard a l'element qui a ouvert le premier. */
+  function fermer(garderFocus) {
+    if (!ouvert) { return; }
+    var c = ouvert;
+    ouvert = null;
+    c.classList.remove('is-open');
+    c.hidden = true;
+    document.documentElement.classList.remove('cpb-lock');
+    if (garderFocus) { return; }
+    var f = dernierFocus;
+    dernierFocus = null;
+    if (f && document.contains(f) && f.focus) { try { f.focus(); } catch (e) {} }
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (ouvert) {
+      if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); fermer(); return; }
+      if (e.key === 'Tab') {
+        var f = visibles(ouvert);
+        if (!f.length) { e.preventDefault(); return; }
+        var premier = f[0], dernier = f[f.length - 1];
+        if (!ouvert.contains(document.activeElement)) { e.preventDefault(); premier.focus(); }
+        else if (e.shiftKey && document.activeElement === premier) { e.preventDefault(); dernier.focus(); }
+        else if (!e.shiftKey && document.activeElement === dernier) { e.preventDefault(); premier.focus(); }
+      }
+      return;
+    }
+    /* « / » ou Ctrl+K ouvrent la recherche, hors d'un champ de saisie. */
+    var cible = e.target, tag = cible && cible.tagName;
+    var saisie = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (cible && cible.isContentEditable);
+    if ((e.key === '/' && !saisie && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+        ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K'))) {
+      if (P.isOpen && P.isOpen()) { return; }
+      e.preventDefault();
+      ouvrirRecherche();
+    }
+  });
+
+  /* ══════════════════════════════════════════════════════════════
+     1. BANDEAU D'ANNONCE
+  ══════════════════════════════════════════════════════════════ */
+  function bandeau() {
+    var b = document.getElementById('cpb-bandeau');
+    if (!b) { return; }
+    var nav = document.getElementById('nav');
+
+    /* La navigation est fixe : elle descend sous le bandeau en haut de page,
+       puis remonte a mesure que le bandeau sort de l'ecran. */
+    if (nav) {
+      var attente = false;
+      var place = function () {
+        attente = false;
+        var h = b.offsetHeight;
+        nav.style.top = Math.max(0, h - (window.pageYOffset || document.documentElement.scrollTop || 0)) + 'px';
+      };
+      var demande = function () {
+        if (attente) { return; }
+        attente = true;
+        (window.requestAnimationFrame || setTimeout)(place);
+      };
+      window.addEventListener('scroll', demande, { passive: true });
+      window.addEventListener('resize', demande);
+      place();
+    }
+
+    /* Sur telephone, une promesse a la fois. */
+    var msgs = b.querySelectorAll('.cpb-bandeau-msg');
+    if (msgs.length < 2) { return; }
+    var i = 0, minuteur = null, pause = false;
+    var etroit = window.matchMedia ? window.matchMedia('(max-width: 1239px)') : null;
+    var tourne = function () {
+      if (pause || document.hidden || (etroit && !etroit.matches)) { return; }
+      msgs[i].classList.remove('is-on');
+      i = (i + 1) % msgs.length;
+      msgs[i].classList.add('is-on');
+    };
+    minuteur = setInterval(tourne, 4200);
+    b.addEventListener('mouseenter', function () { pause = true; });
+    b.addEventListener('mouseleave', function () { pause = false; });
+    b.addEventListener('focusin', function () { pause = true; });
+    b.addEventListener('focusout', function () { pause = false; });
+    window.addEventListener('pagehide', function () { clearInterval(minuteur); });
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     2. FAVORIS
+  ══════════════════════════════════════════════════════════════ */
+  var CLE_FAV = 'cpb-favoris-v1';
+  var favMem = null;
+  var tiroirFav = null;
+
+  function favoris() {
+    if (favMem === null) {
+      var a = lireLS(CLE_FAV, []);
+      favMem = Array.isArray(a) ? a.filter(function (s, i) {
+        return typeof s === 'string' && produit(s) && a.indexOf(s) === i;
+      }).slice(0, 60) : [];
+    }
+    return favMem.slice();
+  }
+  function estFavori(s) { return favoris().indexOf(s) > -1; }
+
+  function basculeFavori(s) {
+    var a = favoris(), i = a.indexOf(s);
+    if (i > -1) { a.splice(i, 1); } else { a.unshift(s); }
+    favMem = a.slice(0, 60);
+    ecrireLS(CLE_FAV, favMem);
+    majFavoris();
+    return i === -1;
+  }
+
+  function libelleCoeur(btn, s) {
+    var p = produit(s), on = estFavori(s);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (btn.classList.contains('cpb-coeur-rond')) {
+      btn.setAttribute('aria-label', on ? t('Retirer {nom} de mes favoris', { nom: p.n }) : t('Ajouter {nom} à mes favoris', { nom: p.n }));
+    } else {
+      var txt = btn.querySelector('.cpb-coeur-txt');
+      if (txt) { txt.textContent = on ? t('Dans vos favoris') : t('Ajouter à mes favoris'); }
+    }
+  }
+
+  function majFavoris() {
+    var n = favoris().length;
+    [].forEach.call(document.querySelectorAll('[data-cpb-fav-count]'), function (el) {
+      el.textContent = n;
+      if (n) { el.removeAttribute('data-vide'); } else { el.setAttribute('data-vide', ''); }
+    });
+    [].forEach.call(document.querySelectorAll('[data-cpb-coeur]'), function (btn) {
+      var s = btn.getAttribute('data-cpb-coeur');
+      if (produit(s)) { libelleCoeur(btn, s); }
+    });
+    if (tiroirFav && ouvert === tiroirFav) { rendTiroirFav(); }
+  }
+
+  window.addEventListener('storage', function (e) {
+    if (e.key === CLE_FAV || e.key === null) { favMem = null; majFavoris(); }
+  });
+
+  function coeurHTML(s, rond) {
+    var p = produit(s);
+    if (rond) {
+      return '<button type="button" class="cpb-coeur cpb-coeur-rond" data-cpb-coeur="' + esc(s) + '" aria-pressed="false" aria-label="' +
+        esc(t('Ajouter {nom} à mes favoris', { nom: p.n })) + '">' + SVG.coeur + '</button>';
+    }
+    return '<button type="button" class="cpb-coeur" data-cpb-coeur="' + esc(s) + '" aria-pressed="false">' + SVG.coeur +
+      '<span class="cpb-coeur-txt">' + esc(t('Ajouter à mes favoris')) + '</span></button>';
+  }
+
+  function ouvrirFavoris() {
+    if (!tiroirFav) {
+      tiroirFav = creeCalque('cpb-favoris', t('Mes favoris'));
+      tiroirFav.innerHTML =
+        '<div class="cpb-panneau">' +
+          '<div class="cpb-tiroir-tete"><h2>' + esc(t('Mes favoris')) + '</h2>' +
+          '<button type="button" class="cpb-fermer" data-cpb-fermer aria-label="' + esc(t('Fermer')) + '">' + SVG.croix + '</button></div>' +
+          '<div class="cpb-tiroir-corps"></div>' +
+          '<div class="cpb-tiroir-pied" hidden></div>' +
+        '</div>';
+      tiroirFav.addEventListener('click', function (e) {
+        var b = e.target.closest('button');
+        if (!b) { return; }
+        if (b.hasAttribute('data-cpb-fermer')) { fermer(); return; }
+        if (b.hasAttribute('data-cpb-retire')) {
+          basculeFavori(b.getAttribute('data-cpb-retire'));
+          var reste = visibles(tiroirFav);
+          if (reste.length) { reste[0].focus(); }
+          return;
+        }
+        if (b.hasAttribute('data-cpb-tout')) {
+          favoris().forEach(function (s) { if (!dansPanier(s)) { P.add(s, 1, true); } });
+          fermer();
+          P.open();
+        }
+      });
+    }
+    rendTiroirFav();
+    ouvrir(tiroirFav, '[data-cpb-fermer]');
+  }
+
+  function rendTiroirFav() {
+    var corps = tiroirFav.querySelector('.cpb-tiroir-corps');
+    var pied = tiroirFav.querySelector('.cpb-tiroir-pied');
+    var liste = favoris().map(produit).filter(Boolean);
+    if (!liste.length) {
+      corps.innerHTML = '<div class="cpb-vide">' + SVG.coeur + esc(t('Aucun favori pour l’instant.')) + '<br>' +
+        esc(t('Touchez le cœur d’une fiche parfum pour la garder ici.')) + '<br><br>' +
+        '<a href="' + esc(urlAccueil('#catalogue')) + '" data-cpb-va-catalogue>' + esc(t('Parcourir le catalogue')) + '</a></div>';
+      pied.hidden = true;
+      pied.innerHTML = '';
+      return;
+    }
+    corps.innerHTML = liste.map(function (p) {
+      return '<div class="cpb-fav">' +
+        '<a href="' + esc(urlFiche(p.s)) + '" tabindex="-1" aria-hidden="true">' + vignette(p, 'cpb-vignette', 64, 80) + '</a>' +
+        '<div>' +
+          '<a href="' + esc(urlFiche(p.s)) + '">' +
+            '<span class="cpb-ligne-maison">' + maisonHTML(p) + '</span>' +
+            '<span class="cpb-ligne-nom">' + nomHTML(p) + '</span>' +
+          '</a>' +
+          '<span class="cpb-ligne-prix">' + prixTexte(p) + '</span>' +
+          '<div class="cpb-fav-actions">' +
+            boutonAjout(p) +
+            '<button type="button" class="cpb-lien-btn" data-cpb-retire="' + esc(p.s) + '">' + esc(t('Retirer')) + '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    pied.hidden = false;
+    pied.innerHTML = '<button type="button" class="cpb-btn-plein" data-cpb-tout>' + esc(t('Tout ajouter au panier')) + '</button>';
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     AJOUT AU PANIER depuis un calque
+     Discret : le panier ne s'ouvre pas par-dessus le quiz ou les favoris,
+     le toast du theme confirme. Un second appui ouvre le panier.
+  ══════════════════════════════════════════════════════════════ */
+  function boutonAjout(p) {
+    var deja = dansPanier(p.s);
+    return '<button type="button" class="cpb-btn-ajout' + (deja ? ' is-fait' : '') + '" data-cpb-ajout="' + esc(p.s) + '">' +
+      esc(deja ? t('Ajouté · voir le panier') : t('Ajouter au panier')) + '</button>';
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-cpb-ajout]') : null;
+    if (b) {
+      e.preventDefault();
+      var s = b.getAttribute('data-cpb-ajout');
+      if (!produit(s)) { return; }
+      if (dansPanier(s)) { fermer(true); dernierFocus = null; P.open(); return; }
+      P.add(s, 1, true);
+      b.classList.add('is-fait');
+      b.textContent = t('Ajouté · voir le panier');
+      return;
+    }
+    var c = e.target.closest ? e.target.closest('[data-cpb-coeur]') : null;
+    if (c) {
+      e.preventDefault();
+      var slug = c.getAttribute('data-cpb-coeur');
+      if (!produit(slug)) { return; }
+      basculeFavori(slug);
+      if (!REDUIT) {
+        c.classList.remove('is-bat');
+        void c.offsetWidth;
+        c.classList.add('is-bat');
+        setTimeout(function () { c.classList.remove('is-bat'); }, 320);
+      }
+      return;
+    }
+    var q = e.target.closest ? e.target.closest('[data-cpb-quiz]') : null;
+    if (q) { e.preventDefault(); ouvrirQuiz(); return; }
+    var f = e.target.closest ? e.target.closest('[data-cpb-favoris]') : null;
+    if (f) { e.preventDefault(); ouvrirFavoris(); return; }
+    var r = e.target.closest ? e.target.closest('[data-cpb-recherche]') : null;
+    if (r) { e.preventDefault(); ouvrirRecherche(); return; }
+    /* Un lien vers le catalogue, depuis un calque ouvert sur l'accueil :
+       on ferme et on y descend, au lieu de recharger la page. */
+    var cat = e.target.closest ? e.target.closest('[data-cpb-va-catalogue]') : null;
+    if (cat && document.getElementById('catalogue')) {
+      e.preventDefault();
+      fermer();
+      document.getElementById('catalogue').scrollIntoView({ behavior: REDUIT ? 'auto' : 'smooth', block: 'start' });
+    }
+  });
+
+  /* Le panier a change ailleurs (tiroir, autre onglet) : les boutons
+     « Ajoute » d'un calque ouvert suivent. */
+  P.onChange(function () {
+    if (!ouvert) { return; }
+    [].forEach.call(ouvert.querySelectorAll('[data-cpb-ajout]'), function (b) {
+      var s = b.getAttribute('data-cpb-ajout'), deja = dansPanier(s);
+      b.classList.toggle('is-fait', deja);
+      b.textContent = deja ? t('Ajouté · voir le panier') : t('Ajouter au panier');
+    });
+  });
+
+  /* ══════════════════════════════════════════════════════════════
+     3. RECHERCHE INSTANTANEE
+  ══════════════════════════════════════════════════════════════ */
+
+  /* L'arabe tape au clavier : on ramene les mots les plus cherches vers le
+     catalogue, ecrit en lettres latines. */
+  var AR_REQ = {
+    'شانيل': 'chanel', 'ديور': 'dior', 'توم فورد': 'tom ford', 'كريد': 'creed', 'فرساتشي': 'versace',
+    'فيرساتشي': 'versace', 'ارماني': 'armani', 'اماني': 'armani', 'ايف سان لوران': 'yves saint laurent',
+    'سان لوران': 'saint laurent', 'غوتشي': 'gucci', 'قوتشي': 'gucci', 'جوتشي': 'gucci', 'برادا': 'prada',
+    'فالنتينو': 'valentino', 'هوغو بوس': 'hugo boss', 'هوجو بوس': 'hugo boss', 'بوس': 'boss',
+    'جان بول غوتييه': 'jean paul gaultier', 'غوتييه': 'gaultier', 'لانكوم': 'lancome', 'كارولينا': 'carolina',
+    'زيرجوف': 'xerjoff', 'كسيرجوف': 'xerjoff', 'بربري': 'burberry', 'بيربري': 'burberry', 'كيالي': 'kayali',
+    'باكارات': 'baccarat', 'سوفاج': 'sauvage', 'سوفاچ': 'sauvage', 'جيفنشي': 'givenchy', 'جيفانشي': 'givenchy',
+    'غيرلان': 'guerlain', 'هيرميس': 'hermes', 'ايرميس': 'hermes', 'دولتشي': 'dolce', 'دولشي': 'dolce',
+    'نارسيسو': 'narciso', 'مونت بلانك': 'montblanc', 'مونبلان': 'montblanc', 'لاكوست': 'lacoste',
+    'رابان': 'rabanne', 'باكو رابان': 'rabanne', 'ون مليون': '1 million', 'مارلي': 'marly', 'نيشان': 'nishane',
+    'كوكو': 'coco', 'ليبر': 'libre', 'بلاك اوبيوم': 'black opium', 'ايروس': 'eros', 'لو مال': 'le male',
+    'فانيليا': 'vanille', 'فانيلا': 'vanille', 'عود': 'oud', 'ورد': 'rose', 'مسك': 'musc', 'عنبر': 'ambre',
+    'ياسمين': 'jasmin', 'صندل': 'santal', 'قهوه': 'cafe', 'كاكاو': 'cacao', 'خزامى': 'lavande', 'لافندر': 'lavande',
+    'جلد': 'cuir', 'باتشولي': 'patchouli', 'برغموت': 'bergamote', 'ليمون': 'citron', 'تونكا': 'tonka',
+    'زهر البرتقال': 'fleur d oranger', 'زهري': 'floral', 'خشبي': 'boise', 'شرقي': 'oriental', 'منعش': 'frais',
+    'نسائي': 'femme', 'رجالي': 'homme', 'للجنسين': 'mixte', 'نساء': 'femme', 'رجال': 'homme'
+  };
+  var AR_CLES = Object.keys(AR_REQ).map(normAr).sort(function (a, b) { return b.length - a.length; });
+  var AR_VAL = {};
+  Object.keys(AR_REQ).forEach(function (k) { AR_VAL[normAr(k)] = AR_REQ[k]; });
+
+  function normAr(s) {
+    return String(s).replace(/[ً-ٰٟـ]/g, '')
+      .replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه');
+  }
+  function requeteLatine(q) {
+    if (!/[؀-ۿ]/.test(q)) { return q; }
+    var s = normAr(q);
+    AR_CLES.forEach(function (k) { if (s.indexOf(k) > -1) { s = s.split(k).join(' ' + AR_VAL[k] + ' '); } });
+    return s.replace(/[؀-ۿ]+/g, ' ');
+  }
+
+  var ENTREES = null;
+  function entrees() {
+    if (ENTREES) { return ENTREES; }
+    ENTREES = LISTE.map(function (p) {
+      return {
+        p: p,
+        n: cle(p.n),
+        b: cle(p.b),
+        r: cle([p.fam, p.x, p.g].concat(notesDe(p)).join(' ')),
+        photo: P.aPhoto(p.s)
+      };
+    });
+    return ENTREES;
+  }
+
+  function debutDeMot(texte, mot) {
+    var i = texte.indexOf(mot);
+    while (i > -1) {
+      if (i === 0 || /[\s'’\-.&]/.test(texte.charAt(i - 1))) { return true; }
+      i = texte.indexOf(mot, i + 1);
+    }
+    return false;
+  }
+
+  function cherche(q) {
+    var mots = cle(requeteLatine(q)).replace(/[’']/g, ' ').split(/\s+/).filter(Boolean);
+    if (!mots.length) { return []; }
+    var res = [];
+    entrees().forEach(function (e) {
+      var total = 0;
+      for (var i = 0; i < mots.length; i++) {
+        var m = mots[i], s = 0;
+        if (debutDeMot(e.n, m)) { s += 10; } else if (m.length > 2 && e.n.indexOf(m) > -1) { s += 5; }
+        if (debutDeMot(e.b, m)) { s += 8; } else if (m.length > 2 && e.b.indexOf(m) > -1) { s += 4; }
+        if (!s) {
+          if (debutDeMot(e.r, m)) { s += 3; } else if (m.length > 3 && e.r.indexOf(m) > -1) { s += 1; }
+        }
+        if (!s) { return; }          /* chaque mot doit trouver quelque chose */
+        total += s;
+      }
+      res.push({ p: e.p, s: total + (e.photo ? 0.5 : 0) });
+    });
+    res.sort(function (a, b) { return b.s - a.s || (a.p.b + a.p.n).localeCompare(b.p.b + b.p.n); });
+    return res.map(function (r) { return r.p; });
+  }
+
+  /* Le mot tape, surligne dans le nom quand on peut le situer sans risque :
+     la cle sans accents a la meme longueur que le nom affiche. */
+  function nomSurligne(p, q) {
+    var mots = cle(requeteLatine(q)).split(/\s+/).filter(function (m) { return m.length > 1; });
+    var c = cle(p.n);
+    if (!mots.length || c.length !== p.n.length) { return nomHTML(p); }
+    var i = -1, m = '';
+    for (var k = 0; k < mots.length && i < 0; k++) { i = c.indexOf(mots[k]); m = mots[k]; }
+    if (i < 0) { return nomHTML(p); }
+    return '<span class="pnr-name cpb-nom">' + esc(p.n.slice(0, i)) + '<mark>' + esc(p.n.slice(i, i + m.length)) + '</mark>' +
+      esc(p.n.slice(i + m.length)) + '</span>';
+  }
+
+  function ligneHTML(p, q) {
+    return '<li><a class="cpb-ligne" href="' + esc(urlFiche(p.s)) + '">' +
+      vignette(p, 'cpb-vignette', 56, 56) +
+      '<span class="cpb-ligne-txt">' +
+        '<span class="cpb-ligne-maison">' + maisonHTML(p) + '</span>' +
+        '<span class="cpb-ligne-nom">' + (q ? nomSurligne(p, q) : nomHTML(p)) + '</span>' +
+        '<span class="cpb-ligne-fam">' + esc(p.fam) + '</span>' +
+      '</span>' +
+      '<span class="cpb-ligne-prix">' + prixTexte(p) + '</span>' +
+    '</a></li>';
+  }
+
+  var rech = null, champ = null, corpsRech = null, statut = null;
+  var MAX_RES = 8;
+
+  function construitRecherche() {
+    rech = creeCalque('cpb-recherche', t('Rechercher un parfum'));
+    rech.innerHTML =
+      '<div class="cpb-panneau">' +
+        '<div class="cpb-rech-tete">' + SVG.loupe +
+          '<input type="search" class="cpb-rech-champ" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"' +
+          ' aria-label="' + esc(t('Rechercher un parfum')) + '" placeholder="' + esc(t('Un parfum, une maison, une note…')) + '">' +
+          '<button type="button" class="cpb-fermer" data-cpb-fermer aria-label="' + esc(t('Fermer')) + '">' + SVG.croix + '</button>' +
+        '</div>' +
+        '<p class="cpb-sr" aria-live="polite"></p>' +
+        '<div class="cpb-rech-corps"></div>' +
+      '</div>';
+    champ = rech.querySelector('.cpb-rech-champ');
+    corpsRech = rech.querySelector('.cpb-rech-corps');
+    statut = rech.querySelector('.cpb-sr');
+
+    rech.querySelector('[data-cpb-fermer]').addEventListener('click', function () { fermer(); });
+    champ.addEventListener('input', rendRecherche);
+    champ.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') {
+        var l = corpsRech.querySelector('.cpb-ligne');
+        if (l) { e.preventDefault(); l.focus(); }
+      } else if (e.key === 'Enter') {
+        var premier = corpsRech.querySelector('.cpb-ligne');
+        if (premier && champ.value.trim()) { e.preventDefault(); location.href = premier.getAttribute('href'); }
+      }
+    });
+    corpsRech.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') { return; }
+      var liens = [].slice.call(corpsRech.querySelectorAll('.cpb-ligne'));
+      var i = liens.indexOf(document.activeElement);
+      if (i < 0) { return; }
+      e.preventDefault();
+      if (e.key === 'ArrowDown' && i < liens.length - 1) { liens[i + 1].focus(); }
+      else if (e.key === 'ArrowUp') { if (i > 0) { liens[i - 1].focus(); } else { champ.focus(); } }
+    });
+    corpsRech.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cpb-mot]');
+      if (!b) { return; }
+      champ.value = b.getAttribute('data-cpb-mot');
+      rendRecherche();
+      champ.focus();
+    });
+  }
+
+  function rendRecherche() {
+    var q = champ.value.trim();
+    if (!q) { rendRechercheVide(); statut.textContent = ''; return; }
+    var res = cherche(q);
+    if (!res.length) {
+      corpsRech.innerHTML = '<div class="cpb-rech-vide"><strong>' + esc(t('Aucun parfum ne correspond à « {q} ».', { q: q })) + '</strong><br>' +
+        esc(t('Essayez une maison (Dior), une note (vanille) ou une famille (boisé).')) + '</div>' +
+        '<div class="cpb-rech-raccourcis"><button type="button" class="cpb-puce cpb-puce-or" data-cpb-quiz>' + SVG.etincelle +
+        esc(t('Trouver mon parfum en 4 questions')) + '</button></div>';
+      statut.textContent = t('Aucun parfum ne correspond à « {q} ».', { q: q });
+      return;
+    }
+    var n = res.length;
+    var compte = n === 1 ? t('1 parfum') : t('{n} parfums', { n: n });
+    corpsRech.innerHTML = '<p class="cpb-rech-compte">' + esc(compte) + '</p>' +
+      '<ul class="cpb-liste">' + res.slice(0, MAX_RES).map(function (p) { return ligneHTML(p, q); }).join('') + '</ul>' +
+      (n > MAX_RES ? '<p class="cpb-rech-compte" style="margin-top:14px">' + esc(t('Affinez avec une note ou une maison pour voir les autres.')) + '</p>' : '');
+    statut.textContent = compte;
+  }
+
+  function rendRechercheVide() {
+    var html = '';
+    var vusListe = vusRecemment().slice(0, 4).map(produit).filter(Boolean);
+    if (vusListe.length) {
+      html += '<div class="cpb-rech-bloc"><p class="cpb-titre-petit">' + esc(t('Vus récemment')) + '</p><ul class="cpb-liste">' +
+        vusListe.map(function (p) { return ligneHTML(p, ''); }).join('') + '</ul></div>';
+    }
+    var dejaVus = {};
+    vusListe.forEach(function (p) { dejaVus[p.s] = 1; });
+    var pop = (CFG.populaires || []).filter(function (s) { return produit(s) && !dejaVus[s]; }).slice(0, vusListe.length ? 3 : 5).map(produit);
+    if (pop.length) {
+      html += '<div class="cpb-rech-bloc"><p class="cpb-titre-petit">' + esc(t('Les plus demandés')) + '</p><ul class="cpb-liste">' +
+        pop.map(function (p) { return ligneHTML(p, ''); }).join('') + '</ul></div>';
+    }
+    var mots = AR
+      ? ['فانيليا', 'عود', 'ورد', 'مسك', 'Dior', 'Tom Ford']
+      : ['Vanille', 'Oud', 'Rose', 'Musc', 'Dior', 'Tom Ford'];
+    var nf = favoris().length;
+    html += '<div class="cpb-rech-raccourcis" aria-label="' + esc(t('Recherches rapides')) + '">' +
+      '<button type="button" class="cpb-puce cpb-puce-or" data-cpb-quiz>' + SVG.etincelle + esc(t('Trouver mon parfum en 4 questions')) + '</button>' +
+      (nf ? '<button type="button" class="cpb-puce" data-cpb-favoris>' + SVG.coeur + esc(t('Mes favoris ({n})', { n: nf })) + '</button>' : '') +
+      mots.map(function (m) { return '<button type="button" class="cpb-puce" data-cpb-mot="' + esc(m) + '">' + esc(m) + '</button>'; }).join('') +
+      '</div>';
+    corpsRech.innerHTML = html;
+  }
+
+  function ouvrirRecherche() {
+    if (!rech) { construitRecherche(); }
+    rendRecherche();
+    ouvrir(rech, '.cpb-rech-champ');
+    try { champ.select(); } catch (e) {}
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     4. QUIZ « TROUVER MON PARFUM »
+  ══════════════════════════════════════════════════════════════ */
+
+  /* Groupes de notes, compares a la cle de chaque note (sans accents).
+     Ancres en debut de mot : « poivre rose » n'est pas une rose, et
+     « poudre » ne contient pas d'oud. */
+  var GROUPES = {
+    vanille: /(^|\s)vanill/,
+    rose: /^rose\b/,
+    oud: /(^|[\s'’])oud\b/,
+    agrumes: /(^|\s)(bergamote|citron|mandarine|pamplemousse|orange|cedrat|yuzu|lime|agrume|petit grain|clementine)/,
+    musc: /(^|\s)musc/,
+    ambre: /(^|\s)(ambre|ambrox|ambrette|labdanum|benjoin)/,
+    cafe: /(^|\s)(cafe|cacao|chocolat|espresso|praline)/,
+    fruits: /(^|\s)(poire|pomme|cassis|litchi|fruit|framboise|fraise|peche|abricot|prune|ananas|cerise|griotte|mure|myrtille|pasteque|figue|mangue|coing|baie|groseille|melon|grenade)/,
+    oranger: /(fleur d.?oranger|neroli)/,
+    lavande: /(^|\s)lavand/,
+    bois: /(^|\s)(santal|cedre|vetiver|bois|gaiac|patchouli|mousse de chene)/,
+    epices: /(^|\s)(cardamome|cannelle|poivre|safran|gingembre|muscade|girofle|piment|cumin|anis|epice)/,
+    marin: /(^|\s)(notes marines|marin|aquatique|sel|algue|menthe|notes vertes|the vert)/,
+    floral: /(^|\s)(rose|jasmin|pivoine|tubereuse|iris|violette|muguet|magnolia|freesia|gardenia|ylang|orchidee|heliotrope|lys|fleur|neroli|osmanthus|mimosa|frangipanier|lilas|geranium)/,
+    gourmand: /(^|\s)(vanill|caramel|tonka|praline|cacao|chocolat|cafe|amande|miel|toffee|sucre|marshmallow|pistache|meringue|lait|creme|biscuit|panettone|dragee|guimauve|noix de coco|coco)/,
+    oriental: /(^|[\s'’])(oud|santal|encens|cuir|ambre|patchouli|safran|myrrhe|tabac|benjoin|labdanum|oliban|styrax)/
+  };
+
+  var UNIVERS = {
+    frais: { fam: /(hesperide|aromatique|aquatique|marin|frais|vert|fougere|metallique)/, notes: [GROUPES.agrumes, GROUPES.lavande, GROUPES.marin] },
+    floral: { fam: /(floral|fleur|rose|blanc|poudre|capiteux)/, notes: [GROUPES.floral] },
+    gourmand: { fam: /(gourmand|vanille|lacte)/, notes: [GROUPES.gourmand] },
+    boise: { fam: /(boise|ambre|oriental|cuir|epice|tabac|mineral)/, notes: [GROUPES.oriental, GROUPES.bois] }
+  };
+
+  var CHIPS = [
+    ['vanille', 'Vanille'], ['rose', 'Rose'], ['oud', 'Oud'], ['agrumes', 'Agrumes'],
+    ['musc', 'Musc'], ['ambre', 'Ambre'], ['cafe', 'Café et cacao'], ['fruits', 'Fruits'],
+    ['oranger', 'Fleur d’oranger'], ['lavande', 'Lavande'], ['bois', 'Bois'], ['epices', 'Épices']
+  ];
+
+  var QUESTIONS = [
+    { cle: 'genre', court: 'Pour qui ?', titre: 'Pour qui est ce parfum ?', options: [
+      ['elle', 'Pour elle', 'Féminins et mixtes'],
+      ['lui', 'Pour lui', 'Masculins et mixtes'],
+      ['tous', 'Peu importe', 'Tout le catalogue']
+    ] },
+    { cle: 'univers', court: 'Quelle ambiance ?', titre: 'Quelle ambiance vous attire ?', options: [
+      ['frais', 'Frais et lumineux', 'Agrumes, lavande, notes marines'],
+      ['floral', 'Floral', 'Rose, jasmin, fleur d’oranger'],
+      ['gourmand', 'Gourmand et vanillé', 'Vanille, caramel, fève tonka'],
+      ['boise', 'Boisé et oriental', 'Oud, santal, ambre, cuir']
+    ] },
+    { cle: 'moment', court: 'Quel moment ?', titre: 'Quand le porterez-vous ?', options: [
+      ['jour', 'En journée, au bureau', 'Léger, propre, jamais envahissant'],
+      ['soir', 'Le soir, pour les occasions', 'Intense, qui laisse un sillage'],
+      ['toujours', 'Tous les jours, partout', 'Polyvalent, du matin au soir']
+    ] },
+    { cle: 'notes', court: 'Vos notes préférées', titre: 'Des notes que vous aimez ?', multi: true }
+  ];
+
+  var etat = { etape: 0, genre: null, univers: null, moment: null, notes: [] };
+
+  function notesCles(p) { return notesDe(p).map(cle); }
+  function correspond(liste, re) {
+    var hits = [];
+    liste.forEach(function (n, i) { if (re.test(n)) { hits.push(i); } });
+    return hits;
+  }
+
+  /* Le classement : un score par parfum, a partir des reponses. Aucun
+     parfum n'est « pousse » : seuls le genre, la famille, la concentration
+     et les notes ecrites dans produits.php comptent. */
+  function classement() {
+    var g = etat.genre;
+    var u = etat.univers ? UNIVERS[etat.univers] : null;
+    var cands = LISTE.filter(function (p) {
+      if (g === 'elle') { return p.g === 'Femme' || p.g === 'Mixte'; }
+      if (g === 'lui') { return p.g === 'Homme' || p.g === 'Mixte'; }
+      return true;
+    });
+    var notees = cands.map(function (p) {
+      var nc = notesCles(p), fam = cle(p.fam), x = cle(p.x), s = 0, raisons = [];
+      var lourd = /(ambre|oriental|gourmand|cuir|tabac|vanille)/.test(fam);
+      var frais = /(hesperide|aromatique|aquatique|marin|frais|vert)/.test(fam);
+
+      if (u) {
+        if (u.fam.test(cle(famillePrincipale(p)))) { s += 6; }
+        else if (u.fam.test(fam)) { s += 3; }
+        var nUni = 0;
+        u.notes.forEach(function (re) {
+          correspond(nc, re).forEach(function (i) {
+            nUni++;
+            if (raisons.indexOf(notesDe(p)[i]) < 0 && raisons.length < 3) { raisons.push(notesDe(p)[i]); }
+          });
+        });
+        s += Math.min(nUni, 3);
+      }
+
+      var fort = /(elixir|extrait|intense|absolu)/.test(x) || x === 'parfum' || x === 'esprit de parfum';
+      var leger = /(eau de toilette|eau fraiche|eau pour la nuit)/.test(x);
+      if (etat.moment === 'jour') {
+        if (leger) { s += 2; } else if (x === 'eau de parfum') { s += 1; }
+        if (fort) { s -= 1.5; }
+        if (lourd) { s -= 1; }
+        if (frais) { s += 1; }
+      } else if (etat.moment === 'soir') {
+        if (fort) { s += 2; } else if (x === 'eau de parfum') { s += 0.75; }
+        if (leger) { s -= 1; }
+        if (lourd) { s += 1; }
+        if (frais) { s -= 0.75; }
+      } else if (etat.moment === 'toujours') {
+        if (x === 'eau de parfum') { s += 1; }
+      }
+
+      etat.notes.forEach(function (k) {
+        var h = correspond(nc, GROUPES[k]);
+        if (h.length) {
+          s += 2.5 + (h.length > 1 ? 0.5 : 0);
+          var nom = notesDe(p)[h[0]];
+          if (raisons.indexOf(nom) < 0) { raisons.unshift(nom); }
+        }
+      });
+
+      if ((g === 'elle' && p.g === 'Femme') || (g === 'lui' && p.g === 'Homme')) { s += 0.3; }
+      if (P.aPhoto(p.s)) { s += 1; }
+      if (!raisons.length) { raisons = notesDe(p).slice(0, 3); }
+      return { p: p, s: s, raisons: raisons.slice(0, 3) };
+    });
+    notees.sort(function (a, b) { return b.s - a.s || (a.p.s < b.p.s ? -1 : 1); });
+
+    /* Trois maisons differentes quand c'est possible : trois flacons de la
+       meme maison, c'est un seul choix presente trois fois. */
+    var choisis = [], maisons = {};
+    notees.forEach(function (r) {
+      if (choisis.length < 3 && !maisons[r.p.b]) { choisis.push(r); maisons[r.p.b] = 1; }
+    });
+    notees.forEach(function (r) {
+      if (choisis.length < 3 && choisis.indexOf(r) < 0) { choisis.push(r); }
+    });
+    return choisis;
+  }
+
+  var quiz = null, corpsQuiz = null;
+  function construitQuiz() {
+    quiz = creeCalque('cpb-quiz', t('Trouver mon parfum'));
+    quiz.innerHTML =
+      '<div class="cpb-panneau">' +
+        '<div class="cpb-quiz-tete">' +
+          '<div class="cpb-quiz-progres"><span class="cpb-quiz-etape"></span><div class="cpb-quiz-barre" aria-hidden="true"><span></span></div></div>' +
+          '<button type="button" class="cpb-fermer" data-cpb-fermer aria-label="' + esc(t('Fermer')) + '">' + SVG.croix + '</button>' +
+        '</div>' +
+        '<div class="cpb-quiz-corps"></div>' +
+      '</div>';
+    corpsQuiz = quiz.querySelector('.cpb-quiz-corps');
+    quiz.querySelector('[data-cpb-fermer]').addEventListener('click', function () { fermer(); });
+    corpsQuiz.addEventListener('click', function (e) {
+      var o = e.target.closest('[data-cpb-rep]');
+      if (o) {
+        var q = QUESTIONS[etat.etape];
+        var v = o.getAttribute('data-cpb-rep');
+        if (q.multi) {
+          var i = etat.notes.indexOf(v);
+          if (i > -1) { etat.notes.splice(i, 1); } else { etat.notes.push(v); }
+          o.setAttribute('aria-pressed', i > -1 ? 'false' : 'true');
+          majPiedNotes();
+          return;
+        }
+        etat[q.cle] = v;
+        [].forEach.call(corpsQuiz.querySelectorAll('[data-cpb-rep]'), function (b) {
+          b.setAttribute('aria-pressed', b === o ? 'true' : 'false');
+        });
+        setTimeout(function () { etat.etape++; rendQuiz(); }, REDUIT ? 0 : 180);
+        return;
+      }
+      var a = e.target.closest('[data-cpb-act]');
+      if (!a) { return; }
+      var act = a.getAttribute('data-cpb-act');
+      if (act === 'retour') { etat.etape = Math.max(0, etat.etape - 1); rendQuiz(); }
+      else if (act === 'passer') { etat.notes = []; etat.etape = QUESTIONS.length; rendQuiz(); }
+      else if (act === 'voir') { etat.etape = QUESTIONS.length; rendQuiz(); }
+      else if (act === 'recommencer') { etat = { etape: 0, genre: null, univers: null, moment: null, notes: [] }; rendQuiz(); }
+      else if (act === 'catalogue') {
+        fermer();
+        var cat = document.getElementById('catalogue');
+        if (cat) { cat.scrollIntoView({ behavior: REDUIT ? 'auto' : 'smooth', block: 'start' }); }
+        else { location.href = urlAccueil('#catalogue'); }
+      }
+    });
+  }
+
+  function majPiedNotes() {
+    var b = corpsQuiz.querySelector('[data-cpb-act="voir"]');
+    if (b) { b.hidden = !etat.notes.length; }
+    var p = corpsQuiz.querySelector('[data-cpb-act="passer"]');
+    if (p) { p.hidden = !!etat.notes.length; }
+  }
+
+  function rendQuiz() {
+    var n = QUESTIONS.length;
+    var etapeTxt = quiz.querySelector('.cpb-quiz-etape');
+    var barre = quiz.querySelector('.cpb-quiz-barre span');
+
+    if (etat.etape >= n) { rendResultats(etapeTxt, barre); return; }
+
+    var q = QUESTIONS[etat.etape];
+    etapeTxt.textContent = t('Question {i} sur {n}', { i: etat.etape + 1, n: n }) + ' · ' + t(q.court);
+    barre.style.width = ((etat.etape) / n * 100) + '%';
+
+    var html = '<h2 class="cpb-quiz-q" tabindex="-1">' + esc(t(q.titre)) + '</h2>';
+    if (q.multi) {
+      html += '<p class="cpb-quiz-aide">' + esc(t('Plusieurs choix possibles. Rien ne vous parle ? Passez.')) + '</p>' +
+        '<div class="cpb-notes" role="group" aria-label="' + esc(t(q.titre)) + '">' +
+        CHIPS.map(function (c) {
+          return '<button type="button" class="cpb-option" data-cpb-rep="' + c[0] + '" aria-pressed="' + (etat.notes.indexOf(c[0]) > -1) + '">' +
+            '<span class="cpb-option-titre">' + esc(t(c[1])) + '</span></button>';
+        }).join('') + '</div>';
+    } else {
+      html += '<div class="cpb-choix' + (q.options.length === 3 ? ' cpb-choix-3' : '') + '" role="group" aria-label="' + esc(t(q.titre)) + '">' +
+        q.options.map(function (o) {
+          return '<button type="button" class="cpb-option" data-cpb-rep="' + o[0] + '" aria-pressed="' + (etat[q.cle] === o[0]) + '">' +
+            '<span class="cpb-option-titre">' + esc(t(o[1])) + '</span>' +
+            '<span class="cpb-option-sous">' + esc(t(o[2])) + '</span></button>';
+        }).join('') + '</div>';
+    }
+    html += '<div class="cpb-quiz-pied">' +
+      (etat.etape > 0 ? '<button type="button" class="cpb-lien-btn" data-cpb-act="retour">← ' + esc(t('Retour')) + '</button>' : '<span></span>') +
+      (q.multi
+        ? '<button type="button" class="cpb-lien-btn" data-cpb-act="passer">' + esc(t('Passer cette question')) + '</button>' +
+          '<button type="button" class="cpb-btn-plein" data-cpb-act="voir">' + esc(t('Voir mes parfums')) + '</button>'
+        : '') +
+      '</div>';
+    corpsQuiz.innerHTML = html;
+    corpsQuiz.scrollTop = 0;
+    if (q.multi) { majPiedNotes(); }
+    var h = corpsQuiz.querySelector('.cpb-quiz-q');
+    if (h) { try { h.focus({ preventScroll: true }); } catch (e) { h.focus(); } }
+  }
+
+  function libelleReponse(qCle, v) {
+    var q = QUESTIONS.filter(function (x) { return x.cle === qCle; })[0];
+    var o = q && q.options ? q.options.filter(function (x) { return x[0] === v; })[0] : null;
+    return o ? t(o[1]) : '';
+  }
+
+  function rendResultats(etapeTxt, barre) {
+    var choix = classement();
+    etapeTxt.textContent = t('Votre sélection');
+    barre.style.width = '100%';
+
+    var resume = [];
+    resume.push(etat.genre === 'elle' ? t('pour elle') : etat.genre === 'lui' ? t('pour lui') : t('pour tous'));
+    if (etat.univers) { resume.push(libelleReponse('univers', etat.univers).toLowerCase()); }
+    if (etat.moment) { resume.push(libelleReponse('moment', etat.moment).toLowerCase()); }
+    if (etat.notes.length) {
+      resume.push(t('notes : {l}', { l: etat.notes.map(function (k) {
+        var c = CHIPS.filter(function (x) { return x[0] === k; })[0];
+        return c ? t(c[1]).toLowerCase() : k;
+      }).join(', ') }));
+    }
+    var msg = t('Bonjour, j’ai fait le quiz « Trouver mon parfum » ({r}). Il me propose : {l}. Pouvez-vous me conseiller ?', {
+      r: resume.join(', '),
+      l: choix.map(function (r) { return r.p.b + ' ' + r.p.n; }).join(', ')
+    });
+    var wa = 'https://wa.me/' + encodeURIComponent((P.cfg && P.cfg.wa) || '') + '?text=' + encodeURIComponent(msg);
+
+    var html = '<h2 class="cpb-quiz-q" tabindex="-1">' + esc(t('Trois parfums pour vous.')) + '</h2>' +
+      '<p class="cpb-quiz-aide">' + esc(t('Choisis parmi les {n} références du catalogue, d’après vos réponses.', { n: LISTE.length })) + '</p>' +
+      '<div class="cpb-resultats">' +
+      choix.map(function (r, i) {
+        var p = r.p;
+        return '<article class="cpb-res' + (i === 0 ? ' cpb-res-une' : '') + '">' +
+          '<div class="cpb-res-photo">' +
+            (i === 0 ? '<span class="cpb-res-ruban">' + esc(t('Le plus proche')) + '</span>' : '') +
+            coeurHTML(p.s, true) +
+            '<a href="' + esc(urlFiche(p.s)) + '" tabindex="-1" aria-hidden="true">' + vignette(p, 'cpb-vignette', 400, 500) + '</a>' +
+          '</div>' +
+          '<div class="cpb-res-txt">' +
+            '<a href="' + esc(urlFiche(p.s)) + '">' +
+              '<div class="cpb-res-maison">' + maisonHTML(p) + '</div>' +
+              '<div class="cpb-res-nom">' + nomHTML(p) + '</div>' +
+            '</a>' +
+            '<div class="cpb-res-fam">' + esc(p.fam) + '</div>' +
+            '<div class="cpb-res-pourquoi"><b>' + esc(t('Pourquoi :')) + '</b> <span>' + esc(r.raisons.join(' · ')) + '</span></div>' +
+            '<div class="cpb-res-bas"><span class="cpb-res-prix">' + prixTexte(p) + '</span></div>' +
+            boutonAjout(p) +
+            '<a class="cpb-res-fiche" href="' + esc(urlFiche(p.s)) + '">' + esc(t('Voir la fiche')) + '</a>' +
+          '</div>' +
+        '</article>';
+      }).join('') +
+      '</div>' +
+      (P.cfg && P.cfg.wa
+        ? '<div class="cpb-quiz-conseil"><span>' + esc(t('Un deuxième avis ? Un conseiller vous répond sur WhatsApp.')) + '</span>' +
+          '<a href="' + esc(wa) + '" target="_blank" rel="noopener">' + SVG.wa + esc(t('Demander conseil')) + '</a></div>'
+        : '') +
+      '<div class="cpb-quiz-pied">' +
+        '<button type="button" class="cpb-lien-btn" data-cpb-act="recommencer">↺ ' + esc(t('Recommencer')) + '</button>' +
+        '<button type="button" class="cpb-lien-btn" data-cpb-act="catalogue">' + esc(t('Voir tout le catalogue')) + ' →</button>' +
+      '</div>';
+    corpsQuiz.innerHTML = html;
+    corpsQuiz.scrollTop = 0;
+    majFavoris();
+    var h = corpsQuiz.querySelector('.cpb-quiz-q');
+    if (h) { try { h.focus({ preventScroll: true }); } catch (e) { h.focus(); } }
+  }
+
+  function ouvrirQuiz() {
+    if (!quiz) { construitQuiz(); }
+    if (etat.etape > QUESTIONS.length) { etat.etape = QUESTIONS.length; }
+    rendQuiz();
+    ouvrir(quiz, '.cpb-quiz-q');
+  }
+
+  /* L'appel au quiz sur la page d'accueil, juste avant le catalogue. */
+  function appelQuiz() {
+    if (!CFG.accueil) { return; }
+    var cat = document.getElementById('catalogue');
+    if (!cat || !cat.parentNode) { return; }
+    var s = document.createElement('section');
+    s.className = 'cpb cpb-quiz-appel';
+    s.id = 'trouver-mon-parfum';
+    s.setAttribute('aria-label', t('Trouver mon parfum'));
+    s.innerHTML =
+      '<div class="cpb-qa-carte">' +
+        '<div>' +
+          '<div class="sect-kicker"><span>' + esc(t('Conseil personnalisé')) + '</span></div>' +
+          '<h2 class="sect-h2">' + esc(t('Vous hésitez ? Trouvez votre parfum en 4 questions.')) + '</h2>' +
+          '<p>' + esc(t('Dites-nous pour qui, quelle ambiance et quelles notes vous aimez : nous choisissons dans le catalogue les flacons qui vous ressemblent.')) + '</p>' +
+          '<button type="button" class="btn-a" data-cpb-quiz>' + esc(t('Commencer le quiz')) + '</button>' +
+        '</div>' +
+        '<ol class="cpb-qa-etapes">' +
+          QUESTIONS.map(function (q) { return '<li>' + esc(t(q.court)) + '</li>'; }).join('') +
+        '</ol>' +
+      '</div>';
+    cat.parentNode.insertBefore(s, cat);
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     5. FICHE PARFUM
+  ══════════════════════════════════════════════════════════════ */
+  var CLE_VUS = 'cpb-vus-v1';
+  function vusRecemment() {
+    var a = lireLS(CLE_VUS, []);
+    return Array.isArray(a) ? a.filter(function (s, i) { return typeof s === 'string' && produit(s) && a.indexOf(s) === i; }) : [];
+  }
+  function noteVu(s) {
+    var a = vusRecemment().filter(function (x) { return x !== s; });
+    a.unshift(s);
+    ecrireLS(CLE_VUS, a.slice(0, 12));
+  }
+
+  /* Parfums proches : notes partagees (le fond compte plus que la tete,
+     c'est lui qui reste sur la peau), meme famille, public compatible. */
+  function proches(ref, n) {
+    var poids = {};
+    (ref.t || []).forEach(function (x) { poids[cle(x)] = 0.75; });
+    (ref.c || []).forEach(function (x) { poids[cle(x)] = 1; });
+    (ref.f || []).forEach(function (x) { poids[cle(x)] = 1.25; });
+    var famRef = cle(famillePrincipale(ref)), famRefComplete = cle(ref.fam);
+
+    var notes = LISTE.filter(function (p) {
+      /* La meme maison a deja son bloc, juste en dessous : la montrer ici
+         ferait apparaitre deux fois le meme flacon sur la fiche. */
+      if (p.s === ref.s || p.b === ref.b) { return false; }
+      if (ref.g === 'Femme') { return p.g === 'Femme' || p.g === 'Mixte'; }
+      if (ref.g === 'Homme') { return p.g === 'Homme' || p.g === 'Mixte'; }
+      return true;
+    }).map(function (p) {
+      var s = 0, communes = [];
+      notesDe(p).forEach(function (x) {
+        var k = cle(x);
+        if (poids[k] && communes.indexOf(x) < 0) { s += poids[k]; communes.push(x); }
+      });
+      if (cle(famillePrincipale(p)) === famRef) { s += 2; }
+      if (cle(p.fam) === famRefComplete) { s += 1.5; }
+      if (P.aPhoto(p.s)) { s += 0.5; }
+      return { p: p, s: s, communes: communes };
+    }).filter(function (r) { return r.s > 2.5; });
+
+    notes.sort(function (a, b) { return b.s - a.s || (a.p.s < b.p.s ? -1 : 1); });
+    var out = [], maisons = {};
+    notes.forEach(function (r) {
+      if (out.length < n && !maisons[r.p.b]) { out.push(r); maisons[r.p.b] = 1; }
+    });
+    return out;
+  }
+
+  function carteSib(p, communes) {
+    return '<a class="pf-sib" href="' + esc(urlFiche(p.s)) + '">' +
+      '<span class="pf-sib-photo">' + vignette(p, 'pf-sib-img', 400, 300) + '</span>' +
+      '<div class="pf-sib-brand">' + maisonHTML(p) + '</div>' +
+      '<div class="pf-sib-name">' + nomHTML(p) + '</div>' +
+      (communes && communes.length
+        ? '<span class="cpb-commun"><b>' + esc(t('En commun :')) + '</b> <span>' + esc(communes.slice(0, 3).join(' · ')) + '</span></span>'
+        : '') +
+      '<div class="pf-sib-price">' + prixTexte(p) + '</div>' +
+    '</a>';
+  }
+
+  function blocSibs(titre, cartes) {
+    var s = document.createElement('section');
+    s.className = 'pf-block cpb';
+    s.setAttribute('aria-label', titre);
+    s.innerHTML = '<div class="pf-block-tete"><h2>' + esc(titre) + '</h2></div><div class="pf-sibs">' + cartes + '</div>';
+    return s;
+  }
+
+  function fiche() {
+    var ref = CFG.slug ? produit(CFG.slug) : null;
+    var main = document.querySelector('main.pf');
+    if (!ref || !main) { return; }
+
+    var anciens = vusRecemment().filter(function (s) { return s !== ref.s; });
+    noteVu(ref.s);
+
+    /* Le coeur, et l'appel au quiz pour qui hesite encore — sous la phrase
+       « Rien a payer maintenant », qui doit rester collee au bouton. */
+    var ancre = main.querySelector('.pf-rassure-cta') || main.querySelector('.pf-actions');
+    if (ancre) {
+      var zone = document.createElement('div');
+      zone.className = 'cpb';
+      zone.innerHTML = coeurHTML(ref.s, false) +
+        '<p class="cpb-bloc-quiz">' + esc(t('Vous hésitez ?')) + ' <button type="button" data-cpb-quiz>' +
+        esc(t('Trouvez votre parfum en 4 questions')) + '</button></p>';
+      ancre.parentNode.insertBefore(zone, ancre.nextSibling);
+    }
+
+    /* « Dans le meme esprit » passe avant « Dans la meme maison ». */
+    var pr = proches(ref, 4);
+    if (pr.length) {
+      var bloc = blocSibs(t('Dans le même esprit'), pr.map(function (r) { return carteSib(r.p, r.communes); }).join(''));
+      var sibs = main.querySelector('.pf-block-sibs');
+      if (sibs) { main.insertBefore(bloc, sibs); } else { main.appendChild(bloc); }
+    }
+
+    /* « Vus recemment » ferme la fiche : c'est le chemin du retour. */
+    var deja = {};
+    pr.forEach(function (r) { deja[r.p.s] = 1; });
+    var vus = anciens.filter(function (s) { return !deja[s]; }).slice(0, 4).map(produit).filter(Boolean);
+    if (vus.length) {
+      main.appendChild(blocSibs(t('Vus récemment'), vus.map(function (p) { return carteSib(p, null); }).join('')));
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     BOUTONS DE LA NAVIGATION
+  ══════════════════════════════════════════════════════════════ */
+  function boutonsNav() {
+    var droite = document.querySelector('#nav .nav-right');
+    if (!droite) { return; }
+    var avant = droite.querySelector('.nav-pill') || droite.firstChild;
+
+    var loupe = document.createElement('button');
+    loupe.type = 'button';
+    loupe.className = 'cpb-nav-btn cpb-nav-loupe';
+    loupe.setAttribute('data-cpb-recherche', '');
+    loupe.setAttribute('aria-label', t('Rechercher un parfum'));
+    loupe.setAttribute('aria-haspopup', 'dialog');
+    loupe.innerHTML = SVG.loupe;
+
+    var coeur = document.createElement('button');
+    coeur.type = 'button';
+    coeur.className = 'cpb-nav-btn cpb-nav-fav';
+    coeur.setAttribute('data-cpb-favoris', '');
+    coeur.setAttribute('aria-label', t('Mes favoris'));
+    coeur.setAttribute('aria-haspopup', 'dialog');
+    coeur.innerHTML = SVG.coeur + '<span class="cpb-pastille" data-cpb-fav-count data-vide aria-hidden="true">0</span>';
+
+    droite.insertBefore(loupe, avant);
+    droite.insertBefore(coeur, avant);
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     DEMARRAGE — chaque module isole : une erreur dans l'un ne prive
+     pas le visiteur des autres, ni surtout du panier.
+  ══════════════════════════════════════════════════════════════ */
+  function demarre() {
+    [bandeau, boutonsNav, appelQuiz, fiche, majFavoris].forEach(function (f) {
+      try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
+    });
+    /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,
+       message WhatsApp). */
+    if (location.hash === '#trouver-mon-parfum') {
+      setTimeout(function () { try { ouvrirQuiz(); } catch (e) {} }, 300);
+    }
+    window.CPB_API = { recherche: ouvrirRecherche, quiz: ouvrirQuiz, favoris: ouvrirFavoris, cherche: cherche, proches: proches, classement: function (r) {
+      etat = { etape: QUESTIONS.length, genre: r.genre || null, univers: r.univers || null, moment: r.moment || null, notes: r.notes || [] };
+      return classement();
+    } };
+  }
+
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', demarre); }
+  else { demarre(); }
+})();

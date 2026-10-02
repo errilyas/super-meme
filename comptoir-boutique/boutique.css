@@ -1,0 +1,431 @@
+/* ══════════════════════════════════════════════════════════════
+   COMPTOIR BOUTIQUE — styles de l'extension
+   Tout passe par les jetons du theme (--void, --deep, --bone, --ember,
+   --line2…) : le mode clair et le mode sombre suivent sans une ligne de
+   plus. Les proprietes logiques (inset-inline, margin-inline) font que
+   l'arabe, ecrit de droite a gauche, se retourne de lui-meme.
+══════════════════════════════════════════════════════════════ */
+
+/* Lu par les lecteurs d'ecran, invisible a l'ecran */
+.cpb-sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ── Les deux langues d'un texte rendu par PHP ─────────────────── */
+.cpb-ar{display:none}
+[data-lang="ar"] .cpb-ar{display:inline}
+[data-lang="ar"] .cpb-fr{display:none}
+
+/* ══════════════════════════════════════════
+   BANDEAU D'ANNONCE
+   En haut de page, dans le flux : il defile avec la page. La barre de
+   navigation, fixe, descend de sa hauteur tant qu'il est visible
+   (boutique.js suit le defilement ; sans JavaScript elle reste dessous).
+══════════════════════════════════════════ */
+body.cpb-a{--cpb-bandeau-h:34px;padding-top:var(--cpb-bandeau-h)}
+body.cpb-a #nav{top:var(--cpb-bandeau-h)}
+.cpb-bandeau{
+  position:absolute;top:0;left:0;right:0;z-index:47;
+  height:var(--cpb-bandeau-h,34px);overflow:hidden;
+  background:linear-gradient(90deg,var(--deep),var(--well) 50%,var(--deep));
+  border-bottom:1px solid rgba(var(--au-rgb),.18);
+  color:var(--sand);font-family:var(--sans);
+}
+/* Une promesse a la fois, en fondu (telephone, tablette, petit portable) */
+.cpb-bandeau-rang{position:relative;height:100%;max-width:1280px;margin:0 auto;padding:0 16px}
+.cpb-bandeau-msg{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;
+  white-space:nowrap;line-height:1;
+  opacity:0;transform:translateY(6px);
+  transition:opacity .45s var(--ease-out),transform .45s var(--ease-out);
+}
+.cpb-bandeau-msg.is-on{opacity:1;transform:none}
+[data-lang="ar"] .cpb-bandeau-msg{font-family:var(--arabe);letter-spacing:0;font-size:12px;text-transform:none}
+@media(max-width:900px){ body.cpb-a{--cpb-bandeau-h:32px} }
+@media(max-width:360px){
+  .cpb-bandeau-msg{font-size:9px;letter-spacing:.08em}
+}
+/* Grand ecran : les trois promesses d'un coup, separees d'un losange d'or.
+   Le seuil est mesure : en dessous de 1240 px, les trois ne tiennent pas
+   sur une ligne. */
+@media(min-width:1240px){
+  .cpb-bandeau-rang{display:flex;align-items:center;justify-content:center;padding:0 24px}
+  .cpb-bandeau-msg{position:static;opacity:1;transform:none;transition:none;font-size:10.5px;letter-spacing:.16em}
+  .cpb-bandeau-msg + .cpb-bandeau-msg::before{
+    content:'';width:5px;height:5px;margin:0 18px;flex:none;
+    background:var(--ember);transform:rotate(45deg);opacity:.7;
+  }
+  [data-lang="ar"] .cpb-bandeau-msg{font-size:12.5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .cpb-bandeau-msg{transition:none}
+}
+
+/* ══════════════════════════════════════════
+   BOUTONS DE LA NAVIGATION (recherche, favoris)
+   Meme famille que la bascule de langue : cercle fin, icone au trait.
+══════════════════════════════════════════ */
+.cpb-nav-btn{
+  position:relative;flex:none;
+  width:38px;height:38px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:none;border:1px solid var(--line2);color:var(--text-dim);
+  cursor:pointer;opacity:.9;transition:color .2s,border-color .2s,opacity .2s;
+}
+.cpb-nav-btn:hover,.cpb-nav-btn:focus-visible{color:var(--ember);border-color:rgba(var(--au-rgb),.45);opacity:1}
+.cpb-nav-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.cpb-nav-btn .cpb-pastille{
+  position:absolute;top:-4px;inset-inline-end:-4px;
+  min-width:17px;height:17px;padding:0 4px;border-radius:9px;
+  background:var(--ember);color:var(--ink);
+  font:500 9.5px/17px var(--sans);text-align:center;letter-spacing:0;
+}
+.cpb-nav-btn .cpb-pastille[data-vide]{display:none}
+/* Le coeur de la navigation ne tient qu'a partir de la tablette : sur
+   telephone, la place manque, et les favoris restent a un appui depuis
+   la recherche. */
+.cpb-nav-fav{display:none}
+@media(min-width:901px){ .cpb-nav-fav{display:inline-flex} }
+@media(max-width:600px){
+  .cpb-nav-btn{width:40px;height:40px}
+}
+/* Tres petits ecrans (320 px) : on resserre pour que tout tienne sur une ligne */
+@media(max-width:359px){
+  .cpb-a .nav-right{gap:4px}
+  .cpb-a .nav-pill{min-width:52px;padding:0 10px}
+  .cpb-nav-btn{width:36px;height:36px}
+}
+
+/* ══════════════════════════════════════════
+   CALQUES (recherche, quiz, favoris) — socle commun
+══════════════════════════════════════════ */
+html.cpb-lock{overflow:hidden}
+.cpb-calque{
+  position:fixed;inset:0;z-index:1350;
+  display:flex;justify-content:center;align-items:flex-start;
+  background:rgba(8,3,10,.62);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  opacity:0;transition:opacity .28s var(--ease-out);
+}
+.cpb-calque[hidden]{display:none!important}
+.cpb-calque.is-open{opacity:1}
+:root[data-theme="light"] .cpb-calque{background:rgba(40,28,22,.38)}
+.cpb-panneau{
+  position:relative;width:100%;
+  background:var(--void);color:var(--bone);
+  border:1px solid rgba(var(--au-rgb),.16);
+  box-shadow:0 40px 120px -30px rgba(0,0,0,.6);
+  font-family:var(--sans);
+  transform:translateY(-14px);transition:transform .36s var(--ease-out);
+  display:flex;flex-direction:column;max-height:100%;
+}
+.cpb-calque.is-open .cpb-panneau{transform:none}
+[data-lang="ar"] .cpb-panneau{font-family:var(--arabe)}
+.cpb-fermer{
+  flex:none;width:44px;height:44px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:none;border:1px solid transparent;color:var(--smoke);cursor:pointer;
+  transition:color .2s,border-color .2s;
+}
+.cpb-fermer:hover,.cpb-fermer:focus-visible{color:var(--bone);border-color:var(--line2)}
+.cpb-fermer svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round}
+.cpb-titre-petit{
+  font-size:10px;font-weight:400;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);
+  display:flex;align-items:center;gap:12px;margin:0 0 14px;
+}
+.cpb-titre-petit::before{content:'';width:22px;height:1px;background:var(--amber);flex:none}
+[data-lang="ar"] .cpb-titre-petit{letter-spacing:0;font-size:13px;text-transform:none}
+@media(prefers-reduced-motion:reduce){
+  .cpb-calque,.cpb-panneau{transition:none}
+}
+
+/* Les noms propres sont balises .pnr-name / .pnr-brand pour que la bascule
+   arabe du theme ne les traduise jamais (« Eau de Parfum » de Chloe est un
+   nom, pas une concentration). On neutralise ici le style du panier. */
+.cpb .pnr-name.cpb-nom,.cpb .pnr-brand.cpb-maison{font:inherit;margin:0;letter-spacing:inherit;text-transform:inherit;color:inherit;line-height:inherit}
+
+/* ── Vignette produit ─────────────────────────────────────────── */
+.cpb-vignette{
+  display:block;flex:none;object-fit:cover;
+  background-image:var(--scene,none);background-color:var(--deep);
+  border:1px solid var(--line);
+}
+.cpb-vignette.is-empty{
+  background:var(--deep) center/38% auto no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 30'%3E%3Cg fill='none' stroke='%23ba913c' stroke-width='1.1' opacity='.5'%3E%3Crect x='4.5' y='9.5' width='13' height='19' rx='1.5'/%3E%3Crect x='8' y='3.5' width='6' height='4' rx='.8'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ══════════════════════════════════════════
+   RECHERCHE INSTANTANEE
+══════════════════════════════════════════ */
+.cpb-recherche .cpb-panneau{max-width:760px;margin-top:min(9vh,90px);max-height:calc(100% - min(9vh,90px) - 24px)}
+.cpb-rech-tete{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 14px 14px 24px;border-bottom:1px solid var(--line2);
+}
+[dir="rtl"] .cpb-rech-tete{padding:14px 24px 14px 14px}
+.cpb-rech-tete > svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--ember);stroke-width:1.5;stroke-linecap:round}
+.cpb-rech-champ{
+  flex:1;min-width:0;height:48px;border:none;outline:none;background:none;
+  color:var(--bone);font-family:var(--serif);font-size:24px;font-weight:300;
+}
+[data-lang="ar"] .cpb-rech-champ{font-family:var(--arabe);font-size:19px}
+.cpb-rech-champ::placeholder{color:var(--mist)}
+.cpb-rech-champ::-webkit-search-cancel-button{display:none}
+.cpb-rech-corps{overflow-y:auto;padding:22px 24px 26px;overscroll-behavior:contain}
+.cpb-rech-compte{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--smoke);margin:0 0 10px}
+[data-lang="ar"] .cpb-rech-compte{letter-spacing:0;font-size:13px;text-transform:none}
+.cpb-liste{list-style:none;margin:0;padding:0}
+.cpb-ligne{
+  display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:16px;
+  padding:10px 10px;margin:0 -10px;border-radius:3px;
+  color:inherit;text-decoration:none;transition:background .15s;
+}
+.cpb-ligne:hover,.cpb-ligne:focus-visible{background:rgba(var(--au-rgb),.08);outline:none}
+.cpb-ligne:focus-visible{box-shadow:inset 0 0 0 1px rgba(var(--au-rgb),.5)}
+.cpb-ligne .cpb-vignette{width:56px;height:56px;border-radius:2px}
+.cpb-ligne-txt{min-width:0}
+.cpb-ligne-maison{display:block;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--smoke);margin-bottom:3px}
+.cpb-ligne-nom{display:block;font-family:var(--serif);font-size:18px;font-weight:400;line-height:1.2;color:var(--bone);overflow-wrap:anywhere}
+.cpb-ligne-fam{display:block;font-size:11.5px;color:var(--smoke);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cpb-ligne-prix{font-size:13px;color:var(--ember);white-space:nowrap}
+.cpb-ligne mark{background:none;color:var(--gilt);font-weight:500}
+.cpb-rech-vide{padding:24px 0 6px;color:var(--text-dim);font-size:14px;line-height:1.7}
+.cpb-rech-vide strong{color:var(--bone);font-weight:400}
+.cpb-rech-bloc + .cpb-rech-bloc{margin-top:26px}
+.cpb-rech-raccourcis{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
+.cpb-puce{
+  display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:0 18px;
+  border:1px solid var(--line2);border-radius:999px;background:none;
+  color:var(--bone);font:400 13px/1 var(--sans);cursor:pointer;text-decoration:none;
+  transition:border-color .2s,color .2s,background .2s;
+}
+[data-lang="ar"] .cpb-puce{font-family:var(--arabe);font-size:14px}
+.cpb-puce:hover,.cpb-puce:focus-visible{border-color:var(--ember);color:var(--ember)}
+.cpb-puce svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.cpb-puce-or{border-color:rgba(var(--au-rgb),.55);color:var(--ember)}
+@media(max-width:700px){
+  .cpb-recherche{align-items:stretch}
+  .cpb-recherche .cpb-panneau{margin:0;max-height:none;height:100%;border:none}
+  .cpb-rech-tete{padding:10px 8px 10px 16px}
+  [dir="rtl"] .cpb-rech-tete{padding:10px 16px 10px 8px}
+  .cpb-rech-champ{font-size:20px}
+  .cpb-rech-corps{padding:16px 16px 28px}
+  .cpb-ligne{grid-template-columns:52px 1fr auto;gap:12px}
+  .cpb-ligne .cpb-vignette{width:52px;height:52px}
+  .cpb-ligne-nom{font-size:16px}
+}
+
+/* ══════════════════════════════════════════
+   FAVORIS — tiroir lateral
+══════════════════════════════════════════ */
+.cpb-favoris{justify-content:flex-end;align-items:stretch}
+.cpb-favoris .cpb-panneau{
+  width:min(420px,100%);height:100%;max-height:none;border-width:0;
+  border-inline-start:1px solid rgba(var(--au-rgb),.16);
+  transform:translateX(30px);
+}
+[dir="rtl"] .cpb-favoris .cpb-panneau{transform:translateX(-30px)}
+.cpb-favoris.is-open .cpb-panneau{transform:none}
+.cpb-tiroir-tete{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 16px 24px;border-bottom:1px solid var(--line2)}
+[dir="rtl"] .cpb-tiroir-tete{padding:16px 24px 16px 14px}
+.cpb-tiroir-tete h2{font-family:var(--serif);font-weight:400;font-size:22px;margin:0;color:var(--bone)}
+[data-lang="ar"] .cpb-tiroir-tete h2{font-family:var(--arabe);font-size:19px}
+.cpb-tiroir-corps{flex:1;overflow-y:auto;padding:6px 24px 16px;overscroll-behavior:contain}
+.cpb-fav{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.cpb-fav .cpb-vignette{width:64px;height:80px;border-radius:2px}
+.cpb-fav a{color:inherit;text-decoration:none}
+.cpb-fav-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-top:10px}
+.cpb-lien-btn{
+  background:none;border:none;padding:0;min-height:36px;cursor:pointer;
+  font:400 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--smoke);
+}
+[data-lang="ar"] .cpb-lien-btn{font-family:var(--arabe);letter-spacing:0;font-size:13px;text-transform:none}
+.cpb-lien-btn:hover,.cpb-lien-btn:focus-visible{color:var(--bone)}
+.cpb-btn-ajout{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:40px;padding:0 16px;border:1px solid rgba(var(--au-rgb),.55);border-radius:2px;
+  background:none;color:var(--ember);cursor:pointer;
+  font:500 10.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;
+  transition:background .2s,color .2s,border-color .2s;
+}
+[data-lang="ar"] .cpb-btn-ajout{font-family:var(--arabe);letter-spacing:0;font-size:13px;text-transform:none}
+.cpb-btn-ajout:hover,.cpb-btn-ajout:focus-visible{background:var(--ember);color:var(--ink);border-color:var(--ember)}
+.cpb-btn-ajout.is-fait{border-style:dashed;color:var(--sand);background:none}
+.cpb-tiroir-pied{padding:18px 24px 24px;border-top:1px solid var(--line2)}
+.cpb-tiroir-pied .cpb-btn-plein{width:100%}
+.cpb-btn-plein{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  min-height:52px;padding:0 28px;border:none;border-radius:2px;cursor:pointer;
+  background:var(--au-grad,var(--ember));color:var(--ink);text-decoration:none;
+  font:500 11px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;
+  box-shadow:0 10px 28px -14px rgba(var(--au-rgb),.6);transition:filter .2s;
+}
+.cpb-btn-plein:hover,.cpb-btn-plein:focus-visible{filter:brightness(1.07)}
+[data-lang="ar"] .cpb-btn-plein{font-family:var(--arabe);letter-spacing:0;font-size:14px;text-transform:none}
+.cpb-vide{padding:56px 6px;text-align:center;color:var(--text-dim);font-size:14px;line-height:1.7}
+.cpb-vide svg{display:block;width:34px;height:34px;margin:0 auto 18px;fill:none;stroke:var(--ember);stroke-width:1.2}
+.cpb-vide a{color:var(--ember)}
+
+/* ── Coeur de la fiche parfum ─────────────────────────────────── */
+.cpb-coeur{
+  display:inline-flex;align-items:center;gap:10px;min-height:44px;margin-top:12px;
+  padding:0 2px;background:none;border:none;cursor:pointer;
+  color:var(--text-dim);font:400 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  transition:color .2s;
+}
+[data-lang="ar"] .cpb-coeur{font-family:var(--arabe);letter-spacing:0;font-size:14px;text-transform:none}
+.cpb-coeur:hover,.cpb-coeur:focus-visible{color:var(--ember)}
+.cpb-coeur svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;transition:fill .2s,transform .3s var(--ease-out)}
+.cpb-coeur[aria-pressed="true"]{color:var(--ember)}
+.cpb-coeur[aria-pressed="true"] svg{fill:currentColor}
+.cpb-coeur.is-bat svg{transform:scale(1.25)}
+/* Petit coeur rond, pose sur une carte (quiz) */
+.cpb-coeur-rond{
+  position:absolute;top:10px;inset-inline-end:10px;z-index:2;
+  width:40px;height:40px;border-radius:50%;margin:0;padding:0;justify-content:center;
+  background:rgba(17,8,20,.55);border:1px solid var(--line2);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
+:root[data-theme="light"] .cpb-coeur-rond{background:rgba(248,243,234,.8)}
+
+/* ══════════════════════════════════════════
+   QUIZ « TROUVER MON PARFUM »
+══════════════════════════════════════════ */
+/* L'appel, sur la page d'accueil, juste avant le catalogue */
+.cpb-quiz-appel{padding:24px 72px 72px}
+.cpb-qa-carte{
+  position:relative;overflow:hidden;max-width:1280px;margin:0 auto;
+  display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:center;
+  padding:56px 64px;border:1px solid rgba(var(--au-rgb),.22);
+  background:
+    radial-gradient(ellipse 60% 90% at 100% 0%,rgba(var(--au-rgb),.14),transparent 62%),
+    linear-gradient(135deg,var(--deep),var(--well));
+}
+.cpb-qa-carte .sect-h2{margin-bottom:16px}
+.cpb-qa-carte p{color:var(--text-dim);font-size:15px;line-height:1.75;max-width:52ch;margin:0 0 28px}
+.cpb-qa-etapes{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:cpb}
+.cpb-qa-etapes li{
+  counter-increment:cpb;display:flex;align-items:center;gap:16px;
+  padding:14px 18px;border:1px solid var(--line2);background:rgba(var(--fg-rgb),.02);
+  color:var(--text-dim);font-size:14px;
+}
+.cpb-qa-etapes li::before{
+  content:counter(cpb,decimal-leading-zero);font-family:var(--serif);font-style:italic;
+  font-size:22px;color:var(--ember);min-width:30px;
+}
+[data-lang="ar"] .cpb-qa-carte p,[data-lang="ar"] .cpb-qa-etapes li{font-family:var(--arabe)}
+@media(max-width:900px){
+  .cpb-quiz-appel{padding:8px 24px 56px}
+  .cpb-qa-carte{grid-template-columns:1fr;gap:28px;padding:36px 24px}
+  .cpb-qa-carte .btn-a{width:100%;justify-content:center}
+}
+
+/* Le calque du quiz */
+.cpb-quiz{align-items:center}
+.cpb-quiz .cpb-panneau{max-width:880px;max-height:min(92vh,860px);margin:0 16px}
+.cpb-quiz-tete{display:flex;align-items:center;gap:16px;padding:14px 14px 14px 28px;border-bottom:1px solid var(--line)}
+[dir="rtl"] .cpb-quiz-tete{padding:14px 28px 14px 14px}
+.cpb-quiz-progres{flex:1;display:flex;flex-direction:column;gap:9px}
+.cpb-quiz-etape{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--smoke)}
+[data-lang="ar"] .cpb-quiz-etape{letter-spacing:0;font-size:12.5px;text-transform:none}
+.cpb-quiz-barre{height:2px;background:var(--line2);overflow:hidden}
+.cpb-quiz-barre span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--gilt));transition:width .4s var(--ease-out)}
+[dir="rtl"] .cpb-quiz-barre span{margin-inline-start:auto}
+.cpb-quiz-corps{overflow-y:auto;padding:34px 40px 36px;overscroll-behavior:contain}
+.cpb-quiz-q{font-family:var(--serif);font-weight:300;font-size:clamp(28px,4vw,42px);line-height:1.1;letter-spacing:-.01em;margin:0 0 10px;color:var(--bone)}
+[data-lang="ar"] .cpb-quiz-q{font-family:var(--arabe);font-weight:500;font-size:clamp(24px,3.4vw,32px);line-height:1.35;letter-spacing:0}
+.cpb-quiz-aide{color:var(--smoke);font-size:14px;margin:0 0 26px}
+.cpb-choix{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.cpb-choix-3{grid-template-columns:repeat(3,1fr)}
+.cpb-option{
+  position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;
+  min-height:92px;padding:18px 20px;text-align:start;
+  background:rgba(var(--fg-rgb),.025);border:1px solid var(--line2);border-radius:2px;
+  color:var(--bone);cursor:pointer;font-family:inherit;
+  transition:border-color .2s,background .2s,transform .2s var(--ease-out);
+}
+.cpb-option:hover,.cpb-option:focus-visible{border-color:rgba(var(--au-rgb),.6);background:rgba(var(--au-rgb),.06);outline:none}
+.cpb-option:active{transform:scale(.99)}
+.cpb-option[aria-pressed="true"],.cpb-option[aria-checked="true"]{border-color:var(--ember);background:rgba(var(--au-rgb),.12)}
+.cpb-option-titre{font-family:var(--serif);font-size:22px;font-weight:400;line-height:1.15}
+[data-lang="ar"] .cpb-option-titre{font-family:var(--arabe);font-size:18px;font-weight:500}
+.cpb-option-sous{font-size:12.5px;color:var(--smoke);line-height:1.5}
+.cpb-option-pastille{
+  position:absolute;top:14px;inset-inline-end:14px;width:20px;height:20px;border-radius:50%;
+  border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;
+}
+.cpb-option[aria-checked="true"] .cpb-option-pastille{background:var(--ember);border-color:var(--ember)}
+.cpb-option[aria-checked="true"] .cpb-option-pastille::after{content:'';width:8px;height:4px;border:solid var(--ink);border-width:0 0 1.6px 1.6px;transform:translateY(-1px) rotate(-45deg)}
+.cpb-notes{display:flex;flex-wrap:wrap;gap:10px}
+.cpb-notes .cpb-option{min-height:48px;padding:0 20px;flex-direction:row;align-items:center;border-radius:999px}
+.cpb-notes .cpb-option-titre{font-family:var(--sans);font-size:14px}
+[data-lang="ar"] .cpb-notes .cpb-option-titre{font-family:var(--arabe);font-size:15px}
+.cpb-quiz-pied{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:30px}
+.cpb-quiz-pied .cpb-btn-plein{min-width:240px}
+@media(max-width:700px){
+  .cpb-quiz{align-items:stretch}
+  .cpb-quiz .cpb-panneau{margin:0;max-height:none;height:100%;border:none}
+  .cpb-quiz-tete{padding:10px 8px 10px 20px}
+  [dir="rtl"] .cpb-quiz-tete{padding:10px 20px 10px 8px}
+  .cpb-quiz-corps{padding:26px 20px 30px}
+  .cpb-choix,.cpb-choix-3{grid-template-columns:1fr}
+  .cpb-option{min-height:72px}
+  .cpb-quiz-pied{flex-direction:column-reverse;align-items:stretch}
+  .cpb-quiz-pied .cpb-btn-plein{width:100%;min-width:0}
+}
+
+/* Resultats du quiz */
+.cpb-resultats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:6px}
+.cpb-res{position:relative;display:flex;flex-direction:column;border:1px solid var(--line2);background:rgba(var(--fg-rgb),.02)}
+.cpb-res-une{border-color:rgba(var(--au-rgb),.5)}
+.cpb-res-photo{position:relative;display:block}
+.cpb-res-photo .cpb-vignette{width:100%;aspect-ratio:4/5;height:auto;border:none}
+.cpb-res-ruban{
+  position:absolute;top:10px;inset-inline-start:10px;z-index:2;
+  background:var(--ember);color:var(--ink);padding:6px 10px;
+  font:500 9px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;
+}
+[data-lang="ar"] .cpb-res-ruban{font-family:var(--arabe);letter-spacing:0;font-size:11.5px;text-transform:none}
+.cpb-res-txt{display:flex;flex-direction:column;flex:1;padding:16px 16px 18px}
+.cpb-res-txt a{color:inherit;text-decoration:none}
+.cpb-res-maison{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--smoke);margin-bottom:5px}
+.cpb-res-nom{font-family:var(--serif);font-size:20px;line-height:1.15;color:var(--bone);margin-bottom:6px;overflow-wrap:anywhere}
+.cpb-res-fam{font-size:12px;color:var(--sand);margin-bottom:10px}
+.cpb-res-pourquoi{font-size:12.5px;line-height:1.55;color:var(--text-dim);margin-bottom:14px}
+.cpb-res-pourquoi b{font-weight:500;color:var(--bone)}
+.cpb-res-bas{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.cpb-res-prix{font-size:15px;color:var(--ember)}
+.cpb-res .cpb-btn-ajout{width:100%;margin-top:12px;min-height:44px}
+.cpb-res-fiche{display:block;text-align:center;margin-top:8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--smoke);text-decoration:none;padding:8px 0}
+.cpb-res-fiche:hover{color:var(--bone)}
+[data-lang="ar"] .cpb-res-fiche{letter-spacing:0;font-size:13px;text-transform:none}
+.cpb-quiz-conseil{margin-top:24px;padding:18px 20px;border:1px dashed var(--line2);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;color:var(--text-dim);font-size:14px}
+.cpb-quiz-conseil a{color:var(--ember);display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.cpb-quiz-conseil a svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5}
+@media(max-width:820px){
+  .cpb-resultats{grid-template-columns:1fr}
+  .cpb-res{display:grid;grid-template-columns:120px 1fr}
+  .cpb-res-photo .cpb-vignette{height:100%;aspect-ratio:auto;min-height:150px}
+  .cpb-res-nom{font-size:18px}
+}
+
+/* ══════════════════════════════════════════
+   FICHE PARFUM : « Dans le meme esprit », « Vus recemment »
+   Le balisage reprend celui de « Dans la meme maison » (.pf-block,
+   .pf-sibs, .pf-sib) : meme rendu, aucun style a dupliquer.
+══════════════════════════════════════════ */
+.cpb-commun{display:block;font-size:11.5px;line-height:1.5;color:var(--smoke);margin-top:-4px;margin-bottom:10px}
+.cpb-commun b{font-weight:400;color:var(--sand)}
+.cpb-bloc-quiz{margin-top:14px;font-size:13px;color:var(--smoke)}
+.cpb-bloc-quiz button{background:none;border:none;padding:0;cursor:pointer;color:var(--ember);font:inherit;text-decoration:underline;text-underline-offset:3px}
+
+/* ══════════════════════════════════════════
+   MODE CLAIR — l'or des pastilles devient l'encre du theme : le texte pose
+   dessus passe en creme, comme sur les boutons du theme (.btn-a, .nav-pill).
+══════════════════════════════════════════ */
+:root[data-theme="light"] .cpb-btn-plein,
+:root[data-theme="light"] .cpb-btn-ajout:hover,
+:root[data-theme="light"] .cpb-btn-ajout:focus-visible,
+:root[data-theme="light"] .cpb-nav-btn .cpb-pastille,
+:root[data-theme="light"] .cpb-res-ruban{color:#f8f3ea}
+:root[data-theme="light"] .cpb-option[aria-checked="true"] .cpb-option-pastille::after{border-color:#f8f3ea}
+:root[data-theme="light"] .cpb-bandeau{color:var(--ivory)}
