@@ -587,3 +587,64 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-estime[hidden]{display:none}
 #ck-form .cpb-estime{margin:14px 0 4px}
 .cpb-a .cta-fixe.cpb-cache{transform:translateY(115%)}
+
+/* ══════════════════════════════════════════════════════════════
+   ANIMATIONS — transform/opacity seulement, coupees si le systeme
+   demande moins de mouvement. « translate » (propriete separee) et pas
+   « transform » : les effets de survol du theme restent intacts.
+══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: no-preference){
+
+  /* Apparition au defilement, en cascade */
+  .cpb-anim .cpb-r{
+    opacity:0;translate:0 22px;
+    transition:opacity .7s var(--ease-out),translate .8s var(--ease-out);
+    transition-delay:calc(var(--cpb-i,0) * 70ms);
+  }
+  .cpb-anim .cpb-r.cpb-vu{opacity:1;translate:none}
+
+  /* Fiche : le flacon se pose, un halo dore respire derriere */
+  .cpb-anim main.pf .pf-visual img{animation:cpb-pose 1.1s var(--ease-out) both}
+  .cpb-halo{
+    position:absolute;left:50%;top:50%;width:70%;aspect-ratio:1;z-index:0;pointer-events:none;
+    translate:-50% -50%;border-radius:50%;
+    background:radial-gradient(circle,rgba(var(--au-rgb),.20) 0%,rgba(var(--au-rgb),.07) 42%,transparent 70%);
+    animation:cpb-respire 5.5s ease-in-out infinite;
+  }
+  main.pf .pf-visual img{z-index:1}
+  :root[data-theme="light"] .cpb-halo{background:radial-gradient(circle,rgba(var(--au-rgb),.16) 0%,rgba(var(--au-rgb),.05) 42%,transparent 70%)}
+
+  /* Boutons d'achat : un reflet passe de temps en temps */
+  .cpb-x-go,.cta-fixe-principal{position:relative;overflow:hidden}
+  .cpb-x-go::after,.cta-fixe-principal::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.38) 50%,transparent 65%);
+    translate:-120% 0;animation:cpb-reflet 6s ease-in-out 2.5s infinite;
+  }
+
+  /* Panier : le compteur saute */
+  .cpb-saut{animation:cpb-saut .55s cubic-bezier(.34,1.56,.64,1)}
+
+  /* Favori : le coeur eclot */
+  .cpb-eclot svg{animation:cpb-eclot .6s cubic-bezier(.34,1.56,.64,1)}
+
+  /* Quiz : chaque question arrive en douceur, les resultats en cascade */
+  .cpb-quiz-corps > *{animation:cpb-entre .45s var(--ease-out) both}
+  .cpb-option{transition:transform .2s var(--ease-out),border-color .2s,background-color .2s}
+  .cpb-option:active{transform:scale(.97)}
+  .cpb-res{animation:cpb-entre .6s var(--ease-out) both}
+  .cpb-res:nth-child(2){animation-delay:.12s}
+  .cpb-res:nth-child(3){animation-delay:.24s}
+
+  /* Commande express : le second choix et la date apparaissent */
+  .cpb-x-second:not([hidden]),.cpb-estime:not([hidden]){animation:cpb-entre .4s var(--ease-out) both}
+  .cpb-x-prop{transition:transform .2s var(--ease-out),border-color .2s,background-color .2s}
+  .cpb-x-prop:active{transform:scale(.98)}
+}
+
+@keyframes cpb-pose{from{translate:0 14px;scale:.965}to{translate:none;scale:1}}
+@keyframes cpb-respire{0%,100%{opacity:.65;scale:.92}50%{opacity:1;scale:1.06}}
+@keyframes cpb-reflet{0%{translate:-120% 0}22%,100%{translate:120% 0}}
+@keyframes cpb-saut{0%{scale:1}35%{scale:1.18}100%{scale:1}}
+@keyframes cpb-eclot{0%{scale:1;filter:none}40%{scale:1.35;filter:drop-shadow(0 0 6px rgba(var(--au-rgb),.9))}100%{scale:1;filter:none}}
+@keyframes cpb-entre{from{opacity:0;translate:0 12px}to{opacity:1;translate:none}}

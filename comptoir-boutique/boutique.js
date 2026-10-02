@@ -1791,6 +1791,82 @@
   }
 
   /* ══════════════════════════════════════════════════════════════
+     ANIMATIONS
+     L'accueil est deja mis en scene par le theme (GSAP). Ici : la fiche
+     parfum et les blocs de l'extension, qui apparaissaient d'un coup.
+     Regles : transform et opacity seulement (fluide sur un telephone
+     d'entree de gamme), rien ne cache ce qui est deja a l'ecran au
+     chargement (pas de flash, pas de retard sur la photo principale),
+     et rien du tout si le telephone demande moins d'animations.
+  ══════════════════════════════════════════════════════════════ */
+  var A_REVELER = [
+    'main.pf .pf-block', 'main.pf .pf-histoire', '.cpb-quiz-appel', '.cpb-express',
+    '.cpb-dist-visuel', '.cpb-404-visuel', '.pf-sibs .pf-sib'
+  ];
+
+  function animations() {
+    if (REDUIT || !('IntersectionObserver' in window) || !document.documentElement.classList) { return; }
+    var racine = document.documentElement;
+    racine.classList.add('cpb-anim');
+
+    /* 1. Apparition au defilement, en cascade dans une rangee de cartes. */
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) { return; }
+        e.target.classList.add('cpb-vu');
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.01 });
+    var bas = window.innerHeight || 700;
+    A_REVELER.forEach(function (sel) {
+      var rang = 0, parent = null;
+      document.querySelectorAll(sel).forEach(function (el) {
+        if (el.getBoundingClientRect().top < bas) { return; }   /* deja visible : on n'y touche pas */
+        if (el.parentNode !== parent) { parent = el.parentNode; rang = 0; }
+        el.classList.add('cpb-r');
+        el.style.setProperty('--cpb-i', String(Math.min(rang++, 6)));
+        io.observe(el);
+      });
+    });
+
+    /* 2. Fiche parfum : un halo dore respire derriere le flacon. */
+    var vis = document.querySelector('main.pf .pf-visual');
+    if (vis && !vis.querySelector('.cpb-halo')) {
+      var halo = document.createElement('span');
+      halo.className = 'cpb-halo';
+      halo.setAttribute('aria-hidden', 'true');
+      vis.insertBefore(halo, vis.firstChild);
+    }
+
+    /* 3. Panier : le compteur saute quand un parfum entre. */
+    var avant = P.count();
+    P.onChange(function () {
+      var n = P.count();
+      if (n > avant) {
+        document.querySelectorAll('[data-panier-count]').forEach(function (c) {
+          var pill = c.closest('.nav-pill') || c;
+          pill.classList.remove('cpb-saut');
+          void pill.offsetWidth;   /* relance l'animation */
+          pill.classList.add('cpb-saut');
+        });
+      }
+      avant = n;
+    });
+
+    /* 4. Favori : le coeur eclot quand on l'allume. */
+    document.addEventListener('click', function (e) {
+      var c = e.target.closest && e.target.closest('[data-cpb-coeur]');
+      if (!c) { return; }
+      setTimeout(function () {
+        if (c.getAttribute('aria-pressed') !== 'true') { return; }
+        c.classList.remove('cpb-eclot');
+        void c.offsetWidth;
+        c.classList.add('cpb-eclot');
+      }, 0);
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════
      BOUTONS DE LA NAVIGATION
   ══════════════════════════════════════════════════════════════ */
   function boutonsNav() {
@@ -1823,7 +1899,7 @@
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, animations].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

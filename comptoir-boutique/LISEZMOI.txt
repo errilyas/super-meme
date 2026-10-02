@@ -71,6 +71,18 @@ Ce qu'elle ajoute au site, sans modifier le thème :
    pour une photo de 720 × 900 (défaut du thème jusqu'à 3.5.2). L'extension
    remet les vraies dimensions ; avec le thème 3.5.3, elle n'a rien à faire.
 
+11. ANIMATIONS (version 1.7.0)
+   L'accueil est animé par le thème ; l'extension anime le reste.
+   - Fiche parfum : le flacon se pose, un halo doré respire derrière lui ;
+     les blocs (histoire, pyramide, même maison, même esprit, vus
+     récemment) apparaissent en cascade au défilement.
+   - Boutons d'achat (commande express, barre fixe) : un reflet doré passe
+     de temps en temps.
+   - Panier : le compteur saute quand un parfum entre. Favori : le cœur
+     éclot. Quiz : questions et résultats arrivent en douceur.
+   Rien ne cache ce qui est déjà à l'écran au chargement, et tout est coupé
+   si le téléphone demande moins d'animations (réglage d'accessibilité).
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient
