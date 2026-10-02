@@ -1170,6 +1170,44 @@
   }
 
   /* ══════════════════════════════════════════════════════════════
+     VISUELS D'AMBIANCE DU RESTE DU SITE
+     Decoratifs (alt vide), ajoutes seulement si l'image est livree :
+       - « Commander maintenant » (accueil) : fond derriere le texte ;
+       - « Le meme parfum. Sans le prix boutique. » : bandeau d'image ;
+       - page introuvable (404) : la banniere du quiz.
+  ══════════════════════════════════════════════════════════════ */
+  function visuelsSite() {
+    var V = CFG.visuels || {};
+    var img = function (src, classe, l, h) {
+      return '<img class="' + classe + '" src="' + esc(src) + '" alt="" width="' + l + '" height="' + h + '" loading="lazy" decoding="async">';
+    };
+    var fin = document.querySelector('section.finale');
+    if (fin && V.finale && !fin.querySelector('.cpb-fin-fond')) {
+      fin.classList.add('cpb', 'cpb-fin-photo');
+      fin.insertAdjacentHTML('afterbegin', img(V.finale, 'cpb-fin-fond', 1600, 900) + '<span class="cpb-fin-voile" aria-hidden="true"></span>');
+    }
+    var comp = document.querySelector('.distinction .dist-compare');
+    if (comp && V.distinction && !document.querySelector('.cpb-dist-visuel')) {
+      var f = document.createElement('figure');
+      f.className = 'cpb cpb-dist-visuel';
+      f.setAttribute('aria-hidden', 'true');
+      f.innerHTML = img(V.distinction, 'cpb-dist-img', 1600, 900);
+      comp.parentNode.insertBefore(f, comp);
+    }
+    /* La 404 seule (pas la recherche ni les archives) : c'est elle qui
+       porte le grand « 404 » decoratif .cp-code. */
+    var p404 = document.querySelector('main.cp-secours');
+    var actions = p404 && p404.querySelector('.cp-code') ? p404.querySelector('.cp-actions') : null;
+    if (actions && V.banniere && !p404.querySelector('.cpb-404-visuel')) {
+      var g = document.createElement('figure');
+      g.className = 'cpb cpb-404-visuel';
+      g.setAttribute('aria-hidden', 'true');
+      g.innerHTML = img(V.banniere, 'cpb-404-img', 1600, 900);
+      actions.parentNode.insertBefore(g, actions.nextSibling);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
      5. FICHE PARFUM
   ══════════════════════════════════════════════════════════════ */
   var CLE_VUS = 'cpb-vus-v1';
@@ -1589,7 +1627,7 @@
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, fiche, expressFiche, majFavoris].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, majFavoris].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,
