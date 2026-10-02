@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.6.0
+ * Version:           1.6.1
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.6.0' );
+define( 'CPB_VERSION', '1.6.1' );
 
 /**
  * Mode de diffusion.
@@ -182,6 +182,46 @@ add_filter( 'rest_endpoints', function ( $routes ) {
 	}
 	return $routes;
 } );
+
+/* ══════════════════════════════════════════════════════════════
+   IMAGE DE PARTAGE (Facebook, WhatsApp)
+   Jusqu'au theme 3.5.2, chaque fiche annoncait og:image 1200 x 630 pour
+   une photo de 720 x 900 : la taille n'etait pas lue a cause de
+   l'empreinte « ?v=… ». Le theme 3.5.3 le corrige ; en attendant qu'il
+   soit installe, on remet ici les vraies dimensions. Avec le theme
+   corrige, les valeurs sont deja justes et rien ne change.
+══════════════════════════════════════════════════════════════ */
+function cpb_corrige_og( $html ) {
+	if ( ! preg_match( '#<meta property="og:image" content="([^"]+)">#', $html, $m ) ) {
+		return $html;
+	}
+	$url = strtok( html_entity_decode( $m[1], ENT_QUOTES ), '?' );
+	$uri = get_template_directory_uri();
+	if ( 0 !== strpos( $url, $uri . '/' ) ) {
+		return $html;
+	}
+	$fichier = get_template_directory() . substr( $url, strlen( $uri ) );
+	$taille  = ( false === strpos( $fichier, '..' ) && is_file( $fichier ) ) ? @getimagesize( $fichier ) : false;
+	if ( ! $taille ) {
+		return $html;
+	}
+	$html = preg_replace( '#<meta property="og:image:width" content="\d+">#', '<meta property="og:image:width" content="' . (int) $taille[0] . '">', $html, 1 );
+	return preg_replace( '#<meta property="og:image:height" content="\d+">#', '<meta property="og:image:height" content="' . (int) $taille[1] . '">', $html, 1 );
+}
+
+add_action( 'wp_head', function () {
+	if ( function_exists( 'comptoir_meta_page' ) && ! is_feed() ) {
+		$GLOBALS['cpb_og_tampon'] = ob_start();
+	}
+}, 0 );
+
+add_action( 'wp_head', function () {
+	if ( empty( $GLOBALS['cpb_og_tampon'] ) ) {
+		return;
+	}
+	$GLOBALS['cpb_og_tampon'] = false;
+	echo cpb_corrige_og( (string) ob_get_clean() ); // phpcs:ignore WordPress.Security.EscapeOutput -- sortie du theme, deja echappee.
+}, 2 );
 
 /** Classe <body> : le CSS du bandeau s'y accroche. */
 add_filter( 'body_class', function ( $classes ) {

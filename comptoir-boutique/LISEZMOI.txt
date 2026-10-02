@@ -66,6 +66,11 @@ Ce qu'elle ajoute au site, sans modifier le thème :
      au lieu d'ouvrir la page commande, et s'efface pendant qu'il est à
      l'écran (avant, elle le recouvrait).
 
+10. IMAGE DE PARTAGE (version 1.6.1)
+   Les fiches annonçaient à Facebook et WhatsApp une image de 1200 × 630
+   pour une photo de 720 × 900 (défaut du thème jusqu'à 3.5.2). L'extension
+   remet les vraies dimensions ; avec le thème 3.5.3, elle n'a rien à faire.
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient
