@@ -1,0 +1,60 @@
+COMPTOIR BOUTIQUE — extension WordPress pour Le Comptoir des Parfums
+=====================================================================
+
+Ce qu'elle ajoute au site, sans modifier le thème :
+
+1. BANDEAU D'ANNONCE, tout en haut de chaque page
+   « Paiement à la livraison », « Livraison offerte dès le deuxième parfum »,
+   « Testeurs 100 % originaux · Satisfait ou remboursé ». Sur téléphone, une
+   promesse à la fois ; sur grand écran, les trois. La phrase de livraison
+   suit les réglages du thème (comptoir_livraison_dh, comptoir_franco_articles
+   dans functions.php) : changez-les là-bas, le bandeau suit.
+
+2. RECHERCHE INSTANTANÉE (loupe dans l'en-tête, ou touche « / »)
+   Cherche dans les noms, les maisons, les notes et les familles, sans tenir
+   compte des accents (« hermes » trouve Hermès). Comprend aussi l'arabe
+   (« ديور », « عود », « فانيليا »…).
+
+3. QUIZ « TROUVER MON PARFUM » (4 questions)
+   Sur l'accueil juste avant le catalogue, depuis la recherche et sur chaque
+   fiche. Propose trois parfums de trois maisons différentes, avec la raison
+   (les notes), un bouton « Ajouter au panier » et un lien WhatsApp pour un
+   conseil. Lien direct à partager (bio Instagram, message) :
+       https://comptoirparfums.com/#trouver-mon-parfum
+
+4. FAVORIS
+   Un cœur sur chaque fiche parfum ; la liste s'ouvre depuis le cœur de
+   l'en-tête (ordinateur) ou depuis la recherche (téléphone), avec
+   « Tout ajouter au panier ». Gardés dans le navigateur du client.
+
+5. SUR CHAQUE FICHE PARFUM
+   « Dans le même esprit » : quatre parfums d'autres maisons qui partagent
+   les mêmes notes (affichées sous chaque carte).
+   « Vus récemment » : les fiches que le client a déjà ouvertes.
+
+6. COMMANDE EXPRESS SUR CHAQUE FICHE (version 1.1.0)
+   « Commander en 30 secondes » : 1 ou 2 parfums (le 2e, un AUTRE parfum
+   choisi dans une liste ou par recherche, rend la livraison
+   offerte), téléphone, nom, ville, adresse, total sur le bouton. L'envoi
+   suit exactement la page commande du thème : carnet WordPress, feuille
+   Google, Meta, puis page de remerciement qui ouvre WhatsApp. Le bouton
+   « Commander » de la fiche est masqué (le formulaire le remplace) ;
+   « Ajouter au panier » reste.
+
+7. VISUELS D'AMBIANCE (versions 1.3.0 et 1.4.0)
+   Photos d'ambiance sans marque (dossier img/) : les quatre univers du
+   quiz, la bannière de l'appel au quiz, un bandeau photo dans « Le même
+   parfum. Sans le prix boutique », un fond photo derrière « Commander
+   maintenant » (thème sombre seulement) et un visuel sur la page 404.
+   Retirer un fichier de img/ suffit à retirer le visuel correspondant.
+
+Tout est en français et en arabe, en thème sombre et clair.
+
+DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient
+exactement ce qu'il était.
+
+MODIFIER : la source commentée est dans ce dossier. Pour produire le fichier
+à téléverser : outils/construire-boutique.sh (crée dist/comptoir-boutique-
+<version>.zip), puis augmenter CPB_VERSION dans comptoir-boutique.php.
+Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
+?apercu=boutique dans l'adresse.
