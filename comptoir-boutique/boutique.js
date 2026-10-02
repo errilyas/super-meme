@@ -126,6 +126,9 @@
     'Rien à payer maintenant : vous réglez en espèces au livreur.': 'لا شيء تدفعه الآن: تدفع نقدًا لعامل التوصيل.',
     '1 flacon': 'قارورة واحدة',
     '2 flacons': 'قارورتان',
+    'Vos coordonnées de la dernière fois sont reprises.': 'معلوماتك من المرة الماضية معبأة مسبقًا.',
+    'Effacer': 'مسح',
+    'Livraison estimée : entre {a} et {b}': 'التوصيل المتوقع: بين {a} و{b}',
     '2 parfums': 'عطران',
     '+ un 2e parfum au choix': '+ عطر ثانٍ من اختيارك',
     'Choisissez votre 2e parfum': 'اختر عطرك الثاني',
@@ -246,6 +249,7 @@
     coeur: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.3s-7.6-4.6-9.2-9.4C1.7 7.4 3.9 4 7.4 4c2 0 3.4 1.1 4.6 2.7C13.2 5.1 14.6 4 16.6 4c3.5 0 5.7 3.4 4.6 6.9-1.6 4.8-9.2 9.4-9.2 9.4z"/></svg>',
     croix: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
     etincelle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></svg>',
+    camion: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.5 16.5V6.5h12v10M13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>',
     wa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'
   };
 
@@ -1594,6 +1598,199 @@
   }
 
   /* ══════════════════════════════════════════════════════════════
+     MOINS DE FRICTION A LA COMMANDE
+     1. Coordonnees retenues : un client qui revient (deuxieme commande,
+        ou commande interrompue) retrouve son telephone, son nom, sa ville
+        et son adresse deja remplis, dans la commande express comme sur la
+        page commande. Gardees sur son telephone seulement, effacables.
+     2. Date de livraison estimee, selon la ville et la promesse affichee
+        par le theme : Casablanca 24 a 48 h, ailleurs 2 a 4 jours ouvrables
+        (le dimanche ne compte pas).
+     3. Fiche parfum : la barre fixe « Commander » menait a la page
+        commande, un second parcours plus long, et restait par-dessus le
+        formulaire express. Elle y mene maintenant, et s'efface pendant
+        qu'il est a l'ecran.
+  ══════════════════════════════════════════════════════════════ */
+  var COORD = 'cpb_coord', COORD_CHAMPS = ['tel', 'nom', 'ville', 'ville_autre', 'adresse'];
+  var COORD_DUREE = 180 * 864e5;
+
+  function coordLues() {
+    try {
+      var o = JSON.parse(localStorage.getItem(COORD) || 'null');
+      if (o && typeof o === 'object' && Date.now() - (o.t || 0) < COORD_DUREE) { return o; }
+    } catch (e) {}
+    return null;
+  }
+  function coordEcrites(o) {
+    try { localStorage.setItem(COORD, JSON.stringify(o)); } catch (e) {}
+  }
+  function coordOubliees() {
+    try { localStorage.removeItem(COORD); } catch (e) {}
+  }
+
+  /* La meme ville peut etre ecrite en francais (commande express) ou en
+     arabe (liste du theme traduite) : on compare les deux formes. */
+  function memeVille(a, b) {
+    if (!a || !b) { return false; }
+    if (a === b) { return true; }
+    var tr = window.CP_VILLE;
+    return !!tr && (tr(a) === b || tr(b) === a);
+  }
+  function choisitVille(sel, v) {
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value && memeVille(sel.options[i].value, v)) { sel.selectedIndex = i; return true; }
+    }
+    return false;
+  }
+
+  function retientCoordonnees(form) {
+    if (!form || form.getAttribute('data-cpb-coord')) { return; }
+    form.setAttribute('data-cpb-coord', '1');
+    var champ = function (n) { return form.querySelector('[name="' + n + '"]'); };
+    var o = coordLues(), repris = false, efface = false;
+
+    if (o) {
+      COORD_CHAMPS.forEach(function (n) {
+        var el = champ(n), v = o[n];
+        if (!el || !v || typeof v !== 'string' || el.value) { return; }
+        if (el.tagName === 'SELECT') {
+          if (!choisitVille(el, v)) { return; }
+        } else {
+          el.value = v;
+        }
+        repris = true;
+        /* Comme une saisie : la liste « autre ville », le recapitulatif et
+           les controles du formulaire suivent. */
+        ['input', 'change'].forEach(function (type) {
+          var ev;
+          try { ev = new Event(type, { bubbles: true }); } catch (e) { ev = document.createEvent('Event'); ev.initEvent(type, true, true); }
+          el.dispatchEvent(ev);
+        });
+      });
+    }
+
+    if (repris) {
+      var note = document.createElement('p');
+      note.className = 'cpb-coord-note';
+      note.innerHTML = esc(t('Vos coordonnées de la dernière fois sont reprises.')) +
+        ' <button type="button" class="cpb-lien-btn">' + esc(t('Effacer')) + '</button>';
+      var premier = form.querySelector('[name="tel"]');
+      var place = premier && (premier.closest('label') || premier);
+      if (place && place.parentNode) { place.parentNode.insertBefore(note, place); }
+      note.querySelector('button').addEventListener('click', function () {
+        coordOubliees();
+        efface = true;
+        COORD_CHAMPS.forEach(function (n) {
+          var el = champ(n);
+          if (!el) { return; }
+          if (el.tagName === 'SELECT') { el.selectedIndex = 0; } else { el.value = ''; }
+          var ev;
+          try { ev = new Event('change', { bubbles: true }); } catch (e) { ev = document.createEvent('Event'); ev.initEvent('change', true, true); }
+          el.dispatchEvent(ev);
+        });
+        efface = false;
+        note.parentNode.removeChild(note);
+        if (premier) { premier.focus(); }
+      });
+    }
+
+    var garde = function (e) {
+      var n = e.target && e.target.name;
+      if (efface || COORD_CHAMPS.indexOf(n) < 0) { return; }
+      var cur = coordLues() || {};
+      cur[n] = String(e.target.value || '').slice(0, 400);
+      cur.t = Date.now();
+      coordEcrites(cur);
+    };
+    form.addEventListener('input', garde);
+    form.addEventListener('change', garde);
+  }
+
+  /* Jours ouvrables : du lundi au samedi. */
+  function plusJoursOuvrables(d, n) {
+    var r = new Date(d.getTime());
+    while (n > 0) {
+      r.setDate(r.getDate() + 1);
+      if (r.getDay() !== 0) { n--; }
+    }
+    return r;
+  }
+  function dateCourte(d) {
+    try {
+      return d.toLocaleDateString(AR ? 'ar-MA' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    } catch (e) {
+      return d.getDate() + '/' + (d.getMonth() + 1);
+    }
+  }
+  function fenetreLivraison(ville) {
+    var casa = memeVille(ville, 'Casablanca');
+    var auj = new Date();
+    return [plusJoursOuvrables(auj, casa ? 1 : 2), plusJoursOuvrables(auj, casa ? 2 : 4)];
+  }
+
+  function estimeLivraison(form, avant) {
+    if (!form || form.querySelector('.cpb-estime')) { return; }
+    var sel = form.querySelector('select[name="ville"]');
+    if (!sel) { return; }
+    var p = document.createElement('p');
+    p.className = 'cpb-estime';
+    p.setAttribute('aria-live', 'polite');
+    p.hidden = true;
+    if (avant && avant.parentNode) { avant.parentNode.insertBefore(p, avant); } else { form.appendChild(p); }
+    var maj = function () {
+      var v = sel.value === 'autre' ? '' : sel.value;
+      if (!v) { p.hidden = true; return; }
+      var f = fenetreLivraison(v);
+      p.innerHTML = SVG.camion + '<span>' + esc(t('Livraison estimée : entre {a} et {b}', { a: dateCourte(f[0]), b: dateCourte(f[1]) })) + '</span>';
+      p.hidden = false;
+    };
+    sel.addEventListener('change', maj);
+    maj();
+  }
+
+  function barreFixeVersExpress(x) {
+    var bar = document.querySelector('.cta-fixe');
+    var lien = bar && bar.querySelector('.cta-fixe-principal');
+    if (!bar || !lien) { return; }
+    /* En capture : passe avant le panier du theme, qui ajouterait le flacon
+       et changerait de page. Panier deja rempli : la barre garde son role
+       (« Commander · N parfums » vers la page commande). */
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('.cta-fixe-principal') || P.count()) { return; }
+      e.preventDefault();
+      e.stopPropagation();
+      x.scrollIntoView({ block: 'start', behavior: REDUIT ? 'auto' : 'smooth' });
+      var vide = null;
+      ['tel', 'nom', 'ville', 'adresse'].some(function (n) {
+        var el = x.querySelector('[name="' + n + '"]');
+        if (el && !el.value) { vide = el; return true; }
+        return false;
+      });
+      var cible = vide || x.querySelector('.cpb-x-go');
+      if (cible) { setTimeout(function () { try { cible.focus({ preventScroll: true }); } catch (err) { cible.focus(); } }, REDUIT ? 0 : 450); }
+    }, true);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        bar.classList.toggle('cpb-cache', es[0].isIntersecting);
+      }, { rootMargin: '0px 0px -10% 0px' }).observe(x);
+    }
+  }
+
+  function moinsDeFriction() {
+    var x = document.querySelector('.cpb-express');
+    if (x) {
+      estimeLivraison(x, x.querySelector('.cpb-x-recap'));
+      retientCoordonnees(x);
+      barreFixeVersExpress(x);
+    }
+    var ck = document.getElementById('ck-form');
+    if (ck) {
+      estimeLivraison(ck, null);
+      retientCoordonnees(ck);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
      BOUTONS DE LA NAVIGATION
   ══════════════════════════════════════════════════════════════ */
   function boutonsNav() {
@@ -1626,7 +1823,7 @@
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, majFavoris].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

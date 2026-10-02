@@ -56,6 +56,16 @@ Ce qu'elle ajoute au site, sans modifier le thème :
      la liste des utilisateurs de l'API n'est plus publique.
    - Page commande : les étapes déjà faites sont lisibles (contraste).
 
+9. MOINS DE FRICTION À LA COMMANDE (version 1.6.0)
+   - Un client qui revient retrouve téléphone, nom, ville et adresse déjà
+     remplis (commande express et page commande), gardés sur son téléphone
+     seulement, avec un bouton « Effacer ».
+   - Date de livraison estimée dès que la ville est choisie : Casablanca
+     24 à 48 h, ailleurs 2 à 4 jours ouvrables (dimanche exclu).
+   - Fiche parfum : la barre fixe « Commander » amène au formulaire express
+     au lieu d'ouvrir la page commande, et s'efface pendant qu'il est à
+     l'écran (avant, elle le recouvrait).
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient

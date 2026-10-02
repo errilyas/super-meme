@@ -578,3 +578,12 @@ html.cpb-lock .joinchat{display:none!important}
    Le theme les estompait a 70 % : l'or sur aubergine passait sous le
    contraste minimal (WCAG AA). La pastille doree suffit a les distinguer. */
 .cpb-a .steps .faite{opacity:1}
+
+/* ── Moins de friction a la commande ── */
+.cpb-coord-note{display:flex;flex-wrap:wrap;align-items:center;gap:0 12px;margin:0 0 10px;font-size:12.5px;line-height:1.5;color:var(--text-dim)}
+.cpb-coord-note .cpb-lien-btn{min-height:32px;color:var(--ember);text-decoration:underline;text-underline-offset:3px}
+.cpb-estime{display:flex;align-items:center;gap:10px;margin:2px 0 12px;font-size:13px;line-height:1.5;color:var(--bone)}
+.cpb-estime svg{flex:none;width:20px;height:20px;fill:none;stroke:var(--ember);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.cpb-estime[hidden]{display:none}
+#ck-form .cpb-estime{margin:14px 0 4px}
+.cpb-a .cta-fixe.cpb-cache{transform:translateY(115%)}
