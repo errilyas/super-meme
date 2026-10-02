@@ -114,7 +114,7 @@
     'Voir mes parfums': 'شاهد عطوري',
     'Passer cette question': 'تخطَّ هذا السؤال',
     'Trois parfums pour vous.': 'ثلاثة عطور لك.',
-    'Choisis parmi les {n} références du catalogue, d’après vos réponses.': 'مختارة من بين {n} مرجعًا في الكتالوج، حسب أجوبتك.',
+    'Sélectionnés parmi les {n} références du catalogue, d’après vos réponses.': 'مختارة من بين {n} مرجعًا في الكتالوج، حسب أجوبتك.',
     'Le plus proche': 'الأقرب إليك',
     'Pourquoi :': 'لماذا:',
     'Un deuxième avis ? Un conseiller vous répond sur WhatsApp.': 'تريد رأيًا ثانيًا؟ مستشارنا يجيبك على واتساب.',
@@ -1059,7 +1059,7 @@
     var wa = 'https://wa.me/' + encodeURIComponent((P.cfg && P.cfg.wa) || '') + '?text=' + encodeURIComponent(msg);
 
     var html = '<h2 class="cpb-quiz-q" tabindex="-1">' + esc(t('Trois parfums pour vous.')) + '</h2>' +
-      '<p class="cpb-quiz-aide">' + esc(t('Choisis parmi les {n} références du catalogue, d’après vos réponses.', { n: LISTE.length })) + '</p>' +
+      '<p class="cpb-quiz-aide">' + esc(t('Sélectionnés parmi les {n} références du catalogue, d’après vos réponses.', { n: LISTE.length })) + '</p>' +
       '<div class="cpb-resultats">' +
       choix.map(function (r, i) {
         var p = r.p;

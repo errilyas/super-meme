@@ -31,7 +31,7 @@ define( 'CPB_VERSION', '1.0.0' );
  *   'en-ligne' : pour tout le monde.
  * On passe d'abord en apercu, on verifie sur le vrai site, puis on bascule.
  */
-define( 'CPB_MODE', 'apercu' );
+define( 'CPB_MODE', 'en-ligne' );
 
 /** Vrai si l'extension doit agir sur la page servie. */
 function cpb_actif() {

@@ -407,6 +407,9 @@ html.cpb-lock{overflow:hidden}
   .cpb-res{display:grid;grid-template-columns:120px 1fr}
   .cpb-res-photo .cpb-vignette{height:100%;aspect-ratio:auto;min-height:150px}
   .cpb-res-nom{font-size:18px}
+  /* Colonne photo etroite : le ruban garde le haut, le coeur descend en bas */
+  .cpb-res .cpb-coeur-rond{top:auto;bottom:10px}
+  .cpb-res-ruban{inset-inline-end:10px;text-align:center;letter-spacing:.12em}
 }
 
 /* ══════════════════════════════════════════
