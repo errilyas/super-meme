@@ -83,6 +83,20 @@ Ce qu'elle ajoute au site, sans modifier le thème :
    Rien ne cache ce qui est déjà à l'écran au chargement, et tout est coupé
    si le téléphone demande moins d'animations (réglage d'accessibilité).
 
+12. PAGES D'INFORMATION ET AVIS CLIENTS (version 1.8.0)
+   - Les pages WordPress (À propos, Contact, Conditions de vente, Retours
+     et remboursement, Confidentialité) s'affichent en entier : le thème
+     n'a pas de gabarit de page et les montrait comme une liste d'articles.
+   - Pied de page : liens vers ces pages (seulement celles publiées, avec
+     ces adresses : a-propos, contact, conditions-de-vente,
+     retours-et-remboursement, confidentialite).
+   - Sous les boutons de commande : « En confirmant, vous acceptez nos
+     conditions de vente ».
+   - Commandes (administration) : lien « WhatsApp : demander un avis » sur
+     chaque commande. Il ouvre WhatsApp au numéro du client, avec un
+     message en français et en darija déjà écrit. À envoyer une fois le
+     colis livré.
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient

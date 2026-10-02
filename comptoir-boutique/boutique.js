@@ -128,6 +128,9 @@
     '2 flacons': 'قارورتان',
     'Vos coordonnées de la dernière fois sont reprises.': 'معلوماتك من المرة الماضية معبأة مسبقًا.',
     'Effacer': 'مسح',
+    'Informations': 'معلومات',
+    'En confirmant, vous acceptez nos': 'بتأكيد الطلب، فأنت توافق على',
+    'conditions de vente': 'شروط البيع',
     'Livraison estimée : entre {a} et {b}': 'التوصيل المتوقع: بين {a} و{b}',
     '2 parfums': 'عطران',
     '+ un 2e parfum au choix': '+ عطر ثانٍ من اختيارك',
@@ -1791,6 +1794,40 @@
   }
 
   /* ══════════════════════════════════════════════════════════════
+     LIENS D'INFORMATION
+     Pied de page : A propos, Contact, Conditions de vente, Retours,
+     Confidentialite (seulement les pages publiees, fournies par PHP).
+     Formulaires de commande : renvoi aux conditions de vente.
+  ══════════════════════════════════════════════════════════════ */
+  function pagesInfo() {
+    var pages = CFG.pages || [];
+    if (!pages.length) { return; }
+    var lien = function (p) {
+      return '<a href="' + esc(p.url) + '">' + esc(AR ? p.ar : p.fr) + '</a>';
+    };
+    var bas = document.querySelector('.foot-bas .foot-inner');
+    if (bas && !bas.querySelector('.cpb-foot-info')) {
+      var nav = document.createElement('nav');
+      nav.className = 'cpb-foot-info';
+      nav.setAttribute('aria-label', t('Informations'));
+      nav.innerHTML = pages.map(lien).join('');
+      bas.appendChild(nav);
+    }
+    var cgv = null;
+    pages.forEach(function (p) { if (p.cle === 'conditions-de-vente') { cgv = p; } });
+    if (!cgv) { return; }
+    var mention = function (apres) {
+      if (!apres || !apres.parentNode || apres.parentNode.querySelector('.cpb-cgv')) { return; }
+      var m = document.createElement('p');
+      m.className = 'cpb-cgv';
+      m.innerHTML = esc(t('En confirmant, vous acceptez nos')) + ' ' + lien({ url: cgv.url, fr: t('conditions de vente'), ar: t('conditions de vente') }) + '.';
+      apres.parentNode.insertBefore(m, apres.nextSibling);
+    };
+    mention(document.querySelector('.cpb-express .cpb-x-note'));
+    mention(document.querySelector('.ck-mini'));
+  }
+
+  /* ══════════════════════════════════════════════════════════════
      ANIMATIONS
      L'accueil est deja mis en scene par le theme (GSAP). Ici : la fiche
      parfum et les blocs de l'extension, qui apparaissaient d'un coup.
@@ -1899,7 +1936,7 @@
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, animations].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, animations].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

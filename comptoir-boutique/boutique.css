@@ -648,3 +648,29 @@ html.cpb-lock .joinchat{display:none!important}
 @keyframes cpb-saut{0%{scale:1}35%{scale:1.18}100%{scale:1}}
 @keyframes cpb-eclot{0%{scale:1;filter:none}40%{scale:1.35;filter:drop-shadow(0 0 6px rgba(var(--au-rgb),.9))}100%{scale:1;filter:none}}
 @keyframes cpb-entre{from{opacity:0;translate:0 12px}to{opacity:1;translate:none}}
+
+/* ── Pages d'information (gabarit page-cpb.php) ── */
+.cpb-page,.cpb-page-article{text-align:start}
+.cpb-page h1{margin-bottom:28px;text-align:start}
+.cpb-page-corps{color:var(--text-dim);font-size:15.5px;line-height:1.85}
+.cpb-page-corps h2{font-family:var(--serif);font-weight:300;font-size:clamp(22px,3vw,28px);color:var(--bone);margin:42px 0 12px;line-height:1.2}
+.cpb-page-corps h3{font-size:15px;font-weight:500;color:var(--bone);margin:26px 0 8px}
+.cpb-page-corps p{margin:0 0 16px}
+.cpb-page-corps ul,.cpb-page-corps ol{margin:0 0 18px;padding-inline-start:22px}
+.cpb-page-corps li{margin:0 0 8px}
+.cpb-page-corps a{color:var(--ember);text-underline-offset:3px}
+.cpb-page-corps strong{color:var(--bone);font-weight:500}
+.cpb-page-maj{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;letter-spacing:.08em;color:var(--smoke)}
+
+/* ── Liens d'information du pied de page ── */
+.cpb-foot-info{display:flex;flex-wrap:wrap;gap:6px 20px;width:100%;margin-top:14px;font-size:12px}
+.cpb-foot-info a{color:var(--smoke);text-decoration:none}
+.cpb-foot-info a:hover,.cpb-foot-info a:focus-visible{color:var(--bone)}
+.foot-bas .foot-inner:has(.cpb-foot-info){flex-wrap:wrap}
+[data-lang="ar"] .cpb-foot-info{font-family:var(--arabe);font-size:13px}
+.cpb-cgv{font-size:12px;line-height:1.6;color:var(--smoke);margin:8px 0 0}
+.cpb-cgv a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.cpb-page-corps .wp-block-buttons{display:flex;flex-wrap:wrap;gap:12px;margin:26px 0}
+.cpb-page-corps .wp-block-button__link{display:inline-flex;align-items:center;min-height:48px;padding:0 24px;border-radius:2px;font-size:13px;letter-spacing:.08em;text-decoration:none}
+/* Le bouton vert WhatsApp des pages avait du texte blanc illisible (contraste 2:1). */
+.cpb-page-corps .wp-block-button__link[style*="25d366"]{color:#08200f!important;font-weight:500}

@@ -20,7 +20,7 @@ trap 'rm -rf "$TRAVAIL"' EXIT
 mkdir -p "$TRAVAIL/comptoir-boutique"
 
 php -l "$SRC/comptoir-boutique.php" >/dev/null
-cp "$SRC/comptoir-boutique.php" "$TRAVAIL/comptoir-boutique/"
+for f in "$SRC"/*.php; do php -l "$f" >/dev/null; cp "$f" "$TRAVAIL/comptoir-boutique/"; done
 npx --yes terser@5 "$SRC/boutique.js" --ecma 5 --compress --mangle --comments false \
   -o "$TRAVAIL/comptoir-boutique/boutique.js"
 npx --yes lightningcss-cli@1 --minify "$SRC/boutique.css" -o "$TRAVAIL/comptoir-boutique/boutique.css"

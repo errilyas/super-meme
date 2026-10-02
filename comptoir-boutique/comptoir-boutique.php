@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.7.0
+ * Version:           1.8.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.7.0' );
+define( 'CPB_VERSION', '1.8.0' );
 
 /**
  * Mode de diffusion.
@@ -92,6 +92,7 @@ add_action( 'wp_enqueue_scripts', function () {
 		'home'       => home_url( '/' ),
 		'populaires' => cpb_populaires(),
 		'visuels'    => cpb_visuels(),
+		'pages'      => array_map( function ( $p ) { return array( 'fr' => $p[0], 'ar' => $p[1], 'url' => $p[2], 'cle' => $p[3] ); }, cpb_pages_info() ),
 		// En apercu, les liens internes gardent le parametre : sans lui, la page
 		// suivante s'ouvrirait sans les nouveautes et le parcours serait coupe.
 		'suffixe'    => 'apercu' === CPB_MODE ? 'apercu=boutique' : '',
@@ -222,6 +223,88 @@ add_action( 'wp_head', function () {
 	$GLOBALS['cpb_og_tampon'] = false;
 	echo cpb_corrige_og( (string) ob_get_clean() ); // phpcs:ignore WordPress.Security.EscapeOutput -- sortie du theme, deja echappee.
 }, 2 );
+
+/* ══════════════════════════════════════════════════════════════
+   PAGES DU SITE ET LIENS D'INFORMATION
+   - Les pages WordPress s'affichent en entier (gabarit page-cpb.php) :
+     le theme n'en a pas et les montrait comme une liste d'articles.
+   - Le pied de page gagne les liens vers les pages d'information qui
+     existent (publiees), et les formulaires de commande renvoient aux
+     conditions de vente.
+══════════════════════════════════════════════════════════════ */
+add_filter( 'template_include', function ( $template ) {
+	if ( is_page() && function_exists( 'comptoir_produits' ) && ! locate_template( array( 'page.php' ) ) && ! is_page_template() ) {
+		$t = plugin_dir_path( __FILE__ ) . 'page-cpb.php';
+		if ( file_exists( $t ) ) {
+			return $t;
+		}
+	}
+	return $template;
+}, 20 );
+
+/**
+ * Les pages d'information publiees, dans l'ordre du pied de page.
+ * @return array liste de array( titre_fr, titre_ar, url, cle ).
+ */
+function cpb_pages_info() {
+	static $out = null;
+	if ( null !== $out ) {
+		return $out;
+	}
+	$out   = array();
+	$liste = array(
+		'a-propos'                  => array( 'À propos', 'من نحن' ),
+		'contact'                   => array( 'Contact', 'اتصل بنا' ),
+		'conditions-de-vente'       => array( 'Conditions de vente', 'شروط البيع' ),
+		'retours-et-remboursement'  => array( 'Retours et remboursement', 'الإرجاع والاسترداد' ),
+		'confidentialite'           => array( 'Confidentialité', 'الخصوصية' ),
+	);
+	foreach ( $liste as $slug => $t ) {
+		$page = get_page_by_path( $slug );
+		if ( $page && 'publish' === $page->post_status ) {
+			$out[] = array( $t[0], $t[1], get_permalink( $page ), $slug );
+		}
+	}
+	return $out;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DEMANDE D'AVIS (administration, liste des commandes)
+   Un lien « Demander un avis » sur chaque commande : il ouvre WhatsApp
+   avec le message deja ecrit, au numero du client. Aucun envoi
+   automatique, aucune API : c'est vous qui envoyez, quand le colis est
+   livre. Les vrais retours (et photos) alimentent ensuite le site.
+══════════════════════════════════════════════════════════════ */
+function cpb_lien_avis( $id ) {
+	$tel = preg_replace( '/\D/', '', (string) get_post_meta( $id, 'cp_tel', true ) );
+	if ( preg_match( '/^0([5-7]\d{8})$/', $tel, $m ) ) {
+		$tel = '212' . $m[1];
+	} elseif ( preg_match( '/^00212(\d{9})$/', $tel, $m ) ) {
+		$tel = '212' . $m[1];
+	}
+	if ( ! preg_match( '/^212[5-7]\d{8}$/', $tel ) ) {
+		return '';
+	}
+	$nom    = trim( (string) get_post_meta( $id, 'cp_nom', true ) );
+	$prenom = $nom ? preg_split( '/\s+/u', $nom )[0] : '';
+	$msg    = sprintf(
+		"Bonjour%s, c'est Le Comptoir des Parfums. Votre parfum vous plaît ? Un petit mot (et une photo si vous voulez) nous aiderait beaucoup. Merci !\n\nالسلام%s، عجبك العطر؟ عطينا رأيك (وتصويرة إلا بغيتي). شكرا بزاف!",
+		$prenom ? ' ' . $prenom : '',
+		$prenom ? ' ' . $prenom : ''
+	);
+	return 'https://wa.me/' . $tel . '?text=' . rawurlencode( $msg );
+}
+
+add_filter( 'post_row_actions', function ( $actions, $post ) {
+	if ( 'cp_commande' !== $post->post_type || ! current_user_can( 'edit_post', $post->ID ) ) {
+		return $actions;
+	}
+	$url = cpb_lien_avis( $post->ID );
+	if ( $url ) {
+		$actions['cpb_avis'] = sprintf( '<a href="%s" target="_blank" rel="noopener">%s</a>', esc_url( $url ), esc_html__( 'WhatsApp : demander un avis', 'comptoir-boutique' ) );
+	}
+	return $actions;
+}, 20, 2 );
 
 /** Classe <body> : le CSS du bandeau s'y accroche. */
 add_filter( 'body_class', function ( $classes ) {
