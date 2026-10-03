@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.12.0
+ * Version:           1.13.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.12.0' );
+define( 'CPB_VERSION', '1.13.0' );
 
 /**
  * Mode de diffusion.
@@ -87,6 +87,7 @@ add_action( 'wp_enqueue_scripts', function () {
 	$parfum = ( $slug && function_exists( 'comptoir_produit_by_slug' ) && comptoir_produit_by_slug( $slug ) ) ? $slug : '';
 
 	$cfg_accueil = function_exists( 'comptoir_est_accueil' ) ? comptoir_est_accueil() : is_front_page();
+	$cfg_vedette = function_exists( 'comptoir_vente_demande' ) && comptoir_vente_demande();
 	$cfg = array(
 		'slug'       => $parfum,
 		// Page Vente ouverte sur un parfum (publicite) : il recoit lui aussi
@@ -96,6 +97,7 @@ add_action( 'wp_enqueue_scripts', function () {
 		'home'       => home_url( '/' ),
 		'populaires' => cpb_populaires(),
 		'visuels'    => cpb_visuels(),
+		'maisons'    => ( $parfum || ! empty( $cfg_vedette ) ) ? cpb_maisons_cfg() : array(),
 		'guides'     => ( ! empty( $cfg_accueil ) || $parfum ) ? cpb_guides( 12 ) : array(),
 		'pages'      => array_map( function ( $p ) { return array( 'fr' => $p[0], 'ar' => $p[1], 'url' => $p[2], 'cle' => $p[3] ); }, cpb_pages_info() ),
 		// En apercu, les liens internes gardent le parametre : sans lui, la page
@@ -226,7 +228,7 @@ add_action( 'wp_head', function () {
 		return;
 	}
 	$GLOBALS['cpb_og_tampon'] = false;
-	echo cpb_enrichit_ld( cpb_corrige_og( (string) ob_get_clean() ) ); // phpcs:ignore WordPress.Security.EscapeOutput -- sortie du theme, deja echappee.
+	echo cpb_description_page( cpb_enrichit_ld( cpb_corrige_og( (string) ob_get_clean() ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput -- sortie du theme, deja echappee.
 }, 3 ); // apres les donnees structurees du theme (priorite 2)
 
 /* ══════════════════════════════════════════════════════════════
@@ -283,6 +285,49 @@ function cpb_enrichit_ld( $html ) {
 	}, $html );
 }
 
+/** Nom de maison => adresse de sa page, pour celles qui en ont une. */
+function cpb_maisons_cfg() {
+	$out = array();
+	if ( function_exists( 'comptoir_catalogue_par_maison' ) ) {
+		foreach ( array_keys( comptoir_catalogue_par_maison() ) as $maison ) {
+			$url = cpb_url_maison( $maison );
+			if ( $url ) {
+				$out[ $maison ] = $url;
+			}
+		}
+	}
+	return $out;
+}
+
+/**
+ * Description pour Google des pages et des guides : le theme n'en ecrit
+ * que pour l'accueil, les fiches et ses propres pages. On reprend la
+ * description SEO saisie (Jetpack) ou, a defaut, le resume.
+ */
+function cpb_description_page( $html ) {
+	if ( ! is_singular( array( 'page', 'post' ) ) || false !== stripos( $html, '<meta name="description"' ) ) {
+		return $html;
+	}
+	$id   = get_queried_object_id();
+	$desc = trim( (string) get_post_meta( $id, 'advanced_seo_description', true ) );
+	if ( '' === $desc ) {
+		$desc = trim( wp_strip_all_tags( get_the_excerpt( $id ) ) );
+	}
+	if ( '' === $desc ) {
+		return $html;
+	}
+	$GLOBALS['cpb_description_ecrite'] = true;
+	return '<meta name="description" content="' . esc_attr( wp_html_excerpt( $desc, 300, '…' ) ) . '">' . "\n" . $html;
+}
+
+/* Jetpack (outils SEO) : pas de seconde description si on vient d'en ecrire une. */
+add_filter( 'jetpack_seo_meta_tags', function ( $tags ) {
+	if ( ! empty( $GLOBALS['cpb_description_ecrite'] ) && is_array( $tags ) ) {
+		unset( $tags['description'] );
+	}
+	return $tags;
+} );
+
 /**
  * Les guides publies (categorie « conseils »), du plus recent au plus
  * ancien : titre, resume, adresse, slug. Pour la fiche et l'accueil.
@@ -336,28 +381,112 @@ add_filter( 'get_the_archive_title_prefix', function ( $prefix ) {
 } );
 
 /**
+ * Les parfums d'une selection : par slugs (dans l'ordre donne), par maison
+ * ou par public (Homme, Femme, Mixte). Ordre du catalogue sinon.
+ */
+function cpb_selection( $atts ) {
+	if ( ! function_exists( 'comptoir_produits' ) ) {
+		return array();
+	}
+	$out = array();
+	if ( '' !== trim( (string) $atts['slugs'] ) ) {
+		foreach ( array_filter( array_map( 'trim', explode( ',', (string) $atts['slugs'] ) ) ) as $slug ) {
+			$p = comptoir_produit_by_slug( preg_replace( '/[^a-z0-9-]/', '', strtolower( $slug ) ) );
+			if ( $p ) {
+				$out[] = $p;
+			}
+		}
+		return $out;
+	}
+	$maison = trim( (string) $atts['maison'] );
+	$genre  = trim( (string) $atts['genre'] );
+	if ( '' === $maison && '' === $genre ) {
+		return array();
+	}
+	foreach ( comptoir_produits() as $p ) {
+		if ( '' !== $maison && comptoir_maison_slug( $p['b'] ) !== comptoir_maison_slug( $maison ) ) {
+			continue;
+		}
+		if ( '' !== $genre && strtolower( $p['g'] ) !== strtolower( $genre ) ) {
+			continue;
+		}
+		$out[] = $p;
+	}
+	return $out;
+}
+
+/**
  * [parfums slugs="dior--sauvage-elixir,chanel--coco-mademoiselle"]
+ * [parfums maison="Dior"]  ·  [parfums genre="Homme"]
  * Les cartes du catalogue (memes cartes que l'accueil : photo, maison,
- * nom, prix, lien vers la fiche) au milieu d'un guide. Les slugs inconnus
- * sont ignores.
+ * nom, prix, lien vers la fiche) dans un guide ou une page de collection.
  */
 add_shortcode( 'parfums', function ( $atts ) {
-	if ( ! function_exists( 'comptoir_produit_by_slug' ) || ! function_exists( 'comptoir_carte_produit' ) ) {
+	if ( ! function_exists( 'comptoir_carte_produit' ) ) {
 		return '';
 	}
-	$atts  = shortcode_atts( array( 'slugs' => '' ), $atts, 'parfums' );
-	$slugs = array_filter( array_map( 'trim', explode( ',', (string) $atts['slugs'] ) ) );
-	ob_start();
-	$n = 0;
-	foreach ( $slugs as $slug ) {
-		$p = comptoir_produit_by_slug( preg_replace( '/[^a-z0-9-]/', '', strtolower( $slug ) ) );
-		if ( $p ) {
-			comptoir_carte_produit( $p );
-			$n++;
-		}
+	$liste = cpb_selection( shortcode_atts( array( 'slugs' => '', 'maison' => '', 'genre' => '' ), $atts, 'parfums' ) );
+	if ( ! $liste ) {
+		return '';
 	}
-	$cartes = ob_get_clean();
-	return $n ? '<div class="cat-grille cpb-guide-grille" role="list">' . $cartes . '</div>' : '';
+	ob_start();
+	foreach ( $liste as $p ) {
+		comptoir_carte_produit( $p );
+	}
+	return '<div class="cat-grille cpb-guide-grille" role="list">' . ob_get_clean() . '</div>';
+} );
+
+/**
+ * [collection maison="Dior"] : une phrase tiree du catalogue, toujours a
+ * jour (« 18 parfums, de 349 a 429 DH »), pour l'en-tete d'une page.
+ */
+add_shortcode( 'collection', function ( $atts ) {
+	$liste = cpb_selection( shortcode_atts( array( 'slugs' => '', 'maison' => '', 'genre' => '' ), $atts, 'collection' ) );
+	if ( ! $liste ) {
+		return '';
+	}
+	$prix = array();
+	foreach ( $liste as $p ) {
+		$prix[] = (int) preg_replace( '/[^0-9]/', '', $p['pr'] );
+	}
+	$n   = count( $liste );
+	$txt = sprintf(
+		'%d %s, de %s à %s DH. Testeurs originaux, payés en espèces à la livraison, partout au Maroc.',
+		$n,
+		$n > 1 ? 'parfums' : 'parfum',
+		number_format_i18n( min( $prix ) ),
+		number_format_i18n( max( $prix ) )
+	);
+	return '<p class="cpb-collection-resume">' . esc_html( $txt ) . '</p>';
+} );
+
+/** Adresse de la page d'une maison (/parfums/<maison>/) si elle est publiee. */
+function cpb_url_maison( $maison ) {
+	static $cache = array();
+	$slug = comptoir_maison_slug( $maison );
+	if ( ! array_key_exists( $slug, $cache ) ) {
+		$page           = get_page_by_path( 'parfums/' . $slug );
+		$cache[ $slug ] = ( $page && 'publish' === $page->post_status ) ? get_permalink( $page ) : '';
+	}
+	return $cache[ $slug ];
+}
+
+/**
+ * [maisons] : toutes les maisons du catalogue, avec leur nombre de parfums.
+ * Lien vers la page de la maison si elle existe, vers le catalogue filtre
+ * sinon.
+ */
+add_shortcode( 'maisons', function () {
+	if ( ! function_exists( 'comptoir_catalogue_par_maison' ) ) {
+		return '';
+	}
+	$html = '<ul class="cpb-maisons">';
+	foreach ( comptoir_catalogue_par_maison() as $maison => $liste ) {
+		$url   = cpb_url_maison( $maison );
+		$url   = $url ? $url : home_url( '/#catalogue?maison=' . comptoir_maison_slug( $maison ) );
+		$html .= sprintf( '<li><a href="%s"><span class="pnr-brand">%s</span> <small>%d</small></a></li>', esc_url( $url ), esc_html( $maison ), count( $liste ) );
+	}
+	return $html . '</ul>';
 } );
 
 /**
@@ -371,6 +500,7 @@ function cpb_pages_info() {
 	}
 	$out   = array();
 	$liste = array(
+		'parfums'                   => array( 'Toutes les maisons', 'كل الدور' ),
 		'a-propos'                  => array( 'À propos', 'من نحن' ),
 		'contact'                   => array( 'Contact', 'اتصل بنا' ),
 		'conditions-de-vente'       => array( 'Conditions de vente', 'شروط البيع' ),

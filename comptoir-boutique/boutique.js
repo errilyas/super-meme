@@ -1929,6 +1929,16 @@
      Accueil : les trois derniers guides, avant « Commander maintenant ».
      Rien n'apparait tant que les guides ne sont pas publies.
   ══════════════════════════════════════════════════════════════ */
+  /* Fiche parfum : le nom de la maison mene a sa page (/parfums/<maison>/). */
+  function lienMaison() {
+    var m = CFG.maisons || {};
+    document.querySelectorAll('main.pf .pf-brand, .lp-vedette .pf-brand').forEach(function (el) {
+      var nom = (el.textContent || '').trim();
+      if (!m[nom] || el.querySelector('a')) { return; }
+      el.innerHTML = '<a class="cpb-lien-maison" href="' + esc(m[nom]) + '">' + esc(nom) + '</a>';
+    });
+  }
+
   function guidesSite() {
     var guides = CFG.guides || [];
     if (!guides.length) { return; }
@@ -2110,7 +2120,7 @@
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, guidesSite, bonRetour, merciSecond, rechercheDepuisAdresse, animations].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, guidesSite, bonRetour, merciSecond, rechercheDepuisAdresse, animations].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

@@ -134,6 +134,18 @@ Ce qu'elle ajoute au site, sans modifier le thème :
      juste avant le catalogue.
    Tout reste dans le navigateur du visiteur.
 
+17. PAGES DE COLLECTION (version 1.13.0)
+   Pages WordPress sous /parfums/ (une par maison, une par public), pour
+   que Google trouve « parfum Dior Maroc », « parfum homme »…
+   - [parfums maison="Dior"] ou [parfums genre="Homme"] : les cartes du
+     catalogue, toujours à jour.
+   - [collection maison="Dior"] : « 18 parfums, de 349 à 419 DH… », calculé
+     sur le catalogue.
+   - [maisons] : toutes les maisons, avec leur page ou le catalogue filtré.
+   - Fiche parfum : le nom de la maison mène à sa page si elle existe.
+   - Pages et guides : description pour Google (description SEO saisie,
+     ou le résumé), sans doublon avec Jetpack.
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient

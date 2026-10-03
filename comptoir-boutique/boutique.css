@@ -750,3 +750,14 @@ html.cpb-lock .joinchat{display:none!important}
   .cpb-rappel-detail{margin-bottom:8px}
   .cpb-rappel .cpb-btn-plein{min-height:40px;background:none;border:1px solid rgba(var(--au-rgb),.6);color:var(--ember);box-shadow:none}
 }
+
+/* ── Pages de collection (/parfums/…) ── */
+.cpb-collection-resume{font-size:14px;letter-spacing:.02em;color:var(--ember);margin:0 0 8px}
+.cpb-maisons{list-style:none;margin:18px 0 30px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media(min-width:760px){.cpb-maisons{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.cpb-maisons li{margin:0}
+.cpb-page-corps .cpb-maisons a{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-height:48px;padding:12px 14px;border:1px solid var(--line2);color:var(--bone);text-decoration:none}
+.cpb-page-corps .cpb-maisons a:hover,.cpb-page-corps .cpb-maisons a:focus-visible{border-color:rgba(var(--au-rgb),.6)}
+.cpb-maisons small{color:var(--smoke);font-size:12px}
+.cpb-lien-maison{color:inherit;text-decoration:none;border-bottom:1px solid rgba(var(--au-rgb),.45)}
+.cpb-lien-maison:hover,.cpb-lien-maison:focus-visible{color:var(--bone)}
