@@ -188,7 +188,7 @@ window.CP_DESCRIPTIONS = {
 
   /* Prada */
   'prada--carbon-luna-rossa-edt': 'أروماتي بارد ومعدني، خزامى على نفحة معدن وباتشولي.',
-  'prada--paradigme': 'زهري مشمس ونظيف، نيرولي مضيء ملفوف بمسك ناعم.',
+  'prada--paradigme': 'برغموت مضيء فوق إبرة الراعي الخضراء، ثم أخشاب عنبرية وراتنجية: أنيق وعصري.',
   'prada--paradoxe-intense': 'زهر برتقال Paradoxe مُثقَّل بالفانيليا والعنبر، أكثر ليلية.',
   'prada--paradoxe-radical-essence': 'نيرولي صافٍ ومسكي، بسيط ونظيف، أثر كبشرة ثانية.',
 
