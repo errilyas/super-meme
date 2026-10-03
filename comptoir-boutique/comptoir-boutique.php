@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.8.0
+ * Version:           1.9.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.8.0' );
+define( 'CPB_VERSION', '1.9.0' );
 
 /**
  * Mode de diffusion.
@@ -88,6 +88,9 @@ add_action( 'wp_enqueue_scripts', function () {
 
 	$cfg = array(
 		'slug'       => $parfum,
+		// Page Vente ouverte sur un parfum (publicite) : il recoit lui aussi
+		// la commande express.
+		'vedette'    => ( ! $parfum && function_exists( 'comptoir_vente_demande' ) && comptoir_vente_demande() && function_exists( 'comptoir_vente_vedette' ) && comptoir_vente_vedette() ) ? comptoir_vente_vedette()['s'] : '',
 		'accueil'    => function_exists( 'comptoir_est_accueil' ) ? comptoir_est_accueil() : is_front_page(),
 		'home'       => home_url( '/' ),
 		'populaires' => cpb_populaires(),
@@ -305,6 +308,21 @@ add_filter( 'post_row_actions', function ( $actions, $post ) {
 	}
 	return $actions;
 }, 20, 2 );
+
+/**
+ * Recherche WordPress (/?s=…) : elle cherchait dans les articles du blog,
+ * qui sont vides, et repondait « aucun resultat » a « dior ». On renvoie
+ * vers l'accueil, ou la recherche instantanee s'ouvre avec les memes mots
+ * et cherche dans le catalogue.
+ */
+add_action( 'template_redirect', function () {
+	if ( ! is_search() || is_admin() || ! function_exists( 'comptoir_produits' ) ) {
+		return;
+	}
+	$q = trim( (string) get_search_query( false ) );
+	wp_safe_redirect( home_url( '/' ) . ( '' !== $q ? '#chercher=' . rawurlencode( $q ) : '' ), 302 );
+	exit;
+}, 2 );
 
 /** Classe <body> : le CSS du bandeau s'y accroche. */
 add_filter( 'body_class', function ( $classes ) {

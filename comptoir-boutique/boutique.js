@@ -129,6 +129,12 @@
     'Vos coordonnées de la dernière fois sont reprises.': 'معلوماتك من المرة الماضية معبأة مسبقًا.',
     'Effacer': 'مسح',
     'Informations': 'معلومات',
+    'Bonjour, j’ai passé la commande {ref}. J’aimerais y ajouter {p} ({prix}), avec la livraison offerte. Merci !': 'السلام عليكم، درت الطلب {ref}. بغيت نزيد معاه {p} ({prix})، والتوصيل مجاني. شكرا!',
+    'Un deuxième parfum ?': 'عطر ثانٍ؟',
+    'Avant l’expédition': 'قبل الإرسال',
+    'Ajoutez un deuxième parfum : la livraison devient offerte.': 'أضف عطرًا ثانيًا: يصبح التوصيل مجانيًا.',
+    'Votre colis n’est pas encore parti. Un message suffit, vous économisez {liv}.': 'طردك لم يُرسل بعد. رسالة واحدة تكفي، وتوفّر {liv}.',
+    'Ajouter à ma commande': 'أضف إلى طلبي',
     'En confirmant, vous acceptez nos': 'بتأكيد الطلب، فأنت توافق على',
     'conditions de vente': 'شروط البيع',
     'Livraison estimée : entre {a} et {b}': 'التوصيل المتوقع: بين {a} و{b}',
@@ -1366,8 +1372,8 @@
   }
 
   function expressFiche() {
-    var ref = CFG.slug ? produit(CFG.slug) : null;
-    var buy = document.querySelector('main.pf .pf-buy');
+    var ref = CFG.slug ? produit(CFG.slug) : (CFG.vedette ? produit(CFG.vedette) : null);
+    var buy = document.querySelector('main.pf .pf-buy') || (CFG.vedette ? document.querySelector('.lp-vedette .pf-buy') : null);
     if (!ref || !buy || !P.depose || !P.reference) { return; }
     var ancre = buy.querySelector('.pf-rassure-cta') || buy.querySelector('.pf-actions');
     if (!ancre) { return; }
@@ -1794,6 +1800,70 @@
   }
 
   /* ══════════════════════════════════════════════════════════════
+     REMERCIEMENT : UN DEUXIEME PARFUM AVANT L'EXPEDITION
+     La commande d'un seul flacon paie 35 DH de livraison ; a deux, elle
+     est offerte. Sur la page de remerciement, tant que le colis n'est pas
+     parti, on propose trois parfums proches (d'autres maisons). Le bouton
+     ouvre WhatsApp avec la reference de la commande et le parfum a
+     ajouter : c'est le meme echange que la confirmation, rien d'automatique.
+  ══════════════════════════════════════════════════════════════ */
+  function merciSecond() {
+    var bloc = document.getElementById('ck-merci');
+    if (!bloc || !/[?&]merci=1/.test(location.search) || bloc.querySelector('.cpb-merci-second')) { return; }
+    var cmd = null;
+    try { cmd = JSON.parse(localStorage.getItem('cp_commande_faite') || 'null'); } catch (e) {}
+    if (!cmd || !cmd.t || Date.now() - cmd.t > 6 * 3600 * 1000 || !cmd.ref || !cmd.lignes || !cmd.lignes.length) { return; }
+    var c = P.cfg || {};
+    if (cmd.articles !== 1 || !(cmd.livraison > 0) || !c.wa) { return; }
+    var ref = produit(cmd.lignes[0].s);
+    if (!ref) { return; }
+    var choix = proches(ref, 3).map(function (r) { return r.p; });
+    if (!choix.length) { return; }
+
+    var lien = function (p) {
+      var msg = t('Bonjour, j’ai passé la commande {ref}. J’aimerais y ajouter {p} ({prix}), avec la livraison offerte. Merci !',
+        { ref: cmd.ref, p: p.b + ' ' + p.n, prix: prixTexte(p) });
+      return 'https://wa.me/' + c.wa + '?text=' + encodeURIComponent(msg);
+    };
+    var s = document.createElement('section');
+    s.className = 'cpb cpb-merci-second';
+    s.setAttribute('aria-label', t('Un deuxième parfum ?'));
+    s.innerHTML =
+      '<p class="cpb-titre-petit">' + esc(t('Avant l’expédition')) + '</p>' +
+      '<h3 class="cpb-ms-titre">' + esc(t('Ajoutez un deuxième parfum : la livraison devient offerte.')) + '</h3>' +
+      '<p class="cpb-ms-sous">' + esc(t('Votre colis n’est pas encore parti. Un message suffit, vous économisez {liv}.', { liv: P.fmt(cmd.livraison) })) + '</p>' +
+      '<div class="cpb-ms-liste">' + choix.map(function (p) {
+        return '<div class="cpb-ms-carte">' +
+          '<a class="cpb-ms-photo" href="' + esc(urlFiche(p.s)) + '">' + vignette(p, 'cpb-vignette', 120, 150) + '</a>' +
+          '<div class="cpb-ms-txt"><span class="cpb-ligne-maison">' + maisonHTML(p) + '</span>' +
+            '<span class="cpb-ligne-nom">' + nomHTML(p) + '</span>' +
+            '<span class="cpb-ligne-prix">' + prixTexte(p) + '</span></div>' +
+          '<a class="cpb-ms-go" href="' + esc(lien(p)) + '" target="_blank" rel="noopener">' + SVG.wa + '<span>' + esc(t('Ajouter à ma commande')) + '</span></a>' +
+        '</div>';
+      }).join('') + '</div>';
+    var apres = bloc.querySelector('.ck-merci-detail') || bloc.querySelector('.ck-merci-suite');
+    if (apres && apres.parentNode) { apres.parentNode.insertBefore(s, apres.nextSibling); } else { bloc.appendChild(s); }
+  }
+
+  /* Recherche arrivee de /?s=… (renvoyee par PHP vers /#chercher=…). */
+  function rechercheDepuisAdresse() {
+    var m = /^#chercher=(.*)$/.exec(location.hash || '');
+    if (!m) { return; }
+    var q = '';
+    try { q = decodeURIComponent(m[1].replace(/\+/g, ' ')); } catch (e) { q = m[1]; }
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    setTimeout(function () {
+      ouvrirRecherche();
+      if (champ && q) {
+        champ.value = q;
+        var ev;
+        try { ev = new Event('input', { bubbles: true }); } catch (e) { ev = document.createEvent('Event'); ev.initEvent('input', true, true); }
+        champ.dispatchEvent(ev);
+      }
+    }, 300);
+  }
+
+  /* ══════════════════════════════════════════════════════════════
      LIENS D'INFORMATION
      Pied de page : A propos, Contact, Conditions de vente, Retours,
      Confidentialite (seulement les pages publiees, fournies par PHP).
@@ -1867,7 +1937,7 @@
     });
 
     /* 2. Fiche parfum : un halo dore respire derriere le flacon. */
-    var vis = document.querySelector('main.pf .pf-visual');
+    var vis = document.querySelector('main.pf .pf-visual, .lp-vedette .pf-visual');
     if (vis && !vis.querySelector('.cpb-halo')) {
       var halo = document.createElement('span');
       halo.className = 'cpb-halo';
@@ -1936,7 +2006,7 @@
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, animations].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, merciSecond, rechercheDepuisAdresse, animations].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

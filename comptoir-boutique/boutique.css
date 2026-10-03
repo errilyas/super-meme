@@ -604,14 +604,14 @@ html.cpb-lock .joinchat{display:none!important}
   .cpb-anim .cpb-r.cpb-vu{opacity:1;translate:none}
 
   /* Fiche : le flacon se pose, un halo dore respire derriere */
-  .cpb-anim main.pf .pf-visual img{animation:cpb-pose 1.1s var(--ease-out) both}
+  .cpb-anim main.pf .pf-visual img,.cpb-anim .lp-vedette .pf-visual img{animation:cpb-pose 1.1s var(--ease-out) both}
   .cpb-halo{
     position:absolute;left:50%;top:50%;width:70%;aspect-ratio:1;z-index:0;pointer-events:none;
     translate:-50% -50%;border-radius:50%;
     background:radial-gradient(circle,rgba(var(--au-rgb),.20) 0%,rgba(var(--au-rgb),.07) 42%,transparent 70%);
     animation:cpb-respire 5.5s ease-in-out infinite;
   }
-  main.pf .pf-visual img{z-index:1}
+  main.pf .pf-visual img,.lp-vedette .pf-visual img{z-index:1}
   :root[data-theme="light"] .cpb-halo{background:radial-gradient(circle,rgba(var(--au-rgb),.16) 0%,rgba(var(--au-rgb),.05) 42%,transparent 70%)}
 
   /* Boutons d'achat : un reflet passe de temps en temps */
@@ -674,3 +674,22 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-page-corps .wp-block-button__link{display:inline-flex;align-items:center;min-height:48px;padding:0 24px;border-radius:2px;font-size:13px;letter-spacing:.08em;text-decoration:none}
 /* Le bouton vert WhatsApp des pages avait du texte blanc illisible (contraste 2:1). */
 .cpb-page-corps .wp-block-button__link[style*="25d366"]{color:#08200f!important;font-weight:500}
+
+/* ── Remerciement : deuxieme parfum avant l'expedition ── */
+.cpb-merci-second{margin:28px 0 8px;padding:22px 20px 18px;border:1px solid rgba(var(--au-rgb),.45);background:rgba(var(--au-rgb),.05);text-align:start}
+.cpb-ms-titre{font-family:var(--serif);font-weight:300;font-size:clamp(21px,2.6vw,26px);line-height:1.2;color:var(--bone);margin:6px 0 8px}
+.cpb-ms-sous{font-size:13.5px;line-height:1.6;color:var(--text-dim);margin:0 0 16px}
+.cpb-ms-liste{display:grid;gap:10px}
+.cpb-ms-carte{display:grid;grid-template-columns:64px 1fr;grid-template-areas:"photo txt" "photo go";gap:6px 14px;align-items:center;padding:10px;border:1px solid var(--line2);background:rgba(var(--fg-rgb),.02)}
+.cpb-ms-photo{grid-area:photo}
+.cpb-ms-photo .cpb-vignette{width:64px;height:80px;border:none}
+.cpb-ms-txt{grid-area:txt;display:flex;flex-direction:column;gap:2px;min-width:0}
+.cpb-ms-go{grid-area:go;justify-self:start;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid rgba(var(--au-rgb),.6);border-radius:2px;color:var(--ember);text-decoration:none;font-size:12px;letter-spacing:.08em}
+.cpb-ms-go svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6}
+.cpb-ms-go:hover,.cpb-ms-go:focus-visible{background:rgba(var(--au-rgb),.12);color:var(--bone)}
+@media(min-width:760px){
+  .cpb-ms-liste{grid-template-columns:repeat(3,1fr)}
+  .cpb-ms-carte{grid-template-columns:1fr;grid-template-areas:"photo" "txt" "go";justify-items:start}
+  .cpb-ms-photo .cpb-vignette{width:100%;height:auto;aspect-ratio:4/5}
+  .cpb-ms-photo{width:100%}
+}

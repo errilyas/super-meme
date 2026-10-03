@@ -97,6 +97,17 @@ Ce qu'elle ajoute au site, sans modifier le thème :
      message en français et en darija déjà écrit. À envoyer une fois le
      colis livré.
 
+13. PAGE DE VENTE, REMERCIEMENT, RECHERCHE (version 1.9.0)
+   - Page Vente ouverte sur un parfum (lien de publicité
+     /?vente=1&p=<parfum>) : la commande express en 30 secondes y est
+     aussi, comme sur la fiche.
+   - Page de remerciement, commande d'un seul flacon : « Ajoutez un
+     deuxième parfum, la livraison devient offerte » avec trois parfums
+     proches. Le bouton ouvre WhatsApp avec la référence de la commande et
+     le parfum à ajouter, à traiter avant l'expédition.
+   - /?s=… (recherche WordPress) cherchait dans les articles, vides :
+     elle ouvre maintenant la recherche du catalogue avec les mêmes mots.
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient
