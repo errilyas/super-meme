@@ -125,6 +125,15 @@ Ce qu'elle ajoute au site, sans modifier le thème :
      c'est quoi ? » et « vérifier qu'un parfum est original ».
    - Accueil : les trois derniers guides, avant « Commander maintenant ».
 
+16. BON RETOUR (version 1.12.0)
+   Pour le visiteur qui revient (plus de 30 minutes après sa dernière page) :
+   - panier non vide : un rappel « Votre panier vous attend » (nombre de
+     parfums, total, bouton « Finaliser ma commande »), une seule fois par
+     visite, refermable, qui disparaît seul après 15 secondes ;
+   - accueil : « Vous avez regardé », les derniers parfums consultés,
+     juste avant le catalogue.
+   Tout reste dans le navigateur du visiteur.
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient

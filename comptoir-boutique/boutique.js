@@ -130,6 +130,9 @@
     'Effacer': 'مسح',
     'Informations': 'معلومات',
     'Bon à savoir': 'معلومة مفيدة',
+    'Vous avez regardé': 'شاهدتها من قبل',
+    'Votre panier vous attend': 'سلّتك في انتظارك',
+    'Finaliser ma commande': 'أكمل طلبي',
     'Conseils': 'نصائح',
     'Bien choisir son parfum': 'اختيار عطرك بشكل صحيح',
     'Lire le guide': 'اقرأ الدليل',
@@ -1869,6 +1872,57 @@
   }
 
   /* ══════════════════════════════════════════════════════════════
+     BON RETOUR
+     Un visiteur qui revient (plus de 30 minutes apres sa derniere page)
+     retrouve ce qu'il avait commence :
+     - son panier, s'il n'est pas vide : un rappel discret avec le total et
+       un bouton vers la commande, une seule fois par visite ;
+     - sur l'accueil, les parfums qu'il avait regardes, avant le catalogue.
+     Tout vient du navigateur du visiteur ; rien n'est envoye.
+  ══════════════════════════════════════════════════════════════ */
+  var CLE_VISITE = 'cpb_derniere_page', RETOUR_APRES = 30 * 60 * 1000;
+
+  function bonRetour() {
+    var maintenant = Date.now(), avant = 0;
+    try { avant = parseInt(localStorage.getItem(CLE_VISITE) || '0', 10) || 0; } catch (e) {}
+    try { localStorage.setItem(CLE_VISITE, String(maintenant)); } catch (e) {}
+    var revient = avant > 0 && maintenant - avant > RETOUR_APRES;
+    var dejaVu = false;
+    try { dejaVu = sessionStorage.getItem('cpb_retour_montre') === '1'; } catch (e) {}
+
+    /* 1. Accueil : « Vous avez regarde ». */
+    if (CFG.accueil) {
+      var vus = vusRecemment().map(produit).filter(Boolean).slice(0, 4);
+      var cat = document.getElementById('catalogue');
+      if (vus.length && cat && !document.querySelector('.cpb-retour-vus')) {
+        var w = document.createElement('div');
+        w.className = 'cpb cpb-retour-vus';
+        w.appendChild(blocSibs(t('Vous avez regardé'), vus.map(function (p) { return carteSib(p, null); }).join('')));
+        cat.parentNode.insertBefore(w, cat);
+      }
+    }
+
+    /* 2. Rappel du panier. */
+    var c = P.cfg || {};
+    if (!revient || dejaVu || !P.count() || document.getElementById('ck-form') || !c.commander) { return; }
+    try { sessionStorage.setItem('cpb_retour_montre', '1'); } catch (e) {}
+    var n = P.count();
+    var r = document.createElement('div');
+    r.className = 'cpb cpb-rappel';
+    r.setAttribute('role', 'status');
+    r.innerHTML =
+      '<p class="cpb-rappel-titre">' + esc(t('Votre panier vous attend')) + '</p>' +
+      '<p class="cpb-rappel-detail">' + esc(n > 1 ? t('{n} parfums', { n: n }) : t('1 parfum')) + ' · ' + esc(P.fmt(P.total())) +
+        (P.fraisLivraison && P.fraisLivraison() === 0 ? ' · ' + esc(t('Livraison offerte')) : '') + '</p>' +
+      '<div class="cpb-rappel-actions"><a class="cpb-btn-plein" href="' + esc(c.commander) + '">' + esc(t('Finaliser ma commande')) + '</a>' +
+      '<button type="button" class="cpb-fermer" aria-label="' + esc(t('Fermer')) + '">' + SVG.croix + '</button></div>';
+    document.body.appendChild(r);
+    var ferme = function () { if (r.parentNode) { r.classList.add('cpb-rappel-sort'); setTimeout(function () { if (r.parentNode) { r.parentNode.removeChild(r); } }, 300); } };
+    r.querySelector('.cpb-fermer').addEventListener('click', ferme);
+    setTimeout(ferme, 15000);
+  }
+
+  /* ══════════════════════════════════════════════════════════════
      GUIDES « CONSEILS » SUR LA BOUTIQUE
      Fiche parfum : deux liens vers les guides qui levent les deux doutes
      d'achat (« un testeur, c'est quoi ? », « est-ce un original ? »).
@@ -2056,7 +2110,7 @@
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, guidesSite, merciSecond, rechercheDepuisAdresse, animations].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, guidesSite, bonRetour, merciSecond, rechercheDepuisAdresse, animations].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

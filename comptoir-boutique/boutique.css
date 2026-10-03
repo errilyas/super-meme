@@ -724,3 +724,29 @@ html.cpb-lock .joinchat{display:none!important}
 [data-lang="ar"] .cpb-conseil-lire{letter-spacing:0;font-size:13px}
 .cpb-conseils-tous{margin:20px 0 0}
 .cpb-conseils-tous a{color:var(--ember);font-size:13px;text-underline-offset:3px}
+
+/* ── Bon retour : parfums regardes (accueil) et rappel du panier ── */
+.cpb-retour-vus{max-width:1280px;margin:0 auto;padding:0 72px 8px}
+@media(max-width:860px){.cpb-retour-vus{padding:0 24px 8px}}
+.cpb-retour-vus .pf-block{margin-top:56px}
+.cpb-rappel{
+  position:fixed;z-index:60;left:16px;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));
+  padding:16px 16px 14px;border:1px solid rgba(var(--au-rgb),.55);background:var(--well,#1b1219);
+  box-shadow:0 18px 50px -12px rgba(0,0,0,.6);
+  animation:cpb-entre .45s var(--ease-out) both;
+}
+@media(min-width:901px){.cpb-rappel{left:24px;right:auto;bottom:24px;width:340px}}
+.cpb-rappel-sort{opacity:0;translate:0 12px;transition:opacity .3s,translate .3s}
+.cpb-rappel-titre{font-family:var(--serif);font-weight:300;font-size:21px;line-height:1.2;color:var(--bone);margin:0 0 4px;padding-inline-end:36px}
+.cpb-rappel-detail{font-size:13px;color:var(--text-dim);margin:0 0 12px}
+.cpb-rappel-actions{display:flex;align-items:center;gap:10px}
+.cpb-rappel-actions .cpb-btn-plein{flex:1;min-height:46px;text-decoration:none}
+.cpb-rappel .cpb-fermer{position:absolute;top:8px;inset-inline-end:8px}
+@media(prefers-reduced-motion:reduce){.cpb-rappel{animation:none}}
+/* Telephone : la barre fixe dorée est deja la, le rappel reste sobre. */
+@media(max-width:900px){
+  .cpb-rappel{padding:12px 14px 12px}
+  .cpb-rappel-titre{font-size:18px}
+  .cpb-rappel-detail{margin-bottom:8px}
+  .cpb-rappel .cpb-btn-plein{min-height:40px;background:none;border:1px solid rgba(var(--au-rgb),.6);color:var(--ember);box-shadow:none}
+}
