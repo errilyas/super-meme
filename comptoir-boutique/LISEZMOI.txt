@@ -162,3 +162,9 @@ MODIFIER : la source commentée est dans ce dossier. Pour produire le fichier
 <version>.zip), puis augmenter CPB_VERSION dans comptoir-boutique.php.
 Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
 ?apercu=boutique dans l'adresse.
+
+19. INSTAGRAM (version 1.15.0)
+   Un encadré « Suivez-nous sur Instagram » vers @le_comptoir_parfums
+   apparaît sur la page de remerciement après une commande et en bas de
+   chaque guide (article). Traduit en arabe. Pour changer de compte,
+   modifier la variable INSTA dans boutique.js.

@@ -145,6 +145,9 @@
     'Ajoutez un deuxième parfum : la livraison devient offerte.': 'أضف عطرًا ثانيًا: يصبح التوصيل مجانيًا.',
     'Votre colis n’est pas encore parti. Un message suffit, vous économisez {liv}.': 'طردك لم يُرسل بعد. رسالة واحدة تكفي، وتوفّر {liv}.',
     'Ajouter à ma commande': 'أضف إلى طلبي',
+    'Suivez-nous sur Instagram': 'تابعونا على إنستغرام',
+    'Nouveaux arrivages, conseils et coulisses du Comptoir.': 'وصول عطور جديدة، نصائح وكواليس المتجر.',
+    'Suivre @le_comptoir_parfums': 'تابع @le_comptoir_parfums',
     'En confirmant, vous acceptez nos': 'بتأكيد الطلب، فأنت توافق على',
     'conditions de vente': 'شروط البيع',
     'Livraison estimée : entre {a} et {b}': 'التوصيل المتوقع: بين {a} و{b}',
@@ -269,7 +272,8 @@
     croix: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
     etincelle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></svg>',
     camion: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.5 16.5V6.5h12v10M13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>',
-    wa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'
+    wa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+    insta: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg>'
   };
 
   /* Une photo qui echoue garde sa case : on retire juste le src, la
@@ -1855,6 +1859,27 @@
     if (apres && apres.parentNode) { apres.parentNode.insertBefore(s, apres.nextSibling); } else { bloc.appendChild(s); }
   }
 
+  /* ══════════════════════════════════════════════════════════════
+     INSTAGRAM : UNE INVITATION AUX BONS MOMENTS
+     Apres une commande (le client est content) et en bas des guides
+     (il vient de lire un conseil) : une ligne sobre vers le compte.
+  ══════════════════════════════════════════════════════════════ */
+  var INSTA = 'https://www.instagram.com/le_comptoir_parfums/';
+  function suivreInstagram() {
+    var merci = /[?&]merci=1/.test(location.search) && document.getElementById('ck-merci');
+    var guide = !merci && document.querySelector('body.single-post .cpb-page-article');
+    var bloc = merci || guide;
+    if (!bloc || document.querySelector('.cpb-insta')) { return; }
+    var s = document.createElement('aside');
+    s.className = 'cpb cpb-insta';
+    s.setAttribute('aria-label', t('Suivez-nous sur Instagram'));
+    s.innerHTML = '<span class="cpb-insta-ico">' + SVG.insta + '</span>' +
+      '<span class="cpb-insta-txt"><strong>' + esc(t('Suivez-nous sur Instagram')) + '</strong>' +
+      '<span>' + esc(t('Nouveaux arrivages, conseils et coulisses du Comptoir.')) + '</span></span>' +
+      '<a class="cpb-insta-go" href="' + INSTA + '" target="_blank" rel="noopener">' + esc(t('Suivre @le_comptoir_parfums')) + '</a>';
+    bloc.appendChild(s);
+  }
+
   /* Recherche arrivee de /?s=… (renvoyee par PHP vers /#chercher=…). */
   function rechercheDepuisAdresse() {
     var m = /^#chercher=(.*)$/.exec(location.hash || '');
@@ -2136,7 +2161,7 @@
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, rechercheDepuisAdresse, animations].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, suivreInstagram, rechercheDepuisAdresse, animations].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

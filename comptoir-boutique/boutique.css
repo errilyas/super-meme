@@ -768,3 +768,10 @@ html.cpb-lock .joinchat{display:none!important}
 [data-lang="ar"] .cpb-maisons-titre{letter-spacing:0;font-size:12px}
 .cpb-maisons-rang .cpb-puce{text-decoration:none}
 @media(max-width:700px){.cpb-maisons-rang{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}.cpb-maisons-rang::-webkit-scrollbar{display:none}.cpb-maisons-rang>*{flex:none}}
+.cpb-insta{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin:32px 0 8px;padding:18px 20px;border:1px solid rgba(var(--au-rgb),.35);text-align:start}
+.cpb-insta-ico svg{width:30px;height:30px;fill:none;stroke:var(--ember);stroke-width:1.5}
+.cpb-insta-txt{flex:1 1 200px;display:flex;flex-direction:column;gap:3px}
+.cpb-insta-txt strong{font-weight:500;color:var(--bone)}
+.cpb-insta-txt span{font-size:13px;opacity:.8}
+.cpb-insta-go{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid rgba(var(--au-rgb),.6);border-radius:2px;color:var(--ember);text-decoration:none;font-size:12px;letter-spacing:.08em}
+.cpb-insta-go:hover,.cpb-insta-go:focus-visible{background:rgba(var(--au-rgb),.12);color:var(--bone)}
