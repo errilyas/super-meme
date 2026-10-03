@@ -227,3 +227,6 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    photo s'affiche dans l'avis sur la fiche (cliquable). Les avis sont
    aussi lisibles/créables par l'API REST (/wp-json/wp/v2/cp-avis), champs
    cpa_* réservés aux éditeurs pour l'écriture.
+   (1.20.1) Case « Avis reçu sur WhatsApp » : affiche la mention sous
+   l'avis. On peut mettre en image la capture de la conversation, numéro
+   du client masqué.

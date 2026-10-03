@@ -129,6 +129,7 @@ function cpb_avis_parfum( $slug ) {
 			// Les avis du formulaire viennent forcement d'une commande ; ceux
 			// saisis a la main le sont si la case est cochee.
 			'verifie' => '0' !== (string) get_post_meta( $p->ID, 'cpa_verifie', true ),
+			'source'  => (string) get_post_meta( $p->ID, 'cpa_source', true ),
 		);
 	}
 	$n               = count( $avis );
@@ -183,7 +184,7 @@ add_action( 'wp_footer', function () {
 				'class'    => 'cpb-avis-img',
 				'loading'  => 'lazy',
 				'decoding' => 'async',
-				'alt'      => 'Photo envoyée par ' . ( $a['prenom'] ? $a['prenom'] : 'le client' ),
+				'alt'      => ( 'whatsapp' === $a['source'] ? 'Conversation WhatsApp avec ' : 'Photo envoyée par ' ) . ( $a['prenom'] ? $a['prenom'] : 'le client' ),
 			) );
 			if ( $img ) {
 				echo '<a class="cpb-avis-photo" href="' . esc_url( $grande ) . '" target="_blank" rel="noopener">' . $img . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput -- balise produite par WordPress.
@@ -193,6 +194,10 @@ add_action( 'wp_footer', function () {
 		echo '<p class="cpb-avis-qui">' . esc_html( $qui ) . ( $qui ? ' · ' : '' )
 			. '<time datetime="' . esc_attr( $a['date'] ) . '">' . esc_html( date_i18n( 'j F Y', strtotime( $a['date'] ) ) ) . '</time>'
 			. ( $a['verifie'] ? ' · <span class="cpb-avis-verifie" data-cpb-ar="شراء موثق">Achat vérifié</span>' : '' ) . '</p>';
+		if ( 'whatsapp' === $a['source'] ) {
+			echo '<p class="cpb-avis-source"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'
+				. '<span data-cpb-ar="رأي توصلنا به على واتساب">Avis reçu sur WhatsApp</span></p>';
+		}
 		echo '</li>';
 	}
 	echo '</ul></section>';
@@ -465,7 +470,9 @@ function cpb_avis_boite( $post ) {
 	printf( '<p><label for="cpa_prenom"><strong>Prénom</strong> (publié)</label><br><input id="cpa_prenom" name="cpa_prenom" type="text" maxlength="30" value="%s"></p>', esc_attr( $v( 'cpa_prenom' ) ) );
 	printf( '<p><label for="cpa_ville"><strong>Ville</strong> (publiée)</label><br><input id="cpa_ville" name="cpa_ville" type="text" maxlength="40" value="%s"></p>', esc_attr( $v( 'cpa_ville' ) ) );
 	printf( '<p><label><input type="checkbox" name="cpa_verifie" value="1"%s> Achat vérifié (le client a bien commandé chez nous)</label></p>', checked( $verifie, true, false ) );
-	echo '<p class="description">Le texte de l’avis va dans la grande zone ci-dessus (les mots du client, sans les modifier). La photo du client : « Image mise en avant », à droite. Ne publiez qu’avec l’accord du client, et jamais une photo où l’on voit un numéro ou un visage sans son accord.</p>';
+	$source = $v( 'cpa_source' ) ? $v( 'cpa_source' ) : ( 'auto-draft' === $post->post_status ? 'whatsapp' : '' );
+	printf( '<p><label><input type="checkbox" name="cpa_source_wa" value="1"%s> Avis reçu sur WhatsApp (affiche la mention « Avis reçu sur WhatsApp »)</label></p>', checked( 'whatsapp', $source, false ) );
+	echo '<p class="description">Le texte de l’avis va dans la grande zone ci-dessus (les mots du client, sans les modifier). La photo du client, ou la capture de la conversation WhatsApp avec le numéro masqué : « Image mise en avant », à droite. Ne publiez qu’avec l’accord du client, et jamais une photo où l’on voit un numéro ou un visage sans son accord.</p>';
 }
 
 add_action( 'save_post_cp_avis', function ( $id, $post ) {
@@ -490,8 +497,10 @@ add_action( 'save_post_cp_avis', function ( $id, $post ) {
 		}
 	}
 	update_post_meta( $id, 'cpa_verifie', empty( $_POST['cpa_verifie'] ) ? '0' : '1' );
-	if ( ! get_post_meta( $id, 'cpa_source', true ) ) {
+	if ( ! empty( $_POST['cpa_source_wa'] ) ) {
 		update_post_meta( $id, 'cpa_source', 'whatsapp' );
+	} elseif ( 'whatsapp' === get_post_meta( $id, 'cpa_source', true ) ) {
+		update_post_meta( $id, 'cpa_source', 'manuel' );
 	}
 	// Titre automatique, pour s'y retrouver dans la liste.
 	if ( '' === trim( $post->post_title ) || 'Brouillon auto' === $post->post_title ) {
