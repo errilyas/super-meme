@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.26.0
+ * Version:           1.27.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.26.0' );
+define( 'CPB_VERSION', '1.27.0' );
 
 /**
  * Mode de diffusion.
@@ -105,6 +105,7 @@ add_action( 'wp_enqueue_scripts', function () {
 		'avis'       => function_exists( 'cpb_avis_resume_cfg' ) ? cpb_avis_resume_cfg() : null,
 		'packs'      => ( ! empty( $cfg_accueil ) ) ? cpb_packs_accueil() : ( $parfum ? cpb_packs_de( $parfum ) : array() ),
 		'url_packs'  => ( ( $pk = get_page_by_path( 'packs' ) ) && 'publish' === $pk->post_status ) ? get_permalink( $pk ) : '',
+		'est_packs'  => is_page( 'packs' ),
 		'preuves'    => function_exists( 'cpb_avis_preuves' ) ? cpb_avis_preuves() : array(),
 		// Page Vente ouverte sur un parfum (publicite) : il recoit lui aussi
 		// la commande express.
@@ -857,6 +858,12 @@ function cpb_packs() {
 		array( 'couple', 'Duo Scandal', 'Jean Paul Gaultier, lui et elle.', 'jean-paul-gaultier--scandal-pour-homme-intense', 'jean-paul-gaultier--scandal-edp-pour-femme' ),
 		array( 'couple', 'Duo Yves Saint Laurent', 'Y et Libre, les deux signatures de la maison.', 'yves-saint-laurent--y-edp', 'yves-saint-laurent--libre-le-parfum' ),
 		array( 'couple', 'Duo Armani', 'Acqua di Giò et Sì, en version Parfum.', 'giorgio-armani--acqua-di-gio-parfum', 'giorgio-armani--si-parfum' ),
+		array( 'couple', 'Duo Dylan', 'Dylan Blue pour lui, Dylan Blush pour elle : la même ligne Versace.', 'versace--dylan-blue-pour-homme', 'versace--dylan-blush-pour-femme' ),
+		array( 'couple', 'Duo Armani', 'Stronger With You Absolutely et My Way.', 'emporio-armani--stronger-with-you-absolutely', 'giorgio-armani--my-way-edp' ),
+		array( 'couple', 'Duo Versace', 'Eros pour lui, Bright Crystal pour elle.', 'versace--eros-edp', 'versace--bright-crystal' ),
+		array( 'couple', 'Duo Givenchy', 'Gentleman Réserve Privée et L’Interdit Rouge.', 'givenchy--gentleman-reserve-privee', 'givenchy--linterdit-edp-rouge' ),
+		array( 'couple', 'Duo Prada', 'Luna Rossa Carbon et Paradoxe Intense.', 'prada--carbon-luna-rossa-edt', 'prada--paradoxe-intense' ),
+		array( 'couple', 'Duo YSL soirée', 'MYSLF pour lui, Black Opium pour elle.', 'yves-saint-laurent--myslf-edp', 'yves-saint-laurent--black-opium' ),
 		// Duo Jour & Soir : un frais pour la journee, un intense pour le soir.
 		array( 'jour-soir', 'Jour & Soir homme', 'Acqua di Giò le jour, Sauvage Elixir le soir.', 'giorgio-armani--acqua-di-gio-edp', 'dior--sauvage-elixir' ),
 		array( 'jour-soir', 'Jour & Soir homme', 'Bleu de Chanel le jour, Le Male Elixir le soir.', 'chanel--bleu-de-chanel-parfum', 'jean-paul-gaultier--le-male-elixir' ),
@@ -864,6 +871,20 @@ function cpb_packs() {
 		array( 'jour-soir', 'Jour & Soir femme', 'For Her le jour, La Nuit Trésor le soir.', 'narciso-rodriguez--for-her', 'lancome--la-nuit-tresor-le-parfum' ),
 		array( 'jour-soir', 'Jour & Soir femme', 'Chance Eau Tendre le jour, Black Opium le soir.', 'chanel--chance-eau-tendre', 'yves-saint-laurent--black-opium' ),
 		array( 'jour-soir', 'Jour & Soir femme', 'Light Blue le jour, Born in Roma Intense le soir.', 'dolce-gabbana--light-blue-eau-de-toilette', 'valentino--donna-born-in-roma-intense' ),
+		// Duo oriental : oud, ambre, tabac — mixtes pour la plupart.
+		array( 'oriental', 'Duo Tom Ford', 'Oud Wood et Tobacco Vanille, deux classiques boisés et ambrés.', 'tom-ford--oud-wood', 'tom-ford--tobacco-vanille' ),
+		array( 'oriental', 'Duo Dior Esprit de Parfum', 'Oud Ispahan et Ambre Nuit.', 'dior--oud-ispahan-esprit-de-parfum', 'dior--ambre-nuit-esprit-de-parfum' ),
+		array( 'oriental', 'Duo oud', 'Oudgasm de Kayali et Oud Silk Mood de Maison Francis Kurkdjian.', 'kayali--oudgasm-rose-oud-16-intense', 'maison-francis-kurkdjian--oud-silk-mood-extrait-de-parfum' ),
+		array( 'oriental', 'Duo ambré', 'Naxos de Xerjoff et Oud Minérale de Tom Ford.', 'xerjoff--naxos', 'tom-ford--oud-minerale' ),
+		// Duo mariage : pour les maries, ou en cadeau.
+		array( 'mariage', 'Duo Parfums de Marly', 'Layton pour le marié, Delina pour la mariée.', 'parfums-de-marly--layton', 'parfums-de-marly--delina' ),
+		array( 'mariage', 'Duo Valentino', 'Uomo Intense et Born in Roma Extradose.', 'valentino--uomo-intense', 'valentino--born-in-roma-extradose' ),
+		array( 'mariage', 'Duo prestige', 'Sauvage Elixir et Baccarat Rouge 540.', 'dior--sauvage-elixir', 'maison-francis-kurkdjian--baccarat-rouge-540' ),
+		// Duo mere & fille.
+		array( 'mere-fille', 'Duo Chanel', 'N°5 et Chance Eau Tendre.', 'chanel--n-5-eau-de-parfum', 'chanel--chance-eau-tendre' ),
+		array( 'mere-fille', 'Duo Lancôme', 'La Vie est Belle et Idôle L’Intense.', 'lancome--la-vie-est-belle', 'lancome--idole-lintense' ),
+		array( 'mere-fille', 'Duo Miss Dior', 'Miss Dior Eau de Parfum et Blooming Bouquet.', 'dior--miss-dior-eau-de-parfum', 'dior--miss-dior-blooming-bouquet' ),
+		array( 'mere-fille', 'Duo Kayali', 'Vanilla 28 et Yum Pistachio Gelato.', 'kayali--vanilla-28', 'kayali--yum-pistachio-gelato-33' ),
 	);
 	$remise = function_exists( 'comptoir_remise_duo_dh' ) ? (int) comptoir_remise_duo_dh() : 0;
 	$out    = array();
@@ -891,18 +912,29 @@ function cpb_packs() {
 
 /** Accueil : trois duos couple et trois duos jour & soir, alternes. */
 function cpb_packs_accueil() {
-	$c = array_values( array_filter( cpb_packs(), function ( $p ) { return 'couple' === $p['type']; } ) );
-	$j = array_values( array_filter( cpb_packs(), function ( $p ) { return 'jour-soir' === $p['type']; } ) );
+	$par = array();
+	foreach ( cpb_packs() as $p ) {
+		$par[ $p['type'] ][] = $p;
+	}
+	// Un de chaque type, puis un deuxieme duo couple : six cartes variees.
 	$out = array();
-	foreach ( array( 0, 1, 2 ) as $i ) {
-		if ( isset( $c[ $i ] ) ) {
-			$out[] = $c[ $i ];
-		}
-		if ( isset( $j[ $i * 2 % max( 1, count( $j ) ) ] ) ) {
-			$out[] = $j[ $i * 2 % max( 1, count( $j ) ) ];
+	foreach ( array( array( 'couple', 0 ), array( 'oriental', 0 ), array( 'jour-soir', 0 ), array( 'mariage', 0 ), array( 'mere-fille', 0 ), array( 'couple', 1 ) ) as $c ) {
+		if ( isset( $par[ $c[0] ][ $c[1] ] ) ) {
+			$out[] = $par[ $c[0] ][ $c[1] ];
 		}
 	}
 	return $out;
+}
+
+/** Les types de duos, dans l'ordre d'affichage : cle => [titre de section, etiquette]. */
+function cpb_packs_types() {
+	return array(
+		'couple'     => array( 'Duos couple : lui et elle', 'Duo couple' ),
+		'mariage'    => array( 'Duos mariage', 'Duo mariage' ),
+		'jour-soir'  => array( 'Duos jour & soir', 'Duo jour & soir' ),
+		'oriental'   => array( 'Duos orientaux : oud et ambre', 'Duo oriental' ),
+		'mere-fille' => array( 'Duos mère & fille', 'Duo mère & fille' ),
+	);
 }
 
 function cpb_packs_de( $slug ) {
@@ -919,7 +951,8 @@ function cpb_pack_html( $p ) {
 		return function_exists( 'comptoir_vignette_img' ) ? comptoir_vignette_img( $x, 'cpb-pack-img', 300, 300 ) : '';
 	};
 	$h  = '<article class="cpb-pack" data-type="' . esc_attr( $p['type'] ) . '">';
-	$h .= '<p class="cpb-pack-type">' . esc_html( 'couple' === $p['type'] ? 'Duo couple' : 'Duo jour & soir' ) . '</p>';
+	$types = cpb_packs_types();
+	$h    .= '<p class="cpb-pack-type">' . esc_html( isset( $types[ $p['type'] ] ) ? $types[ $p['type'] ][1] : 'Duo' ) . '</p>';
 	$h .= '<h3 class="cpb-pack-titre">' . esc_html( $p['titre'] ) . '</h3>';
 	$h .= '<div class="cpb-pack-duo">';
 	foreach ( array( $a, $b ) as $x ) {
@@ -942,7 +975,8 @@ add_shortcode( 'packs', function () {
 	$r   = $packs[0]['remise'];
 	$out = '<div class="cpb cpb-packs-page">';
 	$out .= '<p class="cpb-packs-regle">' . esc_html( $r ? sprintf( 'Chaque duo : %d DH de remise et la livraison offerte. La remise s’applique aussi à deux parfums de votre choix, à ajouter au panier.', $r ) : 'Deux parfums : la livraison est offerte.' ) . '</p>';
-	foreach ( array( 'couple' => 'Duos couple : lui et elle', 'jour-soir' => 'Duos jour & soir' ) as $type => $titre ) {
+	foreach ( cpb_packs_types() as $type => $libelles ) {
+		$titre = $libelles[0];
 		$out .= '<h2 class="cpb-packs-h">' . esc_html( $titre ) . '</h2><div class="cpb-packs-grille">';
 		foreach ( $packs as $p ) {
 			if ( $type === $p['type'] ) {

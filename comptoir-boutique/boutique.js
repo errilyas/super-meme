@@ -159,6 +159,10 @@
     'Deux parfums qui vont ensemble : la livraison est offerte.': 'عطران متناسقان: التوصيل مجاني.',
     'Duo couple': 'ثنائي للزوجين',
     'Duo jour & soir': 'ثنائي النهار والليل',
+    'Duo oriental': 'ثنائي شرقي',
+    'Duo mariage': 'ثنائي العرس',
+    'Duo mère & fille': 'ثنائي الأم والبنت',
+    'Duos': 'الثنائيات',
     'Ajouter le duo au panier': 'أضف الثنائي إلى السلة',
     'livraison offerte': 'توصيل مجاني',
     'Voir tous les duos': 'كل الثنائيات',
@@ -2087,6 +2091,33 @@
      les deux parfums au panier (sans doublon) et ouvre le panier : la
      remise « duo » du theme s'y applique d'elle-meme.
   ══════════════════════════════════════════════════════════════ */
+  var PACK_TYPES = { 'couple': 'Duo couple', 'jour-soir': 'Duo jour & soir', 'oriental': 'Duo oriental', 'mariage': 'Duo mariage', 'mere-fille': 'Duo mère & fille' };
+
+  /* Lien « Duos » dans le menu du theme (ordinateur et menu telephone),
+     apres « Catalogue ». */
+  function lienDuosMenu() {
+    if (!CFG.url_packs || document.querySelector('.cpb-nav-duos')) { return; }
+    var ici = CFG.est_packs ? ' aria-current="page"' : '';
+    var ul = document.querySelector('#nav .nav-links');
+    if (ul) {
+      var li = document.createElement('li');
+      li.className = 'cpb-nav-duos';
+      li.innerHTML = '<a href="' + esc(CFG.url_packs) + '"' + ici + '>' + esc(t('Duos')) + '</a>';
+      var cat = [].slice.call(ul.querySelectorAll('a')).filter(function (a) { return /#catalogue/.test(a.getAttribute('href') || ''); })[0];
+      if (cat && cat.parentNode && cat.parentNode.parentNode === ul) { ul.insertBefore(li, cat.parentNode.nextSibling); } else { ul.appendChild(li); }
+    }
+    var mob = document.querySelector('#mob-menu .mob-nav');
+    if (mob) {
+      var a = document.createElement('a');
+      a.className = 'mob-link cpb-nav-duos';
+      a.href = CFG.url_packs;
+      a.setAttribute('data-close', '');
+      a.innerHTML = '<span class="mob-num" aria-hidden="true">✦</span>' + esc(t('Duos'));
+      var mcat = [].slice.call(mob.querySelectorAll('a')).filter(function (x) { return /#catalogue/.test(x.getAttribute('href') || ''); })[0];
+      if (mcat) { mob.insertBefore(a, mcat.nextSibling); } else { mob.appendChild(a); }
+    }
+  }
+
   function packCarte(k) {
     var a = produit(k.a), b = produit(k.b);
     if (!a || !b) { return ''; }
@@ -2098,7 +2129,7 @@
         '<span class="cpb-pack-pp">' + prixTexte(x) + '</span></a>';
     };
     return '<article class="cpb-pack" data-type="' + esc(k.type) + '">' +
-      '<p class="cpb-pack-type">' + esc(t(k.type === 'couple' ? 'Duo couple' : 'Duo jour & soir')) + '</p>' +
+      '<p class="cpb-pack-type">' + esc(t(PACK_TYPES[k.type] || 'Duo couple')) + '</p>' +
       '<div class="cpb-pack-duo">' + pp(a) + pp(b) + '</div>' +
       '<p class="cpb-pack-prix">' + (r ? '<s>' + P.fmt(P.prix(a) + P.prix(b)) + '</s> ' : '') + '<b>' + P.fmt(prix) + '</b> <span>· ' + esc(t('livraison offerte')) + '</span></p>' +
       '<button type="button" class="cpb-pack-go" data-cpb-duo="' + esc(k.a + ',' + k.b) + '">' + esc(t('Ajouter le duo au panier')) + '</button>' +
@@ -2436,7 +2467,7 @@
   }
 
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, merciSuivi, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients, preuvesAvis, visionneuse, packsSite].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, merciSuivi, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients, preuvesAvis, visionneuse, packsSite, lienDuosMenu].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

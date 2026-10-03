@@ -290,3 +290,7 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
      shortcode [packs]. Bouton « Ajouter le duo au panier » : ajoute les
      deux parfums (sans doublon) et ouvre le panier.
    - Bandeau : « Dès 2 parfums : livraison offerte + 50 DH de remise ».
+   (1.27.0) 29 duos : 12 couple, 6 jour & soir, 4 orientaux (oud,
+   ambre), 3 mariage, 4 mère & fille (cpb_packs_types). Accueil : un duo
+   de chaque type + un deuxième duo couple. Lien « Duos » ajouté au menu
+   du haut (ordinateur et téléphone), après « Catalogue ».
