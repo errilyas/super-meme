@@ -149,6 +149,11 @@
     '{n} avis': '{n} آراء',
     '1 avis': 'رأي واحد',
     'Message ou colis d’un client': 'رسالة أو طرد من أحد الزبناء',
+    'Capture de client agrandie': 'صورة زبون مكبّرة',
+    'Agrandir la capture {n} sur {t}': 'تكبير الصورة {n} من {t}',
+    'Capture précédente': 'الصورة السابقة',
+    'Capture suivante': 'الصورة التالية',
+    'Fermer': 'إغلاق',
     'Note moyenne {m} sur 5, {n} avis vérifiés : voir les avis': 'متوسط التقييم {m} من 5، {n} آراء موثقة: عرض الآراء',
     'Nouveaux arrivages, conseils et coulisses du Comptoir.': 'وصول عطور جديدة، نصائح وكواليس المتجر.',
     'Suivre @le_comptoir_parfums': 'تابع @le_comptoir_parfums',
@@ -1945,6 +1950,79 @@
     }
   }
 
+  /* ══════════════════════════════════════════════════════════════
+     VISIONNEUSE : LES CAPTURES CLIENTS EN GRAND
+     Dans « Ils ont recu leur parfum », les cartes sont recadrees en 4:3 :
+     la conversation entiere ne se lisait pas. Un toucher (ou Entree)
+     l'ouvre en plein ecran ; fleches, glissement du doigt, Echap. Meme
+     chose pour la photo d'un avis sur la fiche.
+  ══════════════════════════════════════════════════════════════ */
+  var visio = null, visioListe = [], visioI = 0;
+  function visioMontre(i) {
+    if (!visioListe.length) { return; }
+    visioI = (i + visioListe.length) % visioListe.length;
+    var img = visio.querySelector('.cpb-visio-img');
+    img.src = visioListe[visioI];
+    var n = visio.querySelector('.cpb-visio-n');
+    n.textContent = visioListe.length > 1 ? (visioI + 1) + ' / ' + visioListe.length : '';
+    visio.querySelector('.cpb-visio-prec').hidden = visio.querySelector('.cpb-visio-suiv').hidden = visioListe.length < 2;
+  }
+  function visioOuvre(liste, i) {
+    if (!visio) {
+      visio = creeCalque('cpb-visio', t('Capture de client agrandie'));
+      visio.innerHTML =
+        '<button type="button" class="cpb-visio-fermer" aria-label="' + esc(t('Fermer')) + '">' + SVG.croix + '</button>' +
+        '<button type="button" class="cpb-visio-prec" aria-label="' + esc(t('Capture précédente')) + '"><span aria-hidden="true">‹</span></button>' +
+        '<figure class="cpb-visio-fig"><img class="cpb-visio-img" alt="' + esc(t('Message ou colis d’un client')) + '"><figcaption class="cpb-visio-n"></figcaption></figure>' +
+        '<button type="button" class="cpb-visio-suiv" aria-label="' + esc(t('Capture suivante')) + '"><span aria-hidden="true">›</span></button>';
+      var sens = document.documentElement.dir === 'rtl' ? -1 : 1;
+      visio.querySelector('.cpb-visio-fermer').addEventListener('click', function () { fermer(); });
+      visio.querySelector('.cpb-visio-prec').addEventListener('click', function () { visioMontre(visioI - 1); });
+      visio.querySelector('.cpb-visio-suiv').addEventListener('click', function () { visioMontre(visioI + 1); });
+      visio.querySelector('.cpb-visio-fig').addEventListener('click', function (e) { if (e.target.tagName !== 'IMG') { fermer(); } });
+      visio.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); visioMontre(visioI - sens); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); visioMontre(visioI + sens); }
+      });
+      var x0 = null, y0 = 0;
+      visio.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+      visio.addEventListener('touchend', function (e) {
+        if (x0 === null) { return; }
+        var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+        x0 = null;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { visioMontre(visioI + (dx < 0 ? 1 : -1) * sens); }
+        else if (dy > 90 && Math.abs(dy) > Math.abs(dx) * 1.5) { fermer(); }
+      });
+    }
+    visioListe = liste;
+    visioMontre(i);
+    ouvrir(visio, '.cpb-visio-fermer');
+  }
+  function visionneuse() {
+    var rangs = document.querySelectorAll('.preuves-rang');
+    for (var r = 0; r < rangs.length; r++) {
+      (function (rang) {
+        var figs = [].slice.call(rang.querySelectorAll('.preuve'));
+        var srcs = figs.map(function (f) { var im = f.querySelector('img'); return im ? (im.currentSrc || im.src) : ''; });
+        figs.forEach(function (f, i) {
+          if (!srcs[i] || f.hasAttribute('data-cpb-visio')) { return; }
+          f.setAttribute('data-cpb-visio', '');
+          f.setAttribute('role', 'button');
+          f.setAttribute('tabindex', '0');
+          f.setAttribute('aria-label', t('Agrandir la capture {n} sur {t}', { n: i + 1, t: figs.length }));
+          var go = function () { visioOuvre(srcs, i); };
+          f.addEventListener('click', go);
+          f.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+        });
+      })(rangs[r]);
+    }
+    var photos = [].slice.call(document.querySelectorAll('.cpb-avis-photo'));
+    var ps = photos.map(function (a) { return a.href; });
+    photos.forEach(function (a, i) {
+      a.addEventListener('click', function (e) { e.preventDefault(); visioOuvre(ps, i); });
+    });
+  }
+
   /* Recherche arrivee de /?s=… (renvoyee par PHP vers /#chercher=…). */
   function rechercheDepuisAdresse() {
     var m = /^#chercher=(.*)$/.exec(location.hash || '');
@@ -2234,7 +2312,7 @@
   }
 
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients, preuvesAvis].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients, preuvesAvis, visionneuse].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

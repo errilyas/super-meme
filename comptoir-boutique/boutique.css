@@ -841,3 +841,21 @@ html.cpb-lock .joinchat{display:none!important}
    montre le haut (en-tete de la conversation et photo). */
 .preuves-rang{overflow-anchor:none}
 .preuve[data-cpb-preuve] img{object-position:center top}
+
+/* ══════════════════════════════════════════
+   VISIONNEUSE (captures clients en grand)
+══════════════════════════════════════════ */
+.cpb-visio{align-items:center;justify-content:center;background:rgba(6,2,8,.92);padding:0}
+.cpb-visio-fig{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;max-width:94vw}
+.cpb-visio-img{display:block;max-width:94vw;max-height:84vh;width:auto;height:auto;object-fit:contain;border-radius:12px;box-shadow:0 30px 80px -30px rgba(0,0,0,.9)}
+.cpb-visio-n{font-size:12px;letter-spacing:.2em;color:rgba(245,240,232,.75)}
+.cpb-visio button{position:absolute;display:flex;align-items:center;justify-content:center;width:48px;height:48px;border:1px solid rgba(var(--au-rgb),.45);border-radius:50%;background:rgba(10,4,12,.6);color:#f5f0e8;cursor:pointer;font-size:30px;line-height:1;padding:0}
+.cpb-visio button:hover,.cpb-visio button:focus-visible{border-color:var(--amber);color:var(--amber)}
+.cpb-visio button[hidden]{display:none}
+.cpb-visio button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6}
+.cpb-visio-fermer{top:max(14px,env(safe-area-inset-top));inset-inline-end:14px}
+.cpb-visio-prec{inset-inline-start:10px;top:50%;transform:translateY(-50%)}
+.cpb-visio-suiv{inset-inline-end:10px;top:50%;transform:translateY(-50%)}
+[dir="rtl"] .cpb-visio-prec span,[dir="rtl"] .cpb-visio-suiv span{display:inline-block;transform:scaleX(-1)}
+.preuve[data-cpb-visio]{cursor:zoom-in}
+.preuve[data-cpb-visio]:focus-visible{outline:2px solid var(--amber);outline-offset:3px}

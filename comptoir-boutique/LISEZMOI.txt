@@ -236,3 +236,9 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    image mise en avant, s'ajoute en tête de la rangée de captures du
    thème (accueil, fiches, page vente), les plus récents d'abord. Pas
    besoin de déposer l'image dans le thème.
+
+27. VISIONNEUSE DES CAPTURES CLIENTS (version 1.22.0)
+   Dans « Ils ont reçu leur parfum », chaque capture se touche (ou Entrée
+   au clavier) pour s'ouvrir en plein écran, entière : flèches, glissement
+   du doigt à gauche/droite, glisser vers le bas ou Échap pour fermer.
+   Compteur « 2 / 5 ». La photo d'un avis sur la fiche s'ouvre de même.
