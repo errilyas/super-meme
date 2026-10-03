@@ -146,6 +146,9 @@
     'Votre colis n’est pas encore parti. Un message suffit, vous économisez {liv}.': 'طردك لم يُرسل بعد. رسالة واحدة تكفي، وتوفّر {liv}.',
     'Ajouter à ma commande': 'أضف إلى طلبي',
     'Suivez-nous sur Instagram': 'تابعونا على إنستغرام',
+    '{n} avis': '{n} آراء',
+    '1 avis': 'رأي واحد',
+    'Note moyenne {m} sur 5, {n} avis vérifiés : voir les avis': 'متوسط التقييم {m} من 5، {n} آراء موثقة: عرض الآراء',
     'Nouveaux arrivages, conseils et coulisses du Comptoir.': 'وصول عطور جديدة، نصائح وكواليس المتجر.',
     'Suivre @le_comptoir_parfums': 'تابع @le_comptoir_parfums',
     'En confirmant, vous acceptez nos': 'بتأكيد الطلب، فأنت توافق على',
@@ -1880,6 +1883,38 @@
     bloc.appendChild(s);
   }
 
+  /* ══════════════════════════════════════════════════════════════
+     AVIS CLIENTS VERIFIES (avis.php)
+     La section est imprimee par PHP en bas de page (lisible sans
+     JavaScript) ; on la remonte avant « La fiche », et on pose sous le nom
+     du parfum un lien « ★ 4,8 · 12 avis » vers elle. Sans avis publie,
+     rien du tout : pas d'etoiles vides.
+     Les textes poses par PHP portent leur traduction (data-cpb-ar).
+  ══════════════════════════════════════════════════════════════ */
+  function avisClients() {
+    if (AR) {
+      var tr = document.querySelectorAll('[data-cpb-ar]');
+      for (var i = 0; i < tr.length; i++) { tr[i].textContent = tr[i].getAttribute('data-cpb-ar'); }
+      var ph = document.querySelectorAll('[data-cpb-ar-ph]');
+      for (var j = 0; j < ph.length; j++) { ph[j].setAttribute('placeholder', ph[j].getAttribute('data-cpb-ar-ph')); }
+    }
+    var sec = document.getElementById('avis');
+    var main = document.querySelector('main.pf');
+    if (!sec || !main || !sec.classList.contains('cpb-avis')) { return; }
+    var avant = main.querySelector('.pf-block');
+    if (avant) { main.insertBefore(sec, avant); } else { main.appendChild(sec); }
+    var r = CFG.avis, h1 = main.querySelector('.pf-name');
+    if (!r || !r.n || !h1 || main.querySelector('.cpb-avis-lien')) { return; }
+    var m = String(r.moy).replace('.', ',');
+    var a = document.createElement('a');
+    a.className = 'cpb-avis-lien';
+    a.href = '#avis';
+    a.setAttribute('aria-label', t('Note moyenne {m} sur 5, {n} avis vérifiés : voir les avis', { m: m, n: r.n }));
+    a.innerHTML = '<span class="cpb-etoiles" aria-hidden="true"><span>★★★★★</span><span class="cpb-etoiles-pleines" style="width:' + Math.max(0, Math.min(100, r.moy / 5 * 100)) + '%">★★★★★</span></span>' +
+      '<span aria-hidden="true"><b>' + esc(m) + '</b> · ' + esc(r.n > 1 ? t('{n} avis', { n: r.n }) : t('1 avis')) + '</span>';
+    h1.parentNode.insertBefore(a, h1.nextSibling);
+  }
+
   /* Recherche arrivee de /?s=… (renvoyee par PHP vers /#chercher=…). */
   function rechercheDepuisAdresse() {
     var m = /^#chercher=(.*)$/.exec(location.hash || '');
@@ -2169,7 +2204,7 @@
   }
 
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

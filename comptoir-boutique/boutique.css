@@ -784,3 +784,51 @@ html.cpb-lock .joinchat{display:none!important}
   .joinchat{transition:opacity .3s,visibility .3s}
   body.a-cta-fixe:has(.cta-fixe:not(.repli):not(.cpb-cache)) .joinchat{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
 }
+
+/* ══════════════════════════════════════════
+   AVIS CLIENTS VERIFIES (avis.php)
+══════════════════════════════════════════ */
+.cpb-avis .screen-reader-text,.cpb-avis-form .screen-reader-text{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cpb-etoiles{position:relative;display:inline-block;line-height:1;letter-spacing:.12em;color:rgba(var(--au-rgb),.28);vertical-align:-1px}
+.cpb-etoiles-pleines{position:absolute;inset:0 auto 0 0;overflow:hidden;white-space:nowrap;color:var(--amber)}
+[dir="rtl"] .cpb-etoiles-pleines{inset:0 0 0 auto}
+.cpb-avis-lien{display:inline-flex;align-items:center;gap:10px;margin:10px 0 4px;color:var(--fg,inherit);text-decoration:none;font-size:13px;opacity:.9}
+.cpb-avis-lien b{font-weight:500;color:var(--amber)}
+.cpb-avis-lien:hover,.cpb-avis-lien:focus-visible{opacity:1;text-decoration:underline;text-underline-offset:4px}
+.cpb-avis-moy{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 22px;font-size:15px}
+.cpb-avis-moy .cpb-etoiles{font-size:20px}
+.cpb-avis-moy strong{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--amber)}
+.cpb-avis-liste{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.cpb-avis-item{padding:18px 20px;border:1px solid rgba(var(--au-rgb),.22);text-align:start}
+.cpb-avis-note{margin:0 0 8px;font-size:15px}
+.cpb-avis-texte{margin:0 0 10px;padding:0;border:0;font-family:var(--serif);font-size:19px;line-height:1.45;font-style:italic}
+.cpb-avis-texte p{margin:0}
+.cpb-avis-qui{margin:0;font-size:12px;letter-spacing:.04em;color:var(--text-dim,inherit)}
+.cpb-avis-verifie{color:var(--ember)}
+
+/* Page du formulaire */
+.cpb-avis-page,.cpb-avis-page p,.cpb-avis-page label,.cpb-avis-page legend{text-align:start}
+.cpb-avis-page .cpb-avis-form{max-width:640px}
+.cpb-avis-page h1{font-family:var(--serif);font-weight:400;font-size:clamp(32px,7vw,48px);line-height:1.1;margin:10px 0 14px}
+.cpb-avis-intro{opacity:.85;margin:0 0 26px;line-height:1.6}
+.cpb-avis-erreur{padding:12px 14px;border:1px solid #c0533d;color:inherit;margin:0 0 20px}
+.cpb-avis-form{display:grid;gap:14px}
+.cpb-avis-piege{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+.cpb-avis-parfum{margin:0;padding:18px 18px 16px;border:1px solid rgba(var(--au-rgb),.3);min-width:0}
+.cpb-avis-parfum legend{padding:0 6px;font-size:15px}
+.cpb-avis-maison{display:inline;margin-inline-end:8px;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--amber)}
+.cpb-avis-nom{font-family:var(--serif);font-size:22px}
+/* Etoiles : 5 -> 1 dans le HTML, affichees 1 -> 5 ; le survol et la
+   selection colorent l'etoile et celles « avant » elle. */
+.cpb-avis-choix{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:4px;margin:6px 0 12px}
+.cpb-avis-choix input{position:absolute;opacity:0;width:1px;height:1px}
+.cpb-avis-choix label{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;font-size:30px;line-height:1;cursor:pointer;color:rgba(var(--au-rgb),.3);transition:color .15s,transform .15s}
+.cpb-avis-choix label:hover,.cpb-avis-choix label:hover~label,.cpb-avis-choix input:checked~label{color:var(--amber)}
+.cpb-avis-choix input:focus-visible+label{outline:2px solid var(--amber);outline-offset:2px}
+.cpb-avis-choix label:active{transform:scale(.9)}
+.cpb-avis-lab{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.8;margin:4px 0 6px}
+.cpb-avis-form textarea,.cpb-avis-form input[type="text"]{width:100%;box-sizing:border-box;padding:12px 14px;font:inherit;font-size:16px;color:inherit;background:transparent;border:1px solid rgba(var(--au-rgb),.35);border-radius:2px}
+.cpb-avis-form textarea:focus,.cpb-avis-form input[type="text"]:focus{outline:none;border-color:var(--amber)}
+.cpb-avis-go{margin-top:8px;min-height:52px;padding:0 24px;border:0;border-radius:2px;background:var(--ember);color:var(--ink);font:inherit;font-size:12px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer}
+.cpb-avis-go:hover,.cpb-avis-go:focus-visible{filter:brightness(1.08)}
+.cpb-avis-retour{color:var(--amber)}

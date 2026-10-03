@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.18.1
+ * Version:           1.19.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.18.1' );
+define( 'CPB_VERSION', '1.19.0' );
 
 /**
  * Mode de diffusion.
@@ -32,6 +32,8 @@ define( 'CPB_VERSION', '1.18.1' );
  * On passe d'abord en apercu, on verifie sur le vrai site, puis on bascule.
  */
 define( 'CPB_MODE', 'en-ligne' );
+
+require_once __DIR__ . '/avis.php';
 
 /** Vrai si l'extension doit agir sur la page servie. */
 function cpb_actif() {
@@ -98,6 +100,7 @@ add_action( 'wp_enqueue_scripts', function () {
 	$cfg_vedette = function_exists( 'comptoir_vente_demande' ) && comptoir_vente_demande();
 	$cfg = array(
 		'slug'       => $parfum,
+		'avis'       => function_exists( 'cpb_avis_resume_cfg' ) ? cpb_avis_resume_cfg() : null,
 		// Page Vente ouverte sur un parfum (publicite) : il recoit lui aussi
 		// la commande express.
 		'vedette'    => ( ! $parfum && function_exists( 'comptoir_vente_demande' ) && comptoir_vente_demande() && function_exists( 'comptoir_vente_vedette' ) && comptoir_vente_vedette() ) ? comptoir_vente_vedette()['s'] : '',
@@ -287,6 +290,9 @@ function cpb_enrichit_ld( $html ) {
 				);
 			}
 			$d['offers'] = $o;
+			if ( function_exists( 'cpb_avis_ld' ) ) {
+				$d = cpb_avis_ld( $d );
+			}
 		} elseif ( 'Store' === $d['@type'] && empty( $d['sameAs'] ) ) {
 			$d['sameAs'] = array( 'https://www.instagram.com/le_comptoir_parfums', 'https://www.facebook.com/profile.php?id=61573721267555' );
 		}
@@ -552,11 +558,21 @@ function cpb_lien_avis( $id ) {
 	}
 	$nom    = trim( (string) get_post_meta( $id, 'cp_nom', true ) );
 	$prenom = $nom ? preg_split( '/\s+/u', $nom )[0] : '';
-	$msg    = sprintf(
-		"Bonjour%s, c'est Le Comptoir des Parfums. Votre parfum vous plaît ? Un petit mot (et une photo si vous voulez) nous aiderait beaucoup. Merci !\n\nالسلام%s، عجبك العطر؟ عطينا رأيك (وتصويرة إلا بغيتي). شكرا بزاف!",
-		$prenom ? ' ' . $prenom : '',
-		$prenom ? ' ' . $prenom : ''
-	);
+	$lien   = function_exists( 'cpb_url_avis' ) && cpb_avis_parfums_commande( $id ) ? cpb_url_avis( $id ) : '';
+	if ( $lien ) {
+		$msg = sprintf(
+			"Bonjour%s, c'est Le Comptoir des Parfums. Votre parfum vous plaît ? Votre avis aide les prochains clients à choisir (30 secondes). Merci !\n\nالسلام%s، عجبك العطر؟ رأيك كيعاون الزبناء الآخرين (30 ثانية). شكرا بزاف!\n\n%s",
+			$prenom ? ' ' . $prenom : '',
+			$prenom ? ' ' . $prenom : '',
+			$lien
+		);
+	} else {
+		$msg = sprintf(
+			"Bonjour%s, c'est Le Comptoir des Parfums. Votre parfum vous plaît ? Un petit mot (et une photo si vous voulez) nous aiderait beaucoup. Merci !\n\nالسلام%s، عجبك العطر؟ عطينا رأيك (وتصويرة إلا بغيتي). شكرا بزاف!",
+			$prenom ? ' ' . $prenom : '',
+			$prenom ? ' ' . $prenom : ''
+		);
+	}
 	return 'https://wa.me/' . $tel . '?text=' . rawurlencode( $msg );
 }
 

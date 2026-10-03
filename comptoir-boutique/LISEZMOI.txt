@@ -204,3 +204,18 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    La bulle WhatsApp de Joinchat recouvrait le bouton WhatsApp de la barre
    « Commander » (en bas à droite). Tant que la barre est affichée, la
    bulle s'efface ; elle revient quand la barre se replie.
+
+24. AVIS CLIENTS VÉRIFIÉS (version 1.19.0) — avis.php
+   - Seuls les acheteurs peuvent donner leur avis : dans Commandes, le
+     lien « WhatsApp : demander un avis » envoie au client un message avec
+     son lien personnel (/?avis=<commande>&k=<clé signée>).
+   - Le formulaire liste les parfums de SA commande : étoiles (1 à 5) et un
+     mot facultatif, prénom prérempli. Renvoyer le formulaire met à jour
+     l'avis au lieu d'en créer un second.
+   - Chaque avis arrive « En attente » dans le menu « Avis clients » (pastille
+     avec le nombre à relire). Il n'apparaît sur la fiche qu'une fois
+     PUBLIÉ par vous.
+   - Fiche parfum : section « Avis clients » (note moyenne, avis avec
+     prénom, ville, date, « Achat vérifié ») et lien « ★ 4,8 · 12 avis »
+     sous le nom. Données structurées Google : aggregateRating + review.
+   - Sans avis publié : rien n'est affiché, aucune étoile.
