@@ -1,201 +1,175 @@
 # Semaine 1 · textes prêts à publier
 
-Règles appliquées partout (profil de voix) : prix en DH, paiement à la réception
-rappelé dès qu'on parle d'achat, une seule action demandée, 0 à 2 emoji, un « ! »
-maximum, aucune durée de tenue promise, aucun avis inventé, hashtags en premier
-commentaire. Rien n'est publié sans votre validation.
+Règles appliquées partout (profil de voix) :
+- le prix en DH ;
+- le paiement à la réception rappelé dès qu'on parle d'achat ;
+- une seule action demandée par post ;
+- 0 à 2 emoji, un « ! » au maximum ;
+- aucune durée de tenue promise, aucun avis inventé ;
+- les hashtags en premier commentaire.
 
-Hashtags : tailles estimées, pas mesurées. Pour les vérifier avant publication,
-lancer `ig-audience-insights` sur chaque mot-dièse (demande une clé Apify).
+Rien n'est publié sans votre validation. Les prix et les notes viennent du
+catalogue du site (`comptoir-parfums/produits.php`).
 
----
-
-## Lun 5 · Reel · « La boîte blanche »
-
-Formule IG9 (Pattern-Interrupt) · objectif : partages · 20:00 · 12 à 18 secondes
-
-**Script**
-
-| Temps | Image | Texte à l'écran | Voix (facultative) |
-|---|---|---|---|
-| 0-2 s | Gros plan : une boîte blanche, mot « TESTER » bien lisible | « Ça, c'est un faux ? » | « Ça, c'est un faux ? » |
-| 2-5 s | On ouvre, on sort le flacon plein | « Non. C'est le flacon que la maison fait pour ses propres comptoirs. » | |
-| 5-9 s | Doigt sur le code gravé sous le flacon | « Le code de lot est là. Tape-le sur CheckFresh. » | « Le code de lot, tu le vérifies toi-même. » |
-| 9-13 s | Flacon à côté d'un coffret de boutique (si vous en avez un) | « Même jus. Pas le coffret. » | |
-| 13-16 s | Logo sceau sur fond aubergine | « Tu paies à la livraison, colis en main. » | |
-
-Son : musique tendance calme (choisir dans l'appli au moment de publier).
-
-**Légende**
-
-```
-Une boîte blanche marquée « Tester », et tout le monde pense contrefaçon.
-
-C'est l'inverse : le testeur, c'est le flacon que Dior, Chanel ou Tom Ford fabriquent pour faire sentir leurs parfums en boutique.
-Même jus, même concentration. Flacon plein et neuf.
-
-Ce qui change : pas de coffret.
-Et chaque flacon garde son code de lot, que tu peux vérifier sur CheckFresh.
-
-Envoie ça à la personne qui n'achète jamais en ligne 📦
-```
-
-**Premier commentaire** : `#testeurparfum #parfummaroc #parfumcasablanca #parfumhomme`
+Les tailles de hashtags sont estimées, pas mesurées.
 
 ---
 
-## Mar 6 · Carrousel · « 4 idées reçues sur les testeurs »
+## Lun 5 · Reel · Le Male Elixir, version soirée
 
-Formule IG7 (Myth-Buster) · objectif : partages + enregistrements · 12:30 · 7 slides
-
-| Slide | Texte |
-|---|---|
-| 1 | **Testeur de parfum :** 4 choses qu'on croit, et qui sont fausses |
-| 2 | ❌ « C'est une contrefaçon. » · Non : c'est un flacon officiel de la maison, fait pour ses comptoirs. |
-| 3 | ❌ « C'est un flacon déjà entamé. » · Non : il arrive plein et neuf, avec son bouchon. |
-| 4 | ❌ « Le jus est plus léger. » · Non : même parfum, même concentration que le flacon du rayon. |
-| 5 | ❌ « Impossible de vérifier. » · Le code de lot est sous le flacon. Tape-le sur CheckFresh : il te donne la date de fabrication. |
-| 6 | **Alors, qu'est-ce qui change ?** La boîte. Blanche au lieu du coffret de luxe. C'est pour ça que le prix baisse. |
-| 7 | Garde ce post pour la prochaine fois qu'on te dit « testeur = faux ». · @le_comptoir_parfums |
-
-Visuel : fond aubergine #150a12, texte ivoire #e8dfc8, un mot clé en or par slide.
-
-**Légende**
-
-```
-« Testeur » fait peur à beaucoup de gens. Ces 4 idées reçues expliquent pourquoi.
-
-Une seule chose change vraiment : l'emballage. Le reste (le jus, la concentration, le flacon) vient de la maison.
-
-Une question sur les testeurs ? Pose-la en commentaire, on répond à toutes.
-```
-
-**Premier commentaire** : `#testeurparfum #testeurorigine #parfummaroc #conseilparfum`
-
----
-
-## Mer 7 · Stories · « Tobacco Vanille ou Oud Wood ? »
-
-| Écran | Contenu |
-|---|---|
-| 1 | Photo des deux flacons côte à côte · sticker sondage « Ce soir, tu portes lequel ? » Tobacco Vanille / Oud Wood |
-| 2 | Tobacco Vanille, Tom Ford · tabac blond, vanille, fruits secs · 369 DH |
-| 3 | Oud Wood, Tom Ford · oud, cardamome, santal, tonka · 349 DH |
-| 4 (le soir) | Résultat du sondage · « Tu hésites encore ? 4 questions et on te propose 3 parfums. » · sticker lien vers https://comptoirparfums.com/#trouver-mon-parfum |
-
----
-
-## Jeu 8 · Carrousel · « 5 parfums pour la première soirée fraîche »
-
-Formule IG5 (Listicle) · objectif : enregistrements · 12:00 · 7 slides
-
-| Slide | Texte |
-|---|---|
-| 1 | **Première soirée fraîche d'octobre.** 5 parfums qui tiennent compagnie. |
-| 2 | **Le Male Elixir** · Jean Paul Gaultier · lavande, miel, tabac · pour lui · 319 DH |
-| 3 | **Tobacco Vanille** · Tom Ford · tabac blond et vanille, fauteuil en cuir · mixte · 369 DH |
-| 4 | **Oud Wood** · Tom Ford · oud fumé mais lisse, cardamome, tonka · mixte · 349 DH |
-| 5 | **Black Opium Over Red** · Yves Saint Laurent · cerise noire, café, vanille · pour elle · 359 DH |
-| 6 | **Marrakesh Orange Blossom 24** · Kayali · fleur d'oranger miellée, vanille · pour elle · 369 DH |
-| 7 | Enregistre pour le premier soir où tu sors une veste. · Livraison offerte dès le deuxième parfum · Paiement à la livraison |
-
-Visuel : une photo produit par slide (`comptoir-parfums/img/produits/`), prix en bas à droite.
-
-**Légende**
-
-```
-Le premier soir où il faut une veste, le parfum d'été ne suit plus.
-
-5 parfums chauds pour octobre, de 319 à 369 DH. Deux pour lui, deux pour elle, un pour les deux.
-
-Si tu en prends deux, la livraison est offerte. Tu paies à la réception.
-Tout est sur comptoirparfums.com ✨
-```
-
-**Premier commentaire** : `#parfumautomne #parfummaroc #tomfordparfum #parfumfemme #parfumhomme`
-
----
-
-## Ven 9 · Image seule · « Le troisième parfum »
-
-Formule IG3 (Relatable) · objectif : commentaires · 13:00
-
-Visuel : 6 mouillettes en éventail sur fond aubergine, une seule nette au premier plan.
-
-**Légende**
-
-```
-sentir un parfum en boutique, puis un deuxième, puis un troisième.. et ne plus rien sentir du tout.
-
-Le nez sature vite. Après trois ou quatre parfums, tout se ressemble.
-C'est pour ça qu'on a fait un quiz de 4 questions : il te propose 3 parfums, avec les notes qui expliquent pourquoi.
-
-Et toi, tu tiens combien de parfums avant de saturer ? 👇
-```
-
-**Premier commentaire** : `#conseilparfum #parfummaroc #parfumrabat #mouillette`
-
-Note : l'action demandée est le commentaire. Le lien du quiz va en story le même jour, pas dans la légende.
-
----
-
-## Sam 10 · Reel · « Où vaporiser : 3 gestes »
-
-Formule IG10 (How-I) · objectif : enregistrements · 11:00 · 15 à 20 secondes
+Objectif : enregistrements · 20:00 · 12 à 15 secondes
 
 | Temps | Image | Texte à l'écran |
 |---|---|---|
-| 0-2 s | Main qui vaporise sur le poignet puis frotte les poignets | « Arrête de faire ça. » |
-| 2-6 s | Vaporisation à 15 cm du cou, sur le côté | « 1. Le cou, sur le côté, à 15 cm. » |
-| 6-10 s | Intérieur du coude | « 2. L'intérieur du coude : la peau y est chaude. » |
-| 10-14 s | Vaporisation sur l'écharpe ou le col | « 3. Un coup sur l'écharpe ou le col. » |
-| 14-17 s | Flacon posé, logo | « Et on ne frotte pas. » |
+| 0-2 s | Le flacon dans une main, lumière chaude, on vaporise sur le col d'une veste | « Le parfum qu'on remarque avant que tu parles. » |
+| 2-6 s | Gros plan sur le flacon | « Le Male Elixir · Jean Paul Gaultier » |
+| 6-10 s | Plan d'ambiance : veste, montre, sortie le soir | « Lavande, miel, tabac. » |
+| 10-13 s | Le flacon posé, le sceau en bas à droite | « 319 DH · payé à la livraison » |
+
+Son : une musique tendance et calme, à choisir dans l'appli.
 
 **Légende**
 
 ```
-Frotter ses poignets après avoir vaporisé, tout le monde le fait. Mieux vaut éviter : on écrase les notes de tête.
+Le parfum qu'on remarque avant que tu parles.
 
-3 gestes à la place :
-1. le cou, sur le côté, à 15 cm
-2. l'intérieur du coude
-3. un coup sur l'écharpe ou le col
+Le Male Elixir, version soirée : une lavande qui fond dans le miel, puis le tabac qui reste sur la veste.
+Chaud, rond, fait pour les soirs d'octobre.
 
-Enregistre-le pour ton prochain flacon.
+319 DH, livré partout au Maroc. Tu paies à la réception.
+Enregistre-le pour ta prochaine sortie 🧴
 ```
 
-**Premier commentaire** : `#conseilparfum #astuceparfum #parfummaroc #parfumhomme`
-
-Note : « on écrase les notes de tête » reste une affirmation prudente. Ne pas ajouter « ça tient 2 fois plus longtemps » ou toute autre durée.
+**Premier commentaire** : `#lemaleelixir #parfumhomme #parfummaroc #parfumcasablanca`
 
 ---
 
-## Dim 11 · Carrousel · « De la commande au colis en main »
+## Mar 6 · Carrousel · Quel parfum pour quelle occasion
 
-Formule IG6 (Avant/Après) · objectif : abonnements · 19:00 · 6 slides
+Objectif : enregistrements et partages · 12:30 · 7 slides
 
-| Slide | Texte | Visuel |
-|---|---|---|
-| 1 | **Commander un parfum en ligne au Maroc, sans payer avant.** Voilà comment ça se passe. | sceau sur fond aubergine |
-| 2 | **1. Tu choisis.** Sur la fiche, « Commander en 30 secondes » : nom, téléphone, ville, adresse. | capture du formulaire de commande express |
-| 3 | **2. On confirme sur WhatsApp.** Un message pour vérifier l'adresse avant l'envoi. | capture d'une confirmation (numéro masqué) |
-| 4 | **3. Le colis part.** 24 à 72 h selon la ville, de Tanger à Agadir. | `img/preuves/03-commande-recue.jpg` |
-| 5 | **4. Tu paies au livreur, colis en main.** Il ne te convient pas ? Tu le refuses, sans frais. | `img/preuves/04-client-le-male-elixir.jpg` |
-| 6 | Abonne-toi : chaque semaine, un parfum, une ambiance, un conseil. · @le_comptoir_parfums | grille de flacons |
+| Slide | Texte |
+|---|---|
+| 1 | **Bureau, mariage, soirée : un parfum pour chacun.** |
+| 2 | **Bureau, pour lui** · Light Blue Pour Homme, Dolce & Gabbana · agrumes frais sur bois poivrés · 359 DH |
+| 3 | **Bureau, pour elle ou lui** · Neroli Portofino, Tom Ford · néroli et agrumes, très propre · 349 DH |
+| 4 | **Mariage, pour lui** · Bleu de Chanel L'Exclusif · encens, santal, tonka · 369 DH |
+| 5 | **Mariage, pour elle** · Delina Exclusif, Parfums de Marly · rose, litchi, vanille · 349 DH |
+| 6 | **Soirée** · Tobacco Vanille, Tom Ford (mixte) · tabac blond et vanille · 369 DH |
+| 7 | Envoie-le à la personne qui ne sait jamais quoi porter. · Paiement à la livraison · @le_comptoir_parfums |
+
+Visuel : fond aubergine #150a12 et texte ivoire #e8dfc8, avec une photo produit par slide (`comptoir-parfums/img/produits/`). L'occasion est écrite en or.
 
 **Légende**
 
 ```
-« Je n'achète pas en ligne, j'ai peur de payer pour rien. » On l'entend souvent, et c'est normal.
+Bureau, mariage, soirée : un parfum pour chacun.
 
-Chez nous tu ne paies rien avant d'avoir le colis en main. 4 étapes, slide par slide.
+Au bureau, quelque chose de frais qui ne déborde pas.
+Au mariage, un parfum qui tient la distance de la fête.
+Le soir, du chaud.
 
-Livraison 35 DH, offerte dès le deuxième parfum.
-Abonne-toi pour la suite 🧴
+5 parfums de 349 à 369 DH. Livraison offerte dès le deuxième, et tu paies à la réception.
+Envoie ce post à quelqu'un qui hésite toujours.
 ```
 
-**Premier commentaire** : `#parfummaroc #paiementalalivraison #livraisonmaroc #parfumcasablanca`
+Note : « tient la distance de la fête » reste une image, sans chiffre. Ne pas la remplacer par une durée.
 
-Notes :
-- La phrase d'ouverture est une objection générique, pas une citation de client. Ne pas la présenter comme un avis.
-- Photos clients : utiliser uniquement celles de `img/preuves/` dont vous avez l'accord, visages et numéros masqués si besoin.
+**Premier commentaire** : `#conseilparfum #parfummariage #parfummaroc #tomfordparfum`
+
+---
+
+## Mer 7 · Story + sondage · Frais ou boisé ?
+
+| Écran | Contenu |
+|---|---|
+| 1 | Neroli Portofino et Oud Wood côte à côte · sondage « Frais ou boisé ? » |
+| 2 | « Frais » · Neroli Portofino, Tom Ford · néroli et agrumes · 349 DH |
+| 3 | « Boisé » · Oud Wood, Tom Ford · oud, cardamome, tonka · 349 DH |
+| 4 (le soir) | Résultat du sondage · « Tu hésites ? 4 questions, 3 parfums proposés. » · sticker lien https://comptoirparfums.com/#trouver-mon-parfum |
+
+---
+
+## Jeu 8 · Reel · Preuve client : livraison et réception
+
+Objectif : confiance · 13:00 · 10 à 15 secondes
+
+**À compléter avec une vraie commande :** la ville, le délai, le parfum et l'accord du client. Je ne remplis pas ces trous moi-même.
+
+| Temps | Image | Texte à l'écran |
+|---|---|---|
+| 0-2 s | Le colis dans les mains du livreur ou à la porte | « Livré à [ville] en [délai]. » |
+| 2-6 s | On ouvre le colis | « Payé à la réception, colis en main. » |
+| 6-10 s | Le flacon sorti (photo client, avec son accord) | « [Parfum] » |
+| 10-13 s | Le sceau | « Livraison partout au Maroc · 24 à 72 h » |
+
+Si aucune vidéo n'est disponible, utiliser un diaporama de 3 photos : `img/preuves/03-commande-recue.jpg` et `img/preuves/04-client-le-male-elixir.jpg`, puis le sceau.
+
+**Légende**
+
+```
+Livré à [ville] en [délai], payé à la réception.
+
+Pas de virement, pas d'avance. Le livreur arrive, tu ouvres, tu paies.
+Et si le colis ne te convient pas, tu le refuses, sans frais.
+
+Une question avant de commander ? Écris-nous sur WhatsApp 📦
+```
+
+**Premier commentaire** : `#paiementalalivraison #livraisonmaroc #parfummaroc #avisclient`
+
+---
+
+## Ven 9 · Photo seule · Dior Sauvage Parfum
+
+Objectif : abonnements · 13:00
+
+Visuel : le flacon en gros plan sur fond sombre et une lumière chaude, avec le sceau en bas à droite.
+
+**Légende**
+
+```
+Sauvage Parfum, la face la plus chaude de Sauvage : tonka, santal et vanille.
+
+349 DH, payé à la livraison.
+Abonne-toi : chaque semaine, un parfum et son ambiance.
+```
+
+**Premier commentaire** : `#diorsauvage #sauvageparfum #parfumhomme #parfummaroc`
+
+---
+
+## Sam 10 · Carrousel · Où vaporiser son parfum
+
+Objectif : partages · 11:00 · 5 slides
+
+| Slide | Texte |
+|---|---|
+| 1 | **Où vaporiser ton parfum.** 3 gestes simples, sans promesse magique. |
+| 2 | **1. Le cou, sur le côté.** À une quinzaine de centimètres. |
+| 3 | **2. L'intérieur du coude.** La peau y est chaude, le parfum s'y diffuse. |
+| 4 | **3. Un coup sur le col ou l'écharpe.** Le tissu garde l'odeur. |
+| 5 | **Et on ne frotte pas les poignets.** Envoie ça à quelqu'un qui le fait encore. |
+
+**Légende**
+
+```
+3 gestes simples, sans promesse magique.
+
+Le cou sur le côté, l'intérieur du coude, un coup sur le col.
+Et surtout : on ne frotte pas ses poignets l'un contre l'autre.
+
+Envoie ce post à quelqu'un qui frotte encore.
+```
+
+**Premier commentaire** : `#astuceparfum #conseilparfum #parfummaroc #parfumfemme`
+
+---
+
+## Dim 11 · Story · Rappel
+
+| Écran | Contenu |
+|---|---|
+| 1 | Fond aubergine · « Tu paies à la réception. Jamais avant. » |
+| 2 | « Livraison 35 DH, offerte dès le deuxième parfum. » · « 24 à 72 h, partout au Maroc. » |
+| 3 | sticker lien https://comptoirparfums.com · « Commande en 1 minute » |
