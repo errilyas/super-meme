@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.16.0
+ * Version:           1.17.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.16.0' );
+define( 'CPB_VERSION', '1.17.0' );
 
 /**
  * Mode de diffusion.
@@ -705,3 +705,78 @@ add_action( 'wp_body_open', function () {
 	}
 	echo '</div></div>';
 }, 5 );
+
+/* ══════════════════════════════════════════════════════════════
+   FLUX PRODUITS : GOOGLE MERCHANT CENTER ET CATALOGUE META
+   https://<site>/?flux=produits : le catalogue au format RSS 2.0 de
+   Google (espace g:), que Meta Commerce Manager lit aussi. Une seule
+   source (produits.php) : un prix change sur le site change dans le
+   flux. Les parfums sans photo sont ecartes (l'image est obligatoire).
+   Le titre dit « Testeur » : c'est ce qui est vendu, et les deux regies
+   refusent une annonce qui ne correspond pas a la fiche.
+══════════════════════════════════════════════════════════════ */
+function cpb_flux_produits() {
+	if ( ! function_exists( 'comptoir_produits' ) ) {
+		return '';
+	}
+	$genres = array( 'Homme' => array( 'male', 'homme' ), 'Femme' => array( 'female', 'femme' ), 'Mixte' => array( 'unisex', 'mixte' ) );
+	$liv    = function_exists( 'comptoir_livraison_dh' ) ? (int) comptoir_livraison_dh() : 35;
+	$x      = function ( $v ) {
+		return htmlspecialchars( wp_strip_all_tags( html_entity_decode( (string) $v, ENT_QUOTES, 'UTF-8' ) ), ENT_XML1 | ENT_QUOTES, 'UTF-8' );
+	};
+	$out  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+	$out .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0"><channel>' . "\n";
+	$out .= '<title>' . $x( get_bloginfo( 'name' ) ) . '</title><link>' . esc_url( home_url( '/' ) ) . '</link>';
+	$out .= '<description>' . $x( 'Parfums de grandes maisons, testeurs originaux, livrés partout au Maroc.' ) . '</description>' . "\n";
+	foreach ( comptoir_produits() as $p ) {
+		$prix = function_exists( 'comptoir_prix_entier' ) ? comptoir_prix_entier( $p ) : (int) preg_replace( '/\D/', '', $p['pr'] );
+		if ( empty( $p['s'] ) || $prix <= 0 || ! function_exists( 'comptoir_a_photo' ) || ! comptoir_a_photo( $p['s'] ) ) {
+			continue;
+		}
+		$g     = isset( $p['g'], $genres[ $p['g'] ] ) ? $genres[ $p['g'] ] : null;
+		$titre = $p['b'] . ' ' . $p['n'] . ' – Testeur' . ( ! empty( $p['x'] ) ? ' ' . $p['x'] : '' );
+		$notes = array();
+		foreach ( array( 't' => 'Tête', 'c' => 'Cœur', 'f' => 'Fond' ) as $k => $nom ) {
+			if ( ! empty( $p[ $k ] ) ) {
+				$notes[] = $nom . ' : ' . implode( ', ', (array) $p[ $k ] );
+			}
+		}
+		$desc = trim( ( isset( $p['d'] ) ? $p['d'] : '' ) . ( $notes ? ' Notes — ' . implode( ' ; ', $notes ) . '.' : '' ) )
+			. ' Testeur original de la maison ' . $p['b'] . ' : même parfum que le flacon de boutique, sans le coffret. Paiement à la livraison partout au Maroc.';
+		$out .= '<item>';
+		$out .= '<g:id>' . $x( $p['s'] ) . '</g:id>';
+		$out .= '<g:title>' . $x( $titre ) . '</g:title>';
+		$out .= '<g:description>' . $x( $desc ) . '</g:description>';
+		$out .= '<g:link>' . esc_url( comptoir_parfum_url( $p['s'] ) ) . '</g:link>';
+		$out .= '<g:image_link>' . esc_url( comptoir_photo_url( $p['s'] ) ) . '</g:image_link>';
+		$out .= '<g:availability>in_stock</g:availability>';
+		$out .= '<g:price>' . $prix . '.00 MAD</g:price>';
+		$out .= '<g:brand>' . $x( $p['b'] ) . '</g:brand>';
+		$out .= '<g:condition>new</g:condition>';
+		$out .= '<g:identifier_exists>no</g:identifier_exists>';
+		$out .= '<g:google_product_category>479</g:google_product_category>';
+		$out .= '<g:product_type>' . $x( 'Parfums > ' . ( $g ? ucfirst( $g[1] ) : 'Tous' ) . ' > ' . $p['b'] ) . '</g:product_type>';
+		if ( $g ) {
+			$out .= '<g:gender>' . $g[0] . '</g:gender><g:age_group>adult</g:age_group>';
+		}
+		$out .= '<g:shipping><g:country>MA</g:country><g:price>' . $liv . '.00 MAD</g:price></g:shipping>';
+		$out .= "</item>\n";
+	}
+	return $out . '</channel></rss>';
+}
+
+add_action( 'template_redirect', function () {
+	if ( ! isset( $_GET['flux'] ) || 'produits' !== $_GET['flux'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+		return;
+	}
+	$xml = cpb_flux_produits();
+	if ( '' === $xml ) {
+		return;
+	}
+	status_header( 200 );
+	header( 'Content-Type: application/xml; charset=UTF-8' );
+	header( 'X-Robots-Tag: noindex' );
+	header( 'Cache-Control: public, max-age=3600' );
+	echo $xml; // phpcs:ignore WordPress.Security.EscapeOutput -- echappe element par element ci-dessus.
+	exit;
+}, 0 );

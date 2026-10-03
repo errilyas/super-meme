@@ -178,3 +178,16 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    sous le nom « purchase », avec la référence de commande en
    transaction_id et les frais de livraison. Le pixel Meta n'est pas
    modifié. Sans Google Analytics sur le site, le fichier ne fait rien.
+
+21. FLUX PRODUITS GOOGLE / META (version 1.17.0)
+   Adresse : https://comptoirparfums.com/?flux=produits
+   Catalogue complet au format Google Merchant Center (RSS 2.0, espace
+   g:), également lu par Meta Commerce Manager (catalogue Facebook /
+   Instagram). Contient : identifiant (slug), titre « Maison Nom –
+   Testeur … », description et notes, lien, photo, prix en MAD,
+   marque, état neuf, genre, catégorie Google 479 (Parfums et eaux de
+   Cologne), livraison 35 MAD. Mis à jour automatiquement depuis
+   produits.php. À déclarer une fois dans Merchant Center (Produits >
+   Sources de données > Ajouter > Fichier, récupération planifiée
+   quotidienne) et dans Commerce Manager (Catalogue > Sources de
+   données > Flux de données > URL).
