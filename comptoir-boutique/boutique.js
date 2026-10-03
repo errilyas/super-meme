@@ -148,6 +148,7 @@
     'Suivez-nous sur Instagram': 'تابعونا على إنستغرام',
     '{n} avis': '{n} آراء',
     '1 avis': 'رأي واحد',
+    'Message ou colis d’un client': 'رسالة أو طرد من أحد الزبناء',
     'Note moyenne {m} sur 5, {n} avis vérifiés : voir les avis': 'متوسط التقييم {m} من 5، {n} آراء موثقة: عرض الآراء',
     'Nouveaux arrivages, conseils et coulisses du Comptoir.': 'وصول عطور جديدة، نصائح وكواليس المتجر.',
     'Suivre @le_comptoir_parfums': 'تابع @le_comptoir_parfums',
@@ -1915,6 +1916,35 @@
     h1.parentNode.insertBefore(a, h1.nextSibling);
   }
 
+  /* « Ils ont recu leur parfum » (theme) : les captures des avis WhatsApp
+     publies passent en tete de la rangee (avis.php > cpb_avis_preuves). */
+  function preuvesAvis() {
+    var l = CFG.preuves || [];
+    if (!l.length) { return; }
+    var rangs = document.querySelectorAll('.preuves-rang');
+    for (var i = 0; i < rangs.length; i++) {
+      var rang = rangs[i];
+      if (rang.querySelector('[data-cpb-preuve]')) { continue; }
+      for (var j = l.length - 1; j >= 0; j--) {
+        var f = document.createElement('figure');
+        f.className = 'preuve';
+        f.setAttribute('data-cpb-preuve', '');
+        var img = document.createElement('img');
+        img.src = l[j].src;
+        if (l[j].w && l[j].h) { img.width = l[j].w; img.height = l[j].h; }
+        img.alt = t('Message ou colis d’un client');
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        f.appendChild(img);
+        rang.insertBefore(f, rang.firstChild);
+      }
+      /* L'ancrage de defilement du navigateur garde la carte qui etait en
+         tete a l'ecran : sans ceci, les nouvelles captures restaient cachees
+         a gauche. */
+      rang.scrollLeft = 0;
+    }
+  }
+
   /* Recherche arrivee de /?s=… (renvoyee par PHP vers /#chercher=…). */
   function rechercheDepuisAdresse() {
     var m = /^#chercher=(.*)$/.exec(location.hash || '');
@@ -2204,7 +2234,7 @@
   }
 
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients, preuvesAvis].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

@@ -230,3 +230,9 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    (1.20.1) Case « Avis reçu sur WhatsApp » : affiche la mention sous
    l'avis. On peut mettre en image la capture de la conversation, numéro
    du client masqué.
+
+26. « ILS ONT REÇU LEUR PARFUM » ALIMENTÉ PAR LES AVIS (version 1.21.0)
+   Chaque avis publié, coché « Avis reçu sur WhatsApp » et muni d'une
+   image mise en avant, s'ajoute en tête de la rangée de captures du
+   thème (accueil, fiches, page vente), les plus récents d'abord. Pas
+   besoin de déposer l'image dans le thème.

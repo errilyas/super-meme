@@ -524,3 +524,38 @@ add_action( 'admin_notices', function () {
 		echo '<div class="notice notice-warning"><p>Cet avis est publié mais n’a pas de parfum ou de note : il ne s’affiche sur aucune fiche.</p></div>';
 	}
 } );
+
+/* ══════════════════════════════════════════════════════════════
+   « ILS ONT RECU LEUR PARFUM » : LES CAPTURES DES AVIS WHATSAPP
+   La rangee du theme lit les images de son dossier img/preuves/. Les
+   avis publies marques « recu sur WhatsApp » et munis d'une image s'y
+   ajoutent en tete, les plus recents d'abord (boutique.js), sans
+   toucher au theme.
+══════════════════════════════════════════════════════════════ */
+function cpb_avis_preuves() {
+	$out = array();
+	foreach ( get_posts( array(
+		'post_type'      => 'cp_avis',
+		'post_status'    => 'publish',
+		'posts_per_page' => 12,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		'meta_key'       => 'cpa_source', // phpcs:ignore WordPress.DB.SlowDBQuery
+		'meta_value'     => 'whatsapp', // phpcs:ignore WordPress.DB.SlowDBQuery
+	) ) as $p ) {
+		$img = (int) get_post_thumbnail_id( $p );
+		if ( ! $img ) {
+			continue;
+		}
+		$src = wp_get_attachment_image_src( $img, 'large' );
+		if ( ! $src ) {
+			continue;
+		}
+		$out[] = array(
+			'src' => $src[0],
+			'w'   => (int) $src[1],
+			'h'   => (int) $src[2],
+		);
+	}
+	return $out;
+}
