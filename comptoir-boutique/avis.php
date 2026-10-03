@@ -33,12 +33,26 @@ add_action( 'init', function () {
 		'show_in_menu'    => true,
 		'menu_position'   => 26,
 		'menu_icon'       => 'dashicons-star-filled',
-		'supports'        => array( 'title', 'editor' ),
+		'supports'        => array( 'title', 'editor', 'thumbnail', 'custom-fields' ),
 		'capability_type' => 'post',
-		'capabilities'    => array( 'create_posts' => 'do_not_allow' ),
 		'map_meta_cap'    => true,
-		'show_in_rest'    => false,
+		'show_in_rest'    => true,
+		'rest_base'       => 'cp-avis',
 	) );
+	// Champs lisibles et modifiables par l'API (editeurs seulement) : un avis
+	// recu sur WhatsApp peut ainsi etre saisi depuis l'administration ou un
+	// outil connecte, avec les memes champs que le formulaire.
+	$auth = function () {
+		return current_user_can( 'edit_posts' );
+	};
+	foreach ( array( 'cpa_note' => 'integer', 'cpa_parfum' => 'string', 'cpa_prenom' => 'string', 'cpa_ville' => 'string', 'cpa_verifie' => 'string', 'cpa_source' => 'string' ) as $k => $type ) {
+		register_post_meta( 'cp_avis', $k, array(
+			'type'          => $type,
+			'single'        => true,
+			'show_in_rest'  => true,
+			'auth_callback' => $auth,
+		) );
+	}
 } );
 
 /** Empreinte du lien d'avis d'une commande. */
@@ -111,6 +125,10 @@ function cpb_avis_parfum( $slug ) {
 			'prenom' => (string) get_post_meta( $p->ID, 'cpa_prenom', true ),
 			'ville'  => (string) get_post_meta( $p->ID, 'cpa_ville', true ),
 			'date'   => get_the_date( 'Y-m-d', $p ),
+			'photo'  => (int) get_post_thumbnail_id( $p ),
+			// Les avis du formulaire viennent forcement d'une commande ; ceux
+			// saisis a la main le sont si la case est cochee.
+			'verifie' => '0' !== (string) get_post_meta( $p->ID, 'cpa_verifie', true ),
 		);
 	}
 	$n               = count( $avis );
@@ -159,10 +177,22 @@ add_action( 'wp_footer', function () {
 		if ( '' !== $a['texte'] ) {
 			echo '<blockquote class="cpb-avis-texte"><p>' . esc_html( $a['texte'] ) . '</p></blockquote>';
 		}
+		if ( $a['photo'] ) {
+			$grande = wp_get_attachment_image_url( $a['photo'], 'large' );
+			$img    = wp_get_attachment_image( $a['photo'], 'medium', false, array(
+				'class'    => 'cpb-avis-img',
+				'loading'  => 'lazy',
+				'decoding' => 'async',
+				'alt'      => 'Photo envoyée par ' . ( $a['prenom'] ? $a['prenom'] : 'le client' ),
+			) );
+			if ( $img ) {
+				echo '<a class="cpb-avis-photo" href="' . esc_url( $grande ) . '" target="_blank" rel="noopener">' . $img . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput -- balise produite par WordPress.
+			}
+		}
 		$qui = trim( $a['prenom'] . ( $a['ville'] ? ' · ' . $a['ville'] : '' ) );
 		echo '<p class="cpb-avis-qui">' . esc_html( $qui ) . ( $qui ? ' · ' : '' )
-			. '<time datetime="' . esc_attr( $a['date'] ) . '">' . esc_html( date_i18n( 'j F Y', strtotime( $a['date'] ) ) ) . '</time> · '
-			. '<span class="cpb-avis-verifie" data-cpb-ar="شراء موثق">Achat vérifié</span></p>';
+			. '<time datetime="' . esc_attr( $a['date'] ) . '">' . esc_html( date_i18n( 'j F Y', strtotime( $a['date'] ) ) ) . '</time>'
+			. ( $a['verifie'] ? ' · <span class="cpb-avis-verifie" data-cpb-ar="شراء موثق">Achat vérifié</span>' : '' ) . '</p>';
 		echo '</li>';
 	}
 	echo '</ul></section>';
@@ -299,6 +329,8 @@ function cpb_avis_enregistre( $id, $parfums ) {
 		update_post_meta( $pid, 'cpa_prenom', $prenom );
 		update_post_meta( $pid, 'cpa_ville', $ville );
 		update_post_meta( $pid, 'cpa_commande', $id );
+		update_post_meta( $pid, 'cpa_verifie', '1' );
+		update_post_meta( $pid, 'cpa_source', 'formulaire' );
 		$n++;
 	}
 	return $n ? 'merci' : 'vide';
@@ -393,3 +425,93 @@ add_action( 'admin_menu', function () {
 		}
 	}
 }, 99 );
+
+/* ══════════════════════════════════════════════════════════════
+   SAISIE A LA MAIN : UN AVIS RECU SUR WHATSAPP
+   « Avis clients > Ajouter » : parfum, note, prenom, ville, achat
+   verifie, et la photo du client en « image mise en avant ». Le titre se
+   remplit tout seul s'il est laisse vide.
+══════════════════════════════════════════════════════════════ */
+// « Image mise en avant » pour les avis (photo du client), meme si le theme
+// ne l'active pas ailleurs.
+add_action( 'after_setup_theme', function () {
+	add_theme_support( 'post-thumbnails', array( 'cp_avis' ) );
+}, 20 );
+
+add_action( 'add_meta_boxes_cp_avis', function () {
+	add_meta_box( 'cpb-avis-champs', 'Détails de l’avis', 'cpb_avis_boite', 'cp_avis', 'normal', 'high' );
+} );
+
+function cpb_avis_boite( $post ) {
+	wp_nonce_field( 'cpb_avis_boite', 'cpb_avis_boite_nonce' );
+	$v = function ( $k ) use ( $post ) {
+		return (string) get_post_meta( $post->ID, $k, true );
+	};
+	$slug    = $v( 'cpa_parfum' );
+	$note    = (int) $v( 'cpa_note' );
+	$verifie = '0' !== $v( 'cpa_verifie' );
+	echo '<p><label for="cpa_parfum"><strong>Parfum</strong></label><br><select id="cpa_parfum" name="cpa_parfum" style="max-width:100%"><option value="">— Choisir —</option>';
+	if ( function_exists( 'comptoir_produits' ) ) {
+		foreach ( comptoir_produits() as $p ) {
+			printf( '<option value="%s"%s>%s</option>', esc_attr( $p['s'] ), selected( $slug, $p['s'], false ), esc_html( $p['b'] . ' — ' . $p['n'] ) );
+		}
+	}
+	echo '</select></p>';
+	echo '<p><strong>Note</strong><br>';
+	for ( $i = 5; $i >= 1; $i-- ) {
+		printf( '<label style="margin-right:14px"><input type="radio" name="cpa_note" value="%1$d"%2$s> %3$s</label>', (int) $i, checked( $note, $i, false ), esc_html( str_repeat( '★', $i ) ) );
+	}
+	echo '</p>';
+	printf( '<p><label for="cpa_prenom"><strong>Prénom</strong> (publié)</label><br><input id="cpa_prenom" name="cpa_prenom" type="text" maxlength="30" value="%s"></p>', esc_attr( $v( 'cpa_prenom' ) ) );
+	printf( '<p><label for="cpa_ville"><strong>Ville</strong> (publiée)</label><br><input id="cpa_ville" name="cpa_ville" type="text" maxlength="40" value="%s"></p>', esc_attr( $v( 'cpa_ville' ) ) );
+	printf( '<p><label><input type="checkbox" name="cpa_verifie" value="1"%s> Achat vérifié (le client a bien commandé chez nous)</label></p>', checked( $verifie, true, false ) );
+	echo '<p class="description">Le texte de l’avis va dans la grande zone ci-dessus (les mots du client, sans les modifier). La photo du client : « Image mise en avant », à droite. Ne publiez qu’avec l’accord du client, et jamais une photo où l’on voit un numéro ou un visage sans son accord.</p>';
+}
+
+add_action( 'save_post_cp_avis', function ( $id, $post ) {
+	if ( ! isset( $_POST['cpb_avis_boite_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['cpb_avis_boite_nonce'] ) ), 'cpb_avis_boite' ) ) {
+		return;
+	}
+	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ! current_user_can( 'edit_post', $id ) ) {
+		return;
+	}
+	$slug = isset( $_POST['cpa_parfum'] ) ? sanitize_key( wp_unslash( $_POST['cpa_parfum'] ) ) : '';
+	if ( $slug && function_exists( 'comptoir_produit_by_slug' ) && comptoir_produit_by_slug( $slug ) ) {
+		update_post_meta( $id, 'cpa_parfum', $slug );
+	}
+	$note = isset( $_POST['cpa_note'] ) ? (int) $_POST['cpa_note'] : 0;
+	if ( $note >= 1 && $note <= 5 ) {
+		update_post_meta( $id, 'cpa_note', $note );
+	}
+	foreach ( array( 'cpa_prenom' => 30, 'cpa_ville' => 40 ) as $k => $max ) {
+		if ( isset( $_POST[ $k ] ) ) {
+			$val = sanitize_text_field( wp_unslash( $_POST[ $k ] ) );
+			update_post_meta( $id, $k, function_exists( 'mb_substr' ) ? mb_substr( $val, 0, $max ) : substr( $val, 0, $max ) );
+		}
+	}
+	update_post_meta( $id, 'cpa_verifie', empty( $_POST['cpa_verifie'] ) ? '0' : '1' );
+	if ( ! get_post_meta( $id, 'cpa_source', true ) ) {
+		update_post_meta( $id, 'cpa_source', 'whatsapp' );
+	}
+	// Titre automatique, pour s'y retrouver dans la liste.
+	if ( '' === trim( $post->post_title ) || 'Brouillon auto' === $post->post_title ) {
+		$p = function_exists( 'comptoir_produit_by_slug' ) && $slug ? comptoir_produit_by_slug( $slug ) : null;
+		remove_all_actions( 'save_post_cp_avis' );
+		wp_update_post( array(
+			'ID'         => $id,
+			'post_title' => sprintf( '%s/5 — %s — %s', $note ? $note : '?', $p ? $p['b'] . ' ' . $p['n'] : 'Parfum', get_post_meta( $id, 'cpa_prenom', true ) ? get_post_meta( $id, 'cpa_prenom', true ) : 'Client' ),
+		) );
+	}
+}, 10, 2 );
+
+/* Un avis sans parfum ou sans note ne s'affiche nulle part : on le dit. */
+add_action( 'admin_notices', function () {
+	$ecran = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( ! $ecran || 'cp_avis' !== $ecran->post_type || 'post' !== $ecran->base ) {
+		return;
+	}
+	global $post;
+	if ( $post && 'publish' === $post->post_status && ( ! get_post_meta( $post->ID, 'cpa_parfum', true ) || ! get_post_meta( $post->ID, 'cpa_note', true ) ) ) {
+		echo '<div class="notice notice-warning"><p>Cet avis est publié mais n’a pas de parfum ou de note : il ne s’affiche sur aucune fiche.</p></div>';
+	}
+} );

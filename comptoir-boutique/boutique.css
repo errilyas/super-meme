@@ -832,3 +832,6 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-avis-go{margin-top:8px;min-height:52px;padding:0 24px;border:0;border-radius:2px;background:var(--ember);color:var(--ink);font:inherit;font-size:12px;letter-spacing:.24em;text-transform:uppercase;cursor:pointer}
 .cpb-avis-go:hover,.cpb-avis-go:focus-visible{filter:brightness(1.08)}
 .cpb-avis-retour{color:var(--amber)}
+.cpb-avis-photo{display:inline-block;margin:2px 0 12px;border:1px solid rgba(var(--au-rgb),.25);line-height:0}
+.cpb-avis-img{display:block;width:auto;max-width:min(240px,100%);max-height:300px;height:auto;object-fit:cover}
+.cpb-avis-photo:hover,.cpb-avis-photo:focus-visible{border-color:var(--amber)}
