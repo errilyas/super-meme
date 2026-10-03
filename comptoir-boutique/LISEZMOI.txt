@@ -168,3 +168,13 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    apparaît sur la page de remerciement après une commande et en bas de
    chaque guide (article). Traduit en arabe. Pour changer de compte,
    modifier la variable INSTA dans boutique.js.
+
+20. GOOGLE ANALYTICS 4 : VENTES MESURÉES (version 1.16.0)
+   mesure.js (chargé avant panier.js) traduit pour GA4 les événements
+   que le thème envoie au format Meta : view_item, add_to_cart,
+   begin_checkout, generate_lead et purchase, avec la liste items[]
+   (parfum, maison, prix, quantité). L'achat s'appelait « Purchase » et
+   n'était pas compté comme vente par Analytics ; il part maintenant
+   sous le nom « purchase », avec la référence de commande en
+   transaction_id et les frais de livraison. Le pixel Meta n'est pas
+   modifié. Sans Google Analytics sur le site, le fichier ne fait rien.

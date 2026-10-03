@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.15.0
+ * Version:           1.16.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.15.0' );
+define( 'CPB_VERSION', '1.16.0' );
 
 /**
  * Mode de diffusion.
@@ -85,6 +85,14 @@ add_action( 'wp_enqueue_scripts', function () {
 
 	$slug   = function_exists( 'comptoir_parfum_slug_demande' ) ? comptoir_parfum_slug_demande() : '';
 	$parfum = ( $slug && function_exists( 'comptoir_produit_by_slug' ) && comptoir_produit_by_slug( $slug ) ) ? $slug : '';
+
+	// Mesure GA4 (mesure.js) : avant panier.js, qui envoie la vue de fiche des
+	// son chargement (et commande.js l'achat, a l'ouverture du remerciement).
+	wp_register_script( 'comptoir-boutique-mesure', $url . 'mesure.js', array(), CPB_VERSION . '.' . (int) @filemtime( $abs . 'mesure.js' ), true );
+	$panier = wp_scripts()->query( 'comptoir-panier', 'registered' );
+	if ( $panier && ! in_array( 'comptoir-boutique-mesure', $panier->deps, true ) ) {
+		$panier->deps[] = 'comptoir-boutique-mesure';
+	}
 
 	$cfg_accueil = function_exists( 'comptoir_est_accueil' ) ? comptoir_est_accueil() : is_front_page();
 	$cfg_vedette = function_exists( 'comptoir_vente_demande' ) && comptoir_vente_demande();

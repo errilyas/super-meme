@@ -23,10 +23,13 @@ php -l "$SRC/comptoir-boutique.php" >/dev/null
 for f in "$SRC"/*.php; do php -l "$f" >/dev/null; cp "$f" "$TRAVAIL/comptoir-boutique/"; done
 npx --yes terser@5 "$SRC/boutique.js" --ecma 5 --compress --mangle --comments false \
   -o "$TRAVAIL/comptoir-boutique/boutique.js"
+npx --yes terser@5 "$SRC/mesure.js" --ecma 5 --compress --mangle --comments false \
+  -o "$TRAVAIL/comptoir-boutique/mesure.js"
 npx --yes lightningcss-cli@1 --minify "$SRC/boutique.css" -o "$TRAVAIL/comptoir-boutique/boutique.css"
 # Visuels d'ambiance (WebP deja optimises), s'il y en a.
 if [ -d "$SRC/img" ]; then cp -R "$SRC/img" "$TRAVAIL/comptoir-boutique/img"; fi
 node --check "$TRAVAIL/comptoir-boutique/boutique.js"
+node --check "$TRAVAIL/comptoir-boutique/mesure.js"
 
 mkdir -p "$RACINE/dist"
 ZIP="$RACINE/dist/comptoir-boutique-$VERSION.zip"
