@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.9.0
+ * Version:           1.10.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.9.0' );
+define( 'CPB_VERSION', '1.10.0' );
 
 /**
  * Mode de diffusion.
@@ -236,7 +236,9 @@ add_action( 'wp_head', function () {
      conditions de vente.
 ══════════════════════════════════════════════════════════════ */
 add_filter( 'template_include', function ( $template ) {
-	if ( is_page() && function_exists( 'comptoir_produits' ) && ! locate_template( array( 'page.php' ) ) && ! is_page_template() ) {
+	$page    = is_page() && ! locate_template( array( 'page.php' ) ) && ! is_page_template();
+	$article = is_singular( 'post' ) && ! locate_template( array( 'single.php' ) );
+	if ( ( $page || $article ) && function_exists( 'comptoir_produits' ) ) {
 		$t = plugin_dir_path( __FILE__ ) . 'page-cpb.php';
 		if ( file_exists( $t ) ) {
 			return $t;
@@ -244,6 +246,42 @@ add_filter( 'template_include', function ( $template ) {
 	}
 	return $template;
 }, 20 );
+
+/** Archive des guides : la categorie « conseils », ou l'accueil a defaut. */
+function cpb_url_conseils() {
+	$cat = get_category_by_slug( 'conseils' );
+	return $cat ? get_category_link( $cat ) : home_url( '/' );
+}
+
+/* Titre d'archive sans prefixe : « Conseils », pas « Categorie : Conseils ». */
+add_filter( 'get_the_archive_title_prefix', function ( $prefix ) {
+	return is_category() ? '' : $prefix;
+} );
+
+/**
+ * [parfums slugs="dior--sauvage-elixir,chanel--coco-mademoiselle"]
+ * Les cartes du catalogue (memes cartes que l'accueil : photo, maison,
+ * nom, prix, lien vers la fiche) au milieu d'un guide. Les slugs inconnus
+ * sont ignores.
+ */
+add_shortcode( 'parfums', function ( $atts ) {
+	if ( ! function_exists( 'comptoir_produit_by_slug' ) || ! function_exists( 'comptoir_carte_produit' ) ) {
+		return '';
+	}
+	$atts  = shortcode_atts( array( 'slugs' => '' ), $atts, 'parfums' );
+	$slugs = array_filter( array_map( 'trim', explode( ',', (string) $atts['slugs'] ) ) );
+	ob_start();
+	$n = 0;
+	foreach ( $slugs as $slug ) {
+		$p = comptoir_produit_by_slug( preg_replace( '/[^a-z0-9-]/', '', strtolower( $slug ) ) );
+		if ( $p ) {
+			comptoir_carte_produit( $p );
+			$n++;
+		}
+	}
+	$cartes = ob_get_clean();
+	return $n ? '<div class="cat-grille cpb-guide-grille" role="list">' . $cartes . '</div>' : '';
+} );
 
 /**
  * Les pages d'information publiees, dans l'ordre du pied de page.
@@ -262,6 +300,10 @@ function cpb_pages_info() {
 		'retours-et-remboursement'  => array( 'Retours et remboursement', 'الإرجاع والاسترداد' ),
 		'confidentialite'           => array( 'Confidentialité', 'الخصوصية' ),
 	);
+	$cat = get_category_by_slug( 'conseils' );
+	if ( $cat && $cat->count > 0 ) {
+		$out[] = array( 'Conseils', 'نصائح', get_category_link( $cat ), 'conseils' );
+	}
 	foreach ( $liste as $slug => $t ) {
 		$page = get_page_by_path( $slug );
 		if ( $page && 'publish' === $page->post_status ) {

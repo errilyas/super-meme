@@ -693,3 +693,12 @@ html.cpb-lock .joinchat{display:none!important}
   .cpb-ms-photo .cpb-vignette{width:100%;height:auto;aspect-ratio:4/5}
   .cpb-ms-photo{width:100%}
 }
+
+/* ── Guides « Conseils » ── */
+.cpb-page-surtitre{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--smoke);margin:0 0 14px}
+.cpb-page-surtitre a{color:var(--ember);text-decoration:underline;text-underline-offset:3px}
+.cpb-guide-grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:22px 0 30px}
+@media(min-width:760px){.cpb-guide-grille{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.cpb-page-corps .cpb-guide-grille a{text-decoration:none}
+.cpb-page-suite{margin:40px 0 0}
+.cp-secours article .cat-grille{margin-top:14px}
