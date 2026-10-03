@@ -130,6 +130,8 @@
     'Effacer': 'مسح',
     'Informations': 'معلومات',
     'Bon à savoir': 'معلومة مفيدة',
+    'Nos maisons': 'دور العطور',
+    'Toutes les maisons': 'كل الدور',
     'Vous avez regardé': 'شاهدتها من قبل',
     'Votre panier vous attend': 'سلّتك في انتظارك',
     'Finaliser ma commande': 'أكمل طلبي',
@@ -1939,6 +1941,20 @@
     });
   }
 
+  /* Accueil : les maisons qui ont leur page, sous les entrees Femme / Homme. */
+  function maisonsAccueil() {
+    var m = CFG.maisons || {}, noms = Object.keys(m);
+    var q = CFG.accueil ? document.querySelector('#catalogue .cat-quick') : null;
+    if (!q || !noms.length || document.querySelector('.cpb-maisons-rang')) { return; }
+    var d = document.createElement('nav');
+    d.className = 'cpb cpb-maisons-rang';
+    d.setAttribute('aria-label', t('Nos maisons'));
+    d.innerHTML = '<span class="cpb-maisons-titre">' + esc(t('Nos maisons')) + '</span>' + noms.map(function (n) {
+      return '<a class="cpb-puce" href="' + esc(m[n]) + '"><span class="pnr-brand">' + esc(n) + '</span></a>';
+    }).join('') + (CFG.url_maisons ? '<a class="cpb-puce cpb-puce-or" href="' + esc(CFG.url_maisons) + '">' + esc(t('Toutes les maisons')) + '</a>' : '');
+    q.parentNode.insertBefore(d, q.nextSibling);
+  }
+
   function guidesSite() {
     var guides = CFG.guides || [];
     if (!guides.length) { return; }
@@ -2120,7 +2136,7 @@
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, guidesSite, bonRetour, merciSecond, rechercheDepuisAdresse, animations].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, rechercheDepuisAdresse, animations].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

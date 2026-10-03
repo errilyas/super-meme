@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.13.0
+ * Version:           1.14.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.13.0' );
+define( 'CPB_VERSION', '1.14.0' );
 
 /**
  * Mode de diffusion.
@@ -97,7 +97,8 @@ add_action( 'wp_enqueue_scripts', function () {
 		'home'       => home_url( '/' ),
 		'populaires' => cpb_populaires(),
 		'visuels'    => cpb_visuels(),
-		'maisons'    => ( $parfum || ! empty( $cfg_vedette ) ) ? cpb_maisons_cfg() : array(),
+		'maisons'    => ( $parfum || ! empty( $cfg_vedette ) || ! empty( $cfg_accueil ) ) ? cpb_maisons_cfg() : array(),
+		'url_maisons' => ( ! empty( $cfg_accueil ) && ( $pm = get_page_by_path( 'parfums' ) ) && 'publish' === $pm->post_status ) ? get_permalink( $pm ) : '',
 		'guides'     => ( ! empty( $cfg_accueil ) || $parfum ) ? cpb_guides( 12 ) : array(),
 		'pages'      => array_map( function ( $p ) { return array( 'fr' => $p[0], 'ar' => $p[1], 'url' => $p[2], 'cle' => $p[3] ); }, cpb_pages_info() ),
 		// En apercu, les liens internes gardent le parametre : sans lui, la page
@@ -289,7 +290,11 @@ function cpb_enrichit_ld( $html ) {
 function cpb_maisons_cfg() {
 	$out = array();
 	if ( function_exists( 'comptoir_catalogue_par_maison' ) ) {
-		foreach ( array_keys( comptoir_catalogue_par_maison() ) as $maison ) {
+		$maisons = comptoir_catalogue_par_maison();
+		uksort( $maisons, function ( $a, $b ) use ( $maisons ) {
+			return count( $maisons[ $b ] ) - count( $maisons[ $a ] ) ?: strcmp( $a, $b );
+		} );
+		foreach ( array_keys( $maisons ) as $maison ) {
 			$url = cpb_url_maison( $maison );
 			if ( $url ) {
 				$out[ $maison ] = $url;
@@ -404,7 +409,7 @@ function cpb_selection( $atts ) {
 		return array();
 	}
 	foreach ( comptoir_produits() as $p ) {
-		if ( '' !== $maison && comptoir_maison_slug( $p['b'] ) !== comptoir_maison_slug( $maison ) ) {
+		if ( '' !== $maison && comptoir_maison_slug( $p['b'] ) !== comptoir_maison_slug( html_entity_decode( $maison, ENT_QUOTES, 'UTF-8' ) ) ) {
 			continue;
 		}
 		if ( '' !== $genre && strtolower( $p['g'] ) !== strtolower( $genre ) ) {
@@ -572,6 +577,45 @@ add_action( 'template_redirect', function () {
 	wp_safe_redirect( home_url( '/' ) . ( '' !== $q ? '#chercher=' . rawurlencode( $q ) : '' ), 302 );
 	exit;
 }, 2 );
+
+/**
+ * Fil d'Ariane pour Google (BreadcrumbList) : fiche parfum
+ * (Accueil > maison > parfum), pages sous /parfums/, guides.
+ */
+add_action( 'wp_head', function () {
+	if ( ! function_exists( 'comptoir_produits' ) || is_admin() ) {
+		return;
+	}
+	$fil = array( array( 'Accueil', home_url( '/' ) ) );
+	$slug = function_exists( 'comptoir_parfum_slug_demande' ) ? comptoir_parfum_slug_demande() : '';
+	$p    = $slug ? comptoir_produit_by_slug( $slug ) : null;
+	if ( $p ) {
+		$m = cpb_url_maison( $p['b'] );
+		if ( $m ) {
+			$fil[] = array( $p['b'], $m );
+		}
+		$fil[] = array( $p['b'] . ' ' . $p['n'], comptoir_parfum_url( $p['s'] ) );
+	} elseif ( is_page() ) {
+		$post = get_queried_object();
+		if ( $post && $post->post_parent ) {
+			$fil[] = array( html_entity_decode( get_the_title( $post->post_parent ), ENT_QUOTES, 'UTF-8' ), get_permalink( $post->post_parent ) );
+		}
+		$fil[] = array( html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' ), get_permalink( $post ) );
+	} elseif ( is_singular( 'post' ) ) {
+		$cat = get_category_by_slug( 'conseils' );
+		if ( $cat ) {
+			$fil[] = array( 'Conseils', get_category_link( $cat ) );
+		}
+		$fil[] = array( html_entity_decode( get_the_title(), ENT_QUOTES, 'UTF-8' ), get_permalink() );
+	} else {
+		return;
+	}
+	$items = array();
+	foreach ( $fil as $i => $e ) {
+		$items[] = array( '@type' => 'ListItem', 'position' => $i + 1, 'name' => $e[0], 'item' => $e[1] );
+	}
+	echo '<script type="application/ld+json">' . wp_json_encode( array( '@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => $items ) ) . '</script>' . "\n";
+}, 4 );
 
 /** Classe <body> : le CSS du bandeau s'y accroche. */
 add_filter( 'body_class', function ( $classes ) {

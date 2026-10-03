@@ -761,3 +761,10 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-maisons small{color:var(--smoke);font-size:12px}
 .cpb-lien-maison{color:inherit;text-decoration:none;border-bottom:1px solid rgba(var(--au-rgb),.45)}
 .cpb-lien-maison:hover,.cpb-lien-maison:focus-visible{color:var(--bone)}
+
+/* ── Accueil : rangée des maisons ── */
+.cpb-maisons-rang{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:18px 0 6px}
+.cpb-maisons-titre{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--smoke);margin-inline-end:6px}
+[data-lang="ar"] .cpb-maisons-titre{letter-spacing:0;font-size:12px}
+.cpb-maisons-rang .cpb-puce{text-decoration:none}
+@media(max-width:700px){.cpb-maisons-rang{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}.cpb-maisons-rang::-webkit-scrollbar{display:none}.cpb-maisons-rang>*{flex:none}}

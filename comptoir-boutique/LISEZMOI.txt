@@ -146,6 +146,12 @@ Ce qu'elle ajoute au site, sans modifier le thème :
    - Pages et guides : description pour Google (description SEO saisie,
      ou le résumé), sans doublon avec Jetpack.
 
+18. MAISONS SUR L'ACCUEIL, FIL D'ARIANE (version 1.14.0)
+   - Accueil, catalogue : rangée « Nos maisons » (celles qui ont une page,
+     de la plus fournie à la moins fournie) et « Toutes les maisons ».
+   - Fil d'Ariane pour Google (BreadcrumbList) : fiche (Accueil › Dior ›
+     Sauvage Elixir), pages de collection, guides.
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient
