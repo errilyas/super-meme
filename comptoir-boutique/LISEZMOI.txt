@@ -249,3 +249,15 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    WhatsApp avec « Regarde ce parfum : <nom>, <prix>, payé à la
    livraison. <lien> ». Le lien porte utm_source=partage (visible dans
    Google Analytics), et un événement GA4 « share » est envoyé.
+
+29. SUIVI DE COMMANDE (version 1.24.0) — suivi.php
+   - Commandes (admin) : colonne « Suivi » ; sous chaque commande, un
+     lien « → Confirmée » / « → Expédiée » / « → Livrée » (étape suivante
+     en un clic) et « WhatsApp : prévenir le client », message prêt avec
+     son lien de suivi. Sur la fiche d'une commande : toutes les étapes,
+     « Annuler la commande », et le lien de suivi à copier.
+   - Client : /?suivi=1 (lien « Suivre ma commande » dans le pied de page
+     et sur la page de remerciement) : référence + téléphone → étapes
+     datées, délai estimé, contenu du colis et montant à payer. Le lien
+     envoyé sur WhatsApp ouvre directement la commande (clé signée).
+   - 15 essais par heure et par adresse IP ; page non indexée.

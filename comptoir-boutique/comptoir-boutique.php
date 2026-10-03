@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.23.0
+ * Version:           1.24.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.23.0' );
+define( 'CPB_VERSION', '1.24.0' );
 
 /**
  * Mode de diffusion.
@@ -34,6 +34,7 @@ define( 'CPB_VERSION', '1.23.0' );
 define( 'CPB_MODE', 'en-ligne' );
 
 require_once __DIR__ . '/avis.php';
+require_once __DIR__ . '/suivi.php';
 
 /** Vrai si l'extension doit agir sur la page servie. */
 function cpb_actif() {
@@ -536,6 +537,9 @@ function cpb_pages_info() {
 		if ( $page && 'publish' === $page->post_status ) {
 			$out[] = array( $t[0], $t[1], get_permalink( $page ), $slug );
 		}
+	}
+	if ( function_exists( 'cpb_url_suivi' ) ) {
+		$out[] = array( 'Suivre ma commande', 'تتبع طلبي', cpb_url_suivi(), 'suivi' );
 	}
 	return $out;
 }

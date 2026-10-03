@@ -150,6 +150,7 @@
     '1 avis': 'رأي واحد',
     'Message ou colis d’un client': 'رسالة أو طرد من أحد الزبناء',
     'Partager': 'مشاركة',
+    'Suivre ma commande': 'تتبع طلبي',
     'Partager {nom}': 'مشاركة {nom}',
     'Regarde ce parfum : {nom}, {prix}, payé à la livraison.': 'شوف هاد العطر: {nom}، {prix}، الدفع عند الاستلام.',
     'Capture de client agrandie': 'صورة زبون مكبّرة',
@@ -2046,6 +2047,20 @@
     });
   }
 
+  /* Remerciement : le lien de suivi, reference deja remplie. */
+  function merciSuivi() {
+    var bloc = document.getElementById('ck-merci');
+    if (!bloc || !/[?&]merci=1/.test(location.search) || bloc.querySelector('.cpb-merci-suivi')) { return; }
+    var cmd = null;
+    try { cmd = JSON.parse(localStorage.getItem('cp_commande_faite') || 'null'); } catch (e) {}
+    if (!cmd || !cmd.ref) { return; }
+    var p = document.createElement('p');
+    p.className = 'cpb cpb-merci-suivi';
+    p.innerHTML = '<a href="' + esc((CFG.home || '/') + '?suivi=1&ref=' + encodeURIComponent(cmd.ref)) + '">' + SVG.camion + '<span>' + esc(t('Suivre ma commande')) + '</span></a>';
+    var apres = bloc.querySelector('.ck-merci-detail') || bloc.querySelector('.ck-merci-suite');
+    if (apres && apres.parentNode) { apres.parentNode.insertBefore(p, apres.nextSibling); } else { bloc.appendChild(p); }
+  }
+
   /* Recherche arrivee de /?s=… (renvoyee par PHP vers /#chercher=…). */
   function rechercheDepuisAdresse() {
     var m = /^#chercher=(.*)$/.exec(location.hash || '');
@@ -2335,7 +2350,7 @@
   }
 
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients, preuvesAvis, visionneuse].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, merciSuivi, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients, preuvesAvis, visionneuse].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

@@ -863,3 +863,34 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-fiche-actions{display:flex;flex-wrap:wrap;align-items:center;gap:0 26px;margin-top:8px}
 .cpb-fiche-actions .cpb-coeur{margin-top:0}
 .cpb-partage svg{fill:none}
+
+/* ══════════════════════════════════════════
+   SUIVI DE COMMANDE (suivi.php)
+══════════════════════════════════════════ */
+.cpb-suivi-page,.cpb-suivi-page p,.cpb-suivi-page label{text-align:start}
+.cpb-suivi-page h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,7vw,46px);line-height:1.1;margin:10px 0 14px}
+.cpb-suivi-intro,.cpb-suivi-note{line-height:1.6;color:var(--text-dim);margin:0 0 22px;max-width:640px}
+.cpb-suivi-form{max-width:480px}
+.cpb-suivi-form input[type="tel"]{width:100%;box-sizing:border-box;padding:12px 14px;font:inherit;font-size:16px;color:inherit;background:transparent;border:1px solid rgba(var(--au-rgb),.35);border-radius:2px}
+.cpb-suivi-form input[type="tel"]:focus{outline:none;border-color:var(--amber)}
+.cpb-suivi-aide{font-size:13px;color:var(--text-dim);margin:6px 0 0}
+.cpb-suivi-etapes{list-style:none;margin:26px 0 22px;padding:0;max-width:520px}
+.cpb-suivi-etapes li{position:relative;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;padding:0 0 26px 34px;color:var(--text-dim)}
+[dir="rtl"] .cpb-suivi-etapes li{padding:0 34px 26px 0}
+.cpb-suivi-etapes li::before{content:'';position:absolute;inset-inline-start:7px;top:18px;bottom:-2px;width:1px;background:rgba(var(--au-rgb),.25)}
+.cpb-suivi-etapes li:last-child::before{display:none}
+.cpb-suivi-point{position:absolute;inset-inline-start:0;top:3px;width:15px;height:15px;border-radius:50%;border:1px solid rgba(var(--au-rgb),.45);background:var(--deep,transparent);box-sizing:border-box}
+.cpb-suivi-faite .cpb-suivi-point{background:var(--amber);border-color:var(--amber)}
+.cpb-suivi-faite::before{background:var(--amber)!important}
+.cpb-suivi-actuelle .cpb-suivi-point{background:var(--ember);border-color:var(--ember);box-shadow:0 0 0 5px rgba(var(--au-rgb),.18)}
+.cpb-suivi-faite,.cpb-suivi-actuelle{color:var(--bone)}
+.cpb-suivi-actuelle .cpb-suivi-nom{font-weight:500;color:var(--ember)}
+.cpb-suivi-etapes time{font-size:12px;color:var(--text-dim)}
+.cpb-suivi-colis{margin-top:10px;padding:18px 20px;border:1px solid rgba(var(--au-rgb),.25);max-width:560px}
+.cpb-suivi-colis ul{margin:0 0 12px;padding-inline-start:18px;line-height:1.7}
+.cpb-suivi-colis p{margin:0}
+.cpb-merci-suivi{margin:18px 0 0}
+.cpb-merci-suivi a{display:inline-flex;align-items:center;gap:10px;color:var(--ember);text-decoration:none;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.cpb-merci-suivi svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.5}
+.cpb-merci-suivi a:hover,.cpb-merci-suivi a:focus-visible{text-decoration:underline;text-underline-offset:4px}
+.cpb-suivi-colis,.cpb-suivi-colis li{text-align:start}
