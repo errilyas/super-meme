@@ -252,8 +252,17 @@ function cpb_avis_resume_cfg() {
    FORMULAIRE : /?avis=<commande>&k=<cle>
 ══════════════════════════════════════════════════════════════ */
 function cpb_avis_demande() {
-	if ( empty( $_GET['avis'] ) || empty( $_GET['k'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+	if ( empty( $_GET['avis'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 		return 0;
+	}
+	// Forme courte ?avis=ID_CLE (boutons des modeles WhatsApp de Meta).
+	if ( empty( $_GET['k'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		$v = sanitize_text_field( wp_unslash( $_GET['avis'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! preg_match( '/^(\d+)_([a-f0-9]{20})$/', $v, $mm ) ) {
+			return 0;
+		}
+		$id = (int) $mm[1];
+		return ( hash_equals( cpb_avis_cle( $id ), $mm[2] ) && cpb_avis_parfums_commande( $id ) ) ? $id : -1;
 	}
 	$id  = absint( $_GET['avis'] ); // phpcs:ignore WordPress.Security.NonceVerification
 	$cle = sanitize_text_field( wp_unslash( $_GET['k'] ) ); // phpcs:ignore WordPress.Security.NonceVerification

@@ -60,6 +60,7 @@ function cpb_suivi_change( $id, $etat ) {
 	}
 	update_post_meta( $id, 'cpb_suivi', $etat );
 	update_post_meta( $id, 'cpb_suivi_dates', $d );
+	do_action( 'cpb_suivi_change', $id, $etat );
 }
 
 /** Cle du lien de suivi direct. */
@@ -212,6 +213,8 @@ add_action( 'add_meta_boxes_cp_commande', function () {
 			printf( '<p><a class="button" href="%s" target="_blank" rel="noopener">WhatsApp : prévenir le client</a></p>', esc_url( $wa ) );
 		}
 		printf( '<p>Lien de suivi du client :<br><input type="text" readonly style="width:100%%" value="%s" onclick="this.select()"></p>', esc_attr( cpb_url_suivi( $post->ID ) ) );
+		wp_nonce_field( 'cpb_colis', 'cpb_colis_nonce' );
+		printf( '<p><label for="cpb_colis">N° de suivi du livreur</label><br><input id="cpb_colis" name="cpb_colis" type="text" style="width:100%%" value="%s"></p>', esc_attr( get_post_meta( $post->ID, 'cpb_colis', true ) ) );
 	}, 'cp_commande', 'side', 'high' );
 } );
 
@@ -237,10 +240,17 @@ add_action( 'template_redirect', function () {
 	$erreur  = '';
 	$ref_vue = '';
 	$brut    = sanitize_text_field( wp_unslash( $_GET['suivi'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
-	// Lien direct (WhatsApp) : reference + cle.
-	if ( '1' !== $brut && isset( $_GET['k'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-		$c = cpb_suivi_trouve( $brut );
-		if ( $c && hash_equals( cpb_suivi_cle( $c ), sanitize_text_field( wp_unslash( $_GET['k'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+	// Lien direct (WhatsApp) : reference + cle, en ?suivi=REF&k=CLE ou en
+	// ?suivi=REF_CLE (un seul parametre, pour les boutons des modeles Meta).
+	$cle_lien = isset( $_GET['k'] ) ? sanitize_text_field( wp_unslash( $_GET['k'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+	$ref_lien = $brut;
+	if ( '' === $cle_lien && preg_match( '/^(CP-[0-9A-Z-]+)_([a-f0-9]{16})$/i', $brut, $mm ) ) {
+		$ref_lien = $mm[1];
+		$cle_lien = $mm[2];
+	}
+	if ( '1' !== $brut && '' !== $cle_lien ) {
+		$c = cpb_suivi_trouve( $ref_lien );
+		if ( $c && hash_equals( cpb_suivi_cle( $c ), $cle_lien ) ) {
 			$id = $c;
 		}
 	}
@@ -350,3 +360,12 @@ function cpb_suivi_page( $id, $erreur, $ref_vue ) {
 	}
 	echo '</main>';
 }
+
+add_action( 'save_post_cp_commande', function ( $id ) {
+	if ( ! isset( $_POST['cpb_colis_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['cpb_colis_nonce'] ) ), 'cpb_colis' ) || ! current_user_can( 'edit_post', $id ) ) {
+		return;
+	}
+	if ( isset( $_POST['cpb_colis'] ) ) {
+		update_post_meta( $id, 'cpb_colis', sanitize_text_field( wp_unslash( $_POST['cpb_colis'] ) ) );
+	}
+} );
