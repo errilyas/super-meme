@@ -129,6 +129,11 @@
     'Vos coordonnées de la dernière fois sont reprises.': 'معلوماتك من المرة الماضية معبأة مسبقًا.',
     'Effacer': 'مسح',
     'Informations': 'معلومات',
+    'Bon à savoir': 'معلومة مفيدة',
+    'Conseils': 'نصائح',
+    'Bien choisir son parfum': 'اختيار عطرك بشكل صحيح',
+    'Lire le guide': 'اقرأ الدليل',
+    'Tous nos conseils': 'كل نصائحنا',
     'Bonjour, j’ai passé la commande {ref}. J’aimerais y ajouter {p} ({prix}), avec la livraison offerte. Merci !': 'السلام عليكم، درت الطلب {ref}. بغيت نزيد معاه {p} ({prix})، والتوصيل مجاني. شكرا!',
     'Un deuxième parfum ?': 'عطر ثانٍ؟',
     'Avant l’expédition': 'قبل الإرسال',
@@ -1864,6 +1869,51 @@
   }
 
   /* ══════════════════════════════════════════════════════════════
+     GUIDES « CONSEILS » SUR LA BOUTIQUE
+     Fiche parfum : deux liens vers les guides qui levent les deux doutes
+     d'achat (« un testeur, c'est quoi ? », « est-ce un original ? »).
+     Accueil : les trois derniers guides, avant « Commander maintenant ».
+     Rien n'apparait tant que les guides ne sont pas publies.
+  ══════════════════════════════════════════════════════════════ */
+  function guidesSite() {
+    var guides = CFG.guides || [];
+    if (!guides.length) { return; }
+    var parSlug = {};
+    guides.forEach(function (g) { parSlug[g.slug] = g; });
+
+    var buy = CFG.slug ? document.querySelector('main.pf .pf-buy') : null;
+    var doutes = [parSlug['testeur-de-parfum-c-est-quoi'], parSlug['verifier-parfum-original']].filter(Boolean);
+    if (buy && doutes.length && !buy.querySelector('.cpb-doutes')) {
+      var d = document.createElement('div');
+      d.className = 'cpb cpb-doutes';
+      d.innerHTML = '<p class="cpb-doutes-titre">' + esc(t('Bon à savoir')) + '</p><ul>' + doutes.map(function (g) {
+        return '<li><a href="' + esc(g.url) + '">' + esc(g.titre) + '</a></li>';
+      }).join('') + '</ul>';
+      var ap = buy.querySelector('.franco-pf') || buy.querySelector('.pf-rassure-cta');
+      if (ap && ap.parentNode) { ap.parentNode.insertBefore(d, ap.nextSibling); } else { buy.appendChild(d); }
+    }
+
+    var fin = CFG.accueil ? document.querySelector('.finale') : null;
+    if (fin && !document.querySelector('.cpb-conseils')) {
+      var tous = null;
+      (CFG.pages || []).forEach(function (p) { if (p.cle === 'conseils') { tous = p.url; } });
+      var s = document.createElement('section');
+      s.className = 'cpb cpb-conseils';
+      s.setAttribute('aria-label', t('Conseils'));
+      s.innerHTML = '<div class="cpb-conseils-inner">' +
+        '<div class="sect-kicker"><span>' + esc(t('Conseils')) + '</span></div>' +
+        '<h2 class="sect-h2">' + esc(t('Bien choisir son parfum')) + '</h2>' +
+        '<div class="cpb-conseils-liste">' + guides.slice(0, 3).map(function (g) {
+          return '<a class="cpb-conseil" href="' + esc(g.url) + '"><span class="cpb-conseil-titre">' + esc(g.titre) + '</span>' +
+            '<span class="cpb-conseil-resume">' + esc(g.resume) + '</span><span class="cpb-conseil-lire">' + esc(t('Lire le guide')) + ' →</span></a>';
+        }).join('') + '</div>' +
+        (tous ? '<p class="cpb-conseils-tous"><a href="' + esc(tous) + '">' + esc(t('Tous nos conseils')) + '</a></p>' : '') +
+        '</div>';
+      fin.parentNode.insertBefore(s, fin);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
      LIENS D'INFORMATION
      Pied de page : A propos, Contact, Conditions de vente, Retours,
      Confidentialite (seulement les pages publiees, fournies par PHP).
@@ -1907,7 +1957,7 @@
      et rien du tout si le telephone demande moins d'animations.
   ══════════════════════════════════════════════════════════════ */
   var A_REVELER = [
-    'main.pf .pf-block', 'main.pf .pf-histoire', '.cpb-quiz-appel', '.cpb-express',
+    'main.pf .pf-block', 'main.pf .pf-histoire', '.cpb-quiz-appel', '.cpb-express', '.cpb-conseil',
     '.cpb-dist-visuel', '.cpb-404-visuel', '.pf-sibs .pf-sib'
   ];
 
@@ -2006,7 +2056,7 @@
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, merciSecond, rechercheDepuisAdresse, animations].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, guidesSite, merciSecond, rechercheDepuisAdresse, animations].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

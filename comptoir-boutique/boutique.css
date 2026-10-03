@@ -702,3 +702,25 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-page-corps .cpb-guide-grille a{text-decoration:none}
 .cpb-page-suite{margin:40px 0 0}
 .cp-secours article .cat-grille{margin-top:14px}
+
+/* ── Guides sur la fiche et l'accueil ── */
+.cpb-doutes{margin:14px 0 4px;padding:12px 14px;border-inline-start:2px solid rgba(var(--au-rgb),.6);background:rgba(var(--au-rgb),.04)}
+.cpb-doutes-titre{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--smoke);margin:0 0 6px}
+.cpb-doutes ul{list-style:none;margin:0;padding:0}
+.cpb-doutes li{margin:4px 0}
+.cpb-doutes a{font-size:13.5px;line-height:1.5;color:var(--bone);text-decoration:underline;text-decoration-color:rgba(var(--au-rgb),.6);text-underline-offset:3px}
+.cpb-doutes a:hover,.cpb-doutes a:focus-visible{color:var(--ember)}
+[data-lang="ar"] .cpb-doutes-titre{letter-spacing:0;font-size:12px}
+.cpb-conseils{padding:72px 24px 24px}
+.cpb-conseils-inner{max-width:1180px;margin:0 auto}
+.cpb-conseils .sect-h2{margin:10px 0 28px}
+.cpb-conseils-liste{display:grid;gap:14px}
+@media(min-width:860px){.cpb-conseils-liste{grid-template-columns:repeat(3,1fr)}.cpb-conseils{padding:96px 56px 32px}}
+.cpb-conseil{display:flex;flex-direction:column;gap:10px;padding:22px 22px 20px;border:1px solid var(--line2);text-decoration:none;color:inherit;transition:border-color .25s,background-color .25s}
+.cpb-conseil:hover,.cpb-conseil:focus-visible{border-color:rgba(var(--au-rgb),.6);background:rgba(var(--au-rgb),.04)}
+.cpb-conseil-titre{font-family:var(--serif);font-weight:300;font-size:22px;line-height:1.2;color:var(--bone)}
+.cpb-conseil-resume{font-size:13.5px;line-height:1.6;color:var(--text-dim)}
+.cpb-conseil-lire{margin-top:auto;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ember)}
+[data-lang="ar"] .cpb-conseil-lire{letter-spacing:0;font-size:13px}
+.cpb-conseils-tous{margin:20px 0 0}
+.cpb-conseils-tous a{color:var(--ember);font-size:13px;text-underline-offset:3px}

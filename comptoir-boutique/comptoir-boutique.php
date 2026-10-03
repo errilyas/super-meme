@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.10.0
+ * Version:           1.11.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.10.0' );
+define( 'CPB_VERSION', '1.11.0' );
 
 /**
  * Mode de diffusion.
@@ -86,6 +86,7 @@ add_action( 'wp_enqueue_scripts', function () {
 	$slug   = function_exists( 'comptoir_parfum_slug_demande' ) ? comptoir_parfum_slug_demande() : '';
 	$parfum = ( $slug && function_exists( 'comptoir_produit_by_slug' ) && comptoir_produit_by_slug( $slug ) ) ? $slug : '';
 
+	$cfg_accueil = function_exists( 'comptoir_est_accueil' ) ? comptoir_est_accueil() : is_front_page();
 	$cfg = array(
 		'slug'       => $parfum,
 		// Page Vente ouverte sur un parfum (publicite) : il recoit lui aussi
@@ -95,6 +96,7 @@ add_action( 'wp_enqueue_scripts', function () {
 		'home'       => home_url( '/' ),
 		'populaires' => cpb_populaires(),
 		'visuels'    => cpb_visuels(),
+		'guides'     => ( ! empty( $cfg_accueil ) || $parfum ) ? cpb_guides( 12 ) : array(),
 		'pages'      => array_map( function ( $p ) { return array( 'fr' => $p[0], 'ar' => $p[1], 'url' => $p[2], 'cle' => $p[3] ); }, cpb_pages_info() ),
 		// En apercu, les liens internes gardent le parametre : sans lui, la page
 		// suivante s'ouvrirait sans les nouveautes et le parcours serait coupe.
@@ -224,8 +226,83 @@ add_action( 'wp_head', function () {
 		return;
 	}
 	$GLOBALS['cpb_og_tampon'] = false;
-	echo cpb_corrige_og( (string) ob_get_clean() ); // phpcs:ignore WordPress.Security.EscapeOutput -- sortie du theme, deja echappee.
-}, 2 );
+	echo cpb_enrichit_ld( cpb_corrige_og( (string) ob_get_clean() ) ); // phpcs:ignore WordPress.Security.EscapeOutput -- sortie du theme, deja echappee.
+}, 3 ); // apres les donnees structurees du theme (priorite 2)
+
+/* ══════════════════════════════════════════════════════════════
+   DONNEES STRUCTUREES (Google)
+   Le theme decrit chaque fiche comme un produit avec son prix. Google
+   demande aussi, pour les fiches marchandes, l'etat du produit, la
+   livraison et la politique de retour : sans elles, la Search Console
+   signale des champs manquants et les fiches peuvent perdre leurs
+   informations enrichies. On les ajoute, tirees des reglages du theme
+   et des pages publiees, sans rien promettre de plus que le site.
+══════════════════════════════════════════════════════════════ */
+function cpb_enrichit_ld( $html ) {
+	return preg_replace_callback( '#<script type="application/ld\+json">(.*?)</script>#s', function ( $m ) {
+		$d = json_decode( $m[1], true );
+		if ( ! is_array( $d ) || empty( $d['@type'] ) ) {
+			return $m[0];
+		}
+		if ( 'Product' === $d['@type'] && ! empty( $d['offers'] ) && is_array( $d['offers'] ) ) {
+			if ( empty( $d['sku'] ) && function_exists( 'comptoir_parfum_slug_demande' ) ) {
+				$d['sku'] = comptoir_parfum_slug_demande();
+			}
+			$o                  = $d['offers'];
+			$o['itemCondition'] = 'https://schema.org/NewCondition';
+			$o['seller']        = array( '@type' => 'Organization', 'name' => get_bloginfo( 'name' ) );
+			$frais              = function_exists( 'comptoir_livraison_dh' ) ? (int) comptoir_livraison_dh() : 0;
+			if ( $frais > 0 ) {
+				$o['shippingDetails'] = array(
+					'@type'               => 'OfferShippingDetails',
+					'shippingRate'        => array( '@type' => 'MonetaryAmount', 'value' => $frais, 'currency' => 'MAD' ),
+					'shippingDestination' => array( '@type' => 'DefinedRegion', 'addressCountry' => 'MA' ),
+					'deliveryTime'        => array(
+						'@type'        => 'ShippingDeliveryTime',
+						'handlingTime' => array( '@type' => 'QuantitativeValue', 'minValue' => 0, 'maxValue' => 1, 'unitCode' => 'DAY' ),
+						'transitTime'  => array( '@type' => 'QuantitativeValue', 'minValue' => 1, 'maxValue' => 4, 'unitCode' => 'DAY' ),
+					),
+				);
+			}
+			$retours = get_page_by_path( 'retours-et-remboursement' );
+			if ( $retours && 'publish' === $retours->post_status ) {
+				$o['hasMerchantReturnPolicy'] = array(
+					'@type'                => 'MerchantReturnPolicy',
+					'applicableCountry'    => 'MA',
+					'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+					'merchantReturnDays'   => 7,
+					'returnMethod'         => 'https://schema.org/ReturnByMail',
+					'url'                  => get_permalink( $retours ),
+				);
+			}
+			$d['offers'] = $o;
+		} elseif ( 'Store' === $d['@type'] && empty( $d['sameAs'] ) ) {
+			$d['sameAs'] = array( 'https://www.instagram.com/le_comptoir_parfums', 'https://www.facebook.com/profile.php?id=61573721267555' );
+		}
+		return '<script type="application/ld+json">' . wp_json_encode( $d ) . '</script>';
+	}, $html );
+}
+
+/**
+ * Les guides publies (categorie « conseils »), du plus recent au plus
+ * ancien : titre, resume, adresse, slug. Pour la fiche et l'accueil.
+ */
+function cpb_guides( $n = 6 ) {
+	$cat = get_category_by_slug( 'conseils' );
+	if ( ! $cat ) {
+		return array();
+	}
+	$out = array();
+	foreach ( get_posts( array( 'category' => $cat->term_id, 'numberposts' => $n, 'post_status' => 'publish' ) ) as $post ) {
+		$out[] = array(
+			'titre' => html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' ),
+			'resume' => wp_strip_all_tags( get_the_excerpt( $post ) ),
+			'url'   => get_permalink( $post ),
+			'slug'  => $post->post_name,
+		);
+	}
+	return $out;
+}
 
 /* ══════════════════════════════════════════════════════════════
    PAGES DU SITE ET LIENS D'INFORMATION

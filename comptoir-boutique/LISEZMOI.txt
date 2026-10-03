@@ -116,6 +116,15 @@ Ce qu'elle ajoute au site, sans modifier le thème :
    - Dans un article, [parfums slugs="dior--sauvage-elixir,chanel--coco-mademoiselle"]
      affiche les cartes du catalogue (photo, prix, lien vers la fiche).
 
+15. GOOGLE ET GUIDES SUR LA BOUTIQUE (version 1.11.0)
+   - Données structurées des fiches parfum complétées pour Google : état
+     neuf, vendeur, frais et délais de livraison (35 DH, 1 à 4 jours),
+     politique de retour (page Retours et remboursement). Accueil : liens
+     Instagram et Facebook de la boutique.
+   - Fiche parfum : « Bon à savoir », liens vers les guides « testeur,
+     c'est quoi ? » et « vérifier qu'un parfum est original ».
+   - Accueil : les trois derniers guides, avant « Commander maintenant ».
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient
