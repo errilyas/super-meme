@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.17.0
+ * Version:           1.18.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.17.0' );
+define( 'CPB_VERSION', '1.18.0' );
 
 /**
  * Mode de diffusion.
@@ -780,3 +780,24 @@ add_action( 'template_redirect', function () {
 	echo $xml; // phpcs:ignore WordPress.Security.EscapeOutput -- echappe element par element ci-dessus.
 	exit;
 }, 0 );
+
+/* ══════════════════════════════════════════════════════════════
+   MICROSOFT CLARITY : UNE SEULE BALISE
+   Le theme pose deja Clarity (comptoir_mesure()). L'extension
+   « Microsoft Clarity », active elle aussi, en ajoutait une seconde pour
+   le meme projet : deux scripts, deux enregistrements concurrents. Quand
+   les deux identifiants sont les memes, on retire celle de l'extension
+   (son tableau de bord dans l'admin reste disponible). S'ils different,
+   ce sont deux projets distincts : on ne touche a rien.
+══════════════════════════════════════════════════════════════ */
+add_action( 'wp', function () {
+	if ( is_admin() || ! function_exists( 'clarity_add_script_to_header' ) || ! function_exists( 'comptoir_mesure' ) ) {
+		return;
+	}
+	$m      = comptoir_mesure();
+	$theme  = isset( $m['clarity'] ) ? strtolower( trim( (string) $m['clarity'] ) ) : '';
+	$plugin = strtolower( trim( (string) get_option( 'clarity_project_id' ) ) );
+	if ( '' !== $theme && $theme === $plugin ) {
+		remove_action( 'wp_head', 'clarity_add_script_to_header' );
+	}
+} );

@@ -191,3 +191,11 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    Sources de données > Ajouter > Fichier, récupération planifiée
    quotidienne) et dans Commerce Manager (Catalogue > Sources de
    données > Flux de données > URL).
+
+22. MICROSOFT CLARITY (version 1.18.0)
+   Le thème pose déjà la balise Clarity. Si l'extension « Microsoft
+   Clarity » est active avec le même identifiant de projet, sa balise en
+   double est retirée (son tableau de bord dans l'admin reste). Les
+   formulaires de commande (page commande et commande express) portent
+   data-clarity-mask : nom, téléphone et adresse n'apparaissent jamais
+   dans les enregistrements.

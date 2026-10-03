@@ -2160,8 +2160,16 @@
      DEMARRAGE — chaque module isole : une erreur dans l'un ne prive
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
+  /* Microsoft Clarity : les formulaires de commande (nom, telephone,
+     adresse) ne doivent jamais apparaitre dans les enregistrements, quel que
+     soit le reglage choisi dans Clarity (voir la page Confidentialite). */
+  function masqueClarity() {
+    var l = document.querySelectorAll('#ck-form, .cpb-express, form[data-cpb-form]');
+    for (var i = 0; i < l.length; i++) { l[i].setAttribute('data-clarity-mask', 'true'); }
+  }
+
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, suivreInstagram, rechercheDepuisAdresse, animations].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,
