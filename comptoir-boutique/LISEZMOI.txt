@@ -242,3 +242,10 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    au clavier) pour s'ouvrir en plein écran, entière : flèches, glissement
    du doigt à gauche/droite, glisser vers le bas ou Échap pour fermer.
    Compteur « 2 / 5 ». La photo d'un avis sur la fiche s'ouvre de même.
+
+28. BOUTON « PARTAGER » SUR LA FICHE (version 1.23.0)
+   À côté de « Ajouter à mes favoris ». Sur téléphone : le menu de
+   partage du téléphone (WhatsApp, Instagram, SMS…) ; sur ordinateur :
+   WhatsApp avec « Regarde ce parfum : <nom>, <prix>, payé à la
+   livraison. <lien> ». Le lien porte utm_source=partage (visible dans
+   Google Analytics), et un événement GA4 « share » est envoyé.

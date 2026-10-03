@@ -149,6 +149,9 @@
     '{n} avis': '{n} آراء',
     '1 avis': 'رأي واحد',
     'Message ou colis d’un client': 'رسالة أو طرد من أحد الزبناء',
+    'Partager': 'مشاركة',
+    'Partager {nom}': 'مشاركة {nom}',
+    'Regarde ce parfum : {nom}, {prix}, payé à la livraison.': 'شوف هاد العطر: {nom}، {prix}، الدفع عند الاستلام.',
     'Capture de client agrandie': 'صورة زبون مكبّرة',
     'Agrandir la capture {n} sur {t}': 'تكبير الصورة {n} من {t}',
     'Capture précédente': 'الصورة السابقة',
@@ -282,6 +285,7 @@
     etincelle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></svg>',
     camion: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.5 16.5V6.5h12v10M13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>',
     wa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+    partage: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.4M8.3 13.2l7.4 4.4"/></svg>',
     insta: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg>'
   };
 
@@ -1326,10 +1330,14 @@
     if (ancre) {
       var zone = document.createElement('div');
       zone.className = 'cpb';
-      zone.innerHTML = coeurHTML(ref.s, false) +
+      zone.innerHTML = '<div class="cpb-fiche-actions">' + coeurHTML(ref.s, false) +
+        '<button type="button" class="cpb-coeur cpb-partage" aria-label="' + esc(t('Partager {nom}', { nom: ref.b + ' ' + ref.n })) + '">' + SVG.partage +
+        '<span class="cpb-coeur-txt">' + esc(t('Partager')) + '</span></button></div>' +
         '<p class="cpb-bloc-quiz">' + esc(t('Vous hésitez ?')) + ' <button type="button" data-cpb-quiz>' +
         esc(t('Trouvez votre parfum en 4 questions')) + '</button></p>';
       ancre.parentNode.insertBefore(zone, ancre.nextSibling);
+      var bp = zone.querySelector('.cpb-partage');
+      if (bp) { bp.addEventListener('click', function () { partageFiche(ref); }); }
     }
 
     /* « Dans le meme esprit » passe avant « Dans la meme maison ». */
@@ -1351,6 +1359,21 @@
     if (vus.length) {
       main.appendChild(blocSibs(t('Vus récemment'), vus.map(function (p) { return carteSib(p, null); }).join('')));
     }
+  }
+
+  /* Partager une fiche : la feuille de partage du telephone (WhatsApp,
+     Instagram, SMS…) quand elle existe, sinon WhatsApp directement. Le lien
+     porte utm_source=partage : Analytics distingue ces visites. */
+  function partageFiche(ref) {
+    var url = (CFG.home || '/') + '?parfum=' + encodeURIComponent(ref.s) + '&utm_source=partage&utm_medium=social';
+    var txt = t('Regarde ce parfum : {nom}, {prix}, payé à la livraison.', { nom: ref.b + ' ' + ref.n, prix: prixTexte(ref) });
+    var mesure = function (m) { try { if (typeof window.gtag === 'function') { window.gtag('event', 'share', { method: m, content_type: 'product', item_id: ref.s }); } } catch (e) {} };
+    if (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+      navigator.share({ title: ref.b + ' ' + ref.n, text: txt, url: url }).then(function () { mesure('natif'); }, function () {});
+      return;
+    }
+    mesure('whatsapp');
+    window.open('https://wa.me/?text=' + encodeURIComponent(txt + ' ' + url), '_blank', 'noopener');
   }
 
   /* ══════════════════════════════════════════════════════════════

@@ -859,3 +859,7 @@ html.cpb-lock .joinchat{display:none!important}
 [dir="rtl"] .cpb-visio-prec span,[dir="rtl"] .cpb-visio-suiv span{display:inline-block;transform:scaleX(-1)}
 .preuve[data-cpb-visio]{cursor:zoom-in}
 .preuve[data-cpb-visio]:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+/* Fiche : favoris et partage cote a cote */
+.cpb-fiche-actions{display:flex;flex-wrap:wrap;align-items:center;gap:0 26px;margin-top:8px}
+.cpb-fiche-actions .cpb-coeur{margin-top:0}
+.cpb-partage svg{fill:none}
