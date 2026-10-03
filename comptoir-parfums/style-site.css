@@ -162,6 +162,8 @@ body{
   transition:width .35s var(--ease-out),height .35s var(--ease-out),
              opacity .35s,border-color .35s,background .35s;
 }
+/* Invisible tant que la souris n'est pas dans la page (theme.js : .cur-on) */
+html:not(.cur-on) #cur,html:not(.cur-on) #cur-r,html:not(.cur-on) #cur-label{opacity:0}
 /* hover states */
 body.ch-link #cur-r{width:62px;height:62px;opacity:.45;border-color:rgba(var(--au-rgb),.6)}
 body.ch-cta  #cur-r{
