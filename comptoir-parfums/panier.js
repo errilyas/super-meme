@@ -92,6 +92,7 @@
     franco: 2,                     // livraison offerte à partir de N articles
     wa: '212717961180',            // numéro WhatsApp (sans +)
     livraison: 35,                 // frais de livraison, DH — 0 = « à confirmer »
+    remise: 0,                     // remise par paire de parfums (« duo »), DH
     commander: 'commander.html',   // URL de la page commande
     home: 'comptoirv3-motion.html',// URL de l'accueil (pour le lien catalogue)
     imgBase: 'img/produits/',      // base des photos (WordPress : URL absolue du thème)
@@ -314,7 +315,10 @@
       if (!CFG.franco || !P.count()) return 0;
       return Math.max(0, CFG.franco - P.count());
     },
-    total: function () { return P.subtotal() + P.fraisLivraison(); },
+    /* Remise « duo » : CFG.remise DH par paire de parfums (2 = 1 remise,
+       4 = 2). Le serveur applique la meme regle (comptoir_remise_duo). */
+    remise: function () { return CFG.remise > 0 ? Math.floor(P.count() / 2) * CFG.remise : 0; },
+    total: function () { return Math.max(0, P.subtotal() - P.remise()) + P.fraisLivraison(); },
     clear: function () { write([]); },
     onChange: function (fn) { listeners.push(fn); },
     open: function () {
@@ -373,6 +377,7 @@
         L.push('• ' + x.q + '× ' + x.p.b + ' ' + x.p.n + ' — ' + fmt(priceNum(x.p)));
       });
       L.push('', T('Sous-total') + ' : ' + fmt(P.subtotal()));
+      if (P.remise()) { L.push(T('Remise duo') + ' : −' + fmt(P.remise())); }
       L.push(T('Livraison') + ' : ' + (P.livraisonOfferte() ? T('offerte')
         : (CFG.livraison ? fmt(CFG.livraison) : T('à confirmer'))));
       L.push(T('Total') + ' : ' + fmt(P.total()));
@@ -409,6 +414,7 @@
           d.append('adresse', client.adresse || '');
           d.append('total', P.total());
           d.append('livraison', P.fraisLivraison());
+          d.append('remise', P.remise());
           d.append('articles', P.count());
           d.append('panier', panier);
           d.append('lignes', JSON.stringify(P.items().map(function(x){ return {s:x.s, q:x.q}; })));
@@ -672,13 +678,19 @@
     var manque = P.manquePourFranco();
     /* La relance ne s'affiche que lorsqu'elle est utile : il manque un flacon,
        et le client a le tiroir sous les yeux. */
+    var impair = CFG.remise > 0 && P.count() % 2 === 1;
     var relance = manque === 1
-      ? '<div class="pnr-franco">' + T('Ajoutez un second parfum : la livraison passe à 0 DH.') + '</div>'
-      : (P.livraisonOfferte() ? '<div class="pnr-franco acquis">' + T('Livraison offerte.') + '</div>' : '');
+      ? '<div class="pnr-franco">' + (CFG.remise > 0
+          ? T('Ajoutez un second parfum : livraison offerte et {r} de remise.', { r: fmt(CFG.remise) })
+          : T('Ajoutez un second parfum : la livraison passe à 0 DH.')) + '</div>'
+      : (impair ? '<div class="pnr-franco">' + T('Ajoutez un parfum : {r} de remise en plus.', { r: fmt(CFG.remise) }) + '</div>'
+      : (P.livraisonOfferte() ? '<div class="pnr-franco acquis">' + (P.remise()
+          ? T('Livraison offerte et {r} de remise.', { r: fmt(P.remise()) }) : T('Livraison offerte.')) + '</div>' : ''));
     if (manque === 1) body.insertAdjacentHTML('beforeend', P.suggestionsHTML(3));
     foot.hidden = false;
     foot.innerHTML =
       '<div class="pnr-sum"><span>' + T('Sous-total') + '</span><span>' + fmt(P.subtotal()) + '</span></div>' +
+      (P.remise() ? '<div class="pnr-sum pnr-remise"><span>' + T('Remise duo') + '</span><span>−' + fmt(P.remise()) + '</span></div>' : '') +
       '<div class="pnr-sum"><span>' + T('Livraison') + '</span><span>' + liv + '</span></div>' +
       '<div class="pnr-sum total"><span>' + T('Total') + '</span><b>' + fmt(P.total()) + '</b></div>' +
       relance +

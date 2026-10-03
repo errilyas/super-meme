@@ -894,3 +894,41 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-merci-suivi svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.5}
 .cpb-merci-suivi a:hover,.cpb-merci-suivi a:focus-visible{text-decoration:underline;text-underline-offset:4px}
 .cpb-suivi-colis,.cpb-suivi-colis li{text-align:start}
+
+/* ══════════════════════════════════════════
+   PACKS DUO
+══════════════════════════════════════════ */
+.cpb-packs{padding:72px 0 40px}
+.cpb-packs-inner{max-width:1280px;margin:0 auto;padding:0 24px}
+@media(min-width:900px){.cpb-packs-inner{padding:0 72px}}
+.cpb-packs-accroche{margin:6px 0 22px;color:var(--text-dim);font-size:15px;line-height:1.6;text-align:start}
+.cpb-packs-rang{display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,360px);gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:14px;scrollbar-color:rgba(var(--au-rgb),.35) transparent}
+.cpb-packs-rang>.cpb-pack{scroll-snap-align:start}
+@media(min-width:1100px){.cpb-packs-rang{grid-auto-flow:row;grid-template-columns:repeat(3,1fr);overflow:visible}}
+.cpb-packs-tous{margin:14px 0 0;text-align:start}
+.cpb-packs-tous a{color:var(--ember);text-underline-offset:4px}
+.cpb-pack{display:flex;flex-direction:column;gap:10px;padding:18px 18px 16px;border:1px solid rgba(var(--au-rgb),.3);border-radius:14px;background:var(--well,rgba(255,255,255,.02));text-align:start}
+.cpb-pack-type{margin:0;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--amber)}
+.cpb-pack-titre{margin:0;font-family:var(--serif);font-weight:400;font-size:22px;color:var(--bone)}
+.cpb-pack-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:relative}
+.cpb-pack-duo::after{content:'+';position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:var(--ember);color:var(--ink);font-size:18px;line-height:26px;text-align:center;pointer-events:none}
+.cpb-pack-p{display:flex;flex-direction:column;gap:3px;text-decoration:none;color:inherit;min-width:0}
+.cpb-pack-photo{display:block;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--deep,rgba(0,0,0,.2))}
+.cpb-pack-img{display:block;width:100%;height:100%;object-fit:contain}
+.cpb-pack-maison{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-top:6px}
+.cpb-pack-nom{font-family:var(--serif);font-size:17px;line-height:1.2;color:var(--bone)}
+.cpb-pack-pp{font-size:12px;color:var(--text-dim)}
+.cpb-pack-maison .cpb-maison,.cpb-pack-nom .cpb-nom{all:unset}
+.cpb-pack-sous{margin:0;font-size:13px;color:var(--text-dim);line-height:1.5}
+.cpb-pack-prix{margin:2px 0 0;font-size:14px;color:var(--text-dim)}
+.cpb-pack-prix s{opacity:.7;margin-inline-end:4px}
+.cpb-pack-prix b{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--ember)}
+.cpb-pack-go{margin-top:4px;min-height:48px;border:0;border-radius:2px;background:var(--ember);color:var(--ink);font:inherit;font-size:12px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer}
+.cpb-pack-go:hover,.cpb-pack-go:focus-visible{filter:brightness(1.08)}
+.cpb-pack-fiche{margin:22px 0 6px;max-width:520px}
+.cpb-pack-fiche .cpb-packs-accroche{margin-bottom:12px}
+/* Page « Packs & duos » */
+.cpb-packs-page{margin-top:10px}
+.cpb-packs-regle{color:var(--text-dim);line-height:1.6;max-width:680px;text-align:start}
+.cpb-packs-h{font-family:var(--serif);font-weight:300;font-size:clamp(22px,3vw,28px);color:var(--bone);margin:40px 0 16px;text-align:start}
+.cpb-packs-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:18px}

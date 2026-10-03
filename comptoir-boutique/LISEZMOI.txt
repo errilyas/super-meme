@@ -278,3 +278,15 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    - Sans API WhatsApp : le lien d'étape ouvre WhatsApp (un clic).
    - Liens courts pour les boutons Meta : ?suivi=REF_CLE, ?avis=ID_CLE.
    - Journal des 50 derniers événements.
+
+31. PACKS DUO (version 1.26.0, avec le thème 3.5.7)
+   - Remise « duo » : 50 DH par paire de parfums (thème :
+     comptoir_remise_duo_dh(), 0 pour la couper). Appliquée partout : panier,
+     page commande, commande express, message WhatsApp, total enregistré,
+     Meta et Google. Sans le thème 3.5.7, rien n'annonce de remise.
+   - 12 duos prêts (cpb_packs) : 6 « couple », 6 « jour & soir ».
+     Accueil : « Nos duos » sous le catalogue (6). Fiche : « Le duo
+     parfait » si le parfum est dans un duo. Page « Packs & duos » :
+     shortcode [packs]. Bouton « Ajouter le duo au panier » : ajoute les
+     deux parfums (sans doublon) et ouvre le panier.
+   - Bandeau : « Dès 2 parfums : livraison offerte + 50 DH de remise ».

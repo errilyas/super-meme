@@ -146,6 +146,7 @@
 
     /* Catalogue et filtres */
     'Livraison offerte dès le deuxième parfum.': 'التوصيل مجاني ابتداءً من العطر الثاني.',
+    'Dès le deuxième parfum : livraison offerte et 50 DH de remise.': 'ابتداءً من العطر الثاني: توصيل مجاني وخصم 50 درهم.',
     'Catalogue complet': 'الكتالوج الكامل',
     'Tout le catalogue': 'كل الكتالوج',
     'parfums ·': 'عطر ·',
@@ -557,6 +558,10 @@
     'Retirer': 'حذف',
     'Paiement à la livraison, en espèces. Aucune carte bancaire.': 'الدفع عند الاستلام، نقدًا. لا حاجة لبطاقة بنكية.',
     'Ajoutez un second parfum : la livraison passe à 0 DH.': 'أضف عطرًا ثانيًا ويصبح التوصيل مجانيًا.',
+    'Remise duo': 'خصم الثنائي',
+    'Ajoutez un second parfum : livraison offerte et {r} de remise.': 'أضف عطرًا ثانيًا: توصيل مجاني وخصم {r}.',
+    'Ajoutez un parfum : {r} de remise en plus.': 'أضف عطرًا آخر: خصم {r} إضافي.',
+    'Livraison offerte et {r} de remise.': 'توصيل مجاني وخصم {r}.',
     'Ajoutez un second parfum et la livraison passe à <b>0 DH</b>. ': 'أضف عطرًا ثانيًا ويصبح التوصيل مجانيًا. ',
     'Voir le catalogue': 'تصفّح الكتالوج',
     'Votre panier est vide.': 'سلّتك فارغة.',

@@ -143,6 +143,10 @@
     'Un deuxième parfum ?': 'عطر ثانٍ؟',
     'Avant l’expédition': 'قبل الإرسال',
     'Ajoutez un deuxième parfum : la livraison devient offerte.': 'أضف عطرًا ثانيًا: يصبح التوصيل مجانيًا.',
+    'Ajoutez un deuxième parfum : livraison offerte et {r} de remise.': 'أضف عطرًا ثانيًا: توصيل مجاني وخصم {r}.',
+    'Bonjour, j’ai passé la commande {ref}. J’aimerais y ajouter {p} ({prix}), avec la livraison offerte et la remise duo. Merci !': 'السلام عليكم، درت الطلب {ref}. بغيت نزيد معاه {p} ({prix})، مع التوصيل المجاني وخصم الثنائي. شكرا!',
+    '−{r} + livraison offerte': '−{r} + توصيل مجاني',
+    'Remise duo : −{r}': 'خصم الثنائي: −{r}',
     'Votre colis n’est pas encore parti. Un message suffit, vous économisez {liv}.': 'طردك لم يُرسل بعد. رسالة واحدة تكفي، وتوفّر {liv}.',
     'Ajouter à ma commande': 'أضف إلى طلبي',
     'Suivez-nous sur Instagram': 'تابعونا على إنستغرام',
@@ -150,6 +154,16 @@
     '1 avis': 'رأي واحد',
     'Message ou colis d’un client': 'رسالة أو طرد من أحد الزبناء',
     'Partager': 'مشاركة',
+    'Nos duos': 'ثنائياتنا',
+    'Deux parfums qui vont ensemble : {r} de remise et la livraison offerte.': 'عطران متناسقان: خصم {r} وتوصيل مجاني.',
+    'Deux parfums qui vont ensemble : la livraison est offerte.': 'عطران متناسقان: التوصيل مجاني.',
+    'Duo couple': 'ثنائي للزوجين',
+    'Duo jour & soir': 'ثنائي النهار والليل',
+    'Ajouter le duo au panier': 'أضف الثنائي إلى السلة',
+    'livraison offerte': 'توصيل مجاني',
+    'Voir tous les duos': 'كل الثنائيات',
+    'Le duo parfait': 'الثنائي المثالي',
+    'Duo ajouté au panier': 'تمت إضافة الثنائي إلى السلة',
     'Suivre ma commande': 'تتبع طلبي',
     'Partager {nom}': 'مشاركة {nom}',
     'Regarde ce parfum : {nom}, {prix}, payé à la livraison.': 'شوف هاد العطر: {nom}، {prix}، الدفع عند الاستلام.',
@@ -1415,7 +1429,10 @@
       if (voulus.indexOf(k) < 0) { autres += lignes[k]; }
     });
     var frais = !n ? 0 : (c.franco && n >= c.franco ? 0 : (c.livraison || 0));
-    return { n: n, autres: autres, sous: sous, frais: frais, total: sous + frais };
+    /* Meme remise « duo » que le panier du theme (P.remise) : absente tant
+       que le theme ne la propose pas (c.remise vide). */
+    var remise = c.remise > 0 ? Math.floor(n / 2) * c.remise : 0;
+    return { n: n, autres: autres, sous: sous, frais: frais, remise: remise, total: Math.max(0, sous - remise) + frais };
   }
 
   function expressFiche() {
@@ -1439,7 +1456,8 @@
           '<b>' + P.fmt(P.prix(ref)) + '</b></span></label>' +
         '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="2"><span>' + esc(t('2 parfums')) +
           '<b class="cpb-x-q2">' + esc(t('+ un 2e parfum au choix')) + '</b>' +
-          (deuxOffert ? '<em>' + esc(t('Livraison offerte')) + '</em>' : '') + '</span></label>' +
+          (c.remise > 0 ? '<em>' + esc(t('−{r} + livraison offerte', { r: P.fmt(c.remise) })) + '</em>'
+            : (deuxOffert ? '<em>' + esc(t('Livraison offerte')) + '</em>' : '')) + '</span></label>' +
       '</div>' +
       /* Le deuxieme flacon est un AUTRE parfum, choisi ici : proches du
          premier par les notes, ou trouve par la recherche. Jamais le meme. */
@@ -1541,6 +1559,7 @@
       if (manque) {
         lignes.push(t('Choisissez votre 2e parfum'));
       } else {
+        if (a.remise) { lignes.push(t('Remise duo : −{r}', { r: P.fmt(a.remise) })); }
         lignes.push(t('Livraison : {l}', { l: a.frais ? P.fmt(a.frais) : t('offerte') }));
         lignes.push(t('Total à payer au livreur : {t}', { t: P.fmt(a.total) }));
       }
@@ -1629,7 +1648,7 @@
       var confirmation = {
         ref: data.ref, prenom: data.nom.split(/\s+/)[0], ville: data.ville, lien: lien,
         montant: montant, articles: articles, lignes: lignes,
-        livraison: P.fraisLivraison(), sousTotal: P.subtotal(), t: Date.now()
+        livraison: P.fraisLivraison(), sousTotal: P.subtotal(), remise: (P.remise ? P.remise() : 0), t: Date.now()
       };
 
       P.depose(data);
@@ -1868,7 +1887,7 @@
     if (!choix.length) { return; }
 
     var lien = function (p) {
-      var msg = t('Bonjour, j’ai passé la commande {ref}. J’aimerais y ajouter {p} ({prix}), avec la livraison offerte. Merci !',
+      var msg = t(c.remise > 0 ? 'Bonjour, j’ai passé la commande {ref}. J’aimerais y ajouter {p} ({prix}), avec la livraison offerte et la remise duo. Merci !' : 'Bonjour, j’ai passé la commande {ref}. J’aimerais y ajouter {p} ({prix}), avec la livraison offerte. Merci !',
         { ref: cmd.ref, p: p.b + ' ' + p.n, prix: prixTexte(p) });
       return 'https://wa.me/' + c.wa + '?text=' + encodeURIComponent(msg);
     };
@@ -1877,8 +1896,8 @@
     s.setAttribute('aria-label', t('Un deuxième parfum ?'));
     s.innerHTML =
       '<p class="cpb-titre-petit">' + esc(t('Avant l’expédition')) + '</p>' +
-      '<h3 class="cpb-ms-titre">' + esc(t('Ajoutez un deuxième parfum : la livraison devient offerte.')) + '</h3>' +
-      '<p class="cpb-ms-sous">' + esc(t('Votre colis n’est pas encore parti. Un message suffit, vous économisez {liv}.', { liv: P.fmt(cmd.livraison) })) + '</p>' +
+      '<h3 class="cpb-ms-titre">' + esc(c.remise > 0 ? t('Ajoutez un deuxième parfum : livraison offerte et {r} de remise.', { r: P.fmt(c.remise) }) : t('Ajoutez un deuxième parfum : la livraison devient offerte.')) + '</h3>' +
+      '<p class="cpb-ms-sous">' + esc(t('Votre colis n’est pas encore parti. Un message suffit, vous économisez {liv}.', { liv: P.fmt(cmd.livraison + (c.remise > 0 ? c.remise : 0)) })) + '</p>' +
       '<div class="cpb-ms-liste">' + choix.map(function (p) {
         return '<div class="cpb-ms-carte">' +
           '<a class="cpb-ms-photo" href="' + esc(urlFiche(p.s)) + '">' + vignette(p, 'cpb-vignette', 120, 150) + '</a>' +
@@ -2060,6 +2079,73 @@
     var apres = bloc.querySelector('.ck-merci-detail') || bloc.querySelector('.ck-merci-suite');
     if (apres && apres.parentNode) { apres.parentNode.insertBefore(p, apres.nextSibling); } else { bloc.appendChild(p); }
   }
+
+  /* ══════════════════════════════════════════════════════════════
+     PACKS DUO (comptoir-boutique.php > cpb_packs)
+     Accueil : « Nos duos » apres le catalogue. Fiche : « Le duo parfait »
+     quand le parfum fait partie d'un pack. Partout, [data-cpb-duo] ajoute
+     les deux parfums au panier (sans doublon) et ouvre le panier : la
+     remise « duo » du theme s'y applique d'elle-meme.
+  ══════════════════════════════════════════════════════════════ */
+  function packCarte(k) {
+    var a = produit(k.a), b = produit(k.b);
+    if (!a || !b) { return ''; }
+    var r = (P.cfg && P.cfg.remise > 0) ? P.cfg.remise : 0;
+    var prix = Math.max(0, P.prix(a) + P.prix(b) - r);
+    var pp = function (x) {
+      return '<a class="cpb-pack-p" href="' + esc(urlFiche(x.s)) + '"><span class="cpb-pack-photo">' + vignette(x, 'cpb-pack-img', 300, 300) + '</span>' +
+        '<span class="cpb-pack-maison">' + maisonHTML(x) + '</span><span class="cpb-pack-nom">' + nomHTML(x) + '</span>' +
+        '<span class="cpb-pack-pp">' + prixTexte(x) + '</span></a>';
+    };
+    return '<article class="cpb-pack" data-type="' + esc(k.type) + '">' +
+      '<p class="cpb-pack-type">' + esc(t(k.type === 'couple' ? 'Duo couple' : 'Duo jour & soir')) + '</p>' +
+      '<div class="cpb-pack-duo">' + pp(a) + pp(b) + '</div>' +
+      '<p class="cpb-pack-prix">' + (r ? '<s>' + P.fmt(P.prix(a) + P.prix(b)) + '</s> ' : '') + '<b>' + P.fmt(prix) + '</b> <span>· ' + esc(t('livraison offerte')) + '</span></p>' +
+      '<button type="button" class="cpb-pack-go" data-cpb-duo="' + esc(k.a + ',' + k.b) + '">' + esc(t('Ajouter le duo au panier')) + '</button>' +
+    '</article>';
+  }
+  function packsSite() {
+    var l = CFG.packs || [];
+    var r = (P.cfg && P.cfg.remise > 0) ? P.cfg.remise : 0;
+    var accroche = r ? t('Deux parfums qui vont ensemble : {r} de remise et la livraison offerte.', { r: P.fmt(r) }) : t('Deux parfums qui vont ensemble : la livraison est offerte.');
+    if (l.length && CFG.accueil && !document.querySelector('.cpb-packs')) {
+      var cat = document.getElementById('catalogue');
+      var apres = cat ? (cat.closest('section') || cat) : null;
+      if (apres && apres.parentNode) {
+        var s = document.createElement('section');
+        s.className = 'cpb cpb-packs';
+        s.setAttribute('aria-labelledby', 'cpb-packs-t');
+        s.innerHTML = '<div class="cpb-packs-inner"><p class="cpb-titre-petit" id="cpb-packs-t">' + esc(t('Nos duos')) + '</p>' +
+          '<p class="cpb-packs-accroche">' + esc(accroche) + '</p>' +
+          '<div class="cpb-packs-rang">' + l.map(packCarte).join('') + '</div>' +
+          (CFG.url_packs ? '<p class="cpb-packs-tous"><a href="' + esc(CFG.url_packs) + '">' + esc(t('Voir tous les duos')) + '</a></p>' : '') +
+          '</div>';
+        apres.parentNode.insertBefore(s, apres.nextSibling);
+      }
+    }
+    var main = document.querySelector('main.pf');
+    if (l.length && CFG.slug && main && !main.querySelector('.cpb-pack-fiche')) {
+      var zone = main.querySelector('.cpb-fiche-actions');
+      var hote = zone ? zone.parentNode : null;
+      if (hote) {
+        var d = document.createElement('div');
+        d.className = 'cpb-pack-fiche';
+        d.innerHTML = '<p class="cpb-titre-petit">' + esc(t('Le duo parfait')) + '</p><p class="cpb-packs-accroche">' + esc(accroche) + '</p>' + packCarte(l[0]);
+        hote.parentNode.insertBefore(d, hote.nextSibling);
+      }
+    }
+  }
+  document.addEventListener('click', function (e) {
+    var bt = e.target.closest && e.target.closest('[data-cpb-duo]');
+    if (!bt) { return; }
+    var duo = bt.getAttribute('data-cpb-duo').split(',');
+    var dans = {};
+    P.items().forEach(function (x) { dans[x.s] = 1; });
+    var aAjouter = duo.filter(function (sl) { return produit(sl) && !dans[sl]; });
+    aAjouter.forEach(function (sl, i) { P.add(sl, 1, i < aAjouter.length - 1); });
+    if (!aAjouter.length && P.open) { P.open(); }
+    try { if (typeof window.gtag === 'function') { window.gtag('event', 'add_to_cart_pack', { pack: duo.join('+') }); } } catch (er) {}
+  });
 
   /* Recherche arrivee de /?s=… (renvoyee par PHP vers /#chercher=…). */
   function rechercheDepuisAdresse() {
@@ -2350,7 +2436,7 @@
   }
 
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, merciSuivi, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients, preuvesAvis, visionneuse].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, merciSuivi, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients, preuvesAvis, visionneuse, packsSite].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

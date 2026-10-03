@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.25.0
+ * Version:           1.26.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.25.0' );
+define( 'CPB_VERSION', '1.26.0' );
 
 /**
  * Mode de diffusion.
@@ -103,6 +103,8 @@ add_action( 'wp_enqueue_scripts', function () {
 	$cfg = array(
 		'slug'       => $parfum,
 		'avis'       => function_exists( 'cpb_avis_resume_cfg' ) ? cpb_avis_resume_cfg() : null,
+		'packs'      => ( ! empty( $cfg_accueil ) ) ? cpb_packs_accueil() : ( $parfum ? cpb_packs_de( $parfum ) : array() ),
+		'url_packs'  => ( ( $pk = get_page_by_path( 'packs' ) ) && 'publish' === $pk->post_status ) ? get_permalink( $pk ) : '',
 		'preuves'    => function_exists( 'cpb_avis_preuves' ) ? cpb_avis_preuves() : array(),
 		// Page Vente ouverte sur un parfum (publicite) : il recoit lui aussi
 		// la commande express.
@@ -523,6 +525,7 @@ function cpb_pages_info() {
 	$out   = array();
 	$liste = array(
 		'parfums'                   => array( 'Toutes les maisons', 'كل الدور' ),
+		'packs'                     => array( 'Packs & duos', 'الثنائيات' ),
 		'a-propos'                  => array( 'À propos', 'من نحن' ),
 		'contact'                   => array( 'Contact', 'اتصل بنا' ),
 		'conditions-de-vente'       => array( 'Conditions de vente', 'شروط البيع' ),
@@ -685,6 +688,13 @@ function cpb_promesse_livraison() {
 		return array( 'Livraison offerte, partout au Maroc', 'التوصيل مجاني، في كل المغرب' );
 	}
 	if ( 2 === $franco ) {
+		$remise = function_exists( 'comptoir_remise_duo_dh' ) ? (int) comptoir_remise_duo_dh() : 0;
+		if ( $remise > 0 ) {
+			return array(
+				sprintf( 'Dès 2 parfums : livraison offerte + %d DH de remise', $remise ),
+				sprintf( 'ابتداءً من عطرين: توصيل مجاني + خصم %d درهم', $remise ),
+			);
+		}
 		return array( 'Livraison offerte dès le deuxième parfum', 'التوصيل مجاني ابتداءً من العطر الثاني' );
 	}
 	if ( $franco > 2 ) {
@@ -822,4 +832,124 @@ add_action( 'wp', function () {
 	if ( '' !== $theme && $theme === $plugin ) {
 		remove_action( 'wp_head', 'clarity_add_script_to_header' );
 	}
+} );
+
+/* ══════════════════════════════════════════════════════════════
+   PACKS DUO
+   Deux parfums choisis pour aller ensemble. Le prix du pack est la somme
+   des deux, moins la remise « duo » du theme (comptoir_remise_duo_dh),
+   livraison offerte (deux articles). La remise s'applique aussi a
+   n'importe quelle paire composee par le client : ces packs ne font que
+   proposer des paires toutes pretes.
+   Accueil (« Nos duos »), fiche parfum (« Le duo parfait ») et page
+   « Packs & duos » ([packs]).
+══════════════════════════════════════════════════════════════ */
+function cpb_packs() {
+	static $out = null;
+	if ( null !== $out ) {
+		return $out;
+	}
+	$liste = array(
+		// Duo Couple : lui + elle.
+		array( 'couple', 'Le duo signature', 'Deux grands classiques, un pour lui, un pour elle.', 'dior--sauvage-elixir', 'chanel--coco-mademoiselle' ),
+		array( 'couple', 'Duo Born in Roma', 'La même collection Valentino, en version homme et femme.', 'valentino--uomo-born-in-roma-intense', 'valentino--donna-born-in-roma-intense' ),
+		array( 'couple', 'Duo Light Blue', 'Le duo frais de Dolce & Gabbana, parfait pour l’été.', 'dolce-gabbana--light-blue-pour-homme-edt', 'dolce-gabbana--light-blue-eau-de-toilette' ),
+		array( 'couple', 'Duo Scandal', 'Jean Paul Gaultier, lui et elle.', 'jean-paul-gaultier--scandal-pour-homme-intense', 'jean-paul-gaultier--scandal-edp-pour-femme' ),
+		array( 'couple', 'Duo Yves Saint Laurent', 'Y et Libre, les deux signatures de la maison.', 'yves-saint-laurent--y-edp', 'yves-saint-laurent--libre-le-parfum' ),
+		array( 'couple', 'Duo Armani', 'Acqua di Giò et Sì, en version Parfum.', 'giorgio-armani--acqua-di-gio-parfum', 'giorgio-armani--si-parfum' ),
+		// Duo Jour & Soir : un frais pour la journee, un intense pour le soir.
+		array( 'jour-soir', 'Jour & Soir homme', 'Acqua di Giò le jour, Sauvage Elixir le soir.', 'giorgio-armani--acqua-di-gio-edp', 'dior--sauvage-elixir' ),
+		array( 'jour-soir', 'Jour & Soir homme', 'Bleu de Chanel le jour, Le Male Elixir le soir.', 'chanel--bleu-de-chanel-parfum', 'jean-paul-gaultier--le-male-elixir' ),
+		array( 'jour-soir', 'Jour & Soir homme', 'Y Eau Fraîche le jour, La Nuit de L’Homme le soir.', 'yves-saint-laurent--y-eau-fraiche', 'yves-saint-laurent--la-nuit-de-lhomme-edp' ),
+		array( 'jour-soir', 'Jour & Soir femme', 'For Her le jour, La Nuit Trésor le soir.', 'narciso-rodriguez--for-her', 'lancome--la-nuit-tresor-le-parfum' ),
+		array( 'jour-soir', 'Jour & Soir femme', 'Chance Eau Tendre le jour, Black Opium le soir.', 'chanel--chance-eau-tendre', 'yves-saint-laurent--black-opium' ),
+		array( 'jour-soir', 'Jour & Soir femme', 'Light Blue le jour, Born in Roma Intense le soir.', 'dolce-gabbana--light-blue-eau-de-toilette', 'valentino--donna-born-in-roma-intense' ),
+	);
+	$remise = function_exists( 'comptoir_remise_duo_dh' ) ? (int) comptoir_remise_duo_dh() : 0;
+	$out    = array();
+	foreach ( $liste as $i => $l ) {
+		$a = function_exists( 'comptoir_produit_by_slug' ) ? comptoir_produit_by_slug( $l[3] ) : null;
+		$b = function_exists( 'comptoir_produit_by_slug' ) ? comptoir_produit_by_slug( $l[4] ) : null;
+		if ( ! $a || ! $b ) {
+			continue;
+		}
+		$somme = comptoir_prix_entier( $a ) + comptoir_prix_entier( $b );
+		$out[] = array(
+			'id'     => 'duo-' . ( $i + 1 ),
+			'type'   => $l[0],
+			'titre'  => $l[1],
+			'sous'   => $l[2],
+			'a'      => $l[3],
+			'b'      => $l[4],
+			'somme'  => $somme,
+			'remise' => $remise,
+			'prix'   => max( 0, $somme - $remise ),
+		);
+	}
+	return $out;
+}
+
+/** Accueil : trois duos couple et trois duos jour & soir, alternes. */
+function cpb_packs_accueil() {
+	$c = array_values( array_filter( cpb_packs(), function ( $p ) { return 'couple' === $p['type']; } ) );
+	$j = array_values( array_filter( cpb_packs(), function ( $p ) { return 'jour-soir' === $p['type']; } ) );
+	$out = array();
+	foreach ( array( 0, 1, 2 ) as $i ) {
+		if ( isset( $c[ $i ] ) ) {
+			$out[] = $c[ $i ];
+		}
+		if ( isset( $j[ $i * 2 % max( 1, count( $j ) ) ] ) ) {
+			$out[] = $j[ $i * 2 % max( 1, count( $j ) ) ];
+		}
+	}
+	return $out;
+}
+
+function cpb_packs_de( $slug ) {
+	return array_values( array_filter( cpb_packs(), function ( $p ) use ( $slug ) {
+		return $p['a'] === $slug || $p['b'] === $slug;
+	} ) );
+}
+
+/** Carte d'un pack (page « Packs & duos » ; l'accueil et la fiche la construisent en JavaScript). */
+function cpb_pack_html( $p ) {
+	$a   = comptoir_produit_by_slug( $p['a'] );
+	$b   = comptoir_produit_by_slug( $p['b'] );
+	$img = function ( $x ) {
+		return function_exists( 'comptoir_vignette_img' ) ? comptoir_vignette_img( $x, 'cpb-pack-img', 300, 300 ) : '';
+	};
+	$h  = '<article class="cpb-pack" data-type="' . esc_attr( $p['type'] ) . '">';
+	$h .= '<p class="cpb-pack-type">' . esc_html( 'couple' === $p['type'] ? 'Duo couple' : 'Duo jour & soir' ) . '</p>';
+	$h .= '<h3 class="cpb-pack-titre">' . esc_html( $p['titre'] ) . '</h3>';
+	$h .= '<div class="cpb-pack-duo">';
+	foreach ( array( $a, $b ) as $x ) {
+		$h .= '<a class="cpb-pack-p" href="' . esc_url( comptoir_parfum_url( $x['s'] ) ) . '"><span class="cpb-pack-photo">' . $img( $x ) . '</span>'
+			. '<span class="cpb-pack-maison">' . esc_html( $x['b'] ) . '</span><span class="cpb-pack-nom">' . esc_html( $x['n'] ) . '</span>'
+			. '<span class="cpb-pack-pp">' . esc_html( $x['pr'] ) . '</span></a>';
+	}
+	$h .= '</div><p class="cpb-pack-sous">' . esc_html( $p['sous'] ) . '</p>';
+	$h .= '<p class="cpb-pack-prix">' . ( $p['remise'] ? '<s>' . esc_html( comptoir_prix_format( $p['somme'] ) ) . ' DH</s> ' : '' )
+		. '<b>' . esc_html( comptoir_prix_format( $p['prix'] ) ) . ' DH</b> <span>· livraison offerte</span></p>';
+	$h .= '<button type="button" class="cpb-pack-go" data-cpb-duo="' . esc_attr( $p['a'] . ',' . $p['b'] ) . '">Ajouter le duo au panier</button>';
+	return $h . '</article>';
+}
+
+add_shortcode( 'packs', function () {
+	$packs = cpb_packs();
+	if ( ! $packs ) {
+		return '';
+	}
+	$r   = $packs[0]['remise'];
+	$out = '<div class="cpb cpb-packs-page">';
+	$out .= '<p class="cpb-packs-regle">' . esc_html( $r ? sprintf( 'Chaque duo : %d DH de remise et la livraison offerte. La remise s’applique aussi à deux parfums de votre choix, à ajouter au panier.', $r ) : 'Deux parfums : la livraison est offerte.' ) . '</p>';
+	foreach ( array( 'couple' => 'Duos couple : lui et elle', 'jour-soir' => 'Duos jour & soir' ) as $type => $titre ) {
+		$out .= '<h2 class="cpb-packs-h">' . esc_html( $titre ) . '</h2><div class="cpb-packs-grille">';
+		foreach ( $packs as $p ) {
+			if ( $type === $p['type'] ) {
+				$out .= cpb_pack_html( $p );
+			}
+		}
+		$out .= '</div>';
+	}
+	return $out . '</div>';
 } );
