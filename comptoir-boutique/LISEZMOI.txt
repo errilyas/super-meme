@@ -199,3 +199,8 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    formulaires de commande (page commande et commande express) portent
    data-clarity-mask : nom, téléphone et adresse n'apparaissent jamais
    dans les enregistrements.
+
+23. BULLE JOINCHAT SUR TÉLÉPHONE (version 1.18.1)
+   La bulle WhatsApp de Joinchat recouvrait le bouton WhatsApp de la barre
+   « Commander » (en bas à droite). Tant que la barre est affichée, la
+   bulle s'efface ; elle revient quand la barre se replie.

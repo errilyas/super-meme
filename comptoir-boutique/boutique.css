@@ -775,3 +775,12 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-insta-txt span{font-size:13px;opacity:.8}
 .cpb-insta-go{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid rgba(var(--au-rgb),.6);border-radius:2px;color:var(--ember);text-decoration:none;font-size:12px;letter-spacing:.08em}
 .cpb-insta-go:hover,.cpb-insta-go:focus-visible{background:rgba(var(--au-rgb),.12);color:var(--bone)}
+/* Telephone : la barre « Commander » du theme porte deja un bouton WhatsApp,
+   en bas a droite — exactement sous la bulle Joinchat, qui le recouvrait et
+   mordait sur le bouton de commande. Tant que la barre est sortie, la bulle
+   s'efface ; elle revient quand la barre se replie (heros, formulaire express,
+   pied de page). */
+@media(max-width:820px){
+  .joinchat{transition:opacity .3s,visibility .3s}
+  body.a-cta-fixe:has(.cta-fixe:not(.repli):not(.cpb-cache)) .joinchat{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+}
