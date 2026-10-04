@@ -6,8 +6,7 @@ dans 16 des 31 commandes de la feuille « commandes », sur la période du 21 au
 L'accroche « le plus commandé chez nous » est donc vraie.
 
 **Durée visée :** 22 à 25 s, au format vertical 9:16.
-**Prix :** 319 DH, d'après le catalogue actuel. Les premières commandes de
-septembre étaient à 249 DH : vérifier le prix avant d'enregistrer.
+**Prix :** 319 DH, confirmé le 4 octobre.
 
 ## Script à enregistrer (darija)
 
