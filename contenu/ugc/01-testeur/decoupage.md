@@ -33,3 +33,15 @@ no dialogue, ambient room sound only.
 | 2 | 8 s | Sur un lit, on ouvre le colis : une boîte blanche, on sort un flacon plein | التيستور هو القنينة اللي كتصاوبها الماركة باش الناس يشمو فالبوتيك. نفس العطر، غير بلا العلبة |
 | 3 | 8 s | Gros plan : un doigt incline le flacon, un code gravé sous la base | تحت القنينة كاين الكود. دخلو ف CheckFresh وتعرف تاريخ الصنع |
 | 4 | 8 s | Devant un miroir, on vaporise le cou et on attrape sa veste pour sortir | كوموندي من comptoirparfums.com، والخلاص عند الاستلام |
+
+## Résultat
+
+- **`ugc-01-testeur.mp4` :** la vidéo finale de 24 s en 720×1280, avec voix off et sous-titres en darija intégrés à l'image.
+- **`plans/p1.mp4` à `p4.mp4` :** les plans bruts de 8 s générés par Omni Flash, à remonter autrement si besoin.
+- **`voix.wav` :** la voix off (voix « Khalid », Arcads).
+- **`subs.ass` :** les sous-titres, à corriger puis à réincruster si besoin.
+
+Montage : les plans 1 à 3 sont pris de 1,5 s à 7,5 s, le plan 4 de 0 à 6 s.
+La voix off démarre à 1 s, et le son d'ambiance est gardé à 20 %.
+
+Coût : 4 plans × 190 crédits + 8 crédits de voix, soit 768 crédits Arcads.
