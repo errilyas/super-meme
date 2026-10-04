@@ -62,3 +62,10 @@ De 11,1 s à 13,2 s, la voix est coupée : elle bégayait (« ف 24… », puis 
 
 Coût total : 768 crédits Arcads, dont 8 pour la voix de synthèse abandonnée.
 Le remontage avec la vraie voix n'a rien coûté.
+
+## Version finale : voix « Adil »
+
+La voix de l'enregistrement d'origine a été transformée avec Arcads (voix vers
+voix, voix « Adil »). La darija, le rythme et les intonations sont ceux de
+l'enregistrement, seul le timbre change. `ugc-01-testeur.mp4` est cette
+version. Les deux autres essais (Ahmed, Yacine) restent dans `voix/`.
