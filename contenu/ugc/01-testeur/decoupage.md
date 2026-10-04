@@ -51,7 +51,7 @@ une durée que le profil de voix interdit de promettre.
 | 8-12,5 s | p1 : livreur, paiement en espèces | كتخلص ملي كيوصلك لدارك، كاش ألا ليفريزون |
 | 12,5-19,5 s | p4 : on se parfume, puis l'appel à l'action | من 24 حتى لـ 72 ساعة فالمغرب كامل |
 
-De 11,1 s à 12,8 s, la voix est coupée : elle bégayait (« ف 24… ») avant de reprendre sur « من بين 24 ».
+De 11,1 s à 12,9 s, la voix est coupée : elle bégayait (« ف 24… ») avant de reprendre sur « من بين 24 ».
 
 
 **Fichiers :**
