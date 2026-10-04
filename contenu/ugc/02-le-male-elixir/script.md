@@ -19,7 +19,7 @@ pour que je puisse couper et caler les plans.
 | 2 | Le Male Elixir ديال Jean Paul Gaultier | 2 s |
 | 3 | فالأول كتجيك la lavande و la menthe… من بعد كتسخن: vanille، miel، و شوية tabac | 5 s |
 | 4 | ريحة ديال الليل، ديال الخرجات، ديال الشتا | 3 s |
-| 5 | عندنا ب 319 درهم، testeur، و كتخلص cash à la livraison | 4 s |
+| 5 | عندنا ب 319 درهم، و كتخلص cash à la livraison | 3,5 s |
 | 6 | و إلا خديتي جوج، la livraison بلاش | 2,5 s |
 | 7 | الرابط فالبيو | 1,5 s |
 
@@ -49,11 +49,11 @@ Photo de référence : `comptoir-parfums/img/produits/jean-paul-gaultier--le-mal
 | 1-2 | Gros plan du flacon doré sur fond aubergine sombre, lumière chaude qui balaie les rayures |
 | 3 | Plan macro : lavande, feuilles de menthe, gousse de vanille, miel qui coule, autour du flacon |
 | 4 | Un homme en veste sombre qui se parfume le cou avant de sortir, la ville la nuit |
-| 5 | Le colis livré, la boîte blanche « testeur » ouverte, paiement en espèces au livreur |
+| 5 | Le colis livré, on sort le flacon de son coffret doré, paiement en espèces au livreur |
 | 6-7 | Deux flacons côte à côte, puis l'appel à l'action : comptoirparfums.com · الخلاص عند الاستلام |
 
-On ne montre que le flacon, jamais le coffret doré : le client reçoit un
-testeur dans une boîte blanche, et la vidéo ne doit pas faire croire autre chose.
+Le client reçoit le flacon dans son coffret doré (confirmé le 4 octobre) : on
+peut donc montrer le coffret. Le mot « testeur » est retiré du script.
 
 Coût estimé : 4 à 5 plans × 190 crédits, soit 760 à 950 crédits. Il en reste
 environ 720, donc soit 3 plans en 720p, soit 5 plans en brouillon 360p (environ
