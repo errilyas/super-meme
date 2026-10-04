@@ -84,3 +84,10 @@ les sous-titres.
 mixée à 12 %.
 
 **Coût :** 280 crédits pour les deux plans générés. Le reste n'a rien coûté.
+
+## Version finale : voix « Adil »
+
+La voix montée est transformée en voix « Adil » (Arcads, voix vers voix,
+8 crédits), comme pour UGC 01. Le volume est normalisé et les sous-titres sont
+recalés sur les pauses de la nouvelle voix. L'ancienne version avec ta voix
+d'origine reste disponible dans l'historique git.
