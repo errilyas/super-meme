@@ -58,3 +58,29 @@ peut donc montrer le coffret. Le mot « testeur » est retiré du script.
 Coût estimé : 4 à 5 plans × 190 crédits, soit 760 à 950 crédits. Il en reste
 environ 720, donc soit 3 plans en 720p, soit 5 plans en brouillon 360p (environ
 65 crédits par plan).
+
+## Résultat
+
+`ugc-02-le-male-elixir.mp4` : 26,4 s en 720×1280, avec ta voix, la musique et
+les sous-titres.
+
+**La voix (`audio/voix-montee.wav`)** est montée à partir de tes deux prises :
+- **Lignes 1 à 4, 6 et 7 :** prise 4.
+- **Ligne 5 :** prise 6, sans le mot « testeur ».
+- **Le son :** volume égalisé entre les prises et fond sonore de la pièce
+  ajouté dans les silences.
+
+**Les plans :**
+
+| Temps | Plan | Source |
+|---|---|---|
+| 0 à 6,2 s | photo du catalogue, coffret et flacon, zoom lent | photo du site, gratuit |
+| 6,2 à 11,5 s | flacon entouré de lavande, menthe, vanille, miel et tabac | Omni Flash, 140 crédits |
+| 11,5 à 16,1 s | un homme se parfume avant de sortir | Omni Flash, 140 crédits |
+| 16,1 à 20,4 s | le livreur et le paiement en espèces | plan de la vidéo UGC 01, gratuit |
+| 20,4 à 26,4 s | Le Male Elixir et Valentino Born In Roma Intense, puis l'appel à l'action | photos du site, gratuit |
+
+**La musique :** la piste « oriental trap » créée dans Arcads le 3 octobre,
+mixée à 12 %.
+
+**Coût :** 280 crédits pour les deux plans générés. Le reste n'a rien coûté.
