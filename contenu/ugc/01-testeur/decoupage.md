@@ -34,14 +34,28 @@ no dialogue, ambient room sound only.
 | 3 | 8 s | Gros plan : un doigt incline le flacon, un code gravé sous la base | تحت القنينة كاين الكود. دخلو ف CheckFresh وتعرف تاريخ الصنع |
 | 4 | 8 s | Devant un miroir, on vaporise le cou et on attrape sa veste pour sortir | كوموندي من comptoirparfums.com، والخلاص عند الاستلام |
 
-## Résultat
+## Résultat (version 2, voix humaine)
 
-- **`ugc-01-testeur.mp4` :** la vidéo finale de 24 s en 720×1280, avec voix off et sous-titres en darija intégrés à l'image.
-- **`plans/p1.mp4` à `p4.mp4` :** les plans bruts de 8 s générés par Omni Flash, à remonter autrement si besoin.
-- **`voix.wav` :** la voix off (voix « Khalid », Arcads).
-- **`subs.ass` :** les sous-titres, à corriger puis à réincruster si besoin.
+La voix de synthèse de la version 1 sonnait faux en darija, alors elle a été
+retirée. La version 2 utilise votre enregistrement « CP - Testeur asli -
+darija 15s », déposé dans Arcads le 22 septembre : une vraie voix d'homme, en
+darija naturelle. Seul le passage de 16,45 s à 32,75 s est gardé. Le début de
+l'enregistrement a été coupé : il citait Bleu de Chanel L'Exclusif à 299 DH
+(le catalogue dit aujourd'hui 369 DH) et disait « il tient toute la journée »,
+une durée que le profil de voix interdit de promettre.
 
-Montage : les plans 1 à 3 sont pris de 1,5 s à 7,5 s, le plan 4 de 0 à 6 s.
-La voix off démarre à 1 s, et le son d'ambiance est gardé à 20 %.
+| Temps | Plan | Voix |
+|---|---|---|
+| 0-5,5 s | p2 : ouverture du colis | هادا تيستور أصلي، نفس الجي اللي كاين فالماگازان غير بلا البواط |
+| 5,5-8 s | p3 : code gravé | هكا باش كيرخاص الثمن |
+| 8-12,5 s | p1 : livreur, paiement en espèces | كتخلص ملي كيوصلك لدارك، كاش ألا ليفريزون |
+| 12,5-19,5 s | p4 : on se parfume, puis l'appel à l'action | من 24 حتى لـ 72 ساعة فالمغرب كامل |
 
-Coût : 4 plans × 190 crédits + 8 crédits de voix, soit 768 crédits Arcads.
+**Fichiers :**
+- **`ugc-01-testeur.mp4` :** la vidéo finale, 19,5 s en 720×1280.
+- **`voix-humaine.wav` :** l'extrait de voix utilisé.
+- **`subs.ass` :** les sous-titres.
+- **`plans/` :** les 4 plans bruts.
+
+Coût total : 768 crédits Arcads, dont 8 pour la voix de synthèse abandonnée.
+Le remontage avec la vraie voix n'a rien coûté.
