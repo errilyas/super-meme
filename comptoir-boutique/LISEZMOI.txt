@@ -48,6 +48,110 @@ Ce qu'elle ajoute au site, sans modifier le thème :
    maintenant » (thème sombre seulement) et un visuel sur la page 404.
    Retirer un fichier de img/ suffit à retirer le visuel correspondant.
 
+8. AUDIT ET CORRECTIFS (version 1.5.0)
+   - Plan du site (/wp-sitemap.xml) : les 209 fiches parfum y sont, pour
+     Google. Le plan des auteurs est retiré.
+   - L'identifiant de connexion de l'administrateur n'est plus visible :
+     les pages d'auteur (/author/…, /?author=1) renvoient à l'accueil et
+     la liste des utilisateurs de l'API n'est plus publique.
+   - Page commande : les étapes déjà faites sont lisibles (contraste).
+
+9. MOINS DE FRICTION À LA COMMANDE (version 1.6.0)
+   - Un client qui revient retrouve téléphone, nom, ville et adresse déjà
+     remplis (commande express et page commande), gardés sur son téléphone
+     seulement, avec un bouton « Effacer ».
+   - Date de livraison estimée dès que la ville est choisie : Casablanca
+     24 à 48 h, ailleurs 2 à 4 jours ouvrables (dimanche exclu).
+   - Fiche parfum : la barre fixe « Commander » amène au formulaire express
+     au lieu d'ouvrir la page commande, et s'efface pendant qu'il est à
+     l'écran (avant, elle le recouvrait).
+
+10. IMAGE DE PARTAGE (version 1.6.1)
+   Les fiches annonçaient à Facebook et WhatsApp une image de 1200 × 630
+   pour une photo de 720 × 900 (défaut du thème jusqu'à 3.5.2). L'extension
+   remet les vraies dimensions ; avec le thème 3.5.3, elle n'a rien à faire.
+
+11. ANIMATIONS (version 1.7.0)
+   L'accueil est animé par le thème ; l'extension anime le reste.
+   - Fiche parfum : le flacon se pose, un halo doré respire derrière lui ;
+     les blocs (histoire, pyramide, même maison, même esprit, vus
+     récemment) apparaissent en cascade au défilement.
+   - Boutons d'achat (commande express, barre fixe) : un reflet doré passe
+     de temps en temps.
+   - Panier : le compteur saute quand un parfum entre. Favori : le cœur
+     éclot. Quiz : questions et résultats arrivent en douceur.
+   Rien ne cache ce qui est déjà à l'écran au chargement, et tout est coupé
+   si le téléphone demande moins d'animations (réglage d'accessibilité).
+
+12. PAGES D'INFORMATION ET AVIS CLIENTS (version 1.8.0)
+   - Les pages WordPress (À propos, Contact, Conditions de vente, Retours
+     et remboursement, Confidentialité) s'affichent en entier : le thème
+     n'a pas de gabarit de page et les montrait comme une liste d'articles.
+   - Pied de page : liens vers ces pages (seulement celles publiées, avec
+     ces adresses : a-propos, contact, conditions-de-vente,
+     retours-et-remboursement, confidentialite).
+   - Sous les boutons de commande : « En confirmant, vous acceptez nos
+     conditions de vente ».
+   - Commandes (administration) : lien « WhatsApp : demander un avis » sur
+     chaque commande. Il ouvre WhatsApp au numéro du client, avec un
+     message en français et en darija déjà écrit. À envoyer une fois le
+     colis livré.
+
+13. PAGE DE VENTE, REMERCIEMENT, RECHERCHE (version 1.9.0)
+   - Page Vente ouverte sur un parfum (lien de publicité
+     /?vente=1&p=<parfum>) : la commande express en 30 secondes y est
+     aussi, comme sur la fiche.
+   - Page de remerciement, commande d'un seul flacon : « Ajoutez un
+     deuxième parfum, la livraison devient offerte » avec trois parfums
+     proches. Le bouton ouvre WhatsApp avec la référence de la commande et
+     le parfum à ajouter, à traiter avant l'expédition.
+   - /?s=… (recherche WordPress) cherchait dans les articles, vides :
+     elle ouvre maintenant la recherche du catalogue avec les mêmes mots.
+
+14. GUIDES « CONSEILS » (version 1.10.0)
+   - Les articles WordPress s'affichent en entier (même gabarit que les
+     pages), avec un lien vers le catalogue en fin d'article.
+   - Catégorie « conseils » : dès qu'elle contient un article, un lien
+     « Conseils » apparaît dans le pied de page.
+   - Dans un article, [parfums slugs="dior--sauvage-elixir,chanel--coco-mademoiselle"]
+     affiche les cartes du catalogue (photo, prix, lien vers la fiche).
+
+15. GOOGLE ET GUIDES SUR LA BOUTIQUE (version 1.11.0)
+   - Données structurées des fiches parfum complétées pour Google : état
+     neuf, vendeur, frais et délais de livraison (35 DH, 1 à 4 jours),
+     politique de retour (page Retours et remboursement). Accueil : liens
+     Instagram et Facebook de la boutique.
+   - Fiche parfum : « Bon à savoir », liens vers les guides « testeur,
+     c'est quoi ? » et « vérifier qu'un parfum est original ».
+   - Accueil : les trois derniers guides, avant « Commander maintenant ».
+
+16. BON RETOUR (version 1.12.0)
+   Pour le visiteur qui revient (plus de 30 minutes après sa dernière page) :
+   - panier non vide : un rappel « Votre panier vous attend » (nombre de
+     parfums, total, bouton « Finaliser ma commande »), une seule fois par
+     visite, refermable, qui disparaît seul après 15 secondes ;
+   - accueil : « Vous avez regardé », les derniers parfums consultés,
+     juste avant le catalogue.
+   Tout reste dans le navigateur du visiteur.
+
+17. PAGES DE COLLECTION (version 1.13.0)
+   Pages WordPress sous /parfums/ (une par maison, une par public), pour
+   que Google trouve « parfum Dior Maroc », « parfum homme »…
+   - [parfums maison="Dior"] ou [parfums genre="Homme"] : les cartes du
+     catalogue, toujours à jour.
+   - [collection maison="Dior"] : « 18 parfums, de 349 à 419 DH… », calculé
+     sur le catalogue.
+   - [maisons] : toutes les maisons, avec leur page ou le catalogue filtré.
+   - Fiche parfum : le nom de la maison mène à sa page si elle existe.
+   - Pages et guides : description pour Google (description SEO saisie,
+     ou le résumé), sans doublon avec Jetpack.
+
+18. MAISONS SUR L'ACCUEIL, FIL D'ARIANE (version 1.14.0)
+   - Accueil, catalogue : rangée « Nos maisons » (celles qui ont une page,
+     de la plus fournie à la moins fournie) et « Toutes les maisons ».
+   - Fil d'Ariane pour Google (BreadcrumbList) : fiche (Accueil › Dior ›
+     Sauvage Elixir), pages de collection, guides.
+
 Tout est en français et en arabe, en thème sombre et clair.
 
 DÉSACTIVER : Extensions > Comptoir Boutique > Désactiver. Le site redevient
@@ -58,3 +162,135 @@ MODIFIER : la source commentée est dans ce dossier. Pour produire le fichier
 <version>.zip), puis augmenter CPB_VERSION dans comptoir-boutique.php.
 Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
 ?apercu=boutique dans l'adresse.
+
+19. INSTAGRAM (version 1.15.0)
+   Un encadré « Suivez-nous sur Instagram » vers @le_comptoir_parfums
+   apparaît sur la page de remerciement après une commande et en bas de
+   chaque guide (article). Traduit en arabe. Pour changer de compte,
+   modifier la variable INSTA dans boutique.js.
+
+20. GOOGLE ANALYTICS 4 : VENTES MESURÉES (version 1.16.0)
+   mesure.js (chargé avant panier.js) traduit pour GA4 les événements
+   que le thème envoie au format Meta : view_item, add_to_cart,
+   begin_checkout, generate_lead et purchase, avec la liste items[]
+   (parfum, maison, prix, quantité). L'achat s'appelait « Purchase » et
+   n'était pas compté comme vente par Analytics ; il part maintenant
+   sous le nom « purchase », avec la référence de commande en
+   transaction_id et les frais de livraison. Le pixel Meta n'est pas
+   modifié. Sans Google Analytics sur le site, le fichier ne fait rien.
+
+21. FLUX PRODUITS GOOGLE / META (version 1.17.0)
+   Adresse : https://comptoirparfums.com/?flux=produits
+   Catalogue complet au format Google Merchant Center (RSS 2.0, espace
+   g:), également lu par Meta Commerce Manager (catalogue Facebook /
+   Instagram). Contient : identifiant (slug), titre « Maison Nom –
+   Testeur … », description et notes, lien, photo, prix en MAD,
+   marque, état neuf, genre, catégorie Google 479 (Parfums et eaux de
+   Cologne), livraison 35 MAD. Mis à jour automatiquement depuis
+   produits.php. À déclarer une fois dans Merchant Center (Produits >
+   Sources de données > Ajouter > Fichier, récupération planifiée
+   quotidienne) et dans Commerce Manager (Catalogue > Sources de
+   données > Flux de données > URL).
+
+22. MICROSOFT CLARITY (version 1.18.0)
+   Le thème pose déjà la balise Clarity. Si l'extension « Microsoft
+   Clarity » est active avec le même identifiant de projet, sa balise en
+   double est retirée (son tableau de bord dans l'admin reste). Les
+   formulaires de commande (page commande et commande express) portent
+   data-clarity-mask : nom, téléphone et adresse n'apparaissent jamais
+   dans les enregistrements.
+
+23. BULLE JOINCHAT SUR TÉLÉPHONE (version 1.18.1)
+   La bulle WhatsApp de Joinchat recouvrait le bouton WhatsApp de la barre
+   « Commander » (en bas à droite). Tant que la barre est affichée, la
+   bulle s'efface ; elle revient quand la barre se replie.
+
+24. AVIS CLIENTS VÉRIFIÉS (version 1.19.0) — avis.php
+   - Seuls les acheteurs peuvent donner leur avis : dans Commandes, le
+     lien « WhatsApp : demander un avis » envoie au client un message avec
+     son lien personnel (/?avis=<commande>&k=<clé signée>).
+   - Le formulaire liste les parfums de SA commande : étoiles (1 à 5) et un
+     mot facultatif, prénom prérempli. Renvoyer le formulaire met à jour
+     l'avis au lieu d'en créer un second.
+   - Chaque avis arrive « En attente » dans le menu « Avis clients » (pastille
+     avec le nombre à relire). Il n'apparaît sur la fiche qu'une fois
+     PUBLIÉ par vous.
+   - Fiche parfum : section « Avis clients » (note moyenne, avis avec
+     prénom, ville, date, « Achat vérifié ») et lien « ★ 4,8 · 12 avis »
+     sous le nom. Données structurées Google : aggregateRating + review.
+   - Sans avis publié : rien n'est affiché, aucune étoile.
+
+25. AVIS REÇUS SUR WHATSAPP, AVEC PHOTO (version 1.20.0)
+   « Avis clients > Ajouter » : choisir le parfum, la note, le prénom, la
+   ville, cocher « Achat vérifié », écrire les mots du client dans la zone
+   de texte, et mettre sa photo en « Image mise en avant ». Publier. La
+   photo s'affiche dans l'avis sur la fiche (cliquable). Les avis sont
+   aussi lisibles/créables par l'API REST (/wp-json/wp/v2/cp-avis), champs
+   cpa_* réservés aux éditeurs pour l'écriture.
+   (1.20.1) Case « Avis reçu sur WhatsApp » : affiche la mention sous
+   l'avis. On peut mettre en image la capture de la conversation, numéro
+   du client masqué.
+
+26. « ILS ONT REÇU LEUR PARFUM » ALIMENTÉ PAR LES AVIS (version 1.21.0)
+   Chaque avis publié, coché « Avis reçu sur WhatsApp » et muni d'une
+   image mise en avant, s'ajoute en tête de la rangée de captures du
+   thème (accueil, fiches, page vente), les plus récents d'abord. Pas
+   besoin de déposer l'image dans le thème.
+
+27. VISIONNEUSE DES CAPTURES CLIENTS (version 1.22.0)
+   Dans « Ils ont reçu leur parfum », chaque capture se touche (ou Entrée
+   au clavier) pour s'ouvrir en plein écran, entière : flèches, glissement
+   du doigt à gauche/droite, glisser vers le bas ou Échap pour fermer.
+   Compteur « 2 / 5 ». La photo d'un avis sur la fiche s'ouvre de même.
+
+28. BOUTON « PARTAGER » SUR LA FICHE (version 1.23.0)
+   À côté de « Ajouter à mes favoris ». Sur téléphone : le menu de
+   partage du téléphone (WhatsApp, Instagram, SMS…) ; sur ordinateur :
+   WhatsApp avec « Regarde ce parfum : <nom>, <prix>, payé à la
+   livraison. <lien> ». Le lien porte utm_source=partage (visible dans
+   Google Analytics), et un événement GA4 « share » est envoyé.
+
+29. SUIVI DE COMMANDE (version 1.24.0) — suivi.php
+   - Commandes (admin) : colonne « Suivi » ; sous chaque commande, un
+     lien « → Confirmée » / « → Expédiée » / « → Livrée » (étape suivante
+     en un clic) et « WhatsApp : prévenir le client », message prêt avec
+     son lien de suivi. Sur la fiche d'une commande : toutes les étapes,
+     « Annuler la commande », et le lien de suivi à copier.
+   - Client : /?suivi=1 (lien « Suivre ma commande » dans le pied de page
+     et sur la page de remerciement) : référence + téléphone → étapes
+     datées, délai estimé, contenu du colis et montant à payer. Le lien
+     envoyé sur WhatsApp ouvre directement la commande (clé signée).
+   - 15 essais par heure et par adresse IP ; page non indexée.
+
+30. AUTOMATISATION DU SUIVI (version 1.25.0) — automatisation.php
+   Réglages > Automatisation. S'appuie sur le module WhatsApp du thème
+   (Réglages > Confirmation WhatsApp) : mêmes identifiants, même webhook.
+   - Client « Je confirme » / « Annuler » sur WhatsApp → étape Confirmée /
+     Annulée. Confirmée ou annulée à la main → le thème arrête ses
+     relances.
+   - Étape Expédiée → rappel de livraison du thème envoyé tout seul.
+     Étape Livrée → modèle « cp_demande_avis » (si activé), bouton lien
+     vers le formulaire d'avis (?avis=ID_CLE).
+   - Livreur : webhook /wp-json/cpb/v1/livraison?cle=… (adresse affichée
+     dans les réglages). Commande retrouvée par référence CP-…, n° de
+     suivi ou téléphone ; ramassé/expédié/en cours → Expédiée, livré →
+     Livrée, retour/refusé/annulé → Annulée. Jamais en arrière.
+   - Sans API WhatsApp : le lien d'étape ouvre WhatsApp (un clic).
+   - Liens courts pour les boutons Meta : ?suivi=REF_CLE, ?avis=ID_CLE.
+   - Journal des 50 derniers événements.
+
+31. PACKS DUO (version 1.26.0, avec le thème 3.5.7)
+   - Remise « duo » : 50 DH par paire de parfums (thème :
+     comptoir_remise_duo_dh(), 0 pour la couper). Appliquée partout : panier,
+     page commande, commande express, message WhatsApp, total enregistré,
+     Meta et Google. Sans le thème 3.5.7, rien n'annonce de remise.
+   - 12 duos prêts (cpb_packs) : 6 « couple », 6 « jour & soir ».
+     Accueil : « Nos duos » sous le catalogue (6). Fiche : « Le duo
+     parfait » si le parfum est dans un duo. Page « Packs & duos » :
+     shortcode [packs]. Bouton « Ajouter le duo au panier » : ajoute les
+     deux parfums (sans doublon) et ouvre le panier.
+   - Bandeau : « Dès 2 parfums : livraison offerte + 50 DH de remise ».
+   (1.27.0) 29 duos : 12 couple, 6 jour & soir, 4 orientaux (oud,
+   ambre), 3 mariage, 4 mère & fille (cpb_packs_types). Accueil : un duo
+   de chaque type + un deuxième duo couple. Lien « Duos » ajouté au menu
+   du haut (ordinateur et téléphone), après « Catalogue ».

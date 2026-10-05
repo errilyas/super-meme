@@ -91,6 +91,7 @@
       : (P.cfg.livraison ? P.fmt(P.cfg.livraison) : T('à confirmer'));
     sumsEl.innerHTML =
       '<div class="ck-sum"><span>'+T('Sous-total')+'</span><span>'+P.fmt(P.subtotal())+'</span></div>'+
+      ((P.remise && P.remise()) ? '<div class="ck-sum ck-remise"><span>'+T('Remise duo')+'</span><span>−'+P.fmt(P.remise())+'</span></div>' : '')+
       '<div class="ck-sum"><span>'+T('Livraison')+'</span><span>'+liv+'</span></div>'+
       '<div class="ck-sum tot"><span>'+T('Total')+'</span><b>'+P.fmt(P.total())+'</b></div>';
 
@@ -200,6 +201,7 @@
           + '</span><span>' + P.fmt(l.prix) + '</span></div>';
       });
       h.push('<div class="ck-ml"><span>' + T('Sous-total') + '</span><span>' + P.fmt(c.sousTotal) + '</span></div>');
+      if (c.remise) { h.push('<div class="ck-ml"><span>' + T('Remise duo') + '</span><span>−' + P.fmt(c.remise) + '</span></div>'); }
       /* La ville s'affiche dans la langue du client ; ce qui est parti au
          carnet de commandes reste le nom francais (cf. CP_VILLE). */
       var villeVue = data.ville && window.CP_VILLE ? window.CP_VILLE(data.ville) : data.ville;
@@ -353,7 +355,7 @@
     var confirmation = {
         ref: data.ref, prenom: (data.nom||'').trim().split(/\s+/)[0],
         ville: data.ville, lien: lien, montant: montant, articles: articles,
-        lignes: lignes, livraison: fraisLiv, sousTotal: sousTotal, t: Date.now()
+        lignes: lignes, livraison: fraisLiv, sousTotal: sousTotal, remise: (P.remise ? P.remise() : 0), t: Date.now()
     };
     var saved = false;
     try{

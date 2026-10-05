@@ -125,8 +125,63 @@
     'Commander en 30 secondes': 'اطلب في 30 ثانية',
     'Rien à payer maintenant : vous réglez en espèces au livreur.': 'لا شيء تدفعه الآن: تدفع نقدًا لعامل التوصيل.',
     '1 flacon': 'قارورة واحدة',
-    '1 parfum': 'عطر واحد',
     '2 flacons': 'قارورتان',
+    'Vos coordonnées de la dernière fois sont reprises.': 'معلوماتك من المرة الماضية معبأة مسبقًا.',
+    'Effacer': 'مسح',
+    'Informations': 'معلومات',
+    'Bon à savoir': 'معلومة مفيدة',
+    'Nos maisons': 'دور العطور',
+    'Toutes les maisons': 'كل الدور',
+    'Vous avez regardé': 'شاهدتها من قبل',
+    'Votre panier vous attend': 'سلّتك في انتظارك',
+    'Finaliser ma commande': 'أكمل طلبي',
+    'Conseils': 'نصائح',
+    'Bien choisir son parfum': 'اختيار عطرك بشكل صحيح',
+    'Lire le guide': 'اقرأ الدليل',
+    'Tous nos conseils': 'كل نصائحنا',
+    'Bonjour, j’ai passé la commande {ref}. J’aimerais y ajouter {p} ({prix}), avec la livraison offerte. Merci !': 'السلام عليكم، درت الطلب {ref}. بغيت نزيد معاه {p} ({prix})، والتوصيل مجاني. شكرا!',
+    'Un deuxième parfum ?': 'عطر ثانٍ؟',
+    'Avant l’expédition': 'قبل الإرسال',
+    'Ajoutez un deuxième parfum : la livraison devient offerte.': 'أضف عطرًا ثانيًا: يصبح التوصيل مجانيًا.',
+    'Ajoutez un deuxième parfum : livraison offerte et {r} de remise.': 'أضف عطرًا ثانيًا: توصيل مجاني وخصم {r}.',
+    'Bonjour, j’ai passé la commande {ref}. J’aimerais y ajouter {p} ({prix}), avec la livraison offerte et la remise duo. Merci !': 'السلام عليكم، درت الطلب {ref}. بغيت نزيد معاه {p} ({prix})، مع التوصيل المجاني وخصم الثنائي. شكرا!',
+    '−{r} + livraison offerte': '−{r} + توصيل مجاني',
+    'Remise duo : −{r}': 'خصم الثنائي: −{r}',
+    'Votre colis n’est pas encore parti. Un message suffit, vous économisez {liv}.': 'طردك لم يُرسل بعد. رسالة واحدة تكفي، وتوفّر {liv}.',
+    'Ajouter à ma commande': 'أضف إلى طلبي',
+    'Suivez-nous sur Instagram': 'تابعونا على إنستغرام',
+    '{n} avis': '{n} آراء',
+    '1 avis': 'رأي واحد',
+    'Message ou colis d’un client': 'رسالة أو طرد من أحد الزبناء',
+    'Partager': 'مشاركة',
+    'Nos duos': 'ثنائياتنا',
+    'Deux parfums qui vont ensemble : {r} de remise et la livraison offerte.': 'عطران متناسقان: خصم {r} وتوصيل مجاني.',
+    'Deux parfums qui vont ensemble : la livraison est offerte.': 'عطران متناسقان: التوصيل مجاني.',
+    'Duo couple': 'ثنائي للزوجين',
+    'Duo jour & soir': 'ثنائي النهار والليل',
+    'Duo oriental': 'ثنائي شرقي',
+    'Duo mariage': 'ثنائي العرس',
+    'Duo mère & fille': 'ثنائي الأم والبنت',
+    'Duos': 'الثنائيات',
+    'Ajouter le duo au panier': 'أضف الثنائي إلى السلة',
+    'livraison offerte': 'توصيل مجاني',
+    'Voir tous les duos': 'كل الثنائيات',
+    'Le duo parfait': 'الثنائي المثالي',
+    'Duo ajouté au panier': 'تمت إضافة الثنائي إلى السلة',
+    'Suivre ma commande': 'تتبع طلبي',
+    'Partager {nom}': 'مشاركة {nom}',
+    'Regarde ce parfum : {nom}, {prix}, payé à la livraison.': 'شوف هاد العطر: {nom}، {prix}، الدفع عند الاستلام.',
+    'Capture de client agrandie': 'صورة زبون مكبّرة',
+    'Agrandir la capture {n} sur {t}': 'تكبير الصورة {n} من {t}',
+    'Capture précédente': 'الصورة السابقة',
+    'Capture suivante': 'الصورة التالية',
+    'Fermer': 'إغلاق',
+    'Note moyenne {m} sur 5, {n} avis vérifiés : voir les avis': 'متوسط التقييم {m} من 5، {n} آراء موثقة: عرض الآراء',
+    'Nouveaux arrivages, conseils et coulisses du Comptoir.': 'وصول عطور جديدة، نصائح وكواليس المتجر.',
+    'Suivre @le_comptoir_parfums': 'تابع @le_comptoir_parfums',
+    'En confirmant, vous acceptez nos': 'بتأكيد الطلب، فأنت توافق على',
+    'conditions de vente': 'شروط البيع',
+    'Livraison estimée : entre {a} et {b}': 'التوصيل المتوقع: بين {a} و{b}',
     '2 parfums': 'عطران',
     '+ un 2e parfum au choix': '+ عطر ثانٍ من اختيارك',
     'Choisissez votre 2e parfum': 'اختر عطرك الثاني',
@@ -247,7 +302,10 @@
     coeur: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.3s-7.6-4.6-9.2-9.4C1.7 7.4 3.9 4 7.4 4c2 0 3.4 1.1 4.6 2.7C13.2 5.1 14.6 4 16.6 4c3.5 0 5.7 3.4 4.6 6.9-1.6 4.8-9.2 9.4-9.2 9.4z"/></svg>',
     croix: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
     etincelle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></svg>',
-    wa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'
+    camion: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.5 16.5V6.5h12v10M13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>',
+    wa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+    partage: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.4M8.3 13.2l7.4 4.4"/></svg>',
+    insta: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg>'
   };
 
   /* Une photo qui echoue garde sa case : on retire juste le src, la
@@ -1291,10 +1349,14 @@
     if (ancre) {
       var zone = document.createElement('div');
       zone.className = 'cpb';
-      zone.innerHTML = coeurHTML(ref.s, false) +
+      zone.innerHTML = '<div class="cpb-fiche-actions">' + coeurHTML(ref.s, false) +
+        '<button type="button" class="cpb-coeur cpb-partage" aria-label="' + esc(t('Partager {nom}', { nom: ref.b + ' ' + ref.n })) + '">' + SVG.partage +
+        '<span class="cpb-coeur-txt">' + esc(t('Partager')) + '</span></button></div>' +
         '<p class="cpb-bloc-quiz">' + esc(t('Vous hésitez ?')) + ' <button type="button" data-cpb-quiz>' +
         esc(t('Trouvez votre parfum en 4 questions')) + '</button></p>';
       ancre.parentNode.insertBefore(zone, ancre.nextSibling);
+      var bp = zone.querySelector('.cpb-partage');
+      if (bp) { bp.addEventListener('click', function () { partageFiche(ref); }); }
     }
 
     /* « Dans le meme esprit » passe avant « Dans la meme maison ». */
@@ -1316,6 +1378,21 @@
     if (vus.length) {
       main.appendChild(blocSibs(t('Vus récemment'), vus.map(function (p) { return carteSib(p, null); }).join('')));
     }
+  }
+
+  /* Partager une fiche : la feuille de partage du telephone (WhatsApp,
+     Instagram, SMS…) quand elle existe, sinon WhatsApp directement. Le lien
+     porte utm_source=partage : Analytics distingue ces visites. */
+  function partageFiche(ref) {
+    var url = (CFG.home || '/') + '?parfum=' + encodeURIComponent(ref.s) + '&utm_source=partage&utm_medium=social';
+    var txt = t('Regarde ce parfum : {nom}, {prix}, payé à la livraison.', { nom: ref.b + ' ' + ref.n, prix: prixTexte(ref) });
+    var mesure = function (m) { try { if (typeof window.gtag === 'function') { window.gtag('event', 'share', { method: m, content_type: 'product', item_id: ref.s }); } } catch (e) {} };
+    if (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+      navigator.share({ title: ref.b + ' ' + ref.n, text: txt, url: url }).then(function () { mesure('natif'); }, function () {});
+      return;
+    }
+    mesure('whatsapp');
+    window.open('https://wa.me/?text=' + encodeURIComponent(txt + ' ' + url), '_blank', 'noopener');
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -1356,12 +1433,15 @@
       if (voulus.indexOf(k) < 0) { autres += lignes[k]; }
     });
     var frais = !n ? 0 : (c.franco && n >= c.franco ? 0 : (c.livraison || 0));
-    return { n: n, autres: autres, sous: sous, frais: frais, total: sous + frais };
+    /* Meme remise « duo » que le panier du theme (P.remise) : absente tant
+       que le theme ne la propose pas (c.remise vide). */
+    var remise = c.remise > 0 ? Math.floor(n / 2) * c.remise : 0;
+    return { n: n, autres: autres, sous: sous, frais: frais, remise: remise, total: Math.max(0, sous - remise) + frais };
   }
 
   function expressFiche() {
-    var ref = CFG.slug ? produit(CFG.slug) : null;
-    var buy = document.querySelector('main.pf .pf-buy');
+    var ref = CFG.slug ? produit(CFG.slug) : (CFG.vedette ? produit(CFG.vedette) : null);
+    var buy = document.querySelector('main.pf .pf-buy') || (CFG.vedette ? document.querySelector('.lp-vedette .pf-buy') : null);
     if (!ref || !buy || !P.depose || !P.reference) { return; }
     var ancre = buy.querySelector('.pf-rassure-cta') || buy.querySelector('.pf-actions');
     if (!ancre) { return; }
@@ -1380,7 +1460,8 @@
           '<b>' + P.fmt(P.prix(ref)) + '</b></span></label>' +
         '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="2"><span>' + esc(t('2 parfums')) +
           '<b class="cpb-x-q2">' + esc(t('+ un 2e parfum au choix')) + '</b>' +
-          (deuxOffert ? '<em>' + esc(t('Livraison offerte')) + '</em>' : '') + '</span></label>' +
+          (c.remise > 0 ? '<em>' + esc(t('−{r} + livraison offerte', { r: P.fmt(c.remise) })) + '</em>'
+            : (deuxOffert ? '<em>' + esc(t('Livraison offerte')) + '</em>' : '')) + '</span></label>' +
       '</div>' +
       /* Le deuxieme flacon est un AUTRE parfum, choisi ici : proches du
          premier par les notes, ou trouve par la recherche. Jamais le meme. */
@@ -1482,6 +1563,7 @@
       if (manque) {
         lignes.push(t('Choisissez votre 2e parfum'));
       } else {
+        if (a.remise) { lignes.push(t('Remise duo : −{r}', { r: P.fmt(a.remise) })); }
         lignes.push(t('Livraison : {l}', { l: a.frais ? P.fmt(a.frais) : t('offerte') }));
         lignes.push(t('Total à payer au livreur : {t}', { t: P.fmt(a.total) }));
       }
@@ -1570,7 +1652,7 @@
       var confirmation = {
         ref: data.ref, prenom: data.nom.split(/\s+/)[0], ville: data.ville, lien: lien,
         montant: montant, articles: articles, lignes: lignes,
-        livraison: P.fraisLivraison(), sousTotal: P.subtotal(), t: Date.now()
+        livraison: P.fraisLivraison(), sousTotal: P.subtotal(), remise: (P.remise ? P.remise() : 0), t: Date.now()
       };
 
       P.depose(data);
@@ -1591,6 +1673,756 @@
       }
       P.clear();
       location.href = cible + (cible.indexOf('?') >= 0 ? '&' : '?') + 'merci=1';
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     MOINS DE FRICTION A LA COMMANDE
+     1. Coordonnees retenues : un client qui revient (deuxieme commande,
+        ou commande interrompue) retrouve son telephone, son nom, sa ville
+        et son adresse deja remplis, dans la commande express comme sur la
+        page commande. Gardees sur son telephone seulement, effacables.
+     2. Date de livraison estimee, selon la ville et la promesse affichee
+        par le theme : Casablanca 24 a 48 h, ailleurs 2 a 4 jours ouvrables
+        (le dimanche ne compte pas).
+     3. Fiche parfum : la barre fixe « Commander » menait a la page
+        commande, un second parcours plus long, et restait par-dessus le
+        formulaire express. Elle y mene maintenant, et s'efface pendant
+        qu'il est a l'ecran.
+  ══════════════════════════════════════════════════════════════ */
+  var COORD = 'cpb_coord', COORD_CHAMPS = ['tel', 'nom', 'ville', 'ville_autre', 'adresse'];
+  var COORD_DUREE = 180 * 864e5;
+
+  function coordLues() {
+    try {
+      var o = JSON.parse(localStorage.getItem(COORD) || 'null');
+      if (o && typeof o === 'object' && Date.now() - (o.t || 0) < COORD_DUREE) { return o; }
+    } catch (e) {}
+    return null;
+  }
+  function coordEcrites(o) {
+    try { localStorage.setItem(COORD, JSON.stringify(o)); } catch (e) {}
+  }
+  function coordOubliees() {
+    try { localStorage.removeItem(COORD); } catch (e) {}
+  }
+
+  /* La meme ville peut etre ecrite en francais (commande express) ou en
+     arabe (liste du theme traduite) : on compare les deux formes. */
+  function memeVille(a, b) {
+    if (!a || !b) { return false; }
+    if (a === b) { return true; }
+    var tr = window.CP_VILLE;
+    return !!tr && (tr(a) === b || tr(b) === a);
+  }
+  function choisitVille(sel, v) {
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value && memeVille(sel.options[i].value, v)) { sel.selectedIndex = i; return true; }
+    }
+    return false;
+  }
+
+  function retientCoordonnees(form) {
+    if (!form || form.getAttribute('data-cpb-coord')) { return; }
+    form.setAttribute('data-cpb-coord', '1');
+    var champ = function (n) { return form.querySelector('[name="' + n + '"]'); };
+    var o = coordLues(), repris = false, efface = false;
+
+    if (o) {
+      COORD_CHAMPS.forEach(function (n) {
+        var el = champ(n), v = o[n];
+        if (!el || !v || typeof v !== 'string' || el.value) { return; }
+        if (el.tagName === 'SELECT') {
+          if (!choisitVille(el, v)) { return; }
+        } else {
+          el.value = v;
+        }
+        repris = true;
+        /* Comme une saisie : la liste « autre ville », le recapitulatif et
+           les controles du formulaire suivent. */
+        ['input', 'change'].forEach(function (type) {
+          var ev;
+          try { ev = new Event(type, { bubbles: true }); } catch (e) { ev = document.createEvent('Event'); ev.initEvent(type, true, true); }
+          el.dispatchEvent(ev);
+        });
+      });
+    }
+
+    if (repris) {
+      var note = document.createElement('p');
+      note.className = 'cpb-coord-note';
+      note.innerHTML = esc(t('Vos coordonnées de la dernière fois sont reprises.')) +
+        ' <button type="button" class="cpb-lien-btn">' + esc(t('Effacer')) + '</button>';
+      var premier = form.querySelector('[name="tel"]');
+      var place = premier && (premier.closest('label') || premier);
+      if (place && place.parentNode) { place.parentNode.insertBefore(note, place); }
+      note.querySelector('button').addEventListener('click', function () {
+        coordOubliees();
+        efface = true;
+        COORD_CHAMPS.forEach(function (n) {
+          var el = champ(n);
+          if (!el) { return; }
+          if (el.tagName === 'SELECT') { el.selectedIndex = 0; } else { el.value = ''; }
+          var ev;
+          try { ev = new Event('change', { bubbles: true }); } catch (e) { ev = document.createEvent('Event'); ev.initEvent('change', true, true); }
+          el.dispatchEvent(ev);
+        });
+        efface = false;
+        note.parentNode.removeChild(note);
+        if (premier) { premier.focus(); }
+      });
+    }
+
+    var garde = function (e) {
+      var n = e.target && e.target.name;
+      if (efface || COORD_CHAMPS.indexOf(n) < 0) { return; }
+      var cur = coordLues() || {};
+      cur[n] = String(e.target.value || '').slice(0, 400);
+      cur.t = Date.now();
+      coordEcrites(cur);
+    };
+    form.addEventListener('input', garde);
+    form.addEventListener('change', garde);
+  }
+
+  /* Jours ouvrables : du lundi au samedi. */
+  function plusJoursOuvrables(d, n) {
+    var r = new Date(d.getTime());
+    while (n > 0) {
+      r.setDate(r.getDate() + 1);
+      if (r.getDay() !== 0) { n--; }
+    }
+    return r;
+  }
+  function dateCourte(d) {
+    try {
+      return d.toLocaleDateString(AR ? 'ar-MA' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    } catch (e) {
+      return d.getDate() + '/' + (d.getMonth() + 1);
+    }
+  }
+  function fenetreLivraison(ville) {
+    var casa = memeVille(ville, 'Casablanca');
+    var auj = new Date();
+    return [plusJoursOuvrables(auj, casa ? 1 : 2), plusJoursOuvrables(auj, casa ? 2 : 4)];
+  }
+
+  function estimeLivraison(form, avant) {
+    if (!form || form.querySelector('.cpb-estime')) { return; }
+    var sel = form.querySelector('select[name="ville"]');
+    if (!sel) { return; }
+    var p = document.createElement('p');
+    p.className = 'cpb-estime';
+    p.setAttribute('aria-live', 'polite');
+    p.hidden = true;
+    if (avant && avant.parentNode) { avant.parentNode.insertBefore(p, avant); } else { form.appendChild(p); }
+    var maj = function () {
+      var v = sel.value === 'autre' ? '' : sel.value;
+      if (!v) { p.hidden = true; return; }
+      var f = fenetreLivraison(v);
+      p.innerHTML = SVG.camion + '<span>' + esc(t('Livraison estimée : entre {a} et {b}', { a: dateCourte(f[0]), b: dateCourte(f[1]) })) + '</span>';
+      p.hidden = false;
+    };
+    sel.addEventListener('change', maj);
+    maj();
+  }
+
+  function barreFixeVersExpress(x) {
+    var bar = document.querySelector('.cta-fixe');
+    var lien = bar && bar.querySelector('.cta-fixe-principal');
+    if (!bar || !lien) { return; }
+    /* En capture : passe avant le panier du theme, qui ajouterait le flacon
+       et changerait de page. Panier deja rempli : la barre garde son role
+       (« Commander · N parfums » vers la page commande). */
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('.cta-fixe-principal') || P.count()) { return; }
+      e.preventDefault();
+      e.stopPropagation();
+      x.scrollIntoView({ block: 'start', behavior: REDUIT ? 'auto' : 'smooth' });
+      var vide = null;
+      ['tel', 'nom', 'ville', 'adresse'].some(function (n) {
+        var el = x.querySelector('[name="' + n + '"]');
+        if (el && !el.value) { vide = el; return true; }
+        return false;
+      });
+      var cible = vide || x.querySelector('.cpb-x-go');
+      if (cible) { setTimeout(function () { try { cible.focus({ preventScroll: true }); } catch (err) { cible.focus(); } }, REDUIT ? 0 : 450); }
+    }, true);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        bar.classList.toggle('cpb-cache', es[0].isIntersecting);
+      }, { rootMargin: '0px 0px -10% 0px' }).observe(x);
+    }
+  }
+
+  function moinsDeFriction() {
+    var x = document.querySelector('.cpb-express');
+    if (x) {
+      estimeLivraison(x, x.querySelector('.cpb-x-recap'));
+      retientCoordonnees(x);
+      barreFixeVersExpress(x);
+    }
+    var ck = document.getElementById('ck-form');
+    if (ck) {
+      estimeLivraison(ck, null);
+      retientCoordonnees(ck);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     REMERCIEMENT : UN DEUXIEME PARFUM AVANT L'EXPEDITION
+     La commande d'un seul flacon paie 35 DH de livraison ; a deux, elle
+     est offerte. Sur la page de remerciement, tant que le colis n'est pas
+     parti, on propose trois parfums proches (d'autres maisons). Le bouton
+     ouvre WhatsApp avec la reference de la commande et le parfum a
+     ajouter : c'est le meme echange que la confirmation, rien d'automatique.
+  ══════════════════════════════════════════════════════════════ */
+  function merciSecond() {
+    var bloc = document.getElementById('ck-merci');
+    if (!bloc || !/[?&]merci=1/.test(location.search) || bloc.querySelector('.cpb-merci-second')) { return; }
+    var cmd = null;
+    try { cmd = JSON.parse(localStorage.getItem('cp_commande_faite') || 'null'); } catch (e) {}
+    if (!cmd || !cmd.t || Date.now() - cmd.t > 6 * 3600 * 1000 || !cmd.ref || !cmd.lignes || !cmd.lignes.length) { return; }
+    var c = P.cfg || {};
+    if (cmd.articles !== 1 || !(cmd.livraison > 0) || !c.wa) { return; }
+    var ref = produit(cmd.lignes[0].s);
+    if (!ref) { return; }
+    var choix = proches(ref, 3).map(function (r) { return r.p; });
+    if (!choix.length) { return; }
+
+    var lien = function (p) {
+      var msg = t(c.remise > 0 ? 'Bonjour, j’ai passé la commande {ref}. J’aimerais y ajouter {p} ({prix}), avec la livraison offerte et la remise duo. Merci !' : 'Bonjour, j’ai passé la commande {ref}. J’aimerais y ajouter {p} ({prix}), avec la livraison offerte. Merci !',
+        { ref: cmd.ref, p: p.b + ' ' + p.n, prix: prixTexte(p) });
+      return 'https://wa.me/' + c.wa + '?text=' + encodeURIComponent(msg);
+    };
+    var s = document.createElement('section');
+    s.className = 'cpb cpb-merci-second';
+    s.setAttribute('aria-label', t('Un deuxième parfum ?'));
+    s.innerHTML =
+      '<p class="cpb-titre-petit">' + esc(t('Avant l’expédition')) + '</p>' +
+      '<h3 class="cpb-ms-titre">' + esc(c.remise > 0 ? t('Ajoutez un deuxième parfum : livraison offerte et {r} de remise.', { r: P.fmt(c.remise) }) : t('Ajoutez un deuxième parfum : la livraison devient offerte.')) + '</h3>' +
+      '<p class="cpb-ms-sous">' + esc(t('Votre colis n’est pas encore parti. Un message suffit, vous économisez {liv}.', { liv: P.fmt(cmd.livraison + (c.remise > 0 ? c.remise : 0)) })) + '</p>' +
+      '<div class="cpb-ms-liste">' + choix.map(function (p) {
+        return '<div class="cpb-ms-carte">' +
+          '<a class="cpb-ms-photo" href="' + esc(urlFiche(p.s)) + '">' + vignette(p, 'cpb-vignette', 120, 150) + '</a>' +
+          '<div class="cpb-ms-txt"><span class="cpb-ligne-maison">' + maisonHTML(p) + '</span>' +
+            '<span class="cpb-ligne-nom">' + nomHTML(p) + '</span>' +
+            '<span class="cpb-ligne-prix">' + prixTexte(p) + '</span></div>' +
+          '<a class="cpb-ms-go" href="' + esc(lien(p)) + '" target="_blank" rel="noopener">' + SVG.wa + '<span>' + esc(t('Ajouter à ma commande')) + '</span></a>' +
+        '</div>';
+      }).join('') + '</div>';
+    var apres = bloc.querySelector('.ck-merci-detail') || bloc.querySelector('.ck-merci-suite');
+    if (apres && apres.parentNode) { apres.parentNode.insertBefore(s, apres.nextSibling); } else { bloc.appendChild(s); }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     INSTAGRAM : UNE INVITATION AUX BONS MOMENTS
+     Apres une commande (le client est content) et en bas des guides
+     (il vient de lire un conseil) : une ligne sobre vers le compte.
+  ══════════════════════════════════════════════════════════════ */
+  var INSTA = 'https://www.instagram.com/le_comptoir_parfums/';
+  function suivreInstagram() {
+    var merci = /[?&]merci=1/.test(location.search) && document.getElementById('ck-merci');
+    var guide = !merci && document.querySelector('body.single-post .cpb-page-article');
+    var bloc = merci || guide;
+    if (!bloc || document.querySelector('.cpb-insta')) { return; }
+    var s = document.createElement('aside');
+    s.className = 'cpb cpb-insta';
+    s.setAttribute('aria-label', t('Suivez-nous sur Instagram'));
+    s.innerHTML = '<span class="cpb-insta-ico">' + SVG.insta + '</span>' +
+      '<span class="cpb-insta-txt"><strong>' + esc(t('Suivez-nous sur Instagram')) + '</strong>' +
+      '<span>' + esc(t('Nouveaux arrivages, conseils et coulisses du Comptoir.')) + '</span></span>' +
+      '<a class="cpb-insta-go" href="' + INSTA + '" target="_blank" rel="noopener">' + esc(t('Suivre @le_comptoir_parfums')) + '</a>';
+    bloc.appendChild(s);
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     AVIS CLIENTS VERIFIES (avis.php)
+     La section est imprimee par PHP en bas de page (lisible sans
+     JavaScript) ; on la remonte avant « La fiche », et on pose sous le nom
+     du parfum un lien « ★ 4,8 · 12 avis » vers elle. Sans avis publie,
+     rien du tout : pas d'etoiles vides.
+     Les textes poses par PHP portent leur traduction (data-cpb-ar).
+  ══════════════════════════════════════════════════════════════ */
+  function avisClients() {
+    if (AR) {
+      var tr = document.querySelectorAll('[data-cpb-ar]');
+      for (var i = 0; i < tr.length; i++) { tr[i].textContent = tr[i].getAttribute('data-cpb-ar'); }
+      var ph = document.querySelectorAll('[data-cpb-ar-ph]');
+      for (var j = 0; j < ph.length; j++) { ph[j].setAttribute('placeholder', ph[j].getAttribute('data-cpb-ar-ph')); }
+    }
+    var sec = document.getElementById('avis');
+    var main = document.querySelector('main.pf');
+    if (!sec || !main || !sec.classList.contains('cpb-avis')) { return; }
+    var avant = main.querySelector('.pf-block');
+    if (avant) { main.insertBefore(sec, avant); } else { main.appendChild(sec); }
+    var r = CFG.avis, h1 = main.querySelector('.pf-name');
+    if (!r || !r.n || !h1 || main.querySelector('.cpb-avis-lien')) { return; }
+    var m = String(r.moy).replace('.', ',');
+    var a = document.createElement('a');
+    a.className = 'cpb-avis-lien';
+    a.href = '#avis';
+    a.setAttribute('aria-label', t('Note moyenne {m} sur 5, {n} avis vérifiés : voir les avis', { m: m, n: r.n }));
+    a.innerHTML = '<span class="cpb-etoiles" aria-hidden="true"><span>★★★★★</span><span class="cpb-etoiles-pleines" style="width:' + Math.max(0, Math.min(100, r.moy / 5 * 100)) + '%">★★★★★</span></span>' +
+      '<span aria-hidden="true"><b>' + esc(m) + '</b> · ' + esc(r.n > 1 ? t('{n} avis', { n: r.n }) : t('1 avis')) + '</span>';
+    h1.parentNode.insertBefore(a, h1.nextSibling);
+  }
+
+  /* « Ils ont recu leur parfum » (theme) : les captures des avis WhatsApp
+     publies passent en tete de la rangee (avis.php > cpb_avis_preuves). */
+  function preuvesAvis() {
+    var l = CFG.preuves || [];
+    if (!l.length) { return; }
+    var rangs = document.querySelectorAll('.preuves-rang');
+    for (var i = 0; i < rangs.length; i++) {
+      var rang = rangs[i];
+      if (rang.querySelector('[data-cpb-preuve]')) { continue; }
+      for (var j = l.length - 1; j >= 0; j--) {
+        var f = document.createElement('figure');
+        f.className = 'preuve';
+        f.setAttribute('data-cpb-preuve', '');
+        var img = document.createElement('img');
+        img.src = l[j].src;
+        if (l[j].w && l[j].h) { img.width = l[j].w; img.height = l[j].h; }
+        img.alt = t('Message ou colis d’un client');
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        f.appendChild(img);
+        rang.insertBefore(f, rang.firstChild);
+      }
+      /* L'ancrage de defilement du navigateur garde la carte qui etait en
+         tete a l'ecran : sans ceci, les nouvelles captures restaient cachees
+         a gauche. */
+      rang.scrollLeft = 0;
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     VISIONNEUSE : LES CAPTURES CLIENTS EN GRAND
+     Dans « Ils ont recu leur parfum », les cartes sont recadrees en 4:3 :
+     la conversation entiere ne se lisait pas. Un toucher (ou Entree)
+     l'ouvre en plein ecran ; fleches, glissement du doigt, Echap. Meme
+     chose pour la photo d'un avis sur la fiche.
+  ══════════════════════════════════════════════════════════════ */
+  var visio = null, visioListe = [], visioI = 0;
+  function visioMontre(i) {
+    if (!visioListe.length) { return; }
+    visioI = (i + visioListe.length) % visioListe.length;
+    var img = visio.querySelector('.cpb-visio-img');
+    img.src = visioListe[visioI];
+    var n = visio.querySelector('.cpb-visio-n');
+    n.textContent = visioListe.length > 1 ? (visioI + 1) + ' / ' + visioListe.length : '';
+    visio.querySelector('.cpb-visio-prec').hidden = visio.querySelector('.cpb-visio-suiv').hidden = visioListe.length < 2;
+  }
+  function visioOuvre(liste, i) {
+    if (!visio) {
+      visio = creeCalque('cpb-visio', t('Capture de client agrandie'));
+      visio.innerHTML =
+        '<button type="button" class="cpb-visio-fermer" aria-label="' + esc(t('Fermer')) + '">' + SVG.croix + '</button>' +
+        '<button type="button" class="cpb-visio-prec" aria-label="' + esc(t('Capture précédente')) + '"><span aria-hidden="true">‹</span></button>' +
+        '<figure class="cpb-visio-fig"><img class="cpb-visio-img" alt="' + esc(t('Message ou colis d’un client')) + '"><figcaption class="cpb-visio-n"></figcaption></figure>' +
+        '<button type="button" class="cpb-visio-suiv" aria-label="' + esc(t('Capture suivante')) + '"><span aria-hidden="true">›</span></button>';
+      var sens = document.documentElement.dir === 'rtl' ? -1 : 1;
+      visio.querySelector('.cpb-visio-fermer').addEventListener('click', function () { fermer(); });
+      visio.querySelector('.cpb-visio-prec').addEventListener('click', function () { visioMontre(visioI - 1); });
+      visio.querySelector('.cpb-visio-suiv').addEventListener('click', function () { visioMontre(visioI + 1); });
+      visio.querySelector('.cpb-visio-fig').addEventListener('click', function (e) { if (e.target.tagName !== 'IMG') { fermer(); } });
+      visio.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); visioMontre(visioI - sens); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); visioMontre(visioI + sens); }
+      });
+      var x0 = null, y0 = 0;
+      visio.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+      visio.addEventListener('touchend', function (e) {
+        if (x0 === null) { return; }
+        var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+        x0 = null;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { visioMontre(visioI + (dx < 0 ? 1 : -1) * sens); }
+        else if (dy > 90 && Math.abs(dy) > Math.abs(dx) * 1.5) { fermer(); }
+      });
+    }
+    visioListe = liste;
+    visioMontre(i);
+    ouvrir(visio, '.cpb-visio-fermer');
+  }
+  function visionneuse() {
+    var rangs = document.querySelectorAll('.preuves-rang');
+    for (var r = 0; r < rangs.length; r++) {
+      (function (rang) {
+        var figs = [].slice.call(rang.querySelectorAll('.preuve'));
+        var srcs = figs.map(function (f) { var im = f.querySelector('img'); return im ? (im.currentSrc || im.src) : ''; });
+        figs.forEach(function (f, i) {
+          if (!srcs[i] || f.hasAttribute('data-cpb-visio')) { return; }
+          f.setAttribute('data-cpb-visio', '');
+          f.setAttribute('role', 'button');
+          f.setAttribute('tabindex', '0');
+          f.setAttribute('aria-label', t('Agrandir la capture {n} sur {t}', { n: i + 1, t: figs.length }));
+          var go = function () { visioOuvre(srcs, i); };
+          f.addEventListener('click', go);
+          f.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+        });
+      })(rangs[r]);
+    }
+    var photos = [].slice.call(document.querySelectorAll('.cpb-avis-photo'));
+    var ps = photos.map(function (a) { return a.href; });
+    photos.forEach(function (a, i) {
+      a.addEventListener('click', function (e) { e.preventDefault(); visioOuvre(ps, i); });
+    });
+  }
+
+  /* Remerciement : le lien de suivi, reference deja remplie. */
+  function merciSuivi() {
+    var bloc = document.getElementById('ck-merci');
+    if (!bloc || !/[?&]merci=1/.test(location.search) || bloc.querySelector('.cpb-merci-suivi')) { return; }
+    var cmd = null;
+    try { cmd = JSON.parse(localStorage.getItem('cp_commande_faite') || 'null'); } catch (e) {}
+    if (!cmd || !cmd.ref) { return; }
+    var p = document.createElement('p');
+    p.className = 'cpb cpb-merci-suivi';
+    p.innerHTML = '<a href="' + esc((CFG.home || '/') + '?suivi=1&ref=' + encodeURIComponent(cmd.ref)) + '">' + SVG.camion + '<span>' + esc(t('Suivre ma commande')) + '</span></a>';
+    var apres = bloc.querySelector('.ck-merci-detail') || bloc.querySelector('.ck-merci-suite');
+    if (apres && apres.parentNode) { apres.parentNode.insertBefore(p, apres.nextSibling); } else { bloc.appendChild(p); }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     PACKS DUO (comptoir-boutique.php > cpb_packs)
+     Accueil : « Nos duos » apres le catalogue. Fiche : « Le duo parfait »
+     quand le parfum fait partie d'un pack. Partout, [data-cpb-duo] ajoute
+     les deux parfums au panier (sans doublon) et ouvre le panier : la
+     remise « duo » du theme s'y applique d'elle-meme.
+  ══════════════════════════════════════════════════════════════ */
+  var PACK_TYPES = { 'couple': 'Duo couple', 'jour-soir': 'Duo jour & soir', 'oriental': 'Duo oriental', 'mariage': 'Duo mariage', 'mere-fille': 'Duo mère & fille' };
+
+  /* Lien « Duos » dans le menu du theme (ordinateur et menu telephone),
+     apres « Catalogue ». */
+  function lienDuosMenu() {
+    if (!CFG.url_packs || document.querySelector('.cpb-nav-duos')) { return; }
+    var ici = CFG.est_packs ? ' aria-current="page"' : '';
+    var ul = document.querySelector('#nav .nav-links');
+    if (ul) {
+      var li = document.createElement('li');
+      li.className = 'cpb-nav-duos';
+      li.innerHTML = '<a href="' + esc(CFG.url_packs) + '"' + ici + '>' + esc(t('Duos')) + '</a>';
+      var cat = [].slice.call(ul.querySelectorAll('a')).filter(function (a) { return /#catalogue/.test(a.getAttribute('href') || ''); })[0];
+      if (cat && cat.parentNode && cat.parentNode.parentNode === ul) { ul.insertBefore(li, cat.parentNode.nextSibling); } else { ul.appendChild(li); }
+    }
+    var mob = document.querySelector('#mob-menu .mob-nav');
+    if (mob) {
+      var a = document.createElement('a');
+      a.className = 'mob-link cpb-nav-duos';
+      a.href = CFG.url_packs;
+      a.setAttribute('data-close', '');
+      a.innerHTML = '<span class="mob-num" aria-hidden="true">✦</span>' + esc(t('Duos'));
+      var mcat = [].slice.call(mob.querySelectorAll('a')).filter(function (x) { return /#catalogue/.test(x.getAttribute('href') || ''); })[0];
+      if (mcat) { mob.insertBefore(a, mcat.nextSibling); } else { mob.appendChild(a); }
+    }
+  }
+
+  function packCarte(k) {
+    var a = produit(k.a), b = produit(k.b);
+    if (!a || !b) { return ''; }
+    var r = (P.cfg && P.cfg.remise > 0) ? P.cfg.remise : 0;
+    var prix = Math.max(0, P.prix(a) + P.prix(b) - r);
+    var pp = function (x) {
+      return '<a class="cpb-pack-p" href="' + esc(urlFiche(x.s)) + '"><span class="cpb-pack-photo">' + vignette(x, 'cpb-pack-img', 300, 300) + '</span>' +
+        '<span class="cpb-pack-maison">' + maisonHTML(x) + '</span><span class="cpb-pack-nom">' + nomHTML(x) + '</span>' +
+        '<span class="cpb-pack-pp">' + prixTexte(x) + '</span></a>';
+    };
+    return '<article class="cpb-pack" data-type="' + esc(k.type) + '">' +
+      '<p class="cpb-pack-type">' + esc(t(PACK_TYPES[k.type] || 'Duo couple')) + '</p>' +
+      '<div class="cpb-pack-duo">' + pp(a) + pp(b) + '</div>' +
+      '<p class="cpb-pack-prix">' + (r ? '<s>' + P.fmt(P.prix(a) + P.prix(b)) + '</s> ' : '') + '<b>' + P.fmt(prix) + '</b> <span>· ' + esc(t('livraison offerte')) + '</span></p>' +
+      '<button type="button" class="cpb-pack-go" data-cpb-duo="' + esc(k.a + ',' + k.b) + '">' + esc(t('Ajouter le duo au panier')) + '</button>' +
+    '</article>';
+  }
+  function packsSite() {
+    var l = CFG.packs || [];
+    var r = (P.cfg && P.cfg.remise > 0) ? P.cfg.remise : 0;
+    var accroche = r ? t('Deux parfums qui vont ensemble : {r} de remise et la livraison offerte.', { r: P.fmt(r) }) : t('Deux parfums qui vont ensemble : la livraison est offerte.');
+    if (l.length && CFG.accueil && !document.querySelector('.cpb-packs')) {
+      var cat = document.getElementById('catalogue');
+      var apres = cat ? (cat.closest('section') || cat) : null;
+      if (apres && apres.parentNode) {
+        var s = document.createElement('section');
+        s.className = 'cpb cpb-packs';
+        s.setAttribute('aria-labelledby', 'cpb-packs-t');
+        s.innerHTML = '<div class="cpb-packs-inner"><p class="cpb-titre-petit" id="cpb-packs-t">' + esc(t('Nos duos')) + '</p>' +
+          '<p class="cpb-packs-accroche">' + esc(accroche) + '</p>' +
+          '<div class="cpb-packs-rang">' + l.map(packCarte).join('') + '</div>' +
+          (CFG.url_packs ? '<p class="cpb-packs-tous"><a href="' + esc(CFG.url_packs) + '">' + esc(t('Voir tous les duos')) + '</a></p>' : '') +
+          '</div>';
+        apres.parentNode.insertBefore(s, apres.nextSibling);
+      }
+    }
+    var main = document.querySelector('main.pf');
+    if (l.length && CFG.slug && main && !main.querySelector('.cpb-pack-fiche')) {
+      var zone = main.querySelector('.cpb-fiche-actions');
+      var hote = zone ? zone.parentNode : null;
+      if (hote) {
+        var d = document.createElement('div');
+        d.className = 'cpb-pack-fiche';
+        d.innerHTML = '<p class="cpb-titre-petit">' + esc(t('Le duo parfait')) + '</p><p class="cpb-packs-accroche">' + esc(accroche) + '</p>' + packCarte(l[0]);
+        hote.parentNode.insertBefore(d, hote.nextSibling);
+      }
+    }
+  }
+  document.addEventListener('click', function (e) {
+    var bt = e.target.closest && e.target.closest('[data-cpb-duo]');
+    if (!bt) { return; }
+    var duo = bt.getAttribute('data-cpb-duo').split(',');
+    var dans = {};
+    P.items().forEach(function (x) { dans[x.s] = 1; });
+    var aAjouter = duo.filter(function (sl) { return produit(sl) && !dans[sl]; });
+    aAjouter.forEach(function (sl, i) { P.add(sl, 1, i < aAjouter.length - 1); });
+    if (!aAjouter.length && P.open) { P.open(); }
+    try { if (typeof window.gtag === 'function') { window.gtag('event', 'add_to_cart_pack', { pack: duo.join('+') }); } } catch (er) {}
+  });
+
+  /* Recherche arrivee de /?s=… (renvoyee par PHP vers /#chercher=…). */
+  function rechercheDepuisAdresse() {
+    var m = /^#chercher=(.*)$/.exec(location.hash || '');
+    if (!m) { return; }
+    var q = '';
+    try { q = decodeURIComponent(m[1].replace(/\+/g, ' ')); } catch (e) { q = m[1]; }
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    setTimeout(function () {
+      ouvrirRecherche();
+      if (champ && q) {
+        champ.value = q;
+        var ev;
+        try { ev = new Event('input', { bubbles: true }); } catch (e) { ev = document.createEvent('Event'); ev.initEvent('input', true, true); }
+        champ.dispatchEvent(ev);
+      }
+    }, 300);
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     BON RETOUR
+     Un visiteur qui revient (plus de 30 minutes apres sa derniere page)
+     retrouve ce qu'il avait commence :
+     - son panier, s'il n'est pas vide : un rappel discret avec le total et
+       un bouton vers la commande, une seule fois par visite ;
+     - sur l'accueil, les parfums qu'il avait regardes, avant le catalogue.
+     Tout vient du navigateur du visiteur ; rien n'est envoye.
+  ══════════════════════════════════════════════════════════════ */
+  var CLE_VISITE = 'cpb_derniere_page', RETOUR_APRES = 30 * 60 * 1000;
+
+  function bonRetour() {
+    var maintenant = Date.now(), avant = 0;
+    try { avant = parseInt(localStorage.getItem(CLE_VISITE) || '0', 10) || 0; } catch (e) {}
+    try { localStorage.setItem(CLE_VISITE, String(maintenant)); } catch (e) {}
+    var revient = avant > 0 && maintenant - avant > RETOUR_APRES;
+    var dejaVu = false;
+    try { dejaVu = sessionStorage.getItem('cpb_retour_montre') === '1'; } catch (e) {}
+
+    /* 1. Accueil : « Vous avez regarde ». */
+    if (CFG.accueil) {
+      var vus = vusRecemment().map(produit).filter(Boolean).slice(0, 4);
+      var cat = document.getElementById('catalogue');
+      if (vus.length && cat && !document.querySelector('.cpb-retour-vus')) {
+        var w = document.createElement('div');
+        w.className = 'cpb cpb-retour-vus';
+        w.appendChild(blocSibs(t('Vous avez regardé'), vus.map(function (p) { return carteSib(p, null); }).join('')));
+        cat.parentNode.insertBefore(w, cat);
+      }
+    }
+
+    /* 2. Rappel du panier. */
+    var c = P.cfg || {};
+    if (!revient || dejaVu || !P.count() || document.getElementById('ck-form') || !c.commander) { return; }
+    try { sessionStorage.setItem('cpb_retour_montre', '1'); } catch (e) {}
+    var n = P.count();
+    var r = document.createElement('div');
+    r.className = 'cpb cpb-rappel';
+    r.setAttribute('role', 'status');
+    r.innerHTML =
+      '<p class="cpb-rappel-titre">' + esc(t('Votre panier vous attend')) + '</p>' +
+      '<p class="cpb-rappel-detail">' + esc(n > 1 ? t('{n} parfums', { n: n }) : t('1 parfum')) + ' · ' + esc(P.fmt(P.total())) +
+        (P.fraisLivraison && P.fraisLivraison() === 0 ? ' · ' + esc(t('Livraison offerte')) : '') + '</p>' +
+      '<div class="cpb-rappel-actions"><a class="cpb-btn-plein" href="' + esc(c.commander) + '">' + esc(t('Finaliser ma commande')) + '</a>' +
+      '<button type="button" class="cpb-fermer" aria-label="' + esc(t('Fermer')) + '">' + SVG.croix + '</button></div>';
+    document.body.appendChild(r);
+    var ferme = function () { if (r.parentNode) { r.classList.add('cpb-rappel-sort'); setTimeout(function () { if (r.parentNode) { r.parentNode.removeChild(r); } }, 300); } };
+    r.querySelector('.cpb-fermer').addEventListener('click', ferme);
+    setTimeout(ferme, 15000);
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     GUIDES « CONSEILS » SUR LA BOUTIQUE
+     Fiche parfum : deux liens vers les guides qui levent les deux doutes
+     d'achat (« un testeur, c'est quoi ? », « est-ce un original ? »).
+     Accueil : les trois derniers guides, avant « Commander maintenant ».
+     Rien n'apparait tant que les guides ne sont pas publies.
+  ══════════════════════════════════════════════════════════════ */
+  /* Fiche parfum : le nom de la maison mene a sa page (/parfums/<maison>/). */
+  function lienMaison() {
+    var m = CFG.maisons || {};
+    document.querySelectorAll('main.pf .pf-brand, .lp-vedette .pf-brand').forEach(function (el) {
+      var nom = (el.textContent || '').trim();
+      if (!m[nom] || el.querySelector('a')) { return; }
+      el.innerHTML = '<a class="cpb-lien-maison" href="' + esc(m[nom]) + '">' + esc(nom) + '</a>';
+    });
+  }
+
+  /* Accueil : les maisons qui ont leur page, sous les entrees Femme / Homme. */
+  function maisonsAccueil() {
+    var m = CFG.maisons || {}, noms = Object.keys(m);
+    var q = CFG.accueil ? document.querySelector('#catalogue .cat-quick') : null;
+    if (!q || !noms.length || document.querySelector('.cpb-maisons-rang')) { return; }
+    var d = document.createElement('nav');
+    d.className = 'cpb cpb-maisons-rang';
+    d.setAttribute('aria-label', t('Nos maisons'));
+    d.innerHTML = '<span class="cpb-maisons-titre">' + esc(t('Nos maisons')) + '</span>' + noms.map(function (n) {
+      return '<a class="cpb-puce" href="' + esc(m[n]) + '"><span class="pnr-brand">' + esc(n) + '</span></a>';
+    }).join('') + (CFG.url_maisons ? '<a class="cpb-puce cpb-puce-or" href="' + esc(CFG.url_maisons) + '">' + esc(t('Toutes les maisons')) + '</a>' : '');
+    q.parentNode.insertBefore(d, q.nextSibling);
+  }
+
+  function guidesSite() {
+    var guides = CFG.guides || [];
+    if (!guides.length) { return; }
+    var parSlug = {};
+    guides.forEach(function (g) { parSlug[g.slug] = g; });
+
+    var buy = CFG.slug ? document.querySelector('main.pf .pf-buy') : null;
+    var doutes = [parSlug['testeur-de-parfum-c-est-quoi'], parSlug['verifier-parfum-original']].filter(Boolean);
+    if (buy && doutes.length && !buy.querySelector('.cpb-doutes')) {
+      var d = document.createElement('div');
+      d.className = 'cpb cpb-doutes';
+      d.innerHTML = '<p class="cpb-doutes-titre">' + esc(t('Bon à savoir')) + '</p><ul>' + doutes.map(function (g) {
+        return '<li><a href="' + esc(g.url) + '">' + esc(g.titre) + '</a></li>';
+      }).join('') + '</ul>';
+      var ap = buy.querySelector('.franco-pf') || buy.querySelector('.pf-rassure-cta');
+      if (ap && ap.parentNode) { ap.parentNode.insertBefore(d, ap.nextSibling); } else { buy.appendChild(d); }
+    }
+
+    var fin = CFG.accueil ? document.querySelector('.finale') : null;
+    if (fin && !document.querySelector('.cpb-conseils')) {
+      var tous = null;
+      (CFG.pages || []).forEach(function (p) { if (p.cle === 'conseils') { tous = p.url; } });
+      var s = document.createElement('section');
+      s.className = 'cpb cpb-conseils';
+      s.setAttribute('aria-label', t('Conseils'));
+      s.innerHTML = '<div class="cpb-conseils-inner">' +
+        '<div class="sect-kicker"><span>' + esc(t('Conseils')) + '</span></div>' +
+        '<h2 class="sect-h2">' + esc(t('Bien choisir son parfum')) + '</h2>' +
+        '<div class="cpb-conseils-liste">' + guides.slice(0, 3).map(function (g) {
+          return '<a class="cpb-conseil" href="' + esc(g.url) + '"><span class="cpb-conseil-titre">' + esc(g.titre) + '</span>' +
+            '<span class="cpb-conseil-resume">' + esc(g.resume) + '</span><span class="cpb-conseil-lire">' + esc(t('Lire le guide')) + ' →</span></a>';
+        }).join('') + '</div>' +
+        (tous ? '<p class="cpb-conseils-tous"><a href="' + esc(tous) + '">' + esc(t('Tous nos conseils')) + '</a></p>' : '') +
+        '</div>';
+      fin.parentNode.insertBefore(s, fin);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     LIENS D'INFORMATION
+     Pied de page : A propos, Contact, Conditions de vente, Retours,
+     Confidentialite (seulement les pages publiees, fournies par PHP).
+     Formulaires de commande : renvoi aux conditions de vente.
+  ══════════════════════════════════════════════════════════════ */
+  function pagesInfo() {
+    var pages = CFG.pages || [];
+    if (!pages.length) { return; }
+    var lien = function (p) {
+      return '<a href="' + esc(p.url) + '">' + esc(AR ? p.ar : p.fr) + '</a>';
+    };
+    var bas = document.querySelector('.foot-bas .foot-inner');
+    if (bas && !bas.querySelector('.cpb-foot-info')) {
+      var nav = document.createElement('nav');
+      nav.className = 'cpb-foot-info';
+      nav.setAttribute('aria-label', t('Informations'));
+      nav.innerHTML = pages.map(lien).join('');
+      bas.appendChild(nav);
+    }
+    var cgv = null;
+    pages.forEach(function (p) { if (p.cle === 'conditions-de-vente') { cgv = p; } });
+    if (!cgv) { return; }
+    var mention = function (apres) {
+      if (!apres || !apres.parentNode || apres.parentNode.querySelector('.cpb-cgv')) { return; }
+      var m = document.createElement('p');
+      m.className = 'cpb-cgv';
+      m.innerHTML = esc(t('En confirmant, vous acceptez nos')) + ' ' + lien({ url: cgv.url, fr: t('conditions de vente'), ar: t('conditions de vente') }) + '.';
+      apres.parentNode.insertBefore(m, apres.nextSibling);
+    };
+    mention(document.querySelector('.cpb-express .cpb-x-note'));
+    mention(document.querySelector('.ck-mini'));
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     ANIMATIONS
+     L'accueil est deja mis en scene par le theme (GSAP). Ici : la fiche
+     parfum et les blocs de l'extension, qui apparaissaient d'un coup.
+     Regles : transform et opacity seulement (fluide sur un telephone
+     d'entree de gamme), rien ne cache ce qui est deja a l'ecran au
+     chargement (pas de flash, pas de retard sur la photo principale),
+     et rien du tout si le telephone demande moins d'animations.
+  ══════════════════════════════════════════════════════════════ */
+  var A_REVELER = [
+    'main.pf .pf-block', 'main.pf .pf-histoire', '.cpb-quiz-appel', '.cpb-express', '.cpb-conseil',
+    '.cpb-dist-visuel', '.cpb-404-visuel', '.pf-sibs .pf-sib'
+  ];
+
+  function animations() {
+    if (REDUIT || !('IntersectionObserver' in window) || !document.documentElement.classList) { return; }
+    var racine = document.documentElement;
+    racine.classList.add('cpb-anim');
+
+    /* 1. Apparition au defilement, en cascade dans une rangee de cartes. */
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) { return; }
+        e.target.classList.add('cpb-vu');
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.01 });
+    var bas = window.innerHeight || 700;
+    A_REVELER.forEach(function (sel) {
+      var rang = 0, parent = null;
+      document.querySelectorAll(sel).forEach(function (el) {
+        if (el.getBoundingClientRect().top < bas) { return; }   /* deja visible : on n'y touche pas */
+        if (el.parentNode !== parent) { parent = el.parentNode; rang = 0; }
+        el.classList.add('cpb-r');
+        el.style.setProperty('--cpb-i', String(Math.min(rang++, 6)));
+        io.observe(el);
+      });
+    });
+
+    /* 2. Fiche parfum : un halo dore respire derriere le flacon. */
+    var vis = document.querySelector('main.pf .pf-visual, .lp-vedette .pf-visual');
+    if (vis && !vis.querySelector('.cpb-halo')) {
+      var halo = document.createElement('span');
+      halo.className = 'cpb-halo';
+      halo.setAttribute('aria-hidden', 'true');
+      vis.insertBefore(halo, vis.firstChild);
+    }
+
+    /* 3. Panier : le compteur saute quand un parfum entre. */
+    var avant = P.count();
+    P.onChange(function () {
+      var n = P.count();
+      if (n > avant) {
+        document.querySelectorAll('[data-panier-count]').forEach(function (c) {
+          var pill = c.closest('.nav-pill') || c;
+          pill.classList.remove('cpb-saut');
+          void pill.offsetWidth;   /* relance l'animation */
+          pill.classList.add('cpb-saut');
+        });
+      }
+      avant = n;
+    });
+
+    /* 4. Favori : le coeur eclot quand on l'allume. */
+    document.addEventListener('click', function (e) {
+      var c = e.target.closest && e.target.closest('[data-cpb-coeur]');
+      if (!c) { return; }
+      setTimeout(function () {
+        if (c.getAttribute('aria-pressed') !== 'true') { return; }
+        c.classList.remove('cpb-eclot');
+        void c.offsetWidth;
+        c.classList.add('cpb-eclot');
+      }, 0);
     });
   }
 
@@ -1626,8 +2458,16 @@
      DEMARRAGE — chaque module isole : une erreur dans l'un ne prive
      pas le visiteur des autres, ni surtout du panier.
   ══════════════════════════════════════════════════════════════ */
+  /* Microsoft Clarity : les formulaires de commande (nom, telephone,
+     adresse) ne doivent jamais apparaitre dans les enregistrements, quel que
+     soit le reglage choisi dans Clarity (voir la page Confidentialite). */
+  function masqueClarity() {
+    var l = document.querySelectorAll('#ck-form, .cpb-express, form[data-cpb-form]');
+    for (var i = 0; i < l.length; i++) { l[i].setAttribute('data-clarity-mask', 'true'); }
+  }
+
   function demarre() {
-    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, majFavoris].forEach(function (f) {
+    [bandeau, boutonsNav, appelQuiz, visuelsSite, fiche, expressFiche, moinsDeFriction, majFavoris, pagesInfo, lienMaison, maisonsAccueil, guidesSite, bonRetour, merciSecond, merciSuivi, suivreInstagram, rechercheDepuisAdresse, animations, masqueClarity, avisClients, preuvesAvis, visionneuse, packsSite, lienDuosMenu].forEach(function (f) {
       try { f(); } catch (e) { if (window.console) { console.warn('[Comptoir Boutique]', e); } }
     });
     /* Lien partageable vers le quiz : /#trouver-mon-parfum (bio Instagram,

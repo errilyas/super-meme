@@ -33,6 +33,20 @@ function comptoir_livraison_dh() {
 }
 
 /**
+ * Remise « duo » en DH : retiree pour chaque paire de parfums du panier
+ * (2 parfums = 1 remise, 4 = 2…). 0 desactive la remise. Meme regle cote
+ * navigateur (panier.js, P.remise) et cote serveur (montant enregistre).
+ */
+function comptoir_remise_duo_dh() {
+	return 50;
+}
+
+/** Remise totale pour un nombre d'articles. */
+function comptoir_remise_duo( $articles ) {
+	return (int) floor( max( 0, (int) $articles ) / 2 ) * comptoir_remise_duo_dh();
+}
+
+/**
  * Livraison offerte a partir de N articles. 0 desactive la regle.
  * Reglee a 2 : le deuxieme flacon paie sa propre livraison, et fait monter
  * le panier moyen sans un dirham de publicite.
@@ -99,9 +113,12 @@ function comptoir_note_franco( $classe = '' ) {
 		. '<svg viewBox="0 0 24 24" aria-hidden="true">'
 		. '<path d="M1.5 16.5V6.5h12v10M13.5 9.5h4l3 3.5v3.5h-7"/>'
 		. '<circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>'
-		. '<span><b>Livraison offerte dès le deuxième parfum.</b> '
+		. '<span><b>%s</b> '
 		. 'Sinon %s DH, partout au Maroc.</span></p>',
 		$classe ? ' ' . esc_attr( $classe ) : '',
+		esc_html( comptoir_remise_duo_dh() > 0
+			? sprintf( 'Dès le deuxième parfum : livraison offerte et %s DH de remise.', comptoir_prix_format( comptoir_remise_duo_dh() ) )
+			: 'Livraison offerte dès le deuxième parfum.' ),
 		esc_html( comptoir_prix_format( $frais ) )
 	);
 }
@@ -615,7 +632,8 @@ function comptoir_recoit_commande() {
 		$resume[] = $ligne['q'] . '× ' . $p['b'] . ' ' . $p['n'] . ' (' . $p['s'] . ') — ' . $p['pr'];
 	}
 	$livraison = comptoir_franco_articles() > 0 && $articles >= comptoir_franco_articles() ? 0 : comptoir_livraison_dh();
-	$total += $livraison;
+	$remise    = comptoir_remise_duo( $articles );
+	$total     = max( 0, $total - $remise ) + $livraison;
 	$panier = implode( "\n", $resume );
 
 	$id = wp_insert_post( array(
@@ -638,6 +656,7 @@ function comptoir_recoit_commande() {
 			'cp_adresse' => $champ( 'adresse', 400 ),
 			'cp_articles'  => $articles,
 			'cp_livraison' => $livraison,
+			'cp_remise'    => $remise,
 			'cp_total'   => $total,
 			'cp_etat'    => $jeton_ok ? 'a-rappeler' : 'a-verifier',
 			/* Provenance du visiteur. Elle n'entre dans aucun calcul : elle sert a
@@ -1092,6 +1111,7 @@ function comptoir_parfums_assets() {
 		'feuille'   => comptoir_feuille_google(),
 		'wa'        => comptoir_wa_numero(),
 		'livraison' => comptoir_livraison_dh(),
+		'remise'    => comptoir_remise_duo_dh(),
 		'franco'    => comptoir_franco_articles(),
 		'commander' => home_url( '/?commander=1' ),
 		'home'      => home_url( '/' ),
@@ -1681,7 +1701,9 @@ add_action( 'wp_head', function () {
 	$h    = 630;
 
 	if ( $meta['image'] ) {
-		$fichier = str_replace( get_template_directory_uri(), get_template_directory(), $meta['image'] );
+		// Sans le « ?v=… » d'empreinte : avec, le fichier n'etait jamais trouve
+		// et chaque fiche annoncait 1200 x 630 pour une photo de 720 x 900.
+		$fichier = str_replace( get_template_directory_uri(), get_template_directory(), strtok( $meta['image'], '?' ) );
 		$taille  = @getimagesize( $fichier );
 		if ( $taille ) {
 			$w = $taille[0];

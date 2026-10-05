@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.4.0
+ * Version:           1.27.0
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.4.0' );
+define( 'CPB_VERSION', '1.27.0' );
 
 /**
  * Mode de diffusion.
@@ -32,6 +32,10 @@ define( 'CPB_VERSION', '1.4.0' );
  * On passe d'abord en apercu, on verifie sur le vrai site, puis on bascule.
  */
 define( 'CPB_MODE', 'en-ligne' );
+
+require_once __DIR__ . '/avis.php';
+require_once __DIR__ . '/suivi.php';
+require_once __DIR__ . '/automatisation.php';
 
 /** Vrai si l'extension doit agir sur la page servie. */
 function cpb_actif() {
@@ -86,12 +90,34 @@ add_action( 'wp_enqueue_scripts', function () {
 	$slug   = function_exists( 'comptoir_parfum_slug_demande' ) ? comptoir_parfum_slug_demande() : '';
 	$parfum = ( $slug && function_exists( 'comptoir_produit_by_slug' ) && comptoir_produit_by_slug( $slug ) ) ? $slug : '';
 
+	// Mesure GA4 (mesure.js) : avant panier.js, qui envoie la vue de fiche des
+	// son chargement (et commande.js l'achat, a l'ouverture du remerciement).
+	wp_register_script( 'comptoir-boutique-mesure', $url . 'mesure.js', array(), CPB_VERSION . '.' . (int) @filemtime( $abs . 'mesure.js' ), true );
+	$panier = wp_scripts()->query( 'comptoir-panier', 'registered' );
+	if ( $panier && ! in_array( 'comptoir-boutique-mesure', $panier->deps, true ) ) {
+		$panier->deps[] = 'comptoir-boutique-mesure';
+	}
+
+	$cfg_accueil = function_exists( 'comptoir_est_accueil' ) ? comptoir_est_accueil() : is_front_page();
+	$cfg_vedette = function_exists( 'comptoir_vente_demande' ) && comptoir_vente_demande();
 	$cfg = array(
 		'slug'       => $parfum,
+		'avis'       => function_exists( 'cpb_avis_resume_cfg' ) ? cpb_avis_resume_cfg() : null,
+		'packs'      => ( ! empty( $cfg_accueil ) ) ? cpb_packs_accueil() : ( $parfum ? cpb_packs_de( $parfum ) : array() ),
+		'url_packs'  => ( ( $pk = get_page_by_path( 'packs' ) ) && 'publish' === $pk->post_status ) ? get_permalink( $pk ) : '',
+		'est_packs'  => is_page( 'packs' ),
+		'preuves'    => function_exists( 'cpb_avis_preuves' ) ? cpb_avis_preuves() : array(),
+		// Page Vente ouverte sur un parfum (publicite) : il recoit lui aussi
+		// la commande express.
+		'vedette'    => ( ! $parfum && function_exists( 'comptoir_vente_demande' ) && comptoir_vente_demande() && function_exists( 'comptoir_vente_vedette' ) && comptoir_vente_vedette() ) ? comptoir_vente_vedette()['s'] : '',
 		'accueil'    => function_exists( 'comptoir_est_accueil' ) ? comptoir_est_accueil() : is_front_page(),
 		'home'       => home_url( '/' ),
 		'populaires' => cpb_populaires(),
 		'visuels'    => cpb_visuels(),
+		'maisons'    => ( $parfum || ! empty( $cfg_vedette ) || ! empty( $cfg_accueil ) ) ? cpb_maisons_cfg() : array(),
+		'url_maisons' => ( ! empty( $cfg_accueil ) && ( $pm = get_page_by_path( 'parfums' ) ) && 'publish' === $pm->post_status ) ? get_permalink( $pm ) : '',
+		'guides'     => ( ! empty( $cfg_accueil ) || $parfum ) ? cpb_guides( 12 ) : array(),
+		'pages'      => array_map( function ( $p ) { return array( 'fr' => $p[0], 'ar' => $p[1], 'url' => $p[2], 'cle' => $p[3] ); }, cpb_pages_info() ),
 		// En apercu, les liens internes gardent le parametre : sans lui, la page
 		// suivante s'ouvrirait sans les nouveautes et le parcours serait coupe.
 		'suffixe'    => 'apercu' === CPB_MODE ? 'apercu=boutique' : '',
@@ -115,6 +141,515 @@ function cpb_visuels() {
 	}
 	return $out;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   PLAN DU SITE (wp-sitemap.xml)
+   Le plan de WordPress ne connait que les articles et les pages : les
+   fiches parfum (/?parfum=…), qui sont le catalogue, n'y figuraient pas,
+   et Google devait les trouver seul, lien par lien. On les y ajoute, avec
+   la meme adresse que la balise canonical du theme.
+   Le plan des auteurs est retire : il publiait l'identifiant de connexion
+   de l'administrateur (/author/<identifiant>/) et ne sert a rien ici.
+══════════════════════════════════════════════════════════════ */
+add_filter( 'wp_sitemaps_add_provider', function ( $provider, $name ) {
+	return 'users' === $name ? false : $provider;
+}, 10, 2 );
+
+add_action( 'init', function () {
+	if ( ! function_exists( 'comptoir_produits' ) || ! function_exists( 'wp_register_sitemap_provider' ) || ! class_exists( 'WP_Sitemaps_Provider' ) ) {
+		return;
+	}
+	if ( ! class_exists( 'CPB_Plan_Parfums' ) ) {
+		/** Les fiches parfum, une URL par parfum du catalogue du theme. */
+		class CPB_Plan_Parfums extends WP_Sitemaps_Provider {
+			public function __construct() {
+				$this->name        = 'parfums';
+				$this->object_type = 'parfums';
+			}
+			public function get_url_list( $page_num, $object_subtype = '' ) {
+				$par_page = wp_sitemaps_get_max_urls( $this->object_type );
+				$out      = array();
+				foreach ( array_slice( comptoir_produits(), ( $page_num - 1 ) * $par_page, $par_page ) as $p ) {
+					$out[] = array( 'loc' => home_url( '/?parfum=' . $p['s'] ) );
+				}
+				return $out;
+			}
+			public function get_max_num_pages( $object_subtype = '' ) {
+				return (int) ceil( count( comptoir_produits() ) / wp_sitemaps_get_max_urls( $this->object_type ) );
+			}
+		}
+	}
+	wp_register_sitemap_provider( 'parfums', new CPB_Plan_Parfums() );
+} );
+
+/**
+ * Pages d'auteur (/author/…, /?author=1) : vides sur une boutique, et elles
+ * donnaient a n'importe qui l'identifiant de connexion de l'administrateur,
+ * la moitie de ce qu'il faut pour tenter de deviner un mot de passe.
+ * Retour a l'accueil.
+ */
+add_action( 'template_redirect', function () {
+	// Avant redirect_canonical (priorite 10), qui sinon envoie d'abord
+	// /?author=1 vers /author/<identifiant>/ et le revele dans l'en-tete.
+	if ( is_author() || isset( $_GET['author'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		wp_safe_redirect( home_url( '/' ), 301 );
+		exit;
+	}
+}, 1 );
+
+/**
+ * Meme fuite par l'API : /wp-json/wp/v2/users listait l'identifiant a tout
+ * visiteur. Les outils connectes (application WordPress, Jetpack) passent
+ * authentifies et gardent l'acces.
+ */
+add_filter( 'rest_endpoints', function ( $routes ) {
+	if ( ! is_user_logged_in() ) {
+		unset( $routes['/wp/v2/users'], $routes['/wp/v2/users/(?P<id>[\d]+)'] );
+	}
+	return $routes;
+} );
+
+/* ══════════════════════════════════════════════════════════════
+   IMAGE DE PARTAGE (Facebook, WhatsApp)
+   Jusqu'au theme 3.5.2, chaque fiche annoncait og:image 1200 x 630 pour
+   une photo de 720 x 900 : la taille n'etait pas lue a cause de
+   l'empreinte « ?v=… ». Le theme 3.5.3 le corrige ; en attendant qu'il
+   soit installe, on remet ici les vraies dimensions. Avec le theme
+   corrige, les valeurs sont deja justes et rien ne change.
+══════════════════════════════════════════════════════════════ */
+function cpb_corrige_og( $html ) {
+	if ( ! preg_match( '#<meta property="og:image" content="([^"]+)">#', $html, $m ) ) {
+		return $html;
+	}
+	$url = strtok( html_entity_decode( $m[1], ENT_QUOTES ), '?' );
+	$uri = get_template_directory_uri();
+	if ( 0 !== strpos( $url, $uri . '/' ) ) {
+		return $html;
+	}
+	$fichier = get_template_directory() . substr( $url, strlen( $uri ) );
+	$taille  = ( false === strpos( $fichier, '..' ) && is_file( $fichier ) ) ? @getimagesize( $fichier ) : false;
+	if ( ! $taille ) {
+		return $html;
+	}
+	$html = preg_replace( '#<meta property="og:image:width" content="\d+">#', '<meta property="og:image:width" content="' . (int) $taille[0] . '">', $html, 1 );
+	return preg_replace( '#<meta property="og:image:height" content="\d+">#', '<meta property="og:image:height" content="' . (int) $taille[1] . '">', $html, 1 );
+}
+
+add_action( 'wp_head', function () {
+	if ( function_exists( 'comptoir_meta_page' ) && ! is_feed() ) {
+		$GLOBALS['cpb_og_tampon'] = ob_start();
+	}
+}, 0 );
+
+add_action( 'wp_head', function () {
+	if ( empty( $GLOBALS['cpb_og_tampon'] ) ) {
+		return;
+	}
+	$GLOBALS['cpb_og_tampon'] = false;
+	echo cpb_description_page( cpb_enrichit_ld( cpb_corrige_og( (string) ob_get_clean() ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput -- sortie du theme, deja echappee.
+}, 3 ); // apres les donnees structurees du theme (priorite 2)
+
+/* ══════════════════════════════════════════════════════════════
+   DONNEES STRUCTUREES (Google)
+   Le theme decrit chaque fiche comme un produit avec son prix. Google
+   demande aussi, pour les fiches marchandes, l'etat du produit, la
+   livraison et la politique de retour : sans elles, la Search Console
+   signale des champs manquants et les fiches peuvent perdre leurs
+   informations enrichies. On les ajoute, tirees des reglages du theme
+   et des pages publiees, sans rien promettre de plus que le site.
+══════════════════════════════════════════════════════════════ */
+function cpb_enrichit_ld( $html ) {
+	return preg_replace_callback( '#<script type="application/ld\+json">(.*?)</script>#s', function ( $m ) {
+		$d = json_decode( $m[1], true );
+		if ( ! is_array( $d ) || empty( $d['@type'] ) ) {
+			return $m[0];
+		}
+		if ( 'Product' === $d['@type'] && ! empty( $d['offers'] ) && is_array( $d['offers'] ) ) {
+			if ( empty( $d['sku'] ) && function_exists( 'comptoir_parfum_slug_demande' ) ) {
+				$d['sku'] = comptoir_parfum_slug_demande();
+			}
+			$o                  = $d['offers'];
+			$o['itemCondition'] = 'https://schema.org/NewCondition';
+			$o['seller']        = array( '@type' => 'Organization', 'name' => get_bloginfo( 'name' ) );
+			$frais              = function_exists( 'comptoir_livraison_dh' ) ? (int) comptoir_livraison_dh() : 0;
+			if ( $frais > 0 ) {
+				$o['shippingDetails'] = array(
+					'@type'               => 'OfferShippingDetails',
+					'shippingRate'        => array( '@type' => 'MonetaryAmount', 'value' => $frais, 'currency' => 'MAD' ),
+					'shippingDestination' => array( '@type' => 'DefinedRegion', 'addressCountry' => 'MA' ),
+					'deliveryTime'        => array(
+						'@type'        => 'ShippingDeliveryTime',
+						'handlingTime' => array( '@type' => 'QuantitativeValue', 'minValue' => 0, 'maxValue' => 1, 'unitCode' => 'DAY' ),
+						'transitTime'  => array( '@type' => 'QuantitativeValue', 'minValue' => 1, 'maxValue' => 4, 'unitCode' => 'DAY' ),
+					),
+				);
+			}
+			$retours = get_page_by_path( 'retours-et-remboursement' );
+			if ( $retours && 'publish' === $retours->post_status ) {
+				$o['hasMerchantReturnPolicy'] = array(
+					'@type'                => 'MerchantReturnPolicy',
+					'applicableCountry'    => 'MA',
+					'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+					'merchantReturnDays'   => 7,
+					'returnMethod'         => 'https://schema.org/ReturnByMail',
+					'url'                  => get_permalink( $retours ),
+				);
+			}
+			$d['offers'] = $o;
+			if ( function_exists( 'cpb_avis_ld' ) ) {
+				$d = cpb_avis_ld( $d );
+			}
+		} elseif ( 'Store' === $d['@type'] && empty( $d['sameAs'] ) ) {
+			$d['sameAs'] = array( 'https://www.instagram.com/le_comptoir_parfums', 'https://www.facebook.com/profile.php?id=61573721267555' );
+		}
+		return '<script type="application/ld+json">' . wp_json_encode( $d ) . '</script>';
+	}, $html );
+}
+
+/** Nom de maison => adresse de sa page, pour celles qui en ont une. */
+function cpb_maisons_cfg() {
+	$out = array();
+	if ( function_exists( 'comptoir_catalogue_par_maison' ) ) {
+		$maisons = comptoir_catalogue_par_maison();
+		uksort( $maisons, function ( $a, $b ) use ( $maisons ) {
+			return count( $maisons[ $b ] ) - count( $maisons[ $a ] ) ?: strcmp( $a, $b );
+		} );
+		foreach ( array_keys( $maisons ) as $maison ) {
+			$url = cpb_url_maison( $maison );
+			if ( $url ) {
+				$out[ $maison ] = $url;
+			}
+		}
+	}
+	return $out;
+}
+
+/**
+ * Description pour Google des pages et des guides : le theme n'en ecrit
+ * que pour l'accueil, les fiches et ses propres pages. On reprend la
+ * description SEO saisie (Jetpack) ou, a defaut, le resume.
+ */
+function cpb_description_page( $html ) {
+	if ( ! is_singular( array( 'page', 'post' ) ) || false !== stripos( $html, '<meta name="description"' ) ) {
+		return $html;
+	}
+	$id   = get_queried_object_id();
+	$desc = trim( (string) get_post_meta( $id, 'advanced_seo_description', true ) );
+	if ( '' === $desc ) {
+		$desc = trim( wp_strip_all_tags( get_the_excerpt( $id ) ) );
+	}
+	if ( '' === $desc ) {
+		return $html;
+	}
+	$GLOBALS['cpb_description_ecrite'] = true;
+	return '<meta name="description" content="' . esc_attr( wp_html_excerpt( $desc, 300, '…' ) ) . '">' . "\n" . $html;
+}
+
+/* Jetpack (outils SEO) : pas de seconde description si on vient d'en ecrire une. */
+add_filter( 'jetpack_seo_meta_tags', function ( $tags ) {
+	if ( ! empty( $GLOBALS['cpb_description_ecrite'] ) && is_array( $tags ) ) {
+		unset( $tags['description'] );
+	}
+	return $tags;
+} );
+
+/**
+ * Les guides publies (categorie « conseils »), du plus recent au plus
+ * ancien : titre, resume, adresse, slug. Pour la fiche et l'accueil.
+ */
+function cpb_guides( $n = 6 ) {
+	$cat = get_category_by_slug( 'conseils' );
+	if ( ! $cat ) {
+		return array();
+	}
+	$out = array();
+	foreach ( get_posts( array( 'category' => $cat->term_id, 'numberposts' => $n, 'post_status' => 'publish' ) ) as $post ) {
+		$out[] = array(
+			'titre' => html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' ),
+			'resume' => wp_strip_all_tags( get_the_excerpt( $post ) ),
+			'url'   => get_permalink( $post ),
+			'slug'  => $post->post_name,
+		);
+	}
+	return $out;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PAGES DU SITE ET LIENS D'INFORMATION
+   - Les pages WordPress s'affichent en entier (gabarit page-cpb.php) :
+     le theme n'en a pas et les montrait comme une liste d'articles.
+   - Le pied de page gagne les liens vers les pages d'information qui
+     existent (publiees), et les formulaires de commande renvoient aux
+     conditions de vente.
+══════════════════════════════════════════════════════════════ */
+add_filter( 'template_include', function ( $template ) {
+	$page    = is_page() && ! locate_template( array( 'page.php' ) ) && ! is_page_template();
+	$article = is_singular( 'post' ) && ! locate_template( array( 'single.php' ) );
+	if ( ( $page || $article ) && function_exists( 'comptoir_produits' ) ) {
+		$t = plugin_dir_path( __FILE__ ) . 'page-cpb.php';
+		if ( file_exists( $t ) ) {
+			return $t;
+		}
+	}
+	return $template;
+}, 20 );
+
+/** Archive des guides : la categorie « conseils », ou l'accueil a defaut. */
+function cpb_url_conseils() {
+	$cat = get_category_by_slug( 'conseils' );
+	return $cat ? get_category_link( $cat ) : home_url( '/' );
+}
+
+/* Titre d'archive sans prefixe : « Conseils », pas « Categorie : Conseils ». */
+add_filter( 'get_the_archive_title_prefix', function ( $prefix ) {
+	return is_category() ? '' : $prefix;
+} );
+
+/**
+ * Les parfums d'une selection : par slugs (dans l'ordre donne), par maison
+ * ou par public (Homme, Femme, Mixte). Ordre du catalogue sinon.
+ */
+function cpb_selection( $atts ) {
+	if ( ! function_exists( 'comptoir_produits' ) ) {
+		return array();
+	}
+	$out = array();
+	if ( '' !== trim( (string) $atts['slugs'] ) ) {
+		foreach ( array_filter( array_map( 'trim', explode( ',', (string) $atts['slugs'] ) ) ) as $slug ) {
+			$p = comptoir_produit_by_slug( preg_replace( '/[^a-z0-9-]/', '', strtolower( $slug ) ) );
+			if ( $p ) {
+				$out[] = $p;
+			}
+		}
+		return $out;
+	}
+	$maison = trim( (string) $atts['maison'] );
+	$genre  = trim( (string) $atts['genre'] );
+	if ( '' === $maison && '' === $genre ) {
+		return array();
+	}
+	foreach ( comptoir_produits() as $p ) {
+		if ( '' !== $maison && comptoir_maison_slug( $p['b'] ) !== comptoir_maison_slug( html_entity_decode( $maison, ENT_QUOTES, 'UTF-8' ) ) ) {
+			continue;
+		}
+		if ( '' !== $genre && strtolower( $p['g'] ) !== strtolower( $genre ) ) {
+			continue;
+		}
+		$out[] = $p;
+	}
+	return $out;
+}
+
+/**
+ * [parfums slugs="dior--sauvage-elixir,chanel--coco-mademoiselle"]
+ * [parfums maison="Dior"]  ·  [parfums genre="Homme"]
+ * Les cartes du catalogue (memes cartes que l'accueil : photo, maison,
+ * nom, prix, lien vers la fiche) dans un guide ou une page de collection.
+ */
+add_shortcode( 'parfums', function ( $atts ) {
+	if ( ! function_exists( 'comptoir_carte_produit' ) ) {
+		return '';
+	}
+	$liste = cpb_selection( shortcode_atts( array( 'slugs' => '', 'maison' => '', 'genre' => '' ), $atts, 'parfums' ) );
+	if ( ! $liste ) {
+		return '';
+	}
+	ob_start();
+	foreach ( $liste as $p ) {
+		comptoir_carte_produit( $p );
+	}
+	return '<div class="cat-grille cpb-guide-grille" role="list">' . ob_get_clean() . '</div>';
+} );
+
+/**
+ * [collection maison="Dior"] : une phrase tiree du catalogue, toujours a
+ * jour (« 18 parfums, de 349 a 429 DH »), pour l'en-tete d'une page.
+ */
+add_shortcode( 'collection', function ( $atts ) {
+	$liste = cpb_selection( shortcode_atts( array( 'slugs' => '', 'maison' => '', 'genre' => '' ), $atts, 'collection' ) );
+	if ( ! $liste ) {
+		return '';
+	}
+	$prix = array();
+	foreach ( $liste as $p ) {
+		$prix[] = (int) preg_replace( '/[^0-9]/', '', $p['pr'] );
+	}
+	$n   = count( $liste );
+	$txt = sprintf(
+		'%d %s, de %s à %s DH. Testeurs originaux, payés en espèces à la livraison, partout au Maroc.',
+		$n,
+		$n > 1 ? 'parfums' : 'parfum',
+		number_format_i18n( min( $prix ) ),
+		number_format_i18n( max( $prix ) )
+	);
+	return '<p class="cpb-collection-resume">' . esc_html( $txt ) . '</p>';
+} );
+
+/** Adresse de la page d'une maison (/parfums/<maison>/) si elle est publiee. */
+function cpb_url_maison( $maison ) {
+	static $cache = array();
+	$slug = comptoir_maison_slug( $maison );
+	if ( ! array_key_exists( $slug, $cache ) ) {
+		$page           = get_page_by_path( 'parfums/' . $slug );
+		$cache[ $slug ] = ( $page && 'publish' === $page->post_status ) ? get_permalink( $page ) : '';
+	}
+	return $cache[ $slug ];
+}
+
+/**
+ * [maisons] : toutes les maisons du catalogue, avec leur nombre de parfums.
+ * Lien vers la page de la maison si elle existe, vers le catalogue filtre
+ * sinon.
+ */
+add_shortcode( 'maisons', function () {
+	if ( ! function_exists( 'comptoir_catalogue_par_maison' ) ) {
+		return '';
+	}
+	$html = '<ul class="cpb-maisons">';
+	foreach ( comptoir_catalogue_par_maison() as $maison => $liste ) {
+		$url   = cpb_url_maison( $maison );
+		$url   = $url ? $url : home_url( '/#catalogue?maison=' . comptoir_maison_slug( $maison ) );
+		$html .= sprintf( '<li><a href="%s"><span class="pnr-brand">%s</span> <small>%d</small></a></li>', esc_url( $url ), esc_html( $maison ), count( $liste ) );
+	}
+	return $html . '</ul>';
+} );
+
+/**
+ * Les pages d'information publiees, dans l'ordre du pied de page.
+ * @return array liste de array( titre_fr, titre_ar, url, cle ).
+ */
+function cpb_pages_info() {
+	static $out = null;
+	if ( null !== $out ) {
+		return $out;
+	}
+	$out   = array();
+	$liste = array(
+		'parfums'                   => array( 'Toutes les maisons', 'كل الدور' ),
+		'packs'                     => array( 'Packs & duos', 'الثنائيات' ),
+		'a-propos'                  => array( 'À propos', 'من نحن' ),
+		'contact'                   => array( 'Contact', 'اتصل بنا' ),
+		'conditions-de-vente'       => array( 'Conditions de vente', 'شروط البيع' ),
+		'retours-et-remboursement'  => array( 'Retours et remboursement', 'الإرجاع والاسترداد' ),
+		'confidentialite'           => array( 'Confidentialité', 'الخصوصية' ),
+	);
+	$cat = get_category_by_slug( 'conseils' );
+	if ( $cat && $cat->count > 0 ) {
+		$out[] = array( 'Conseils', 'نصائح', get_category_link( $cat ), 'conseils' );
+	}
+	foreach ( $liste as $slug => $t ) {
+		$page = get_page_by_path( $slug );
+		if ( $page && 'publish' === $page->post_status ) {
+			$out[] = array( $t[0], $t[1], get_permalink( $page ), $slug );
+		}
+	}
+	if ( function_exists( 'cpb_url_suivi' ) ) {
+		$out[] = array( 'Suivre ma commande', 'تتبع طلبي', cpb_url_suivi(), 'suivi' );
+	}
+	return $out;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DEMANDE D'AVIS (administration, liste des commandes)
+   Un lien « Demander un avis » sur chaque commande : il ouvre WhatsApp
+   avec le message deja ecrit, au numero du client. Aucun envoi
+   automatique, aucune API : c'est vous qui envoyez, quand le colis est
+   livre. Les vrais retours (et photos) alimentent ensuite le site.
+══════════════════════════════════════════════════════════════ */
+function cpb_lien_avis( $id ) {
+	$tel = preg_replace( '/\D/', '', (string) get_post_meta( $id, 'cp_tel', true ) );
+	if ( preg_match( '/^0([5-7]\d{8})$/', $tel, $m ) ) {
+		$tel = '212' . $m[1];
+	} elseif ( preg_match( '/^00212(\d{9})$/', $tel, $m ) ) {
+		$tel = '212' . $m[1];
+	}
+	if ( ! preg_match( '/^212[5-7]\d{8}$/', $tel ) ) {
+		return '';
+	}
+	$nom    = trim( (string) get_post_meta( $id, 'cp_nom', true ) );
+	$prenom = $nom ? preg_split( '/\s+/u', $nom )[0] : '';
+	$lien   = function_exists( 'cpb_url_avis' ) && cpb_avis_parfums_commande( $id ) ? cpb_url_avis( $id ) : '';
+	if ( $lien ) {
+		$msg = sprintf(
+			"Bonjour%s, c'est Le Comptoir des Parfums. Votre parfum vous plaît ? Votre avis aide les prochains clients à choisir (30 secondes). Merci !\n\nالسلام%s، عجبك العطر؟ رأيك كيعاون الزبناء الآخرين (30 ثانية). شكرا بزاف!\n\n%s",
+			$prenom ? ' ' . $prenom : '',
+			$prenom ? ' ' . $prenom : '',
+			$lien
+		);
+	} else {
+		$msg = sprintf(
+			"Bonjour%s, c'est Le Comptoir des Parfums. Votre parfum vous plaît ? Un petit mot (et une photo si vous voulez) nous aiderait beaucoup. Merci !\n\nالسلام%s، عجبك العطر؟ عطينا رأيك (وتصويرة إلا بغيتي). شكرا بزاف!",
+			$prenom ? ' ' . $prenom : '',
+			$prenom ? ' ' . $prenom : ''
+		);
+	}
+	return 'https://wa.me/' . $tel . '?text=' . rawurlencode( $msg );
+}
+
+add_filter( 'post_row_actions', function ( $actions, $post ) {
+	if ( 'cp_commande' !== $post->post_type || ! current_user_can( 'edit_post', $post->ID ) ) {
+		return $actions;
+	}
+	$url = cpb_lien_avis( $post->ID );
+	if ( $url ) {
+		$actions['cpb_avis'] = sprintf( '<a href="%s" target="_blank" rel="noopener">%s</a>', esc_url( $url ), esc_html__( 'WhatsApp : demander un avis', 'comptoir-boutique' ) );
+	}
+	return $actions;
+}, 20, 2 );
+
+/**
+ * Recherche WordPress (/?s=…) : elle cherchait dans les articles du blog,
+ * qui sont vides, et repondait « aucun resultat » a « dior ». On renvoie
+ * vers l'accueil, ou la recherche instantanee s'ouvre avec les memes mots
+ * et cherche dans le catalogue.
+ */
+add_action( 'template_redirect', function () {
+	if ( ! is_search() || is_admin() || ! function_exists( 'comptoir_produits' ) ) {
+		return;
+	}
+	$q = trim( (string) get_search_query( false ) );
+	wp_safe_redirect( home_url( '/' ) . ( '' !== $q ? '#chercher=' . rawurlencode( $q ) : '' ), 302 );
+	exit;
+}, 2 );
+
+/**
+ * Fil d'Ariane pour Google (BreadcrumbList) : fiche parfum
+ * (Accueil > maison > parfum), pages sous /parfums/, guides.
+ */
+add_action( 'wp_head', function () {
+	if ( ! function_exists( 'comptoir_produits' ) || is_admin() ) {
+		return;
+	}
+	$fil = array( array( 'Accueil', home_url( '/' ) ) );
+	$slug = function_exists( 'comptoir_parfum_slug_demande' ) ? comptoir_parfum_slug_demande() : '';
+	$p    = $slug ? comptoir_produit_by_slug( $slug ) : null;
+	if ( $p ) {
+		$m = cpb_url_maison( $p['b'] );
+		if ( $m ) {
+			$fil[] = array( $p['b'], $m );
+		}
+		$fil[] = array( $p['b'] . ' ' . $p['n'], comptoir_parfum_url( $p['s'] ) );
+	} elseif ( is_page() ) {
+		$post = get_queried_object();
+		if ( $post && $post->post_parent ) {
+			$fil[] = array( html_entity_decode( get_the_title( $post->post_parent ), ENT_QUOTES, 'UTF-8' ), get_permalink( $post->post_parent ) );
+		}
+		$fil[] = array( html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' ), get_permalink( $post ) );
+	} elseif ( is_singular( 'post' ) ) {
+		$cat = get_category_by_slug( 'conseils' );
+		if ( $cat ) {
+			$fil[] = array( 'Conseils', get_category_link( $cat ) );
+		}
+		$fil[] = array( html_entity_decode( get_the_title(), ENT_QUOTES, 'UTF-8' ), get_permalink() );
+	} else {
+		return;
+	}
+	$items = array();
+	foreach ( $fil as $i => $e ) {
+		$items[] = array( '@type' => 'ListItem', 'position' => $i + 1, 'name' => $e[0], 'item' => $e[1] );
+	}
+	echo '<script type="application/ld+json">' . wp_json_encode( array( '@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => $items ) ) . '</script>' . "\n";
+}, 4 );
 
 /** Classe <body> : le CSS du bandeau s'y accroche. */
 add_filter( 'body_class', function ( $classes ) {
@@ -154,6 +689,13 @@ function cpb_promesse_livraison() {
 		return array( 'Livraison offerte, partout au Maroc', 'التوصيل مجاني، في كل المغرب' );
 	}
 	if ( 2 === $franco ) {
+		$remise = function_exists( 'comptoir_remise_duo_dh' ) ? (int) comptoir_remise_duo_dh() : 0;
+		if ( $remise > 0 ) {
+			return array(
+				sprintf( 'Dès 2 parfums : livraison offerte + %d DH de remise', $remise ),
+				sprintf( 'ابتداءً من عطرين: توصيل مجاني + خصم %d درهم', $remise ),
+			);
+		}
 		return array( 'Livraison offerte dès le deuxième parfum', 'التوصيل مجاني ابتداءً من العطر الثاني' );
 	}
 	if ( $franco > 2 ) {
@@ -196,3 +738,252 @@ add_action( 'wp_body_open', function () {
 	}
 	echo '</div></div>';
 }, 5 );
+
+/* ══════════════════════════════════════════════════════════════
+   FLUX PRODUITS : GOOGLE MERCHANT CENTER ET CATALOGUE META
+   https://<site>/?flux=produits : le catalogue au format RSS 2.0 de
+   Google (espace g:), que Meta Commerce Manager lit aussi. Une seule
+   source (produits.php) : un prix change sur le site change dans le
+   flux. Les parfums sans photo sont ecartes (l'image est obligatoire).
+   Le titre dit « Testeur » : c'est ce qui est vendu, et les deux regies
+   refusent une annonce qui ne correspond pas a la fiche.
+══════════════════════════════════════════════════════════════ */
+function cpb_flux_produits() {
+	if ( ! function_exists( 'comptoir_produits' ) ) {
+		return '';
+	}
+	$genres = array( 'Homme' => array( 'male', 'homme' ), 'Femme' => array( 'female', 'femme' ), 'Mixte' => array( 'unisex', 'mixte' ) );
+	$liv    = function_exists( 'comptoir_livraison_dh' ) ? (int) comptoir_livraison_dh() : 35;
+	$x      = function ( $v ) {
+		return htmlspecialchars( wp_strip_all_tags( html_entity_decode( (string) $v, ENT_QUOTES, 'UTF-8' ) ), ENT_XML1 | ENT_QUOTES, 'UTF-8' );
+	};
+	$out  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+	$out .= '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0"><channel>' . "\n";
+	$out .= '<title>' . $x( get_bloginfo( 'name' ) ) . '</title><link>' . esc_url( home_url( '/' ) ) . '</link>';
+	$out .= '<description>' . $x( 'Parfums de grandes maisons, testeurs originaux, livrés partout au Maroc.' ) . '</description>' . "\n";
+	foreach ( comptoir_produits() as $p ) {
+		$prix = function_exists( 'comptoir_prix_entier' ) ? comptoir_prix_entier( $p ) : (int) preg_replace( '/\D/', '', $p['pr'] );
+		if ( empty( $p['s'] ) || $prix <= 0 || ! function_exists( 'comptoir_a_photo' ) || ! comptoir_a_photo( $p['s'] ) ) {
+			continue;
+		}
+		$g     = isset( $p['g'], $genres[ $p['g'] ] ) ? $genres[ $p['g'] ] : null;
+		$titre = $p['b'] . ' ' . $p['n'] . ' – Testeur' . ( ! empty( $p['x'] ) ? ' ' . $p['x'] : '' );
+		$notes = array();
+		foreach ( array( 't' => 'Tête', 'c' => 'Cœur', 'f' => 'Fond' ) as $k => $nom ) {
+			if ( ! empty( $p[ $k ] ) ) {
+				$notes[] = $nom . ' : ' . implode( ', ', (array) $p[ $k ] );
+			}
+		}
+		$desc = trim( ( isset( $p['d'] ) ? $p['d'] : '' ) . ( $notes ? ' Notes — ' . implode( ' ; ', $notes ) . '.' : '' ) )
+			. ' Testeur original de la maison ' . $p['b'] . ' : même parfum que le flacon de boutique, sans le coffret. Paiement à la livraison partout au Maroc.';
+		$out .= '<item>';
+		$out .= '<g:id>' . $x( $p['s'] ) . '</g:id>';
+		$out .= '<g:title>' . $x( $titre ) . '</g:title>';
+		$out .= '<g:description>' . $x( $desc ) . '</g:description>';
+		$out .= '<g:link>' . esc_url( comptoir_parfum_url( $p['s'] ) ) . '</g:link>';
+		$out .= '<g:image_link>' . esc_url( comptoir_photo_url( $p['s'] ) ) . '</g:image_link>';
+		$out .= '<g:availability>in_stock</g:availability>';
+		$out .= '<g:price>' . $prix . '.00 MAD</g:price>';
+		$out .= '<g:brand>' . $x( $p['b'] ) . '</g:brand>';
+		$out .= '<g:condition>new</g:condition>';
+		$out .= '<g:identifier_exists>no</g:identifier_exists>';
+		$out .= '<g:google_product_category>479</g:google_product_category>';
+		$out .= '<g:product_type>' . $x( 'Parfums > ' . ( $g ? ucfirst( $g[1] ) : 'Tous' ) . ' > ' . $p['b'] ) . '</g:product_type>';
+		if ( $g ) {
+			$out .= '<g:gender>' . $g[0] . '</g:gender><g:age_group>adult</g:age_group>';
+		}
+		$out .= '<g:shipping><g:country>MA</g:country><g:price>' . $liv . '.00 MAD</g:price></g:shipping>';
+		$out .= "</item>\n";
+	}
+	return $out . '</channel></rss>';
+}
+
+add_action( 'template_redirect', function () {
+	if ( ! isset( $_GET['flux'] ) || 'produits' !== $_GET['flux'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+		return;
+	}
+	$xml = cpb_flux_produits();
+	if ( '' === $xml ) {
+		return;
+	}
+	status_header( 200 );
+	header( 'Content-Type: application/xml; charset=UTF-8' );
+	header( 'X-Robots-Tag: noindex' );
+	header( 'Cache-Control: public, max-age=3600' );
+	echo $xml; // phpcs:ignore WordPress.Security.EscapeOutput -- echappe element par element ci-dessus.
+	exit;
+}, 0 );
+
+/* ══════════════════════════════════════════════════════════════
+   MICROSOFT CLARITY : UNE SEULE BALISE
+   Le theme pose deja Clarity (comptoir_mesure()). L'extension
+   « Microsoft Clarity », active elle aussi, en ajoutait une seconde pour
+   le meme projet : deux scripts, deux enregistrements concurrents. Quand
+   les deux identifiants sont les memes, on retire celle de l'extension
+   (son tableau de bord dans l'admin reste disponible). S'ils different,
+   ce sont deux projets distincts : on ne touche a rien.
+══════════════════════════════════════════════════════════════ */
+add_action( 'wp', function () {
+	if ( is_admin() || ! function_exists( 'clarity_add_script_to_header' ) || ! function_exists( 'comptoir_mesure' ) ) {
+		return;
+	}
+	$m      = comptoir_mesure();
+	$theme  = isset( $m['clarity'] ) ? strtolower( trim( (string) $m['clarity'] ) ) : '';
+	$plugin = strtolower( trim( (string) get_option( 'clarity_project_id' ) ) );
+	if ( '' !== $theme && $theme === $plugin ) {
+		remove_action( 'wp_head', 'clarity_add_script_to_header' );
+	}
+} );
+
+/* ══════════════════════════════════════════════════════════════
+   PACKS DUO
+   Deux parfums choisis pour aller ensemble. Le prix du pack est la somme
+   des deux, moins la remise « duo » du theme (comptoir_remise_duo_dh),
+   livraison offerte (deux articles). La remise s'applique aussi a
+   n'importe quelle paire composee par le client : ces packs ne font que
+   proposer des paires toutes pretes.
+   Accueil (« Nos duos »), fiche parfum (« Le duo parfait ») et page
+   « Packs & duos » ([packs]).
+══════════════════════════════════════════════════════════════ */
+function cpb_packs() {
+	static $out = null;
+	if ( null !== $out ) {
+		return $out;
+	}
+	$liste = array(
+		// Duo Couple : lui + elle.
+		array( 'couple', 'Le duo signature', 'Deux grands classiques, un pour lui, un pour elle.', 'dior--sauvage-elixir', 'chanel--coco-mademoiselle' ),
+		array( 'couple', 'Duo Born in Roma', 'La même collection Valentino, en version homme et femme.', 'valentino--uomo-born-in-roma-intense', 'valentino--donna-born-in-roma-intense' ),
+		array( 'couple', 'Duo Light Blue', 'Le duo frais de Dolce & Gabbana, parfait pour l’été.', 'dolce-gabbana--light-blue-pour-homme-edt', 'dolce-gabbana--light-blue-eau-de-toilette' ),
+		array( 'couple', 'Duo Scandal', 'Jean Paul Gaultier, lui et elle.', 'jean-paul-gaultier--scandal-pour-homme-intense', 'jean-paul-gaultier--scandal-edp-pour-femme' ),
+		array( 'couple', 'Duo Yves Saint Laurent', 'Y et Libre, les deux signatures de la maison.', 'yves-saint-laurent--y-edp', 'yves-saint-laurent--libre-le-parfum' ),
+		array( 'couple', 'Duo Armani', 'Acqua di Giò et Sì, en version Parfum.', 'giorgio-armani--acqua-di-gio-parfum', 'giorgio-armani--si-parfum' ),
+		array( 'couple', 'Duo Dylan', 'Dylan Blue pour lui, Dylan Blush pour elle : la même ligne Versace.', 'versace--dylan-blue-pour-homme', 'versace--dylan-blush-pour-femme' ),
+		array( 'couple', 'Duo Armani', 'Stronger With You Absolutely et My Way.', 'emporio-armani--stronger-with-you-absolutely', 'giorgio-armani--my-way-edp' ),
+		array( 'couple', 'Duo Versace', 'Eros pour lui, Bright Crystal pour elle.', 'versace--eros-edp', 'versace--bright-crystal' ),
+		array( 'couple', 'Duo Givenchy', 'Gentleman Réserve Privée et L’Interdit Rouge.', 'givenchy--gentleman-reserve-privee', 'givenchy--linterdit-edp-rouge' ),
+		array( 'couple', 'Duo Prada', 'Luna Rossa Carbon et Paradoxe Intense.', 'prada--carbon-luna-rossa-edt', 'prada--paradoxe-intense' ),
+		array( 'couple', 'Duo YSL soirée', 'MYSLF pour lui, Black Opium pour elle.', 'yves-saint-laurent--myslf-edp', 'yves-saint-laurent--black-opium' ),
+		// Duo Jour & Soir : un frais pour la journee, un intense pour le soir.
+		array( 'jour-soir', 'Jour & Soir homme', 'Acqua di Giò le jour, Sauvage Elixir le soir.', 'giorgio-armani--acqua-di-gio-edp', 'dior--sauvage-elixir' ),
+		array( 'jour-soir', 'Jour & Soir homme', 'Bleu de Chanel le jour, Le Male Elixir le soir.', 'chanel--bleu-de-chanel-parfum', 'jean-paul-gaultier--le-male-elixir' ),
+		array( 'jour-soir', 'Jour & Soir homme', 'Y Eau Fraîche le jour, La Nuit de L’Homme le soir.', 'yves-saint-laurent--y-eau-fraiche', 'yves-saint-laurent--la-nuit-de-lhomme-edp' ),
+		array( 'jour-soir', 'Jour & Soir femme', 'For Her le jour, La Nuit Trésor le soir.', 'narciso-rodriguez--for-her', 'lancome--la-nuit-tresor-le-parfum' ),
+		array( 'jour-soir', 'Jour & Soir femme', 'Chance Eau Tendre le jour, Black Opium le soir.', 'chanel--chance-eau-tendre', 'yves-saint-laurent--black-opium' ),
+		array( 'jour-soir', 'Jour & Soir femme', 'Light Blue le jour, Born in Roma Intense le soir.', 'dolce-gabbana--light-blue-eau-de-toilette', 'valentino--donna-born-in-roma-intense' ),
+		// Duo oriental : oud, ambre, tabac — mixtes pour la plupart.
+		array( 'oriental', 'Duo Tom Ford', 'Oud Wood et Tobacco Vanille, deux classiques boisés et ambrés.', 'tom-ford--oud-wood', 'tom-ford--tobacco-vanille' ),
+		array( 'oriental', 'Duo Dior Esprit de Parfum', 'Oud Ispahan et Ambre Nuit.', 'dior--oud-ispahan-esprit-de-parfum', 'dior--ambre-nuit-esprit-de-parfum' ),
+		array( 'oriental', 'Duo oud', 'Oudgasm de Kayali et Oud Silk Mood de Maison Francis Kurkdjian.', 'kayali--oudgasm-rose-oud-16-intense', 'maison-francis-kurkdjian--oud-silk-mood-extrait-de-parfum' ),
+		array( 'oriental', 'Duo ambré', 'Naxos de Xerjoff et Oud Minérale de Tom Ford.', 'xerjoff--naxos', 'tom-ford--oud-minerale' ),
+		// Duo mariage : pour les maries, ou en cadeau.
+		array( 'mariage', 'Duo Parfums de Marly', 'Layton pour le marié, Delina pour la mariée.', 'parfums-de-marly--layton', 'parfums-de-marly--delina' ),
+		array( 'mariage', 'Duo Valentino', 'Uomo Intense et Born in Roma Extradose.', 'valentino--uomo-intense', 'valentino--born-in-roma-extradose' ),
+		array( 'mariage', 'Duo prestige', 'Sauvage Elixir et Baccarat Rouge 540.', 'dior--sauvage-elixir', 'maison-francis-kurkdjian--baccarat-rouge-540' ),
+		// Duo mere & fille.
+		array( 'mere-fille', 'Duo Chanel', 'N°5 et Chance Eau Tendre.', 'chanel--n-5-eau-de-parfum', 'chanel--chance-eau-tendre' ),
+		array( 'mere-fille', 'Duo Lancôme', 'La Vie est Belle et Idôle L’Intense.', 'lancome--la-vie-est-belle', 'lancome--idole-lintense' ),
+		array( 'mere-fille', 'Duo Miss Dior', 'Miss Dior Eau de Parfum et Blooming Bouquet.', 'dior--miss-dior-eau-de-parfum', 'dior--miss-dior-blooming-bouquet' ),
+		array( 'mere-fille', 'Duo Kayali', 'Vanilla 28 et Yum Pistachio Gelato.', 'kayali--vanilla-28', 'kayali--yum-pistachio-gelato-33' ),
+	);
+	$remise = function_exists( 'comptoir_remise_duo_dh' ) ? (int) comptoir_remise_duo_dh() : 0;
+	$out    = array();
+	foreach ( $liste as $i => $l ) {
+		$a = function_exists( 'comptoir_produit_by_slug' ) ? comptoir_produit_by_slug( $l[3] ) : null;
+		$b = function_exists( 'comptoir_produit_by_slug' ) ? comptoir_produit_by_slug( $l[4] ) : null;
+		if ( ! $a || ! $b ) {
+			continue;
+		}
+		$somme = comptoir_prix_entier( $a ) + comptoir_prix_entier( $b );
+		$out[] = array(
+			'id'     => 'duo-' . ( $i + 1 ),
+			'type'   => $l[0],
+			'titre'  => $l[1],
+			'sous'   => $l[2],
+			'a'      => $l[3],
+			'b'      => $l[4],
+			'somme'  => $somme,
+			'remise' => $remise,
+			'prix'   => max( 0, $somme - $remise ),
+		);
+	}
+	return $out;
+}
+
+/** Accueil : trois duos couple et trois duos jour & soir, alternes. */
+function cpb_packs_accueil() {
+	$par = array();
+	foreach ( cpb_packs() as $p ) {
+		$par[ $p['type'] ][] = $p;
+	}
+	// Un de chaque type, puis un deuxieme duo couple : six cartes variees.
+	$out = array();
+	foreach ( array( array( 'couple', 0 ), array( 'oriental', 0 ), array( 'jour-soir', 0 ), array( 'mariage', 0 ), array( 'mere-fille', 0 ), array( 'couple', 1 ) ) as $c ) {
+		if ( isset( $par[ $c[0] ][ $c[1] ] ) ) {
+			$out[] = $par[ $c[0] ][ $c[1] ];
+		}
+	}
+	return $out;
+}
+
+/** Les types de duos, dans l'ordre d'affichage : cle => [titre de section, etiquette]. */
+function cpb_packs_types() {
+	return array(
+		'couple'     => array( 'Duos couple : lui et elle', 'Duo couple' ),
+		'mariage'    => array( 'Duos mariage', 'Duo mariage' ),
+		'jour-soir'  => array( 'Duos jour & soir', 'Duo jour & soir' ),
+		'oriental'   => array( 'Duos orientaux : oud et ambre', 'Duo oriental' ),
+		'mere-fille' => array( 'Duos mère & fille', 'Duo mère & fille' ),
+	);
+}
+
+function cpb_packs_de( $slug ) {
+	return array_values( array_filter( cpb_packs(), function ( $p ) use ( $slug ) {
+		return $p['a'] === $slug || $p['b'] === $slug;
+	} ) );
+}
+
+/** Carte d'un pack (page « Packs & duos » ; l'accueil et la fiche la construisent en JavaScript). */
+function cpb_pack_html( $p ) {
+	$a   = comptoir_produit_by_slug( $p['a'] );
+	$b   = comptoir_produit_by_slug( $p['b'] );
+	$img = function ( $x ) {
+		return function_exists( 'comptoir_vignette_img' ) ? comptoir_vignette_img( $x, 'cpb-pack-img', 300, 300 ) : '';
+	};
+	$h  = '<article class="cpb-pack" data-type="' . esc_attr( $p['type'] ) . '">';
+	$types = cpb_packs_types();
+	$h    .= '<p class="cpb-pack-type">' . esc_html( isset( $types[ $p['type'] ] ) ? $types[ $p['type'] ][1] : 'Duo' ) . '</p>';
+	$h .= '<h3 class="cpb-pack-titre">' . esc_html( $p['titre'] ) . '</h3>';
+	$h .= '<div class="cpb-pack-duo">';
+	foreach ( array( $a, $b ) as $x ) {
+		$h .= '<a class="cpb-pack-p" href="' . esc_url( comptoir_parfum_url( $x['s'] ) ) . '"><span class="cpb-pack-photo">' . $img( $x ) . '</span>'
+			. '<span class="cpb-pack-maison">' . esc_html( $x['b'] ) . '</span><span class="cpb-pack-nom">' . esc_html( $x['n'] ) . '</span>'
+			. '<span class="cpb-pack-pp">' . esc_html( $x['pr'] ) . '</span></a>';
+	}
+	$h .= '</div><p class="cpb-pack-sous">' . esc_html( $p['sous'] ) . '</p>';
+	$h .= '<p class="cpb-pack-prix">' . ( $p['remise'] ? '<s>' . esc_html( comptoir_prix_format( $p['somme'] ) ) . ' DH</s> ' : '' )
+		. '<b>' . esc_html( comptoir_prix_format( $p['prix'] ) ) . ' DH</b> <span>· livraison offerte</span></p>';
+	$h .= '<button type="button" class="cpb-pack-go" data-cpb-duo="' . esc_attr( $p['a'] . ',' . $p['b'] ) . '">Ajouter le duo au panier</button>';
+	return $h . '</article>';
+}
+
+add_shortcode( 'packs', function () {
+	$packs = cpb_packs();
+	if ( ! $packs ) {
+		return '';
+	}
+	$r   = $packs[0]['remise'];
+	$out = '<div class="cpb cpb-packs-page">';
+	$out .= '<p class="cpb-packs-regle">' . esc_html( $r ? sprintf( 'Chaque duo : %d DH de remise et la livraison offerte. La remise s’applique aussi à deux parfums de votre choix, à ajouter au panier.', $r ) : 'Deux parfums : la livraison est offerte.' ) . '</p>';
+	foreach ( cpb_packs_types() as $type => $libelles ) {
+		$titre = $libelles[0];
+		$out .= '<h2 class="cpb-packs-h">' . esc_html( $titre ) . '</h2><div class="cpb-packs-grille">';
+		foreach ( $packs as $p ) {
+			if ( $type === $p['type'] ) {
+				$out .= cpb_pack_html( $p );
+			}
+		}
+		$out .= '</div>';
+	}
+	return $out . '</div>';
+} );

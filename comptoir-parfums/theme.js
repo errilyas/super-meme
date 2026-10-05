@@ -960,7 +960,17 @@ if(HAS_HOVER && cur && ring){
   let mx=0,my=0, cx=0,cy=0, rx=0,ry=0;
   let pressing=false;
 
-  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY},{passive:true});
+  /* Cache tant que la souris n'a pas bouge (sinon le point attend en haut a
+     gauche, sur le logo, puis traverse l'ecran) et quand elle sort de la
+     fenetre. Au premier mouvement, le point et l'anneau partent de la souris. */
+  let vue=false;
+  const montre=v=>{ vue=v; document.documentElement.classList.toggle('cur-on',v); };
+  document.addEventListener('mousemove',e=>{
+    mx=e.clientX;my=e.clientY;
+    if(!vue){ cx=rx=mx; cy=ry=my; montre(true); }
+  },{passive:true});
+  document.addEventListener('mouseleave',()=>montre(false));
+  document.addEventListener('mouseenter',e=>{ mx=e.clientX;my=e.clientY; cx=rx=mx; cy=ry=my; montre(true); });
   document.addEventListener('mousedown',()=>{pressing=true;gsap.to(ring,{scale:.85,duration:.15,ease:'power2.in'})});
   document.addEventListener('mouseup',()=>{pressing=false;gsap.to(ring,{scale:1,duration:.4,ease:'elastic.out(1,.4)'})});
 
