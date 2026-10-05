@@ -47,10 +47,9 @@ function comptoir_wa_reglages() {
 
 /** Jeton d'acces : constante de wp-config.php d'abord, sinon la base. */
 function comptoir_wa_jeton() {
-	if ( defined( 'COMPTOIR_WA_TOKEN' ) && COMPTOIR_WA_TOKEN ) {
-		return (string) COMPTOIR_WA_TOKEN;
-	}
-	return (string) get_option( 'comptoir_wa_token', '' );
+	$t = ( defined( 'COMPTOIR_WA_TOKEN' ) && COMPTOIR_WA_TOKEN ) ? (string) COMPTOIR_WA_TOKEN : (string) get_option( 'comptoir_wa_token', '' );
+	// Un jeton colle depuis un telephone peut porter des espaces ou des caracteres invisibles : Meta rejette alors la requete.
+	return preg_replace( '/[^A-Za-z0-9]/', '', $t );
 }
 
 /** Cle secrete de l'application Meta : sert a verifier que le webhook vient bien de Meta. */
@@ -113,7 +112,10 @@ function comptoir_wa_appel( array $corps ) {
 	if ( $code >= 200 && $code < 300 && ! empty( $json['messages'][0]['id'] ) ) {
 		return (string) $json['messages'][0]['id'];
 	}
-	$msg = isset( $json['error']['message'] ) ? $json['error']['message'] : 'HTTP ' . $code;
+	$msg = isset( $json['error']['message'] ) ? $json['error']['message'] : 'HTTP ' . $code . ' : ' . trim( wp_strip_all_tags( substr( (string) wp_remote_retrieve_body( $reponse ), 0, 200 ) ) );
+	if ( isset( $json['error']['code'] ) ) {
+		$msg = '(#' . (int) $json['error']['code'] . ') ' . $msg;
+	}
 	if ( isset( $json['error']['error_data']['details'] ) ) {
 		$msg .= ' — ' . $json['error']['error_data']['details'];
 	}
