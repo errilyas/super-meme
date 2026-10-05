@@ -696,9 +696,13 @@ function comptoir_envoie_feuille( $id ) {
 	}
 
 	$reponse = wp_remote_post( $url, array(
-		'timeout'  => 8,
-		'blocking' => true,
-		'body'     => array(
+		'timeout'     => 8,
+		'blocking'    => true,
+		// Apps Script repond 302 vers script.googleusercontent.com. WordPress
+		// suivrait la redirection en renvoyant un POST, et Google repond alors
+		// une page d'erreur HTML : on la suit nous-memes, en GET, juste dessous.
+		'redirection' => 0,
+		'body'        => array(
 			'ref'       => get_post_meta( $id, 'cp_ref', true ),
 			'tel'       => get_post_meta( $id, 'cp_tel', true ),
 			'nom'       => get_post_meta( $id, 'cp_nom', true ),
@@ -711,6 +715,16 @@ function comptoir_envoie_feuille( $id ) {
 			'source'    => 'wordpress',
 		),
 	) );
+
+	// Le script a deja ecrit la ligne lors du POST ; sa reponse (« ok » ou
+	// « doublon ») se lit a l'adresse de redirection.
+	$code = is_wp_error( $reponse ) ? 0 : (int) wp_remote_retrieve_response_code( $reponse );
+	if ( in_array( $code, array( 301, 302, 303, 307, 308 ), true ) ) {
+		$suite = wp_remote_retrieve_header( $reponse, 'location' );
+		if ( $suite ) {
+			$reponse = wp_remote_get( $suite, array( 'timeout' => 8 ) );
+		}
+	}
 
 	// Le code HTTP ne suffit PAS a conclure. Si le deploiement n'est pas ouvert
 	// a tout le monde, Google repond 200 : c'est sa page de connexion, et la
