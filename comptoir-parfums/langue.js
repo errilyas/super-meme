@@ -547,6 +547,9 @@
 
   /* ── Les phrases fabriquées par le JavaScript, via window.CP_T() ──── */
   var MOTS = {
+    /* Bouton de pagination du catalogue : theme.js ajoute le compte apres
+       la phrase, qui ne passe donc que par CP_T (T ne la voyait jamais seule). */
+    'Voir plus de parfums': 'شاهد عطورًا أخرى',
     'iris':'سوسن',
     'tendre':'رقيق',
     'Sous-total': 'المجموع الفرعي',

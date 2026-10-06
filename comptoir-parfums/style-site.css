@@ -2877,8 +2877,26 @@ main.cp-secours{max-width:1280px;padding:168px 72px 120px;text-align:center;posi
   :root[data-theme="light"] #nav.stuck{background:rgba(248,243,234,.97)}
 }
 .mob-reglages{display:flex;justify-content:center;gap:14px}
-.mob-reglages .theme-toggle{width:34px;height:34px;border:1px solid var(--line2);border-radius:50%}
+/* 44 px : la taille d'un pouce, pour les deux boutons à l'identique. */
+.mob-reglages button{width:44px;height:44px;box-sizing:border-box;padding:0;
+  display:flex;align-items:center;justify-content:center;border:1px solid var(--line2);border-radius:50%}
+.mob-reglages .langue-bascule{font-size:15px}
+
+/* Les quatre étapes sur téléphone : l'icône à côté du titre, sans le grand
+   numéro décoratif. Quatre cartes d'un demi-écran chacune deviennent une
+   liste qui tient dans un écran. */
+@media(max-width:600px){
+  .proc-step{display:grid;grid-template-columns:auto 1fr;column-gap:16px;padding:22px 20px}
+  .proc-icon{grid-row:span 2;margin:2px 0 0}
+  .proc-num{display:none}
+  .proc-step h3{margin-bottom:6px}
+}
 
 /* La ligne « Maroc · Livraison 24h · Paiement à réception » répète le
    bandeau du haut : sur téléphone, elle laisse la place au titre. */
-@media(max-width:900px){ .h-eyebrow{display:none!important} }
+@media(max-width:900px){
+  .h-eyebrow{display:none!important}
+  /* Elle tenait aussi lieu de marge : sans elle, le titre passait sous
+     l'en-tête fixe. */
+  .hero-text{padding-top:44px}
+}
