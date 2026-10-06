@@ -16,8 +16,8 @@ Ce qu'elle ajoute au site, sans modifier le thème :
    (« ديور », « عود », « فانيليا »…).
 
 3. QUIZ « TROUVER MON PARFUM » (4 questions)
-   Sur l'accueil juste avant le catalogue, depuis la recherche et sur chaque
-   fiche. Propose trois parfums de trois maisons différentes, avec la raison
+   Sur l'accueil, une ligne en tête du catalogue (1.28.0), depuis la
+   recherche et sur chaque fiche. Propose trois parfums de trois maisons différentes, avec la raison
    (les notes), un bouton « Ajouter au panier » et un lien WhatsApp pour un
    conseil. Lien direct à partager (bio Instagram, message) :
        https://comptoirparfums.com/#trouver-mon-parfum
@@ -294,3 +294,18 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    ambre), 3 mariage, 4 mère & fille (cpb_packs_types). Accueil : un duo
    de chaque type + un deuxième duo couple. Lien « Duos » ajouté au menu
    du haut (ordinateur et téléphone), après « Catalogue ».
+
+32. ACCUEIL ALLÉGÉ (version 1.28.0, avec le thème 3.6.0)
+   Le thème 3.6 ramène l'accueil de quinze blocs à sept. L'extension suit :
+   - Quiz : la section « Vous hésitez ? Trouvez votre parfum en 4 questions »
+     et sa photo, juste avant le catalogue, deviennent une ligne cliquable
+     sous le titre du catalogue. Le lien /#trouver-mon-parfum ouvre
+     toujours le quiz.
+   - Guides « Bien choisir son parfum » : la section accrochée au bloc
+     final (.finale), que le thème 3.6 a fondu dans « Commander », passe
+     sous les questions fréquentes — trois liens, plus « Tous nos
+     conseils ». S'il n'y a pas de questions fréquentes sur l'accueil,
+     l'ancienne section reste avant le bloc final.
+   Avec le thème 3.5.7, l'accueil prend déjà ces deux changements. À mettre
+   en ligne AVANT le thème 3.6 : avec la 1.27.0, l'accueil 3.6 garderait la
+   grande section du quiz et perdrait les liens des guides.

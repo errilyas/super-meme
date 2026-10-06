@@ -1199,32 +1199,23 @@
     ouvrir(quiz, '.cpb-quiz-q');
   }
 
-  /* L'appel au quiz sur la page d'accueil, juste avant le catalogue. */
+  /* L'appel au quiz sur la page d'accueil : une ligne en tete du catalogue,
+     sous son titre (1.28.0). C'etait une section entiere, avec sa photo,
+     juste avant le catalogue : un bloc de plus a traverser pour atteindre
+     les flacons, sur un accueil ramene a sept blocs par le theme 3.6.
+     L'ancre #trouver-mon-parfum reste sur cette ligne ; le lien partage
+     (/#trouver-mon-parfum) ouvre toujours le quiz, voir demarre(). */
   function appelQuiz() {
-    if (!CFG.accueil) { return; }
+    if (!CFG.accueil || document.getElementById('trouver-mon-parfum')) { return; }
     var cat = document.getElementById('catalogue');
-    if (!cat || !cat.parentNode) { return; }
-    var s = document.createElement('section');
-    s.className = 'cpb cpb-quiz-appel';
-    s.id = 'trouver-mon-parfum';
-    s.setAttribute('aria-label', t('Trouver mon parfum'));
-    var ban = CFG.visuels && CFG.visuels.banniere;
-    s.innerHTML =
-      '<div class="cpb-qa-carte' + (ban ? ' cpb-qa-photo' : '') + '">' +
-        (ban ? '<img class="cpb-qa-fond" src="' + esc(ban) + '" alt="" width="1600" height="900" loading="lazy" decoding="async">' : '') +
-        '<div>' +
-          '<div class="sect-kicker"><span>' + esc(t('Conseil personnalisé')) + '</span></div>' +
-          '<h2 class="sect-h2">' + esc(t('Vous hésitez ? Trouvez votre parfum en 4 questions.')) + '</h2>' +
-          '<p>' + esc(t('Dites-nous pour qui, quelle ambiance et quelles notes vous aimez : nous choisissons dans le catalogue les flacons qui vous ressemblent.')) + '</p>' +
-          /* Un lien et non un <button> : le theme remet a transparent le fond
-             de tout button.btn-a, et le bouton dore devenait invisible. */
-          '<a href="#trouver-mon-parfum" class="btn-a" role="button" data-cpb-quiz>' + esc(t('Commencer le quiz')) + '</a>' +
-        '</div>' +
-        '<ol class="cpb-qa-etapes">' +
-          QUESTIONS.map(function (q) { return '<li>' + esc(t(q.court)) + '</li>'; }).join('') +
-        '</ol>' +
-      '</div>';
-    cat.parentNode.insertBefore(s, cat);
+    var tete = cat ? (cat.querySelector('.cat-inner > .r') || cat.querySelector('.cat-inner')) : null;
+    if (!tete) { return; }
+    var p = document.createElement('p');
+    p.className = 'cpb-bloc-quiz cpb-quiz-ligne';
+    p.id = 'trouver-mon-parfum';
+    p.innerHTML = esc(t('Vous hésitez ?')) + ' <button type="button" data-cpb-quiz>' +
+      esc(t('Trouvez votre parfum en 4 questions')) + '</button>';
+    tete.appendChild(p);
   }
 
   /* ══════════════════════════════════════════════════════════════
@@ -2296,10 +2287,30 @@
       if (ap && ap.parentNode) { ap.parentNode.insertBefore(d, ap.nextSibling); } else { buy.appendChild(d); }
     }
 
+    var tous = null;
+    (CFG.pages || []).forEach(function (p) { if (p.cle === 'conseils') { tous = p.url; } });
+
+    /* Accueil du theme 3.6 : trois guides sous les questions frequentes
+       (1.28.0). Ils avaient leur section avant le bloc final .finale, que le
+       theme a fondu dans « Commander » : sans ce relais, les liens vers les
+       guides quittaient l'accueil. Sous la FAQ, ils prolongent la meme
+       question — comment choisir sans sentir. */
+    var faq = CFG.accueil ? document.querySelector('#faq .faq-list') : null;
+    if (faq && !document.querySelector('.cpb-conseils, .cpb-conseils-faq')) {
+      var c = document.createElement('div');
+      c.className = 'cpb cpb-conseils-faq';
+      c.innerHTML = '<p class="cpb-titre-petit">' + esc(t('Bien choisir son parfum')) + '</p>' +
+        '<ul>' + guides.slice(0, 3).map(function (g) {
+          return '<li><a href="' + esc(g.url) + '">' + esc(g.titre) + '</a></li>';
+        }).join('') + '</ul>' +
+        (tous ? '<p class="cpb-conseils-tous"><a href="' + esc(tous) + '">' + esc(t('Tous nos conseils')) + '</a></p>' : '');
+      faq.parentNode.insertBefore(c, faq.nextSibling);
+    }
+
+    /* Pas de questions frequentes sur l'accueil : la section, avant le bloc
+       final (comme jusqu'a la 1.27.0). */
     var fin = CFG.accueil ? document.querySelector('.finale') : null;
-    if (fin && !document.querySelector('.cpb-conseils')) {
-      var tous = null;
-      (CFG.pages || []).forEach(function (p) { if (p.cle === 'conseils') { tous = p.url; } });
+    if (fin && !document.querySelector('.cpb-conseils, .cpb-conseils-faq')) {
       var s = document.createElement('section');
       s.className = 'cpb cpb-conseils';
       s.setAttribute('aria-label', t('Conseils'));
@@ -2360,7 +2371,7 @@
      et rien du tout si le telephone demande moins d'animations.
   ══════════════════════════════════════════════════════════════ */
   var A_REVELER = [
-    'main.pf .pf-block', 'main.pf .pf-histoire', '.cpb-quiz-appel', '.cpb-express', '.cpb-conseil',
+    'main.pf .pf-block', 'main.pf .pf-histoire', '.cpb-express', '.cpb-conseil',
     '.cpb-dist-visuel', '.cpb-404-visuel', '.pf-sibs .pf-sib'
   ];
 
