@@ -28,9 +28,8 @@ $cp_wa = 'https://wa.me/' . comptoir_wa_numero();
     <nav class="foot-col foot-col-maison" aria-label="La maison">
       <h3>La maison</h3>
       <ul>
-        <li><a href="<?php echo esc_url( home_url( '/' ) ); ?>#scents">Sélection</a></li>
-        <li><a href="<?php echo esc_url( home_url( '/' ) ); ?>#distinction">Notre approche</a></li>
         <li><a href="<?php echo esc_url( home_url( '/' ) ); ?>#catalogue">Catalogue</a></li>
+        <li><a href="<?php echo esc_url( home_url( '/' ) ); ?>#commander">Comment commander</a></li>
         <li><a href="<?php echo esc_url( home_url( '/' ) ); ?>#faq">Questions fréquentes</a></li>
       </ul>
     </nav>

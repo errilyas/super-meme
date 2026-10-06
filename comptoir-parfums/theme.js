@@ -272,40 +272,6 @@ const REDUCED  = matchMedia('(prefers-reduced-motion:reduce)').matches;
 const HAS_HOVER = matchMedia('(hover:hover)').matches;
 const IS_MOBILE = window.innerWidth < 860;
 
-/* ── Memoire de session, tolerante ──────────────────────────────
-   sessionStorage LEVE une exception quand le stockage est bloque : Safari en
-   navigation privee, navigateur configure pour refuser les cookies, certaines
-   webviews. Les appels nus se trouvaient au niveau superieur de ce bloc, donc
-   la moindre levee emportait tout : prechargeur jamais retire, aucune section
-   revelee, ecran noir. On encapsule une fois pour toutes.
-   Perdre la memoire de l'intro est sans consequence — elle rejoue, voila tout. */
-function memLire(cle){
-  try{ return sessionStorage.getItem(cle); }catch(e){ return null; }
-}
-function memEcrire(cle,val){
-  try{ sessionStorage.setItem(cle,val); }catch(e){}
-}
-
-/* Le prechargeur est une mise en scene : il n'a de sens que pour qui arrive
-   par la porte d'entree. Il dure 3,2 s et memLire() s'appuie sur
-   sessionStorage, donc un visiteur venu d'une publicite le subirait a chaque
-   session, alors qu'il a deja attendu le reseau et qu'il vient pour un flacon,
-   pas pour un rideau. Meme chose pour un lien qui pointe droit sur une maison.
-
-   Seul endroit ou cette decision se prend : deux tests concurrents ont
-   coexiste un temps, l'un ici, l'autre sur alreadyPlayed. */
-/* Sur telephone, il saute toujours : la clientele arrive en 4G, souvent
-   depuis Instagram ou WhatsApp, et 3,2 s d'ecran noir avant le premier
-   flacon est le moment ou l'on perd le plus de visiteurs. Il reste joue sur
-   grand ecran, ou il a le temps et la place d'etre vu. */
-function cpSautePrechargeur(){
-  try{
-    if(window.matchMedia && window.matchMedia('(max-width: 820px)').matches) return true;
-    return /[?&](fbclid|gclid|ttclid|utm_source|utm_medium|utm_campaign|maison)=/.test(location.search);
-  }
-  catch(e){ return false; }
-}
-
 /* ── GSAP guard ── */
 
 /* ══════════════════════════════════════════════════════════════
@@ -931,142 +897,16 @@ if(REDUCED){
 }
 
 /* ══════════════════════════════════════════════════════════════
-   §1  SCROLL PROGRESS BAR
+   §1–§3  (v3.6) Barre de progression, curseur sur-mesure et boutons
+   aimantes retires : trois boucles de plus a chaque mouvement de souris
+   ou de defilement, pour un effet que personne ne venait chercher.
 ══════════════════════════════════════════════════════════════ */
-const progressBar = document.getElementById('scroll-progress');
-if(progressBar){
-  gsap.to(progressBar,{
-    scaleX:1, ease:'none',
-    scrollTrigger:{
-      trigger:document.documentElement,
-      start:'top top', end:'bottom bottom',
-      scrub:0.3
-    }
-  });
-  /* Show after hero exit */
-  ScrollTrigger.create({
-    trigger:'#hero', start:'bottom 60%',
-    onEnter:()=>progressBar.classList.add('active'),
-    onLeaveBack:()=>progressBar.classList.remove('active'),
-  });
-}
 
 /* ══════════════════════════════════════════════════════════════
-   §2  CUSTOM CURSOR — MAGNETIC LAYERED SYSTEM
+   §4  (v3.6) Plus de prechargeur. Comptoir SEO le masquait deja en ligne,
+   et il retardait de 1,25 s le premier affichage sur grand ecran.
 ══════════════════════════════════════════════════════════════ */
-const cur=document.getElementById('cur'), ring=document.getElementById('cur-r');
-const curLabel=document.getElementById('cur-label');
-if(HAS_HOVER && cur && ring){
-  let mx=0,my=0, cx=0,cy=0, rx=0,ry=0;
-  let pressing=false;
-
-  /* Cache tant que la souris n'a pas bouge (sinon le point attend en haut a
-     gauche, sur le logo, puis traverse l'ecran) et quand elle sort de la
-     fenetre. Au premier mouvement, le point et l'anneau partent de la souris. */
-  let vue=false;
-  const montre=v=>{ vue=v; document.documentElement.classList.toggle('cur-on',v); };
-  document.addEventListener('mousemove',e=>{
-    mx=e.clientX;my=e.clientY;
-    if(!vue){ cx=rx=mx; cy=ry=my; montre(true); }
-  },{passive:true});
-  document.addEventListener('mouseleave',()=>montre(false));
-  document.addEventListener('mouseenter',e=>{ mx=e.clientX;my=e.clientY; cx=rx=mx; cy=ry=my; montre(true); });
-  document.addEventListener('mousedown',()=>{pressing=true;gsap.to(ring,{scale:.85,duration:.15,ease:'power2.in'})});
-  document.addEventListener('mouseup',()=>{pressing=false;gsap.to(ring,{scale:1,duration:.4,ease:'elastic.out(1,.4)'})});
-
-  gsap.ticker.add(()=>{
-    /* Dot follows immediately, ring lerps behind */
-    cx+=(mx-cx)*.22; cy+=(my-cy)*.22;
-    rx+=(mx-rx)*.09; ry+=(my-ry)*.09;
-    gsap.set(cur, {x:cx-3, y:cy-3});
-    gsap.set(ring,{x:rx-17,y:ry-17});
-    if(curLabel) gsap.set(curLabel,{x:rx, y:ry+32});
-  });
-
-  /* Link hover */
-  document.querySelectorAll('a:not(.btn-a):not(.btn-fin):not(.nav-pill),button,.scent-card,.pc,.proc-step,.stab').forEach(el=>{
-    el.addEventListener('mouseenter',()=>document.body.classList.add('ch-link'));
-    el.addEventListener('mouseleave',()=>document.body.classList.remove('ch-link'));
-  });
-  /* CTA hover — bigger ring + label */
-  document.querySelectorAll('.btn-a,.nav-pill,.btn-fin').forEach(el=>{
-    el.addEventListener('mouseenter',()=>{
-      document.body.classList.remove('ch-link');
-      document.body.classList.add('ch-cta');
-      if(curLabel) curLabel.textContent=el.dataset.cursorLabel||'Commander';
-    });
-    el.addEventListener('mouseleave',()=>document.body.classList.remove('ch-cta'));
-  });
-}
-
-/* ══════════════════════════════════════════════════════════════
-   §3  MAGNETIC BUTTONS
-══════════════════════════════════════════════════════════════ */
-if(HAS_HOVER && !REDUCED){
-  document.querySelectorAll('.btn-a,.btn-fin,.nav-pill,.wa-cta').forEach(el=>{
-    const strength = el.classList.contains('nav-pill') ? 0.25 : 0.35;
-    el.addEventListener('mousemove',e=>{
-      const r=el.getBoundingClientRect();
-      const dx=e.clientX-(r.left+r.width/2);
-      const dy=e.clientY-(r.top+r.height/2);
-      gsap.to(el,{x:dx*strength, y:dy*strength, duration:0.4, ease:'power3.out'});
-    });
-    el.addEventListener('mouseleave',()=>{
-      gsap.to(el,{x:0,y:0, duration:0.7, ease:'elastic.out(1,0.3)'});
-    });
-  });
-}
-
-/* ══════════════════════════════════════════════════════════════
-   §4  PRELOADER SEQUENCE
-══════════════════════════════════════════════════════════════ */
-const loader = document.getElementById('loader');
-const alreadyPlayed = memLire('cp_v3');
-let loaderKilled = false;
-
-function killLoader(){
-  if(!loader || loaderKilled) return;   /* une seule sortie, un seul initHeroSequence */
-  loaderKilled = true;
-  document.getElementById('ldr-skip')?.setAttribute('disabled','');
-  const tl = gsap.timeline({
-    onComplete:()=>{ loader.remove(); initHeroSequence(); }
-  });
-  tl.to('#ldr-mark',  {opacity:0, y:-12, scale:.96, duration:.5, ease:'power2.in'},0)
-    .to('#ldr-name',   {opacity:0, y:-8, duration:.4, ease:'power2.in'},0.05)
-    .to('#ldr-rule',   {scaleX:0, duration:.4, ease:'power2.in'},0.08)
-    .to('#ldr-bar',    {opacity:0, duration:.3},0.1)
-    .to(loader,        {opacity:0, duration:.65, ease:'power2.inOut'},0.25);
-  memEcrire('cp_v3','1');
-}
-
-if(alreadyPlayed || cpSautePrechargeur()){
-  if(loader) loader.remove();
-  initHeroSequence();
-} else if(loader){
-  /* Entry timeline */
-  const entry = gsap.timeline({delay:0.1});
-  entry.fromTo('#ldr-mark',
-    {opacity:0, y:10, filter:'blur(4px)'},
-    {opacity:1, y:0, filter:'blur(0px)', duration:0.9, ease:'power3.out'}, 0)
-  .fromTo('#ldr-rule',
-    {width:0},
-    {width:52, duration:0.7, ease:'power2.out'}, 0.55)
-  .fromTo('#ldr-name',
-    {opacity:0, y:6},
-    {opacity:1, y:0, duration:0.6, ease:'power3.out'}, 0.85)
-  .fromTo('#ldr-bar',
-    {width:'0%'},
-    {width:'100%', duration:0.85, ease:'power1.inOut'}, 0.3)
-  .call(killLoader,null,1.25);
-
-  /* Skip button */
-  document.getElementById('ldr-skip')?.addEventListener('click',()=>{
-    entry.progress(1).kill();
-    killLoader();
-  });
-} else {
-  initHeroSequence();
-}
+initHeroSequence();
 
 /* ══════════════════════════════════════════════════════════════
    §5  HERO CINEMATIC ENTRY
@@ -1076,8 +916,7 @@ function initHeroSequence(){
   /* Telephone : le titre et les boutons sont affiches par la CSS des
      l'arrivee de la page (bloc « MOBILE — CONVERSION »). Une entree animee
      les remettrait a opacity:0 pendant ~2 s, le temps ou l'on perd le plus
-     de visiteurs venus d'une pub. Pas de particules non plus : du calcul en
-     continu sur des telephones modestes. */
+     de visiteurs venus d'une pub. */
   if(matchMedia('(max-width:900px)').matches) return;
 
   const master = gsap.timeline({delay:0.05});
@@ -1136,89 +975,13 @@ function initHeroSequence(){
     {opacity:0,x:24,y:8},
     {opacity:1,x:0,y:0,duration:.6},1.7);
 
-  /* Particles */
-  spawnParticles();
-
-  /* Start parallax & tilt after hero reveals */
-  master.call(()=>{initHeroParallax()},null,0.6);
 }
 
 /* ══════════════════════════════════════════════════════════════
-   §6  HERO PARALLAX — SCROLL-LINKED DEPTH
+   §6–§8  (v3.6) Parallaxe du heros et particules retirees : une dizaine
+   d'animations liees au defilement, et seize particules recalculees en
+   continu, pour un decor que le texte et la vitrine suffisent a porter.
 ══════════════════════════════════════════════════════════════ */
-function initHeroParallax(){
-  if(REDUCED||IS_MOBILE) return;
-  const hero=document.getElementById('hero');
-  if(!hero) return;
-
-  /* Text exits upward faster — creates depth */
-  gsap.to('.hero-text',{
-    y:120, ease:'none',
-    scrollTrigger:{ trigger:hero, start:'top top', end:'bottom top', scrub:true }
-  });
-
-  /* Flacon rises slightly — counters text, feels floating */
-  gsap.to('#flacon-stage',{
-    y:-50, ease:'none',
-    scrollTrigger:{ trigger:hero, start:'top top', end:'bottom top', scrub:true }
-  });
-
-  /* Atmospheric glow scales subtly */
-  gsap.to('.f-glow-outer,.f-glow-inner',{
-    scale:1.15, ease:'none',
-    scrollTrigger:{ trigger:hero, start:'top top', end:'bottom top', scrub:true }
-  });
-
-  /* Ghost brand names — different parallax speeds */
-  document.querySelectorAll('.h-brand-float').forEach((el,i)=>{
-    gsap.to(el,{
-      y: 40 + i*25, ease:'none',
-      scrollTrigger:{ trigger:hero, start:'top top', end:'bottom top', scrub:true }
-    });
-  });
-
-  /* Scroll indicator fades out quickly */
-  gsap.to('.scroll-hint',{
-    opacity:0, y:-10,
-    scrollTrigger:{ trigger:hero, start:'5% top', end:'20% top', scrub:true }
-  });
-
-  /* Vignette darkens on scroll */
-  gsap.to('.hc-vignette',{
-    opacity:1, ease:'none',
-    scrollTrigger:{ trigger:hero, start:'top top', end:'bottom top', scrub:true }
-  });
-}
-
-/* §7 — L'ancien tilt CSS du flacon SVG est remplacé par la rotation/parallaxe
-   propre à la scène WebGL du logo 3D (voir le bloc « LOGO 3D » en bas de page). */
-
-/* ══════════════════════════════════════════════════════════════
-   §8  PARTICLE SYSTEM
-══════════════════════════════════════════════════════════════ */
-function spawnParticles(){
-  const c=document.getElementById('f-particles');
-  if(!c||REDUCED) return;
-  for(let i=0;i<16;i++){
-    const p=document.createElement('div');
-    p.className='f-particle';
-    const sz=1+Math.random()*2.5;
-    const x=20+Math.random()*60;
-    const startY=55+Math.random()*35;
-    p.style.cssText=`width:${sz}px;height:${sz}px;left:${x}%;top:${startY}%`;
-    c.appendChild(p);
-    gsap.fromTo(p,
-      {y:0,opacity:0,scale:1},
-      {y:-(80+Math.random()*100),opacity:0,scale:.3,
-       duration:5+Math.random()*7, repeat:-1, delay:Math.random()*5,
-       ease:'none',
-       keyframes:{
-         '0%':{opacity:0},'15%':{opacity:.15+Math.random()*.2},'75%':{opacity:.08},'100%':{opacity:0}
-       }
-      }
-    );
-  }
-}
 
 /* ══════════════════════════════════════════════════════════════
    §9  NAV — STICKY WITH SMOOTH TRANSITION
@@ -1619,17 +1382,6 @@ if(!REDUCED){
     distCompare.classList.add('vis');
   }
 
-  /* ── SCENT FAMILIES ── */
-  const scentsInner = document.querySelector('.scents-inner');
-  if(scentsInner){
-    const stl = gsap.timeline({scrollTrigger:{trigger:'.scents',start:'top 78%'}});
-    stl.fromTo('.scents-inner .sect-kicker',{opacity:0,x:-12},{opacity:1,x:0,duration:.55},0);
-    stl.fromTo('.scents-inner .sect-h2',{opacity:0,y:20},{opacity:1,y:0,duration:.7},0.1);
-    stl.fromTo('.stab',{opacity:0,y:10},{opacity:1,y:0,duration:.5,stagger:.06},0.3);
-    stl.fromTo('.scent-panel.active .scent-card',{opacity:0,y:24,scale:.97},{opacity:1,y:0,scale:1,duration:.65,stagger:.08},0.5);
-    scentsInner.querySelector('.r')?.classList.add('vis');
-  }
-
   /* ── CATALOGUE ── */
   const catInner = document.querySelector('.cat-inner');
   if(catInner){
@@ -1653,76 +1405,17 @@ if(!REDUCED){
        scrollTrigger:{trigger:grille,start:'top 92%'}});
   }
 
-  /* ── PROCESS STEPS ── */
+  /* ── ETAPES DE COMMANDE ── un seul declencheur pour les quatre etapes
+     (v3.6 : plus de compteur 00 → 0X, ni de declencheur par etape). */
   const procSteps = document.querySelectorAll('.proc-step');
   if(procSteps.length){
-    procSteps.forEach((step,i)=>{
-      const stl2 = gsap.timeline({
-        scrollTrigger:{trigger:step,start:'top 82%'},
-        onComplete:()=>step.classList.add('drawn')
-      });
-      stl2.fromTo(step,{opacity:0,y:40},{opacity:1,y:0,duration:.75},0);
-      /* Number countup 00 → 0X */
-      const numEl = step.querySelector('.proc-num');
-      if(numEl){
-        const target = parseInt(numEl.textContent) || 0;
-        const obj={v:0};
-        stl2.to(obj,{v:target,duration:.8,ease:'power2.out',snap:{v:1},
-          onUpdate:()=>{numEl.textContent=String(obj.v).padStart(2,'0')}
-        },0.2);
-      }
-      /* Le trait d'accent bas se révèle via la classe .drawn ajoutée onComplete */
+    gsap.fromTo(procSteps,{opacity:0,y:28},{opacity:1,y:0,duration:.65,stagger:.1,
+      scrollTrigger:{trigger:procSteps[0].parentNode,start:'top 82%'},
+      onComplete:()=>procSteps.forEach(st=>st.classList.add('drawn'))
     });
-    /* Remove old .r classes */
-    procSteps.forEach(s=>{s.classList.add('vis');s.classList.remove('r')});
+    procSteps.forEach(st=>{st.classList.add('vis');st.classList.remove('r')});
     document.querySelector('.proc-inner .r')?.classList.add('vis');
   }
-
-  /* ── TRUST / GUARANTEES ── */
-  const trustLeft = document.querySelector('.trust-inner .r-left');
-  const trustRight = document.querySelector('.trust-inner .r-right');
-  if(trustLeft){
-    const ttl = gsap.timeline({scrollTrigger:{trigger:'.trust',start:'top 78%'}});
-    ttl.fromTo(trustLeft,{opacity:0,x:-40*SLX,y:22*(1-SLX)},{opacity:1,x:0,y:0,duration:.9},0);
-    ttl.fromTo('.g-item',{opacity:0,y:18},{opacity:1,y:0,duration:.6,stagger:.1},0.25);
-    trustLeft.classList.add('vis');
-  }
-  if(trustRight){
-    gsap.fromTo(trustRight,
-      {opacity:0,x:40*SLX,y:22*(1-SLX)},{opacity:1,x:0,y:0,duration:.9,
-      scrollTrigger:{trigger:'.trust',start:'top 72%'}
-    });
-    trustRight.classList.add('vis');
-  }
-
-  /* ── NUMBERS WALL — COUNTER ANIMATION ── */
-  document.querySelectorAll('.nb-item').forEach((item,i)=>{
-    const numEl = item.querySelector('.nb-num');
-    if(!numEl) return;
-
-    const raw = numEl.textContent.trim();
-    /* Parse number and suffix: "179" → 179,"" | "24h" → 24,"h" | "0 DH" → 0," DH"
-       Le groupe des chiffres s'arrete sur un CHIFFRE : l'espace qui suit
-       appartient au suffixe. Ecrit autrement, il etait avale et le compteur
-       finissait sur « 24ساعة » — en francais « 24h » n'en montrait rien,
-       l'unite y etant collee d'origine. */
-    const match = raw.match(/^([\d\s]*\d)(.*)$/);
-    if(!match) return;
-    const target = parseInt(match[1].replace(/\s/g,'')) || 0;
-    const suffix = match[2] || '';
-
-    const tl3 = gsap.timeline({scrollTrigger:{trigger:item,start:'top 88%'}});
-    tl3.fromTo(item,{opacity:0,y:20,scale:.96},{opacity:1,y:0,scale:1,duration:.7},0);
-
-    if(target > 0){
-      const obj={v:0};
-      tl3.to(obj,{
-        v:target, duration:2, ease:'power2.out', snap:{v:1},
-        onUpdate:()=>{ numEl.textContent = obj.v + suffix; }
-      },0.15);
-    }
-    item.classList.add('vis');item.classList.remove('r');
-  });
 
   /* ── FAQ SECTION ── */
   const faqSidebar = document.querySelector('.faq-sidebar');
@@ -1732,21 +1425,25 @@ if(!REDUCED){
     });
     faqSidebar.classList.add('vis');
   }
-  document.querySelectorAll('.faq-item').forEach((item,i)=>{
-    gsap.fromTo(item,{opacity:0,y:16},{opacity:1,y:0,duration:.55,
-      scrollTrigger:{trigger:item, start:'top 90%'}
+  const faqItems = document.querySelectorAll('.faq-item');
+  if(faqItems.length){
+    gsap.fromTo(faqItems,{opacity:0,y:16},{opacity:1,y:0,duration:.5,stagger:.06,
+      scrollTrigger:{trigger:faqItems[0].parentNode,start:'top 85%'}
     });
-  });
+  }
 
-  /* ── FINALE SECTION ── */
+  /* ── APPEL FINAL ── dans « Commander » sur l'accueil, dans .finale sur la
+     page Vente. On n'anime que ce que le bloc contient : GSAP signale en
+     console chaque cible absente (le kicker et les garanties n'existent
+     plus sur l'accueil). */
   const finInner = document.querySelector('.fin-inner');
   if(finInner){
-    const ftl = gsap.timeline({scrollTrigger:{trigger:'.finale',start:'top 75%'}});
-    ftl.fromTo('.fin-kicker',{opacity:0,y:14},{opacity:1,y:0,duration:.6},0);
-    ftl.fromTo('.fin-h2',{opacity:0,y:28},{opacity:1,y:0,duration:.85},0.12);
-    ftl.fromTo('.fin-body',{opacity:0,y:16,filter:'blur(2px)'},{opacity:1,y:0,filter:'blur(0px)',duration:.75},0.35);
-    ftl.fromTo('.fin-actions > *',{opacity:0,y:14},{opacity:1,y:0,duration:.55,stagger:.1},0.55);
-    ftl.fromTo('.fin-trust-item',{opacity:0,y:10},{opacity:1,y:0,duration:.45,stagger:.08},0.75);
+    const ftl = gsap.timeline({scrollTrigger:{trigger:finInner,start:'top 78%'}});
+    [['.fin-kicker',14,.6,0],['.fin-h2',28,.85,.12],['.fin-body',16,.75,.3],
+     ['.fin-actions > *',14,.55,.5],['.fin-trust-item',10,.45,.7]].forEach(([sel,y,d,t])=>{
+      const els=finInner.querySelectorAll(sel);
+      if(els.length) ftl.fromTo(els,{opacity:0,y},{opacity:1,y:0,duration:d,stagger:.08},t);
+    });
     finInner.classList.add('vis');finInner.classList.remove('r');
   }
 
@@ -1759,10 +1456,9 @@ if(!REDUCED){
      recale les déclencheurs ; puis, s'il reste un élément déjà à l'écran mais
      encore masqué (onglet ouvert en arrière-plan, rafraîchissement bloqué…),
      on le révèle. Aucune section ne peut donc rester invisible. */
-  const REVEAL_SEL='.sect-kicker,.sect-h2,.sect-body,.dist-col,.dist-list li,.stab,'+
-    '.scent-card,.cat-filtres,.cat-grille,.proc-step,.g-item,.nb-item,.faq-item,'+
-    '.faq-sidebar,.trust-inner>*,.fin-kicker,.fin-h2,.fin-body,.fin-actions>*,'+
-    '.fin-trust-item,.foot-top,.foot-inner';
+  const REVEAL_SEL='.sect-kicker,.sect-h2,.sect-body,.dist-col,.dist-list li,'+
+    '.cat-filtres,.cat-grille,.proc-step,.faq-item,.faq-sidebar,'+
+    '.fin-kicker,.fin-h2,.fin-body,.fin-actions>*,.fin-trust-item,.foot-top,.foot-inner';
   function revealStuck(){
     ScrollTrigger.refresh();
     document.querySelectorAll(REVEAL_SEL).forEach(el=>{
@@ -1807,74 +1503,6 @@ if(!REDUCED){
 } /* end !REDUCED */
 
 /* ══════════════════════════════════════════════════════════════
-   §13  SCENT TABS — ANIMATED CROSSFADE
-══════════════════════════════════════════════════════════════ */
-/* Un panneau inactif n'etait qu'en opacity:0 : ses liens restaient
-   atteignables au clavier et annonces par les lecteurs d'ecran. On le retire
-   vraiment de l'ordre de tabulation avec l'attribut hidden, et on cable le
-   couple aria-controls / aria-labelledby que le balisage n'avait pas. */
-function setScentPanel(panel,on){
-  if(!panel) return;
-  panel.classList.toggle('active',on);
-  if(on) panel.removeAttribute('hidden'); else panel.setAttribute('hidden','');
-}
-document.querySelectorAll('.stab').forEach((tab,i)=>{
-  const panel=document.getElementById(tab.getAttribute('aria-controls')||'');
-  if(!tab.id) tab.id='stab-'+(tab.dataset.tab||i);
-  if(panel){
-    panel.setAttribute('aria-labelledby',tab.id);
-    panel.setAttribute('tabindex','0');
-    setScentPanel(panel, panel.classList.contains('active'));
-  }
-  /* Fleches gauche/droite entre onglets — comportement attendu d'un tablist. */
-  tab.setAttribute('tabindex', tab.classList.contains('active') ? '0' : '-1');
-  tab.addEventListener('keydown',e=>{
-    if(e.key!=='ArrowRight' && e.key!=='ArrowLeft') return;
-    const tabs=[...document.querySelectorAll('.stab')];
-    const at=tabs.indexOf(tab);
-    const to=tabs[(at+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];
-    e.preventDefault(); to.focus(); to.click();
-  });
-});
-document.querySelectorAll('.stab').forEach(tab=>{
-  tab.addEventListener('click',()=>{
-    const key=tab.dataset.tab;
-    const current=document.querySelector('.scent-panel.active');
-    const next=document.getElementById('sp-'+key);
-    if(!next||current===next) return;
-
-    /* Update tab states */
-    document.querySelectorAll('.stab').forEach(t=>{
-      t.classList.remove('active');
-      t.setAttribute('aria-selected','false');
-      t.setAttribute('tabindex','-1');
-    });
-    tab.classList.add('active');tab.setAttribute('aria-selected','true');
-    tab.setAttribute('tabindex','0');
-
-    if(REDUCED){
-      setScentPanel(current,false);
-      setScentPanel(next,true);
-      return;
-    }
-
-    /* Animate out */
-    gsap.to(current?.querySelectorAll('.scent-card')||[],{
-      opacity:0,y:12,duration:.28,stagger:.04,ease:'power2.in',
-      onComplete:()=>{
-        setScentPanel(current,false);
-        setScentPanel(next,true);
-        /* Animate in */
-        gsap.fromTo(next.querySelectorAll('.scent-card'),
-          {opacity:0,y:22,scale:.97},
-          {opacity:1,y:0,scale:1,duration:.5,stagger:.07,ease:'power3.out'}
-        );
-      }
-    });
-  });
-});
-
-/* ══════════════════════════════════════════════════════════════
    BARRE D'ACHAT FIXE — téléphone
    Elle sort une fois le héros passé, et s'efface devant le bloc
    « Commander maintenant » : deux fois le même bouton à l'écran, c'est un
@@ -1887,8 +1515,10 @@ if(ctaFixe){
   /* Les boutons de la fiche (fiche parfum, parfum vedette de la page Vente)
      et le bloc final « Commander maintenant » : tant que l'un d'eux est a
      l'ecran, la barre n'a rien a ajouter. Les boutons de la fiche tiennent
-     dans le premier ecran d'un telephone, d'ou leur marge plus courte. */
-  const cibles = [['.pf-actions','-8%'],['.finale','-25%']]
+     dans le premier ecran d'un telephone, d'ou leur marge plus courte.
+     .fin-inner : l'appel final, dans « Commander » sur l'accueil et dans
+     .finale sur la page Vente. */
+  const cibles = [['.pf-actions','-8%'],['.fin-inner','-25%']]
     .map(([s,m]) => [document.querySelector(s),m]).filter(([el]) => el);
   const vus = new Set();
   let horsHeros = !heros, surFinale = false;
@@ -1952,18 +1582,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
 ══════════════════════════════════════════════════════════════ */
 function fallbackMode(){
   /* Replicate original behavior without GSAP */
-  const loader=document.getElementById('loader');
-  const played=memLire('cp_v3');
-  function endLoader(){
-    if(loader){loader.style.opacity='0';loader.style.visibility='hidden';setTimeout(()=>loader.remove(),900)}
-    memEcrire('cp_v3','1');
-    startHeroFB();
-  }
-  if(played || cpSautePrechargeur()){if(loader)loader.remove();startHeroFB()}
-  else if(loader){
-    requestAnimationFrame(()=>{loader.classList.add('go');setTimeout(endLoader,1200)});
-    document.getElementById('ldr-skip')?.addEventListener('click',endLoader);
-  } else { startHeroFB() }
+  startHeroFB();
 
   function startHeroFB(){
     if(REDUCED){
@@ -2012,16 +1631,6 @@ function fallbackMode(){
     document.querySelectorAll('.r,.r-left,.r-right').forEach(el=>el.classList.add('vis'));
   }
 
-  /* Tabs */
-  document.querySelectorAll('.stab').forEach(tab=>{
-    tab.addEventListener('click',()=>{
-      document.querySelectorAll('.stab').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false')});
-      document.querySelectorAll('.scent-panel').forEach(p=>p.classList.remove('active'));
-      tab.classList.add('active');tab.setAttribute('aria-selected','true');
-      document.getElementById('sp-'+tab.dataset.tab)?.classList.add('active');
-    });
-  });
-
   /* Mobile menu */
   const ham=document.getElementById('nav-ham');
   const mob=document.getElementById('mob-menu');
@@ -2053,19 +1662,21 @@ function fallbackMode(){
 ══════════════════════════════════════════════════════════════ */
 (function(){
   var root=document.documentElement;
-  var btn=document.getElementById('theme-toggle');
+  /* Deux boutons sur l'accueil depuis la v3.6 : l'en-tete (grand ecran) et
+     le menu (telephone). Ils pilotent le meme etat. */
+  var btns=[].slice.call(document.querySelectorAll('[data-theme-bascule]'));
   var meta=document.querySelector('meta[name="theme-color"]');
   function apply(light){
     if(light) root.setAttribute('data-theme','light');
     else root.removeAttribute('data-theme');
-    if(btn){
+    btns.forEach(function(btn){
       btn.setAttribute('aria-pressed', light?'true':'false');
       btn.setAttribute('aria-label', light?'Basculer en mode sombre':'Basculer en mode clair');
-    }
+    });
     if(meta) meta.setAttribute('content', light?'#f8f3ea':'#110814');
     try{ localStorage.setItem('cp_theme', light?'light':'dark'); }catch(e){}
   }
   var isLight = root.getAttribute('data-theme')==='light';
   apply(isLight);
-  if(btn) btn.addEventListener('click',function(){ isLight=!isLight; apply(isLight); });
+  btns.forEach(function(btn){ btn.addEventListener('click',function(){ isLight=!isLight; apply(isLight); }); });
 })();

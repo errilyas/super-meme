@@ -12,8 +12,12 @@
  *    functions.php (ils dependent de la page servie), jamais ecrits en dur ;
  *  - les ancres de navigation passent par home_url() : « #catalogue » depuis
  *    une fiche parfum doit ramener a l'accueil, pas rester sans effet ;
- *  - prechargeur, curseur sur-mesure et menu mobile ne sont poses que sur la
- *    page d'accueil — c'est deja le choix de parfum.html cote maquette.
+ *  - le menu mobile n'est pose que sur la page d'accueil — c'est deja le
+ *    choix de parfum.html cote maquette ;
+ *  - v3.6 : plus de prechargeur (Comptoir SEO le masquait deja en ligne), de
+ *    curseur sur-mesure ni de barre de progression. Sur telephone, l'en-tete
+ *    de l'accueil se reduit au sceau, a la recherche, au panier et au menu :
+ *    langue et theme passent dans le menu.
  */
 
 $cp_home    = home_url( '/' );
@@ -55,8 +59,7 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&family=Tajawal:wght@300;400;500;700&display=swap"></noscript>
 <?php /* Le design est dans style-site.css, charge par functions.php (wp_enqueue_style). */ ?>
 <noscript><style>
-  /* Sans JavaScript : retirer le préchargeur et garder le contenu lisible. */
-  #loader{display:none!important}
+  /* Sans JavaScript : garder le contenu lisible. */
   .r,.r-left,.r-right,
   .h-eyebrow,.hero-h1 .h1-inner,.h-badge,.hero-sub,.hero-actions,.hero-trust,.hero-visual,
   .h-note-card{opacity:1!important;transform:none!important}
@@ -86,47 +89,37 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
   <symbol id="cp-mono" viewBox="0 0 96 96"><path fill="url(#cpAu2)" d="M36.92 65.85Q32.3 65.85 29.38 64.31Q26.47 62.78 25.02 60.28Q23.56 57.79 23.22 54.82Q22.88 51.86 23.4 48.95Q24.13 44.94 26.03 41.82Q27.93 38.7 30.63 36.55Q33.34 34.39 36.51 33.27Q39.68 32.15 42.96 32.15Q45.09 32.15 47.3 32.59Q49.51 33.04 50.7 33.66Q51.07 33.87 51.12 34.08Q51.17 34.28 51.12 34.86L50.29 41.82Q50.29 41.98 50.03 41.98Q49.77 41.98 49.72 41.82Q48.83 37.98 46.52 35.77Q44.2 33.56 40.82 33.56Q37.86 33.56 35.44 35.19Q33.02 36.83 31.44 39.87Q29.85 42.92 29.23 47.23Q28.71 50.77 29.02 53.94Q29.33 57.11 30.37 59.56Q31.41 62 33.15 63.4Q34.9 64.81 37.24 64.81Q39.84 64.81 42.54 62.88Q45.24 60.96 48.26 56.9Q48.42 56.7 48.65 56.83Q48.88 56.96 48.83 57.06L47.43 63.04Q47.27 63.66 47.12 63.9Q46.96 64.13 46.49 64.24Q43.89 65.12 41.42 65.48Q38.95 65.85 36.92 65.85ZM45.52 65.22Q45.42 65.22 45.42 64.91Q45.42 64.6 45.52 64.6Q46.93 64.6 47.68 64.34Q48.44 64.08 48.8 63.3Q49.16 62.52 49.42 61.01L53.69 36.94Q54.1 34.65 53.61 34Q53.12 33.35 51.14 33.35Q50.98 33.35 50.98 33.04Q50.98 32.72 51.14 32.72Q52.28 32.72 53.71 32.8Q55.14 32.88 56.81 32.88Q57.85 32.88 59.67 32.72Q61.49 32.57 63.05 32.57Q66.27 32.57 68.64 33.56Q71 34.54 72.15 36.57Q73.29 38.6 72.72 41.67Q72.25 44.32 70.85 46.19Q69.44 48.06 67.57 49.26Q65.7 50.46 63.67 51.03Q61.64 51.6 59.88 51.6Q59.3 51.6 58.78 51.55Q58.26 51.5 57.74 51.34Q57.64 51.29 57.74 50.77Q57.85 50.25 58.06 50.3Q58.42 50.4 58.81 50.46Q59.2 50.51 59.56 50.51Q61.23 50.51 62.76 49.7Q64.3 48.9 65.44 47.18Q66.58 45.46 67 42.71Q67.47 39.8 66.84 37.79Q66.22 35.79 64.95 34.73Q63.67 33.66 62.06 33.66Q60.97 33.66 60.34 33.92Q59.72 34.18 59.38 34.91Q59.04 35.64 58.73 37.04L54.52 61.01Q54.16 63.25 54.65 63.92Q55.14 64.6 57.07 64.6Q57.22 64.6 57.22 64.91Q57.22 65.22 57.07 65.22Q55.92 65.22 54.42 65.17Q52.91 65.12 51.19 65.12Q49.58 65.12 48.12 65.17Q46.67 65.22 45.52 65.22Z"/></symbol>
 </defs></svg>
 
-<!-- ─── SCROLL PROGRESS ─── -->
 <a class="skip-link" href="#cp-main">Aller au contenu</a>
-<div id="scroll-progress" aria-hidden="true"></div>
-
-<!-- ─── CURSOR ─── -->
-<div id="cur" aria-hidden="true"></div>
-<div id="cur-r" aria-hidden="true"></div>
-<div id="cur-label" aria-hidden="true">Commander</div>
 <?php if ( $cp_is_home ) : ?>
-
-<!-- ─── PRELOADER ─── -->
-<div id="loader" role="status" aria-label="Chargement">
-  <div id="ldr-mark"><svg viewBox="0 0 96 96" aria-hidden="true"><use href="#cp-seal-full"/></svg></div>
-  <div id="ldr-rule"></div>
-  <div id="ldr-name">
-    <span class="ldr-serif">Le Comptoir</span>
-    <span class="ldr-sans">des Parfums</span>
-  </div>
-  <div id="ldr-bar"></div>
-  <button id="ldr-skip">Passer</button>
-</div>
 
 <!-- ─── MOBILE MENU ─── -->
 <div id="mob-menu" role="dialog" aria-modal="true" aria-label="Menu">
   <nav class="mob-nav" aria-label="Menu principal">
-    <a href="<?php echo esc_url( $cp_home ); ?>#scents" class="mob-link" data-close><span class="mob-num" aria-hidden="true">01</span>Sélection</a>
-    <a href="<?php echo esc_url( $cp_home ); ?>#distinction" class="mob-link" data-close><span class="mob-num" aria-hidden="true">02</span>Notre approche</a>
-    <a href="<?php echo esc_url( $cp_home ); ?>#catalogue" class="mob-link" data-close><span class="mob-num" aria-hidden="true">03</span>Catalogue</a>
-    <a href="<?php echo esc_url( $cp_home ); ?>#process" class="mob-link" data-close><span class="mob-num" aria-hidden="true">04</span>Commander</a>
-    <a href="#" class="mob-link" data-close data-panier-open><span class="mob-num" aria-hidden="true">05</span>Panier (<span data-panier-count>0</span>)</a>
+    <a href="<?php echo esc_url( $cp_home ); ?>#catalogue" class="mob-link" data-close><span class="mob-num" aria-hidden="true">01</span>Catalogue</a>
+    <a href="<?php echo esc_url( $cp_home ); ?>#commander" class="mob-link" data-close><span class="mob-num" aria-hidden="true">02</span>Commander</a>
+    <a href="<?php echo esc_url( $cp_home ); ?>#faq" class="mob-link" data-close><span class="mob-num" aria-hidden="true">03</span>Questions</a>
+    <a href="#" class="mob-link" data-close data-panier-open><span class="mob-num" aria-hidden="true">04</span>Panier (<span data-panier-count>0</span>)</a>
   </nav>
   <!-- Le pied du menu : la voie directe (WhatsApp) et la promesse, a portee
        de pouce, la ou le visiteur hesite. -->
   <div class="mob-pied">
     <a href="<?php echo esc_url( $cp_wa ); ?>" class="mob-link mob-wa" target="_blank" rel="noopener" data-close>WhatsApp →</a>
     <p class="mob-gages">Paiement à la livraison · Livraison partout au Maroc</p>
+    <?php /* Langue et theme : retires de l'en-tete sur telephone, ils
+             vivent ici. Memes attributs que les boutons de l'en-tete, donc
+             memes scripts. */ ?>
+    <div class="mob-reglages">
+      <button type="button" class="langue-bascule" data-langue-bascule aria-label="التبديل إلى العربية">ع</button>
+      <button type="button" class="theme-toggle" data-theme-bascule aria-label="Basculer en mode clair" aria-pressed="false">
+        <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.9 1.9M17.5 17.5l1.9 1.9M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.9-1.9M17.5 6.5l1.9-1.9"/></svg>
+        <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.2 8.2 0 1 0 10.5 10.5z"/></svg>
+      </button>
+    </div>
   </div>
 </div>
 
 <!-- ─── NAV ─── -->
-<nav id="nav" role="navigation" aria-label="Navigation principale">
+<nav id="nav" class="nav-accueil" role="navigation" aria-label="Navigation principale">
   <a href="<?php echo esc_url( $cp_home ); ?>" class="nav-logo" aria-label="Le Comptoir des Parfums — accueil">
     <svg class="nl-seal" viewBox="0 0 96 96" aria-hidden="true"><use href="#cp-seal"/></svg>
     <span class="nl-txt">
@@ -135,10 +128,9 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
     </span>
   </a>
   <ul class="nav-links" role="list">
-    <li><a href="<?php echo esc_url( $cp_home ); ?>#scents">Sélection</a></li>
-    <li><a href="<?php echo esc_url( $cp_home ); ?>#distinction">Notre approche</a></li>
     <li><a href="<?php echo esc_url( $cp_home ); ?>#catalogue">Catalogue</a></li>
-    <li><a href="<?php echo esc_url( $cp_home ); ?>#process">Commander</a></li>
+    <li><a href="<?php echo esc_url( $cp_home ); ?>#commander">Commander</a></li>
+    <li><a href="<?php echo esc_url( $cp_home ); ?>#faq">Questions</a></li>
   </ul>
   <div class="nav-right">
     <button type="button" class="nav-pill" data-panier-open aria-label="Ouvrir le panier"><svg class="np-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg><span class="np-txt">Panier</span><span data-panier-count>0</span></button>
@@ -146,7 +138,7 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
       <span></span><span></span><span></span>
     </button>
     <button type="button" class="langue-bascule" data-langue-bascule aria-label="التبديل إلى العربية">ع</button>
-    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Basculer en mode clair" aria-pressed="false">
+    <button id="theme-toggle" class="theme-toggle" type="button" data-theme-bascule aria-label="Basculer en mode clair" aria-pressed="false">
       <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.9 1.9M17.5 17.5l1.9 1.9M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.9-1.9M17.5 6.5l1.9-1.9"/></svg>
       <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.2 8.2 0 1 0 10.5 10.5z"/></svg>
     </button>
@@ -169,7 +161,7 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
   <div class="nav-right">
     <button type="button" class="nav-pill" data-panier-open aria-label="Ouvrir le panier"><svg class="np-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg><span class="np-txt">Panier</span><span data-panier-count>0</span></button>
     <button type="button" class="langue-bascule" data-langue-bascule aria-label="التبديل إلى العربية">ع</button>
-    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Basculer en mode clair" aria-pressed="false">
+    <button id="theme-toggle" class="theme-toggle" type="button" data-theme-bascule aria-label="Basculer en mode clair" aria-pressed="false">
       <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.9 1.9M17.5 17.5l1.9 1.9M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.9-1.9M17.5 6.5l1.9-1.9"/></svg>
       <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.2 8.2 0 1 0 10.5 10.5z"/></svg>
     </button>
