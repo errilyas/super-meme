@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.28.0
+ * Version:           1.28.1
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.28.0' );
+define( 'CPB_VERSION', '1.28.1' );
 
 /**
  * Mode de diffusion.
@@ -209,6 +209,18 @@ add_filter( 'rest_endpoints', function ( $routes ) {
 	return $routes;
 } );
 
+/**
+ * Et par les donnees structurees (1.28.1) : le module SEO de Jetpack decrit
+ * l'auteur de chaque guide par l'adresse de sa page d'auteur,
+ * /author/<identifiant>/#person. Ces pages renvoient de toute facon a
+ * l'accueil (ci-dessus) : c'est donc l'accueil qui devient leur adresse
+ * publique, et l'identifiant ne sort plus. Le theme n'affiche nulle part de
+ * lien vers un auteur.
+ */
+add_filter( 'author_link', function ( $lien ) {
+	return is_admin() ? $lien : home_url( '/' );
+} );
+
 /* ══════════════════════════════════════════════════════════════
    IMAGE DE PARTAGE (Facebook, WhatsApp)
    Jusqu'au theme 3.5.2, chaque fiche annoncait og:image 1200 x 630 pour
@@ -299,7 +311,8 @@ function cpb_enrichit_ld( $html ) {
 			if ( function_exists( 'cpb_avis_ld' ) ) {
 				$d = cpb_avis_ld( $d );
 			}
-		} elseif ( 'Store' === $d['@type'] && empty( $d['sameAs'] ) ) {
+		} elseif ( in_array( $d['@type'], array( 'Store', 'OnlineStore' ), true ) && empty( $d['sameAs'] ) ) {
+			// OnlineStore depuis le theme 3.6.1 (Store exigeait une adresse).
 			$d['sameAs'] = array( 'https://www.instagram.com/le_comptoir_parfums', 'https://www.facebook.com/profile.php?id=61573721267555' );
 		}
 		return '<script type="application/ld+json">' . wp_json_encode( $d ) . '</script>';

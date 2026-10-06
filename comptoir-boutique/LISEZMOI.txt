@@ -309,3 +309,13 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    Avec le thème 3.5.7, l'accueil prend déjà ces deux changements. À mettre
    en ligne AVANT le thème 3.6 : avec la 1.27.0, l'accueil 3.6 garderait la
    grande section du quiz et perdrait les liens des guides.
+
+   (1.28.1) Corrections après l'audit du site :
+   - Duos, thème clair : bouton « Ajouter le duo au panier » en texte
+     crème sur l'or (2,7:1 avant, il faut 4,5:1) et ancien prix barré sans
+     transparence (3,4:1 avant).
+   - L'identifiant de connexion ne sort plus par les données structurées :
+     le module SEO de Jetpack décrivait l'auteur des guides par
+     /author/<identifiant>/. L'adresse publique des auteurs devient
+     l'accueil, où ces pages renvoyaient déjà.
+   - Réseaux sociaux ajoutés aussi au type « OnlineStore » du thème 3.6.1.

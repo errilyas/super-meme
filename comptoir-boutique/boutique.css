@@ -410,7 +410,8 @@ html.cpb-lock .joinchat{display:none!important}
 :root[data-theme="light"] .cpb-btn-ajout:hover,
 :root[data-theme="light"] .cpb-btn-ajout:focus-visible,
 :root[data-theme="light"] .cpb-nav-btn .cpb-pastille,
-:root[data-theme="light"] .cpb-res-ruban{color:#f8f3ea}
+:root[data-theme="light"] .cpb-res-ruban,
+:root[data-theme="light"] .cpb-pack-go{color:#f8f3ea}
 :root[data-theme="light"] .cpb-bandeau{color:var(--ivory)}
 
 /* ══════════════════════════════════════════
@@ -876,7 +877,10 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-pack-maison .cpb-maison,.cpb-pack-nom .cpb-nom{all:unset}
 .cpb-pack-sous{margin:0;font-size:13px;color:var(--text-dim);line-height:1.5}
 .cpb-pack-prix{margin:2px 0 0;font-size:14px;color:var(--text-dim)}
-.cpb-pack-prix s{opacity:.7;margin-inline-end:4px}
+/* L'ancien prix reste plus discret que le nouveau par sa taille et son
+   trait, pas par la transparence : à 70 %, il tombait à 3,4:1 en thème
+   clair (WCAG 1.4.3 demande 4,5:1). */
+.cpb-pack-prix s{margin-inline-end:4px}
 .cpb-pack-prix b{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--ember)}
 .cpb-pack-go{margin-top:4px;min-height:48px;border:0;border-radius:2px;background:var(--ember);color:var(--ink);font:inherit;font-size:12px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer}
 .cpb-pack-go:hover,.cpb-pack-go:focus-visible{filter:brightness(1.08)}

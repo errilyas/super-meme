@@ -1788,18 +1788,20 @@ add_action( 'wp_head', function () {
 		return;
 	}
 
+	// OnlineStore et non Store (v3.6.1) : pour Google, Store est un commerce
+	// local, qui exige une adresse postale ; sans elle, le test des resultats
+	// enrichis signalait une erreur. La boutique n'a pas de magasin. Les
+	// proprietes propres aux commerces locaux (fourchette de prix, devises,
+	// moyens de paiement) n'existent pas sur OnlineStore et partent avec.
 	$data = array(
 		'@context'    => 'https://schema.org',
-		'@type'       => 'Store',
+		'@type'       => 'OnlineStore',
 		'name'        => get_bloginfo( 'name' ),
 		'url'         => home_url( '/' ),
 		'image'       => get_template_directory_uri() . '/og-image.jpg',
 		'description' => 'Testeurs originaux des plus grandes maisons de parfum — même jus qu\'en boutique, sans le coffret.',
 		'areaServed'  => array( '@type' => 'Country', 'name' => 'Maroc' ),
 		'telephone'   => '+' . comptoir_wa_numero(),
-		'priceRange'  => implode( ' – ', comptoir_bornes_prix() ) . ' MAD',
-		'currenciesAccepted' => 'MAD',
-		'paymentAccepted'    => 'Espèces à la livraison',
 	);
 	echo '<script type="application/ld+json">' . wp_json_encode( $data ) . '</script>' . "\n";
 }, 2 );

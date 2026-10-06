@@ -9,6 +9,19 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.6.1 — CORRECTIONS APRÈS AUDIT (avec Comptoir Boutique 1.28.1)
+  Audit du site en ligne : 462 adresses des plans du site, 503 liens et
+  images, données structurées, accessibilité (axe-core, WCAG 2.1 AA).
+  - Accueil : la boutique est décrite comme « OnlineStore » et non plus
+    « Store ». Pour Google, Store est un commerce local, qui exige une
+    adresse postale : le test des résultats enrichis signalait une erreur.
+  - Thème clair : le bouton de langue passait à 4,3:1 de contraste (il
+    faut 4,5:1) ; il est désormais opaque.
+  - Les numéros 01 à 04 des étapes, simple filigrane, sont posés en CSS :
+    les vérificateurs de contraste (et Lighthouse) ne les comptent plus
+    comme du texte trop pâle.
+  À mettre en ligne après Comptoir Boutique 1.28.1.
+
 VERSION 3.6.0 — ACCUEIL ALLÉGÉ (avec Comptoir Boutique 1.28.0)
   L'accueil passe de quinze blocs à sept : héros, ruban des maisons,
   catalogue, preuves clients, le testeur expliqué, « Commander » (les

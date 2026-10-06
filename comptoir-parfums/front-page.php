@@ -272,25 +272,25 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
     <div class="proc-steps">
       <div class="proc-step r d1">
         <div class="proc-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <div class="proc-num" aria-hidden="true">01</div>
+        <div class="proc-num" aria-hidden="true" data-n="01"></div>
         <h3>Choisissez sur WhatsApp</h3>
         <p>Parcourez le catalogue et écrivez-nous le parfum voulu. Hésitation ? Dites-nous ce que vous portez déjà.</p>
       </div>
       <div class="proc-step r d2">
         <div class="proc-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-        <div class="proc-num" aria-hidden="true">02</div>
+        <div class="proc-num" aria-hidden="true" data-n="02"></div>
         <h3>Confirmation sous 1h</h3>
         <p>Nous vérifions la disponibilité et confirmons le prix. Aucune avance demandée à cette étape.</p>
       </div>
       <div class="proc-step r d3">
         <div class="proc-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-        <div class="proc-num" aria-hidden="true">03</div>
+        <div class="proc-num" aria-hidden="true" data-n="03"></div>
         <h3>Livraison 24–72h</h3>
         <p>Casablanca, Rabat, Marrakech, Tanger et toutes les villes. Transporteur partenaire suivi.</p>
       </div>
       <div class="proc-step r d4">
         <div class="proc-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
-        <div class="proc-num" aria-hidden="true">04</div>
+        <div class="proc-num" aria-hidden="true" data-n="04"></div>
         <h3>Cash à réception</h3>
         <p>Vous payez le livreur en main propre. Si le colis ne convient pas, vous le refusez — et si vous changez d'avis ensuite, vous êtes remboursé.</p>
       </div>

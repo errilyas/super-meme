@@ -1144,6 +1144,10 @@ a.mq-item.is-active .mq-name{
   font-family:var(--serif);font-style:italic;font-size:52px;font-weight:300;
   color:rgba(var(--au-rgb),.1);line-height:1;margin-bottom:28px;
 }
+/* Le numéro est un filigrane (10 % d'or), pas du texte à lire : posé en
+   contenu CSS, il n'est plus compté comme texte trop pâle par les
+   vérificateurs de contraste (v3.6.1). */
+.proc-num::before{content:attr(data-n)}
 .proc-icon{margin-bottom:20px}
 .proc-icon svg{width:22px;height:22px;stroke:var(--amber);fill:none;stroke-width:1.2;stroke-linecap:round}
 .proc-step h3{font-family:var(--serif);font-size:19px;font-weight:300;margin-bottom:10px;color:var(--bone)}
@@ -2233,6 +2237,9 @@ button.btn-a,button.btn-b,button.btn-fin,button.btn-fin-g{
 .nav-right{gap:14px}
 .langue-bascule,.theme-toggle{opacity:.82;transition:opacity .2s,color .2s,border-color .2s}
 .langue-bascule:hover,.theme-toggle:hover{opacity:1}
+/* Thème clair : à 82 %, le « FR » / « ع » doré du bouton de langue tombait à
+   4,3:1 sur le fond crème, sous les 4,5:1 du texte courant (WCAG 1.4.3). */
+:root[data-theme="light"] .langue-bascule{opacity:1}
 /* Téléphone : le panier devient un sac et sa pastille, le sceau respire */
 @media(max-width:600px){
   .nav-pill{padding:0 14px;min-width:64px;justify-content:center}
