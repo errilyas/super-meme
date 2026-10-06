@@ -9,6 +9,31 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.6.0 — ACCUEIL ALLÉGÉ (avec Comptoir Boutique 1.28.0)
+  L'accueil passe de quinze blocs à sept : héros, ruban des maisons,
+  catalogue, preuves clients, le testeur expliqué, « Commander » (les
+  quatre étapes puis l'appel final), questions fréquentes. Comptoir
+  Boutique ajoute « Nos duos » sous le catalogue, le quiz en une ligne
+  dans son en-tête et trois guides sous la FAQ.
+  Retirés de l'accueil : la sélection par famille (le catalogue a les
+  mêmes filtres), « Notre approche » et « Ce que vous trouverez », les
+  chiffres clés, les engagements (repris dans « Commander »). La page
+  Vente garde les siennes.
+  En-tête sur téléphone : sceau, recherche, panier, menu. Langue et
+  thème passent dans le menu.
+  Effets retirés : curseur sur-mesure, barre de progression,
+  préchargeur (Comptoir SEO le masquait déjà en ligne), anneaux en
+  orbite, particules, grain, parallaxe, halos qui respirent ; plus de
+  flou sur les pastilles des cartes ni sur l'en-tête de téléphone.
+  Accueil sur téléphone (mesuré en 375 × 812) : 19 300 px de haut →
+  12 100, 28 déclencheurs de défilement → 8, 6 animations en boucle du
+  thème → 0 (reste le reflet du bouton de Comptoir Boutique). CSS : −10 %,
+  sans effet sur les autres pages (styles calculés comparés élément par
+  élément, en 375 et 1 440 px, français et arabe, sombre et clair).
+  Corrigé au passage : « Voir plus de parfums » restait en français sur
+  la page arabe.
+  À mettre en ligne APRÈS Comptoir Boutique 1.28.0.
+
 VERSION 3.5.3 — IMAGE DE PARTAGE DES FICHES
   Les fiches parfum annonçaient à Facebook et WhatsApp une image de
   1200 × 630 alors que la photo fait 720 × 900 : la taille réelle n'était
@@ -311,8 +336,8 @@ CE QUE LE THÈME FAIT MIEUX QUE LA MAQUETTE
   donc invisibles pour un moteur de recherche ou un partage WhatsApp).
 - La liste des photos disponibles vient de file_exists(), pas d'une liste
   tenue à la main qui peut se désynchroniser du disque.
-- Les prix affichés dans « Notre distinction » et « Sélection du moment »
-  sont lus dans produits.php : ils ne peuvent plus mentir.
+- Les prix et les compteurs affichés (héros, catalogue, page Vente) sont
+  lus dans produits.php : ils ne peuvent plus mentir.
 - Titre, description, canonical, Open Graph et données structurées
   (Product avec prix / Store) sont générés par functions.php selon la page.
 - Un ?parfum=slug inconnu renvoie un vrai 404, pas une page 200 vide.
@@ -612,8 +637,8 @@ comptoir-parfums/
 ├── produits.php             209 fiches (thème)
 ├── produits.js              209 fiches (maquette) — identiques
 ├── functions.php            réglages, routage, scripts, métadonnées
-├── header.php               <head>, préchargeur, menu mobile, bandeau
-├── front-page.php           accueil — sections 1 à 10
+├── header.php               <head>, menu mobile, bandeau
+├── front-page.php           accueil — les sept blocs (v3.6)
 ├── template-parfum.php      fiche parfum      (/?parfum=…)
 ├── template-commander.php   page commande     (/?commander=1)
 ├── footer.php               pied de page
