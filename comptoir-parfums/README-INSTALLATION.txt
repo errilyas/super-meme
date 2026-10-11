@@ -9,6 +9,19 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.7.1 — MENU ET EN-TÊTE DU TÉLÉPHONE
+  Côté client :
+  - Menu du téléphone : le lien « Duos » (ajouté par Comptoir Boutique)
+    restait invisible et laissait un trou entre « Catalogue » et
+    « Commander » ; il s'affiche maintenant à sa place.
+  - Le haut du menu ne passe plus sous l'en-tête quand le bandeau
+    d'annonce est affiché.
+  - Thème clair/sombre et « AR » / « FR » de retour en haut de l'écran, à
+    côté de la loupe, sur toutes les pages ; retirés du bas du menu.
+  - Un lien vers une section (menu, /#catalogue depuis une autre page)
+    s'arrête sous l'en-tête au lieu de cacher le titre de la section.
+  Fichiers modifiés : header.php, style-site.css, theme.js (+ style.css).
+
 VERSION 3.7.0 — PARCOURS D'ACHAT PLUS LÉGER, MESURE META ASSAINIE (avec Comptoir Boutique 1.30.0)
   Côté client :
   - Thème clair le jour, sombre la nuit, par défaut (heures du Maroc,

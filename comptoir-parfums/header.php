@@ -113,16 +113,6 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
   <div class="mob-pied">
     <a href="<?php echo esc_url( $cp_wa ); ?>" class="mob-link mob-wa" target="_blank" rel="noopener" data-close>WhatsApp →</a>
     <p class="mob-gages">Paiement à la livraison · Livraison partout au Maroc</p>
-    <?php /* Langue et theme : retires de l'en-tete sur telephone, ils
-             vivent ici. Memes attributs que les boutons de l'en-tete, donc
-             memes scripts. */ ?>
-    <div class="mob-reglages">
-      <button type="button" class="langue-bascule" data-langue-bascule aria-label="التبديل إلى العربية">AR</button>
-      <button type="button" class="theme-toggle" data-theme-bascule aria-label="Basculer en mode clair" aria-pressed="false">
-        <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.9 1.9M17.5 17.5l1.9 1.9M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.9-1.9M17.5 6.5l1.9-1.9"/></svg>
-        <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.2 8.2 0 1 0 10.5 10.5z"/></svg>
-      </button>
-    </div>
   </div>
 </div>
 

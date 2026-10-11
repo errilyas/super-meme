@@ -2877,17 +2877,45 @@ main.cp-secours{max-width:1280px;padding:168px 72px 120px;text-align:center;posi
 @media(max-width:900px){ .commande-home .fin-inner{margin-top:64px} }
 @media(max-width:600px){ .commande-home .fin-inner{margin-top:48px;padding:0 24px} }
 
-/* En-tête de l'accueil sur téléphone : langue et thème passent dans le menu. */
+/* Les liens du menu et des autres pages (/#catalogue, /#commander) sautent
+   par le navigateur, pas par le défilement du thème : sans cette marge, la
+   section s'arrêtait sous l'en-tête fixe, qui cachait son intitulé. */
+html{scroll-padding-top:76px}
+
+/* En-tête du téléphone (3.7.1) : thème et langue reviennent en haut, à côté
+   de la loupe et en cercles de sa taille — rangés en bas du menu, on ne les
+   trouvait pas. Ordre : loupe, thème, langue, panier, menu (en miroir en
+   arabe). Toutes les pages, accueil compris. */
 @media(max-width:860px){
-  .nav-accueil .nav-right>.langue-bascule,.nav-accueil .nav-right>.theme-toggle{display:none}
   #nav.stuck{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(17,8,20,.97)}
   :root[data-theme="light"] #nav.stuck{background:rgba(248,243,234,.97)}
+  .nav-right>.cpb-nav-loupe{order:1}
+  .nav-right>.theme-toggle{order:2}
+  .nav-right>.langue-bascule{order:3}
+  .nav-right>.nav-pill{order:4}
+  .nav-right>#nav-ham{order:5}
+  .nav-right>.theme-toggle,.nav-right>.langue-bascule{
+    width:38px;height:38px;min-width:0;min-height:0;padding:0;box-sizing:border-box;
+    display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid var(--line2);border-radius:50%;font-size:11.5px;
+  }
 }
-.mob-reglages{display:flex;justify-content:center;gap:14px}
-/* 44 px : la taille d'un pouce, pour les deux boutons à l'identique. */
-.mob-reglages button{width:44px;height:44px;box-sizing:border-box;padding:0;
-  display:flex;align-items:center;justify-content:center;border:1px solid var(--line2);border-radius:50%}
-.mob-reglages .langue-bascule{font-size:12px}
+@media(max-width:600px){
+  .nav-right>.theme-toggle,.nav-right>.langue-bascule{width:40px;height:40px}
+}
+/* 360–389 px (la plupart des Android) : cinq boutons et le sceau sur une
+   ligne, sans rien pousser hors de l'écran. */
+@media(max-width:389px){
+  .nav-right{gap:6px}
+  #nav .cpb-nav-btn,.nav-right>.theme-toggle,.nav-right>.langue-bascule{width:38px;height:38px}
+  .nav-pill{gap:8px}
+}
+@media(max-width:359px){
+  #nav{--nav-pad-x:14px}
+  .nav-right{gap:4px}
+  #nav .cpb-nav-btn,.nav-right>.theme-toggle,.nav-right>.langue-bascule{width:36px;height:36px}
+  #nav-ham{min-width:40px}
+}
 
 /* Les quatre étapes sur téléphone : l'icône à côté du titre, sans le grand
    numéro décoratif. Quatre cartes d'un demi-écran chacune deviennent une

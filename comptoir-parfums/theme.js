@@ -274,6 +274,16 @@ const IS_MOBILE = window.innerWidth < 860;
 
 /* ── GSAP guard ── */
 
+/* Le menu de telephone commence sous l'en-tete, quelle que soit sa hauteur
+   du moment : en haut de page, le bandeau d'annonce pousse l'en-tete plus
+   bas que les 116 px prevus, et il recouvrait « Catalogue ». Sert aux deux
+   menus, anime (GSAP) et de repli. */
+function calerMenu(menu){
+  const n=document.getElementById('nav');
+  if(!menu || !n) return;
+  menu.style.paddingTop=Math.max(116, Math.round(n.getBoundingClientRect().bottom + 16))+'px';
+}
+
 /* ══════════════════════════════════════════════════════════════
    CONTENU — construit AVANT le garde-fou GSAP.
    Le catalogue et la FAQ sont le produit : ils ne doivent jamais
@@ -1040,24 +1050,34 @@ ScrollTrigger.create({
 ══════════════════════════════════════════════════════════════ */
 const ham=document.getElementById('nav-ham');
 const mobMenu=document.getElementById('mob-menu');
-let menuOpen=false, menuTl=null;
+let menuOpen=false, menuTl=null, menuLiens=0;
 
+/* Les liens sont lus dans le menu au moment de construire l'animation, pas
+   par le selecteur '.mob-link' fige au chargement : le lien « Duos » que
+   Comptoir Boutique ajoute ensuite restait a opacite 0 — invisible, mais il
+   gardait sa place et creusait un trou entre « Catalogue » et « Commander ». */
 function buildMenuTimeline(){
+  const liens=mobMenu.querySelectorAll('.mob-link');
+  menuLiens=liens.length;
   const tl=gsap.timeline({paused:true});
   tl.set(mobMenu,{display:'flex'})
     .fromTo(mobMenu,{opacity:0},{opacity:1,duration:.35,ease:'power2.out'})
-    .fromTo('.mob-link',{opacity:0,x:-16},{opacity:1,x:0,duration:.45,stagger:.06,ease:'power3.out'},'-=.15');
+    .fromTo(liens,{opacity:0,x:-16},{opacity:1,x:0,duration:.45,stagger:.06,ease:'power3.out'},'-=.15');
   return tl;
 }
 
 if(ham && mobMenu){
-  menuTl=buildMenuTimeline();
   function toggleMenu(){
     menuOpen=!menuOpen;
     ham.setAttribute('aria-expanded',menuOpen);
     document.body.style.overflow=menuOpen?'hidden':'';
     const spans=ham.querySelectorAll('span');
     if(menuOpen){
+      calerMenu(mobMenu);
+      if(!menuTl || mobMenu.querySelectorAll('.mob-link').length!==menuLiens){
+        if(menuTl) menuTl.progress(0).kill();
+        menuTl=buildMenuTimeline();
+      }
       menuTl.play();
       gsap.to(spans[0],{rotation:45,y:6,duration:.3});
       gsap.to(spans[1],{opacity:0,duration:.2});
@@ -1075,7 +1095,8 @@ if(ham && mobMenu){
        et revient au bouton a la fermeture, au lieu de rester derriere lui. */
     if(menuOpen){ const l=mobMenu.querySelector('.mob-link'); if(l) setTimeout(()=>l.focus({preventScroll:true}),60); }
   });
-  document.querySelectorAll('[data-close]').forEach(a=>a.addEventListener('click',()=>{if(menuOpen)toggleMenu()}));
+  /* Ecoute sur le menu, pas lien par lien : « Duos », ajoute apres coup, ferme aussi. */
+  mobMenu.addEventListener('click',e=>{if(menuOpen && e.target.closest('[data-close]'))toggleMenu()});
   document.addEventListener('keydown',e=>{
     if(!menuOpen) return;
     if(e.key==='Escape'){ toggleMenu(); ham.focus(); return; }
@@ -1683,12 +1704,13 @@ function fallbackMode(){
     const ferme=()=>{mOpen=false;mob.classList.remove('open');ham.setAttribute('aria-expanded','false');document.body.style.overflow=''};
     ham.addEventListener('click',()=>{
       mOpen=!mOpen;
+      if(mOpen) calerMenu(mob);
       mob.classList.toggle('open',mOpen);
       ham.setAttribute('aria-expanded',mOpen);
       document.body.style.overflow=mOpen?'hidden':'';
       if(mOpen){ const l=mob.querySelector('.mob-link'); if(l) setTimeout(()=>l.focus({preventScroll:true}),60); }
     });
-    document.querySelectorAll('[data-close]').forEach(a=>a.addEventListener('click',()=>{if(mOpen)ferme()}));
+    mob.addEventListener('click',e=>{if(mOpen && e.target.closest('[data-close]'))ferme()});
     document.addEventListener('keydown',e=>{
       if(!mOpen) return;
       if(e.key==='Escape'){ ferme(); ham.focus(); return; }
