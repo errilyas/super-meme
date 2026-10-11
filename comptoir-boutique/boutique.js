@@ -197,6 +197,7 @@
     'Autre ville…': 'مدينة أخرى…',
     'Laquelle ?': 'أي مدينة؟',
     'Adresse complète': 'العنوان الكامل',
+    'Adresse (facultatif)': 'العنوان (اختياري)',
     'Rue, numéro, immeuble, étage': 'الشارع، الرقم، العمارة، الطابق',
     'Nom de votre ville': 'اسم مدينتك',
     'Numéro marocain attendu, par exemple 06 12 34 56 78.': 'رقم مغربي، مثلًا 06 12 34 56 78.',
@@ -1477,12 +1478,15 @@
         '<div class="cpb-x-props" role="group" aria-label="' + esc(t('Choisissez le parfum à ajouter')) + '"></div>' +
         '<small class="cpb-x-err" hidden>' + esc(t('Choisissez un parfum dans la liste.')) + '</small>' +
       '</div>' +
-      '<label class="cpb-x-champ" data-f="tel"><span>' + esc(t('Téléphone')) + ' *</span>' +
-        '<input type="tel" name="tel" autocomplete="tel" inputmode="tel" enterkeyhint="next" placeholder="06 12 34 56 78" required>' +
-        '<small>' + esc(t('Numéro marocain attendu, par exemple 06 12 34 56 78.')) + '</small></label>' +
+      /* Trois champs obligatoires : nom, telephone, ville. L'adresse se prend
+         a l'appel de confirmation ; chaque champ de plus perdait des
+         commandes (92 % des formulaires commences n'etaient pas envoyes). */
       '<label class="cpb-x-champ" data-f="nom"><span>' + esc(t('Nom complet')) + ' *</span>' +
         '<input type="text" name="nom" autocomplete="name" enterkeyhint="next" required>' +
         '<small>' + esc(t('Merci d’indiquer votre nom.')) + '</small></label>' +
+      '<label class="cpb-x-champ" data-f="tel"><span>' + esc(t('Téléphone')) + ' *</span>' +
+        '<input type="tel" name="tel" autocomplete="tel" inputmode="tel" enterkeyhint="next" placeholder="06 12 34 56 78" required>' +
+        '<small>' + esc(t('Numéro marocain attendu, par exemple 06 12 34 56 78.')) + '</small></label>' +
       '<label class="cpb-x-champ" data-f="ville"><span>' + esc(t('Ville')) + ' *</span>' +
         '<select name="ville" autocomplete="address-level2" required><option value="">' + esc(t('Choisissez votre ville')) + '</option>' +
         VILLES_FR.map(function (v) { return '<option value="' + esc(v) + '">' + esc(ville(v)) + '</option>'; }).join('') +
@@ -1491,9 +1495,8 @@
       '<label class="cpb-x-champ" data-f="ville_autre" hidden><span>' + esc(t('Laquelle ?')) + '</span>' +
         '<input type="text" name="ville_autre" autocomplete="address-level2" placeholder="' + esc(t('Nom de votre ville')) + '">' +
         '<small>' + esc(t('Indiquez le nom de votre ville.')) + '</small></label>' +
-      '<label class="cpb-x-champ" data-f="adresse"><span>' + esc(t('Adresse complète')) + ' *</span>' +
-        '<input type="text" name="adresse" autocomplete="street-address" enterkeyhint="send" placeholder="' + esc(t('Rue, numéro, immeuble, étage')) + '" required>' +
-        '<small>' + esc(t('C’est cette adresse que le livreur suivra.')) + '</small></label>' +
+      '<label class="cpb-x-champ" data-f="adresse"><span>' + esc(t('Adresse (facultatif)')) + '</span>' +
+        '<input type="text" name="adresse" autocomplete="street-address" enterkeyhint="send" placeholder="' + esc(t('Rue, numéro, immeuble, étage')) + '"></label>' +
       '<div class="cpb-x-articles" aria-label="' + esc(t('Articles de cette commande')) + '" aria-live="polite"></div>' +
       '<p class="cpb-x-recap" aria-live="polite"></p>' +
       '<button type="submit" class="cpb-btn-plein cpb-x-go">' + SVG.wa + '<span>' + esc(t('Envoyer ma commande')) + '</span><b class="cpb-x-total"></b></button>' +
@@ -1615,7 +1618,6 @@
     function invalide(n) {
       var el = champ(n), v = el ? el.value.trim() : '';
       if (n === 'tel') { return !telValide(v); }
-      if (n === 'adresse') { return v.length < 8; }
       if (n === 'ville') { return !v || (v === 'autre' && !champ('ville_autre').value.trim()); }
       return !v;
     }
@@ -1625,7 +1627,7 @@
       e.preventDefault();
       if (envoi) { return; }
       var premier = null;
-      ['tel', 'nom', 'ville', 'adresse'].forEach(function (n) {
+      ['nom', 'tel', 'ville'].forEach(function (n) {
         var bad = invalide(n);
         var f = bloc.querySelector('[data-f="' + n + '"]');
         if (n === 'ville' && champ('ville').value === 'autre') { f = blocAutre; }
@@ -1668,7 +1670,14 @@
         livraison: P.fraisLivraison(), sousTotal: P.subtotal(), remise: (P.remise ? P.remise() : 0), t: Date.now()
       };
 
-      P.depose(data);
+      /* Adresse laissee vide : le carnet de commandes du theme refuse une
+         adresse de moins de 8 caracteres (functions.php), et l'envoi part
+         sans attendre de reponse — la commande serait perdue sans bruit. Il
+         recoit donc la mention que le message WhatsApp porte deja. */
+      var pourCarnet = {};
+      Object.keys(data).forEach(function (k) { pourCarnet[k] = data[k]; });
+      if (!pourCarnet.adresse) { pourCarnet.adresse = 'À préciser lors de l’appel de confirmation'; }
+      P.depose(pourCarnet);
       P.mesure('Lead', {
         value: montant, currency: 'MAD', num_items: articles, content_type: 'product',
         content_ids: lignes.map(function (l) { return l.s; })
@@ -1853,7 +1862,7 @@
       e.stopPropagation();
       x.scrollIntoView({ block: 'start', behavior: REDUIT ? 'auto' : 'smooth' });
       var vide = null;
-      ['tel', 'nom', 'ville', 'adresse'].some(function (n) {
+      ['nom', 'tel', 'ville'].some(function (n) {
         var el = x.querySelector('[name="' + n + '"]');
         if (el && !el.value) { vide = el; return true; }
         return false;
