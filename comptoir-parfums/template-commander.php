@@ -38,28 +38,29 @@ get_header();
 
   <!-- Ecran de remerciement : il remplace le formulaire une fois la commande
        deposee. Le panier est vide a ce moment-la, d'ou son propre bloc. -->
+  <!-- La commande EST passee quand cet ecran s'affiche : il le dit d'abord,
+       puis donne la reference et la suite (un appel). L'ancien ecran
+       demandait d'« envoyer le message WhatsApp pour confirmer et verifier
+       la disponibilite » : le client croyait sa commande en suspens.
+       WhatsApp reste possible, en lien discret, pour une question. -->
   <section class="ck-merci" id="ck-merci" hidden aria-live="polite">
-    <p class="ck-merci-mark" aria-hidden="true">✓</p>
-    <h2 id="ck-merci-titre">Merci, c'est noté.</h2>
-    <p class="ck-merci-sous">Votre récapitulatif est prêt. Envoyez le message sur WhatsApp pour confirmer votre demande et vérifier la disponibilité.</p>
+    <h2 id="ck-merci-titre">Commande reçue ✓</h2>
     <p class="ck-merci-ref" id="ck-merci-ref"></p>
+    <p class="ck-merci-sous">Nous vous appelons sous peu pour confirmer votre commande et l'adresse de livraison.</p>
     <div class="ck-merci-detail">
       <p class="ck-merci-detail-titre">Ce que vous avez commandé</p>
       <div id="ck-merci-lignes"></div>
     </div>
     <ol class="ck-merci-suite">
-      <li><b>Vous confirmez sur WhatsApp</b> — le message est déjà écrit, un appui suffit.</li>
+      <li><b>Nous vous appelons</b> — pour confirmer la commande et noter l'adresse de livraison.</li>
       <li><b>Nous expédions</b> — Casablanca en 24 à 48 h, le reste du Maroc en 2 à 4 jours.</li>
       <li><b>Vous payez à la remise</b> — en espèces, au livreur. Rien n'est payé à l'avance.</li>
     </ol>
     <div class="ck-merci-actions">
-      <a class="ck-go" id="ck-merci-wa" href="#" target="_blank" rel="noopener">
-        <?php comptoir_icone_whatsapp(); ?>
-        <span>Renvoyer la commande sur WhatsApp</span>
-      </a>
       <a class="ck-merci-retour" href="<?php echo esc_url( home_url( '/#catalogue' ) ); ?>">Retour au catalogue</a>
+      <a class="ck-merci-retour" id="ck-merci-wa" href="#" target="_blank" rel="noopener" hidden>Une question sur votre commande ? Écrivez-nous sur WhatsApp</a>
     </div>
-    <p class="ck-mini">WhatsApp ne s'est pas ouvert ? Le bouton ci-dessus renvoie le même message. Pour vérifier la réception de votre demande, contactez-nous — <a href="<?php echo esc_url( comptoir_telephone_href() ); ?>"><?php echo esc_html( comptoir_telephone_affiche() ); ?></a>.</p>
+    <p class="ck-mini">Un empêchement ? Appelez-nous — <a href="<?php echo esc_url( comptoir_telephone_href() ); ?>"><?php echo esc_html( comptoir_telephone_affiche() ); ?></a>.</p>
   </section>
 
   <div id="ck-full" hidden>
@@ -152,13 +153,16 @@ get_header();
           <p><b>Casablanca en 24 à 48 heures.</b> Le reste du Maroc en 2 à 4 jours ouvrables. <?php echo esc_html( comptoir_note_livraison() ); ?></p>
         </div>
 
+        <!-- Un sac, pas la bulle WhatsApp : ce bouton passe la commande, il
+             n'ouvre pas une discussion. Meme pictogramme que la commande
+             express de la fiche (Comptoir Boutique). -->
         <button class="ck-go" id="ck-go" type="submit" form="ck-form">
-          <?php comptoir_icone_whatsapp(); ?>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12.1a1 1 0 0 1-1 .9H7.2a1 1 0 0 1-1-.9L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
           <span>Envoyer ma commande</span>
           <!-- Le montant du au livreur, sur le bouton : rien a decouvrir a la porte. -->
           <b class="ck-go-total" data-ck-total></b>
         </button>
-        <p class="ck-mini">La demande est transmise au site avant l’ouverture de WhatsApp. Confirmez ensuite la disponibilité avec nous par message.<br>
+        <p class="ck-mini">Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.<br>
         Une question avant ? <a href="#" id="ck-ask">Écrivez-nous</a></p>
       </section>
 

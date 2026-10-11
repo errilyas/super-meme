@@ -181,13 +181,10 @@
     data = data || {};
     c = c || {};
 
-    /* « Merci Youssef » plutot que « Merci » : le prenom suffit, le nom
-       complet sur un ecran de confirmation fait formulaire administratif. */
+    /* Un titre qui dit le fait, le meme pour tous : la commande est recue.
+       « Merci, c'est note » laissait un doute sur ce qui etait note. */
     var titre = document.getElementById('ck-merci-titre');
-    var prenom = data.prenom || (data.nom || '').trim().split(/\s+/)[0];
-    if(titre) titre.textContent = prenom
-      ? T('Merci {prenom}, c\'est noté.', {prenom: prenom})
-      : T('Merci, c\'est noté.');
+    if(titre) titre.textContent = T('Commande reçue ✓');
 
     var ref = document.getElementById('ck-merci-ref');
     if(ref && data.ref) ref.textContent = T('Référence {ref}', {ref: data.ref});
@@ -212,7 +209,15 @@
     }
 
     var wa = document.getElementById('ck-merci-wa');
-    if(wa){ wa.href = c.lien || 'https://wa.me/' + WA; wa.hidden = !c.lien; }
+    /* Une question, pas la commande recopiee : le message pre-rempli
+       « je souhaite commander… » pouvait etre pris pour une deuxieme
+       commande. La reference suffit a la retrouver. */
+    if(wa){
+      wa.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(data.ref
+        ? T('Bonjour, j’ai une question sur ma commande {ref}.', {ref: data.ref})
+        : T('Bonjour, j’ai une question sur ma commande.'));
+      wa.hidden = false;
+    }
 
     /* Le fil d'etapes passe a la confirmation. */
     var fil = document.getElementById('ck-steps');
@@ -287,14 +292,11 @@
       }
     }catch(e){}
 
+    /* WhatsApp ne s'ouvre plus tout seul : la commande est enregistree et
+       nous rappelons le client. L'ouvrir a sa place lui faisait quitter la
+       confirmation pour un message a envoyer, comme si la commande n'etait
+       pas encore passee. Le lien reste, en second (#ck-merci-wa). */
     merci(enregistree || {}, enregistree || {});
-
-    /* WhatsApp part une fois la page bien en place, et une seule fois : si la
-       bascule emporte l'onglet, la confirmation est deja chargee derriere. */
-    if(enregistree && enregistree.lien && !dejaFait('cp_wa_' + enregistree.ref)){
-      marqueFait('cp_wa_' + enregistree.ref);
-      setTimeout(function(){ window.open(enregistree.lien, '_blank', 'noopener'); }, 900);
-    }
   }
 
   /* validation + envoi */

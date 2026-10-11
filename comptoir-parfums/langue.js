@@ -356,6 +356,7 @@
     'Casablanca en 24 à 48 heures.': 'الدار البيضاء خلال 24 إلى 48 ساعة.',
     'Envoyer ma commande': 'إرسال طلبي',
     'La demande est transmise au site avant l’ouverture de WhatsApp. Confirmez ensuite la disponibilité avec nous par message.': 'يتم إرسال الطلب إلى الموقع قبل فتح واتساب. ثم أكدوا معنا توفر العطر عبر رسالة.',
+    'Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.': 'لا شيء تدفعه الآن. سنتصل بك لتأكيد الطلب، والتوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
     'Confirmer la commande': 'أكّد الطلب',
     'WhatsApp s\'ouvre avec votre commande et votre adresse déjà écrites. Un dernier envoi et c\'est confirmé.': 'يفتح واتساب ومعه طلبك وعنوانك مكتوبان مسبقًا. إرسال أخير ويكون الطلب مؤكَّدًا.',
     'Une question avant ?': 'سؤال قبل ذلك؟',
@@ -363,6 +364,14 @@
     'Dites-nous ce que vous cherchez, on s\'occupe du reste — ou choisissez vos parfums dans le catalogue.': 'قل لنا ما تبحث عنه ونتكفّل بالباقي — أو اختر عطورك من الكتالوج.',
 
     /* Page de remerciement */
+    'Commande reçue ✓': 'تم استلام طلبك ✓',
+    'Nous vous appelons sous peu pour confirmer votre commande et l\'adresse de livraison.': 'سنتصل بك قريبًا لتأكيد طلبك وعنوان التوصيل.',
+    'Nous vous appelons': 'نتصل بك',
+    '— pour confirmer la commande et noter l\'adresse de livraison.': '— لتأكيد الطلب وتسجيل عنوان التوصيل.',
+    'Une question sur votre commande ? Écrivez-nous sur WhatsApp': 'سؤال حول طلبك؟ راسلنا عبر واتساب',
+    'Un empêchement ? Appelez-nous —': 'طارئ؟ اتصل بنا —',
+    'Bonjour, j’ai une question sur ma commande {ref}.': 'السلام عليكم، عندي سؤال حول طلبي {ref}.',
+    'Bonjour, j’ai une question sur ma commande.': 'السلام عليكم، عندي سؤال حول طلبي.',
     'Merci, c\'est noté.': 'شكرًا، تمّ تسجيل طلبك.',
     'Votre commande est arrivée chez nous. Un message WhatsApp vous attend : un appui et nous préparons votre colis. Vous ne l\'avez pas reçu ? Le bouton ci-dessous fait la même chose.': 'وصلنا طلبك. رسالة واتساب في انتظارك: ضغطة واحدة ونبدأ تحضير طردك. لم تصلك؟ الزر أسفله يقوم بنفس الشيء.',
     'Ce que vous avez commandé': 'ما طلبته',

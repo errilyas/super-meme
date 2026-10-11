@@ -218,7 +218,7 @@
     'Modifier les quantités du panier': 'تعديل كميات السلة',
     'Choisissez le parfum à ajouter': 'اختر العطر الذي تريد إضافته',
     'Choisissez un parfum dans la liste.': 'اختر عطرا من القائمة.',
-    'La demande est transmise au site avant l’ouverture de WhatsApp. Confirmez ensuite la disponibilité avec nous par message.': 'يتم إرسال الطلب إلى الموقع قبل فتح واتساب. ثم أكدوا معنا توفر العطر عبر رسالة.',
+    'Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.': 'لا شيء تدفعه الآن. سنتصل بك لتأكيد الطلب، والتوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
     'Livraison : {l}': 'التوصيل: {l}',
     'offerte': 'مجاني',
     '+ {n} parfum(s) déjà dans votre panier': '+ {n} عطر موجود في سلتك',
@@ -318,6 +318,7 @@
     etincelle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></svg>',
     camion: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.5 16.5V6.5h12v10M13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>',
     wa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+    sac: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12.1a1 1 0 0 1-1 .9H7.2a1 1 0 0 1-1-.9L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>',
     partage: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.4M8.3 13.2l7.4 4.4"/></svg>',
     insta: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg>'
   };
@@ -1521,9 +1522,12 @@
         '<input type="text" name="adresse" autocomplete="street-address" enterkeyhint="send" placeholder="' + esc(t('Rue, numéro, immeuble, étage')) + '"></label>' +
       '<div class="cpb-x-articles" aria-label="' + esc(t('Articles de cette commande')) + '" aria-live="polite"></div>' +
       '<p class="cpb-x-recap" aria-live="polite"></p>' +
-      '<button type="submit" class="cpb-btn-plein cpb-x-go">' + SVG.wa + '<span>' + esc(t('Envoyer ma commande')) + '</span><b class="cpb-x-total"></b></button>' +
-      '<p class="cpb-x-note">' + esc(t('Rien à payer maintenant : vous réglez en espèces au livreur.')) + ' ' +
-        esc(t('La demande est transmise au site avant l’ouverture de WhatsApp. Confirmez ensuite la disponibilité avec nous par message.')) + '</p>';
+      /* Un sac, pas la bulle WhatsApp : le bouton passe la commande, il
+         n'ouvre pas une discussion. Et la note dit ce qui se passe ensuite
+         (un appel), au lieu de « confirmez la disponibilite par message »,
+         qui laissait croire que la commande n'etait pas passee. */
+      '<button type="submit" class="cpb-btn-plein cpb-x-go">' + SVG.sac + '<span>' + esc(t('Envoyer ma commande')) + '</span><b class="cpb-x-total"></b></button>' +
+      '<p class="cpb-x-note">' + esc(t('Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.')) + '</p>';
     ancre.parentNode.insertBefore(bloc, ancre.nextSibling);
     /* Un seul chemin principal : le bouton « Commander » du theme menait a la
        page commande, ce formulaire la remplace sur la fiche. « Ajouter au
