@@ -1648,11 +1648,16 @@
       if (bad) { this.setAttribute('aria-invalid', 'true'); }
     });
 
-    /* InitiateCheckout, une fois : au premier champ touche, comme la page
-       commande le mesure a son ouverture. */
+    /* InitiateCheckout, une fois par page : a la premiere saisie dans le nom
+       ou le telephone. Au premier focus n'importe ou, un toucher sur les
+       cartes « 1 flacon / Ajouter un parfum » le declenchait aussi : le
+       chiffre (104 pour 8 commandes la semaine du 5 octobre) ne mesurait
+       pas une intention d'acheter. Une vraie saisie seulement (isTrusted) :
+       la reprise des coordonnees de la derniere visite simule des saisies,
+       et aurait compte chaque client qui revient des l'ouverture. */
     var debut = false;
-    bloc.addEventListener('focusin', function () {
-      if (debut) { return; }
+    bloc.addEventListener('input', function (e) {
+      if (debut || e.isTrusted === false || !e.target || (e.target.name !== 'nom' && e.target.name !== 'tel')) { return; }
       debut = true;
       var a = apercuPanier(voulus());
       P.mesure('InitiateCheckout', { value: a.total, currency: 'MAD', num_items: a.n, content_type: 'product', content_ids: a.lignes.map(function (l) { return l.s; }) },

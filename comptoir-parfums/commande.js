@@ -49,14 +49,6 @@
     full.hidden = !items.length;
     empty.hidden = !!items.length;
     if(!items.length) return;
-    if(!checkoutMesure){
-      checkoutMesure = true;
-      P.mesure('InitiateCheckout', {
-        value: P.total(), currency: 'MAD',
-        num_items: P.count(), content_type: 'product',
-        content_ids: items.map(function(x){ return x.p.s; })
-      }, P.idEvenement ? P.idEvenement('ic') : '');
-    }
 
     itemsEl.innerHTML = items.map(function(x){
       return '<div class="ck-item" data-s="'+esc(x.s)+'">'+
@@ -137,6 +129,19 @@
   /* on efface le rouge dès que l'utilisateur corrige */
   form.addEventListener('input', function(e){
     var f = e.target.closest('.ck-field'); if(f) f.classList.remove('err');
+    /* InitiateCheckout, une fois par page : a la premiere saisie dans le nom
+       ou le telephone, comme la commande express de la fiche. A l'ouverture
+       de la page, il comptait aussi qui venait seulement voir son panier.
+       Une vraie saisie seulement : la reprise des coordonnees (Comptoir
+       Boutique) simule des saisies a l'ouverture. */
+    if(!checkoutMesure && e.isTrusted !== false && (e.target.name === 'tel' || e.target.name === 'nom') && P.count()){
+      checkoutMesure = true;
+      P.mesure('InitiateCheckout', {
+        value: P.total(), currency: 'MAD',
+        num_items: P.count(), content_type: 'product',
+        content_ids: P.items().map(function(x){ return x.p.s; })
+      }, P.idEvenement ? P.idEvenement('ic') : '');
+    }
   });
 
   /* Un numéro marocain : 0X suivi de 8 chiffres, ou +212 / 212 suivi de 9.
