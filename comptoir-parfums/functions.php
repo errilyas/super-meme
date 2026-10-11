@@ -231,6 +231,21 @@ function comptoir_achat_a_la_livraison() {
 	return '1' === (string) get_option( 'comptoir_achat_livraison', '' );
 }
 
+/**
+ * Un robot, d'apres son user-agent : moteurs, aspirateurs, outils de mesure
+ * de vitesse, navigateurs sans tete, scripts. Rien ne part a Meta pour lui
+ * (le formulaire de commande peut etre poste par un script). Les navigateurs
+ * integres de Facebook et d'Instagram (FBAN, FBAV, Instagram) ne sont pas
+ * des robots ; facebookexternalhit, l'apercu de lien de Meta, en est un.
+ */
+function comptoir_ua_robot( $ua ) {
+	$ua = (string) $ua;
+	if ( '' === trim( $ua ) ) {
+		return true;
+	}
+	return (bool) preg_match( '/bot\b|bot\/|crawl|spider|slurp|headless|python|curl|wget|lighthouse|pagespeed|gtmetrix|pingdom|uptime|facebookexternalhit|httpclient|go-http|okhttp|axios|node-fetch|scrapy|phantom|selenium|puppeteer|playwright/i', $ua );
+}
+
 /** La CAPI peut-elle partir d'ici : en ligne, ou ailleurs avec un code de test. */
 function comptoir_capi_permise( $reglages ) {
 	return comptoir_est_production() || '' !== (string) $reglages['test'];
@@ -562,6 +577,10 @@ add_action( 'wp_head', function () {
 	// nouveau clic remplace l'ancien (fbclid different), sur le domaine
 	// comme le fait Meta ; l'ancien cookie limite a l'hote, pose par
 	// panier.js jusqu'ici, est efface : il passait avant le bon.
+	// PageView porte un eventID : un doublon serveur qui le reprend est
+	// deduplique par Meta. Plus d'image <noscript> : elle seule faisait
+	// compter une vue a un robot sans JavaScript (moins de 0,1 % de vrais
+	// visiteurs sans JavaScript).
 	$capi = comptoir_capi();
 	if ( ! empty( $capi['pixel_id'] ) && comptoir_est_production() ) {
 		$id = preg_replace( '/[^0-9]/', '', $capi['pixel_id'] );
@@ -571,9 +590,7 @@ add_action( 'wp_head', function () {
 			'n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;' .
 			't.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}' .
 			'(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");' .
-			'fbq("init","%1$s",window.cpVid?{external_id:window.cpVid}:{});fbq("track","PageView");}</script>' .
-			'<noscript><img height="1" width="1" style="display:none" alt=""' .
-			' src="https://www.facebook.com/tr?id=%1$s&amp;ev=PageView&amp;noscript=1"></noscript>',
+			'fbq("init","%1$s",window.cpVid?{external_id:window.cpVid}:{});fbq("track","PageView",{},{eventID:"pv."+(window.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2))});}</script>',
 			esc_attr( $id )
 		);
 	}
@@ -974,7 +991,7 @@ function comptoir_capi_references( $id ) {
  * (comptoir_capi_livraison).
  */
 function comptoir_capi_lead( $id, $lignes ) {
-	if ( get_post_meta( $id, 'cp_test', true ) ) {
+	if ( get_post_meta( $id, 'cp_test', true ) || comptoir_ua_robot( get_post_meta( $id, 'cp_ua', true ) ) ) {
 		return false;
 	}
 	$refs = array();
@@ -1310,7 +1327,7 @@ function comptoir_parfums_assets() {
 					'content_name'  => $cp_vc_p['b'] . ' ' . $cp_vc_p['n'],
 					'value'         => comptoir_prix_entier( $cp_vc_p ),
 					'currency'      => 'MAD',
-				) ) . ');',
+				) ) . ',window.Panier.idEvenement?window.Panier.idEvenement("vc"):"");',
 				'after'
 			);
 		}
