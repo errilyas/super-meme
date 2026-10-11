@@ -519,12 +519,12 @@ add_action( 'wp_head', function () {
 	if ( ! empty( $capi['pixel_id'] ) ) {
 		$id = preg_replace( '/[^0-9]/', '', $capi['pixel_id'] );
 		printf(
-			'<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' .
+			'<script>(function(){try{var q=location.search;if(/[?&]cp_test=1/.test(q)){document.cookie="cp_test=1;path=/;max-age=31536000;SameSite=Lax";}else if(/[?&]cp_test=0/.test(q)){document.cookie="cp_test=;path=/;max-age=0;SameSite=Lax";}var m=document.cookie.match(/(?:^|; )cp_vid=([a-f0-9]{64})/),v=m?m[1]:"";if(!v){try{v=localStorage.getItem("cp_vid")||"";}catch(e){}}if(!/^[a-f0-9]{64}$/.test(v)){var a=new Uint8Array(32);(window.crypto||window.msCrypto).getRandomValues(a);v="";for(var i=0;i<a.length;i++){v+=(a[i]<16?"0":"")+a[i].toString(16);}}try{localStorage.setItem("cp_vid",v);}catch(e){}document.cookie="cp_vid="+v+";path=/;max-age=63072000;SameSite=Lax";window.cpVid=v;}catch(e){}})();if(document.cookie.indexOf("cp_test=1")<0){!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' .
 			'n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;' .
 			'n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;' .
 			't.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}' .
 			'(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");' .
-			'fbq("init","%1$s");fbq("track","PageView");</script>' .
+			'fbq("init","%1$s",window.cpVid?{external_id:window.cpVid}:{});fbq("track","PageView");}</script>' .
 			'<noscript><img height="1" width="1" style="display:none" alt=""' .
 			' src="https://www.facebook.com/tr?id=%1$s&amp;ev=PageView&amp;noscript=1"></noscript>',
 			esc_attr( $id )
@@ -761,6 +761,39 @@ function comptoir_envoie_feuille( $id ) {
 }
 
 /**
+ * Commande de test : rien ne part vers Meta pour elle (ni l'achat serveur ici,
+ * ni Lead/Purchase cote navigateur, filtres dans panier.js > commandeTest()).
+ * C'est un test si : un administrateur connecte passe la commande ; l'appareil
+ * est en mode test (ouvrir comptoirparfums.com/?cp_test=1, annuler avec
+ * ?cp_test=0) ; le nom, la ville ou l'adresse contiennent « test » ; ou le
+ * numero fait partie des numeros de test ci-dessous.
+ */
+function comptoir_commande_test( $id = 0 ) {
+	if ( function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ) ) {
+		return true;
+	}
+	if ( isset( $_COOKIE['cp_test'] ) && '1' === $_COOKIE['cp_test'] ) {
+		return true;
+	}
+	if ( ! $id ) {
+		return false;
+	}
+	$texte = '';
+	foreach ( array( 'cp_nom', 'cp_ville', 'cp_adresse' ) as $cle ) {
+		$texte .= ' ' . (string) get_post_meta( $id, $cle, true );
+	}
+	if ( preg_match( '/\btest/i', $texte ) ) {
+		return true;
+	}
+	$tel = (string) get_post_meta( $id, 'cp_tel', true );
+	$numeros_test = array( '212661718238', '212600000000' );
+	if ( '' !== $tel && in_array( comptoir_capi_tel_e164( $tel ), $numeros_test, true ) ) {
+		return true;
+	}
+	return false;
+}
+
+/**
  * Evenement Purchase envoye au serveur Meta (Conversions API) juste apres
  * l'enregistrement de la commande. Le client n'attend pas cette reponse : la
  * vente est deja passee (WhatsApp s'ouvre de son cote), donc un echec ici ne
@@ -774,6 +807,9 @@ function comptoir_envoie_feuille( $id ) {
 function comptoir_capi_achat( $id, $lignes ) {
 	$reglages = comptoir_capi();
 	if ( ! $reglages['pixel_id'] || ! $reglages['token'] ) {
+		return false;
+	}
+	if ( comptoir_commande_test( $id ) ) {
 		return false;
 	}
 
@@ -826,6 +862,11 @@ function comptoir_capi_achat( $id, $lignes ) {
 	}
 	$user_data['country'] = array( hash( 'sha256', 'ma' ) );
 	$user_data['external_id'] = array( hash( 'sha256', 'cp-' . (string) $id ) );
+	// Identifiant visiteur pose par le pixel (cookie cp_vid, 64 caracteres hex,
+	// deja au format hache) : le meme external_id que cote navigateur.
+	if ( isset( $_COOKIE['cp_vid'] ) && preg_match( '/^[a-f0-9]{64}$/', (string) $_COOKIE['cp_vid'] ) ) {
+		$user_data['external_id'][] = (string) $_COOKIE['cp_vid'];
+	}
 
 	$evenement = array(
 		'event_name'       => 'Purchase',
