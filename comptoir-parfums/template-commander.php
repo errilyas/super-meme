@@ -154,11 +154,11 @@ get_header();
 
         <button class="ck-go" id="ck-go" type="submit" form="ck-form">
           <?php comptoir_icone_whatsapp(); ?>
-          <span>Confirmer la commande</span>
+          <span>Envoyer ma commande</span>
           <!-- Le montant du au livreur, sur le bouton : rien a decouvrir a la porte. -->
           <b class="ck-go-total" data-ck-total></b>
         </button>
-        <p class="ck-mini">WhatsApp s'ouvre avec votre commande et votre adresse déjà écrites. Un dernier envoi et c'est confirmé.<br>
+        <p class="ck-mini">La demande est transmise au site avant l’ouverture de WhatsApp. Confirmez ensuite la disponibilité avec nous par message.<br>
         Une question avant ? <a href="#" id="ck-ask">Écrivez-nous</a></p>
       </section>
 
@@ -170,7 +170,7 @@ get_header();
          Formulaire incomplet : le toucher mene au premier champ a remplir. -->
     <div class="ck-fixe repli" id="ck-fixe" inert>
       <button class="ck-go ck-fixe-go" id="ck-fixe-go" type="button">
-        <span>Confirmer la commande</span>
+        <span>Envoyer ma commande</span>
         <b class="ck-go-total" data-ck-total></b>
       </button>
     </div>
