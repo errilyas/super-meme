@@ -346,3 +346,11 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    La page de remerciement (« Commande reçue ✓ », pas d'ouverture
    automatique de WhatsApp) est dans le thème : template-commander.php,
    commande.js et langue.js.
+   (1.30.0) Reprend tout la 1.29.0, plus :
+   - Fiche parfum et page vente : plus aucun bloc qui apparaît au
+     défilement (la fiche, l'histoire, la même maison), plus d'entrée
+     animée du flacon. Les apparitions restent sur l'accueil.
+   - InitiateCheckout : à la première vraie saisie du nom ou du téléphone
+     (event.isTrusted), une fois par page ; plus au premier focus ni à la
+     reprise automatique des coordonnées.
+   À mettre en ligne avec le thème 3.7.0 (ou après la 3.6.2).

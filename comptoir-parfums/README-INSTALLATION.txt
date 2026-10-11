@@ -9,6 +9,30 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.7.0 — PARCOURS D'ACHAT PLUS LÉGER, MESURE META ASSAINIE (avec Comptoir Boutique 1.30.0)
+  Côté client :
+  - Thème clair le jour, sombre la nuit, par défaut (heures du Maroc,
+    selon le mois) ; un choix au bouton reste le choix du visiteur.
+  - Bouton de langue « AR » / « FR » au lieu de la lettre « ع ».
+  - Fiche parfum, page commande et page vente sans GSAP ni animation ;
+    GSAP reste sur l'accueil seulement.
+  - Accueil : 24 cartes dans la page (au lieu de 209), les autres
+    construites au besoin ; HTML ~125 Ko au lieu de ~550 Ko.
+  - Emojis WordPress retirés ; statistiques Jetpack après le premier geste.
+  Côté Meta :
+  - Rien ne part d'une copie du site hors de comptoirparfums.com (sauf avec
+    un code de test) ; robots filtrés (user-agent).
+  - Clic publicitaire (_fbc) posé dès la première ligne, renouvelé à chaque
+    nouveau clic. PageView et ViewContent avec eventID ; plus d'image
+    <noscript>.
+  - InitiateCheckout à la première vraie saisie du nom ou du téléphone.
+  - Lead serveur à l'envoi (doublon du Lead navigateur, même référence).
+  - Réglages > Suivi Meta > « Compter l'achat à la livraison » : DÉCOCHÉ
+    par défaut, l'achat part à l'envoi comme avant. À cocher seulement
+    après avoir changé l'événement d'optimisation de la campagne.
+  À mettre en ligne après Comptoir Boutique 1.30.0. Régénérer ensuite le
+  CSS critique de Jetpack Boost.
+
 VERSION 3.6.2 — PAGE DE REMERCIEMENT QUI RASSURE (avec Comptoir Boutique 1.29.0)
   La semaine du 5 au 11 octobre, 92 % des formulaires de commande commencés
   n'étaient pas envoyés. Côté thème :
