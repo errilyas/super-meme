@@ -183,12 +183,11 @@ function comptoir_mesure() {
  * Reglages Meta Conversions API (CAPI). Vide = aucun envoi, comme les autres
  * identifiants ci-dessus.
  *
- * C'est le doublon serveur du Pixel, pour l'achat que le pixel seul rate
- * souvent : bloqueur de pub, Safari qui coupe les cookies tiers, ou l'appli
- * WhatsApp qui tue l'onglet avant que fbq n'ait fini de partir. WordPress
- * renvoie le meme achat depuis le serveur, avec la meme reference de
- * commande comme event_id (voir comptoir_capi_achat) : Meta reconnait le
- * doublon et ne le compte qu'une fois.
+ * Deux evenements partent du serveur : le Lead a l'envoi de la commande,
+ * doublon de celui du navigateur (meme reference de commande en event_id :
+ * Meta ne le compte qu'une fois, voir comptoir_capi_lead), et l'achat, a la
+ * livraison seulement (comptoir_capi_livraison) — en paiement a la
+ * livraison, c'est la que la vente a lieu.
  *
  *   pixel_id : identifiant du Pixel deja pose par WordPress.com — Gestionnaire
  *              d'evenements Meta > cette source de donnees, en haut de la page.
@@ -228,7 +227,7 @@ function comptoir_capi_permise( $reglages ) {
 
 /**
  * Le jeton d'acces CAPI, par ordre de preference : la constante si elle
- * existe, sinon l'option de la base. Vide = comptoir_capi_achat() ressort
+ * existe, sinon l'option de la base. Vide = comptoir_capi_envoie() ressort
  * sans rien envoyer, exactement comme avant que la CAPI soit activee.
  */
 function comptoir_capi_jeton() {
@@ -529,8 +528,8 @@ add_action( 'wp_head', function () {
 	// Le Pixel navigateur : sans lui window.fbq n'existe jamais, et
 	// AddToCart / InitiateCheckout / Lead / Purchase dans panier.js et
 	// commande.js (mesure()) restent des appels dans le vide, silencieux
-	// par conception. C'est aussi lui qui pose les cookies _fbp / _fbc que
-	// comptoir_capi_achat() relit pour le doublon serveur — sans lui, ce
+	// par conception. C'est aussi lui qui pose le cookie _fbp que
+	// comptoir_capi_ids_requete() relit pour le doublon serveur — sans lui, ce
 	// doublon part avec un appariement plus faible. Meme pixel_id que
 	// comptoir_capi(), une seule source pour les deux.
 	// Sur le site en ligne seulement (comptoir_est_production), et verifie
@@ -657,6 +656,11 @@ function comptoir_recoit_commande() {
 	$total     = max( 0, $total - $remise ) + $livraison;
 	$panier = implode( "\n", $resume );
 
+	// Identifiants de mesure lus ICI, dans la requete du client : l'achat ne
+	// part qu'a la livraison, des jours plus tard, depuis l'admin ou le
+	// livreur, sans les cookies ni le navigateur du client.
+	$ids_meta = comptoir_capi_ids_requete();
+
 	$id = wp_insert_post( array(
 		'post_type'    => 'cp_commande',
 		'post_status'  => 'publish',
@@ -688,23 +692,36 @@ function comptoir_recoit_commande() {
 			'cp_utm_medium'   => $champ( 'utm_medium', 100 ),
 			'cp_utm_campaign' => $champ( 'utm_campaign', 200 ),
 			'cp_referent'     => esc_url_raw( $champ( 'referent', 400 ) ),
-			/* Identifiants Meta recus avec la commande. Ils partent deja a la
-			   CAPI ; on les garde ici pour savoir, commande par commande, si le
-			   clic publicitaire a survecu jusqu'a l'achat. La couverture que Meta
-			   publie donne un pourcentage, pas la liste. */
-			'cp_fbc'          => $champ( 'fbc', 255 ),
-			'cp_fbp'          => $champ( 'fbp', 100 ),
+			/* Identifiants Meta de la commande : ils servent au Lead envoye tout
+			   de suite et a l'achat envoye a la livraison (comptoir_capi_livraison).
+			   La colonne « Clic » de la liste dit aussi, commande par commande,
+			   si le clic publicitaire a survecu jusqu'a la commande. */
+			'cp_fbc'          => $ids_meta['fbc'],
+			'cp_fbp'          => $ids_meta['fbp'],
+			'cp_vid'          => $ids_meta['vid'],
+			'cp_ip'           => $ids_meta['ip'],
+			'cp_ua'           => $ids_meta['ua'],
+			/* L'achat Meta de cette commande part a la livraison, plus a
+			   l'envoi du formulaire. Les commandes d'avant n'ont pas cette cle :
+			   leur achat est deja compte, la livraison n'en renvoie pas un. */
+			'cp_capi_mode'    => 'livraison',
 		),
 	), true );
 
 	if ( is_wp_error( $id ) ) {
 		wp_send_json_error( 'enregistrement', 500 );
 	}
+	// Commande de test (admin connecte, appareil en mode test, « test » dans
+	// les champs, numero de test) : notee, pour que la livraison n'envoie pas
+	// d'achat non plus — c'est alors l'admin qui change l'etat, pas le client.
+	if ( comptoir_commande_test( $id ) ) {
+		update_post_meta( $id, 'cp_test', 1 );
+	}
 
 	// Le client n'attend pas cette reponse (sendBeacon), le relais peut donc
 	// prendre son temps sans rien ralentir a l'ecran.
 	$feuille = comptoir_envoie_feuille( $id );
-	comptoir_capi_achat( $id, $lignes );
+	comptoir_capi_lead( $id, $lignes );
 	// Message WhatsApp « je confirme / annuler » (sans effet si le module n'est pas regle).
 	comptoir_wa_confirmation( $id );
 
@@ -788,12 +805,15 @@ function comptoir_envoie_feuille( $id ) {
  * est en mode test (ouvrir comptoirparfums.com/?cp_test=1, annuler avec
  * ?cp_test=0) ; le nom, la ville ou l'adresse contiennent « test » ; ou le
  * numero fait partie des numeros de test ci-dessous.
+ * $requete a faux (livraison) : seules les donnees de la commande comptent.
+ * C'est alors l'admin ou le livreur qui change l'etat, pas le client — un
+ * admin connecte ne fait pas de la commande un test.
  */
-function comptoir_commande_test( $id = 0 ) {
-	if ( function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ) ) {
+function comptoir_commande_test( $id = 0, $requete = true ) {
+	if ( $requete && function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ) ) {
 		return true;
 	}
-	if ( isset( $_COOKIE['cp_test'] ) && '1' === $_COOKIE['cp_test'] ) {
+	if ( $requete && isset( $_COOKIE['cp_test'] ) && '1' === $_COOKIE['cp_test'] ) {
 		return true;
 	}
 	if ( ! $id ) {
@@ -815,104 +835,89 @@ function comptoir_commande_test( $id = 0 ) {
 }
 
 /**
- * Evenement Purchase envoye au serveur Meta (Conversions API) juste apres
- * l'enregistrement de la commande. Le client n'attend pas cette reponse : la
- * vente est deja passee (WhatsApp s'ouvre de son cote), donc un echec ici ne
- * doit jamais se voir a l'ecran ni ralentir quoi que ce soit.
- *
- * @param int   $id     Post cp_commande deja enregistre.
- * @param array $lignes Lignes de la commande, telles que validees plus haut
- *                       (chacune avec 's' et 'q') — pour donner a Meta les
- *                       references achetees, utiles au ciblage dynamique.
+ * Les identifiants Meta du client, lus dans SA requete (l'envoi de la
+ * commande) : cookies _fbc / _fbp poses par le pixel ou par le theme, a
+ * defaut ceux que panier.js joint a la commande (navigateur integre
+ * d'Instagram, cookies bloques), plus l'identifiant visiteur cp_vid, l'IP et
+ * le navigateur. Ils sont gardes avec la commande : l'achat part a la
+ * livraison, sans le client en face.
  */
-function comptoir_capi_achat( $id, $lignes ) {
+function comptoir_capi_ids_requete() {
+	$lit = function ( $source, $nom, $max ) {
+		return isset( $source[ $nom ] ) && is_string( $source[ $nom ] )
+			? comptoir_coupe( sanitize_text_field( wp_unslash( $source[ $nom ] ) ), $max )
+			: '';
+	};
+	$motif_fbc = '/^fb\.\d\.\d+\.[A-Za-z0-9_\-]+$/';
+	$fbc = $lit( $_COOKIE, '_fbc', 255 );
+	if ( ! preg_match( $motif_fbc, $fbc ) ) {
+		$fbc = $lit( $_POST, 'fbc', 255 );
+	}
+	$fbp = $lit( $_COOKIE, '_fbp', 100 );
+	if ( '' === $fbp ) {
+		$fbp = $lit( $_POST, 'fbp', 100 );
+	}
+	$vid = $lit( $_COOKIE, 'cp_vid', 64 );
+	return array(
+		'fbc' => preg_match( $motif_fbc, $fbc ) ? $fbc : '',
+		'fbp' => $fbp,
+		'vid' => preg_match( '/^[a-f0-9]{64}$/', $vid ) ? $vid : '',
+		'ip'  => $lit( $_SERVER, 'REMOTE_ADDR', 64 ),
+		'ua'  => $lit( $_SERVER, 'HTTP_USER_AGENT', 400 ),
+	);
+}
+
+/**
+ * Les donnees client d'une commande, au format de Meta : telephone, prenom,
+ * ville et pays haches ; identifiants (numero de commande haché, cp_vid deja
+ * haché), fbc, fbp, IP et navigateur tels que gardes a l'envoi.
+ */
+function comptoir_capi_client( $id ) {
+	$meta = function ( $cle ) use ( $id ) {
+		return (string) get_post_meta( $id, $cle, true );
+	};
+	$client = array(
+		'client_ip_address' => $meta( 'cp_ip' ),
+		'client_user_agent' => $meta( 'cp_ua' ),
+		'country'           => array( hash( 'sha256', 'ma' ) ),
+		'external_id'       => array( hash( 'sha256', 'cp-' . (string) $id ) ),
+		'fbc'               => $meta( 'cp_fbc' ),
+		'fbp'               => $meta( 'cp_fbp' ),
+	);
+	if ( '' !== $meta( 'cp_tel' ) ) {
+		$client['ph'] = array( hash( 'sha256', comptoir_capi_tel_e164( $meta( 'cp_tel' ) ) ) );
+	}
+	$prenom = strtok( trim( $meta( 'cp_nom' ) ), ' ' );
+	if ( $prenom ) {
+		$client['fn'] = array( hash( 'sha256', mb_strtolower( $prenom, 'UTF-8' ) ) );
+	}
+	$ville = preg_replace( '/[^a-z]/', '', strtolower( remove_accents( $meta( 'cp_ville' ) ) ) );
+	if ( $ville ) {
+		$client['ct'] = array( hash( 'sha256', $ville ) );
+	}
+	if ( preg_match( '/^[a-f0-9]{64}$/', $meta( 'cp_vid' ) ) ) {
+		$client['external_id'][] = $meta( 'cp_vid' );
+	}
+	return array_filter( $client );
+}
+
+/**
+ * Un evenement vers la Conversions API. Jamais au detriment de la commande :
+ * un echec ne se voit pas a l'ecran. Bloquant seulement quand on veut lire
+ * la reponse (l'achat a la livraison, qui ne doit partir qu'une fois).
+ *
+ * @return bool|array|WP_Error Faux si rien n'est parti.
+ */
+function comptoir_capi_envoie( $evenement, $bloquant = false ) {
 	$reglages = comptoir_capi();
 	if ( ! $reglages['pixel_id'] || ! $reglages['token'] || ! comptoir_capi_permise( $reglages ) ) {
 		return false;
 	}
-	if ( comptoir_commande_test( $id ) ) {
-		return false;
-	}
-
-	$tel = get_post_meta( $id, 'cp_tel', true );
-	$content_ids = array();
-	if ( is_array( $lignes ) ) {
-		foreach ( $lignes as $ligne ) {
-			if ( isset( $ligne['s'] ) ) {
-				$content_ids[] = $ligne['s'];
-			}
-		}
-	}
-
-	$user_data = array(
-		'client_ip_address' => isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '',
-		'client_user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
-	);
-	if ( $tel ) {
-		$user_data['ph'] = array( hash( 'sha256', comptoir_capi_tel_e164( $tel ) ) );
-	}
-	// _fbp / _fbc : deposes par le Pixel Meta cote navigateur (WordPress.com),
-	// relus ici pour que le meme visiteur se recoupe des deux cotes.
-	if ( isset( $_COOKIE['_fbp'] ) ) {
-		$user_data['fbp'] = sanitize_text_field( wp_unslash( $_COOKIE['_fbp'] ) );
-	}
-	if ( isset( $_COOKIE['_fbc'] ) ) {
-		$user_data['fbc'] = sanitize_text_field( wp_unslash( $_COOKIE['_fbc'] ) );
-	}
-	// Filet de securite (ajout) : _fbc / _fbp transmis par panier.js avec la
-	// commande, quand le navigateur n'a pas envoye le cookie (in-app, ITP...).
-	if ( empty( $user_data['fbc'] ) && ! empty( $_POST['fbc'] ) ) {
-		$fbc_post = sanitize_text_field( wp_unslash( $_POST['fbc'] ) );
-		if ( preg_match( '/^fb\.\d\.\d+\.[A-Za-z0-9_\-]+$/', $fbc_post ) ) {
-			$user_data['fbc'] = $fbc_post;
-		}
-	}
-	if ( empty( $user_data['fbp'] ) && ! empty( $_POST['fbp'] ) ) {
-		$user_data['fbp'] = sanitize_text_field( wp_unslash( $_POST['fbp'] ) );
-	}
-	// Donnees d'appariement supplementaires (hachees) : prenom, ville, pays, id.
-	$cp_nom = isset( $_POST['nom'] ) ? sanitize_text_field( wp_unslash( $_POST['nom'] ) ) : '';
-	$cp_prenom = strtok( trim( $cp_nom ), ' ' );
-	if ( $cp_prenom ) {
-		$user_data['fn'] = array( hash( 'sha256', mb_strtolower( $cp_prenom, 'UTF-8' ) ) );
-	}
-	$cp_ville = isset( $_POST['ville'] ) ? sanitize_text_field( wp_unslash( $_POST['ville'] ) ) : '';
-	$cp_ville = preg_replace( '/[^a-z]/', '', strtolower( remove_accents( $cp_ville ) ) );
-	if ( $cp_ville ) {
-		$user_data['ct'] = array( hash( 'sha256', $cp_ville ) );
-	}
-	$user_data['country'] = array( hash( 'sha256', 'ma' ) );
-	$user_data['external_id'] = array( hash( 'sha256', 'cp-' . (string) $id ) );
-	// Identifiant visiteur pose par le pixel (cookie cp_vid, 64 caracteres hex,
-	// deja au format hache) : le meme external_id que cote navigateur.
-	if ( isset( $_COOKIE['cp_vid'] ) && preg_match( '/^[a-f0-9]{64}$/', (string) $_COOKIE['cp_vid'] ) ) {
-		$user_data['external_id'][] = (string) $_COOKIE['cp_vid'];
-	}
-
-	$evenement = array(
-		'event_name'       => 'Purchase',
-		'event_time'       => time(),
-		// Meme reference que l'event_id du pixel navigateur (commande.js) :
-		// c'est ce rapprochement qui evite de compter l'achat deux fois.
-		'event_id'         => get_post_meta( $id, 'cp_ref', true ),
-		'action_source'    => 'website',
-		'event_source_url' => home_url( '/?commander=1&merci=1' ),
-		'user_data'        => $user_data,
-		'custom_data'      => array(
-			'currency'     => 'MAD',
-			'value'        => (float) get_post_meta( $id, 'cp_total', true ),
-			'num_items'    => (int) get_post_meta( $id, 'cp_articles', true ),
-			'content_type' => 'product',
-			'content_ids'  => $content_ids,
-		),
-	);
-
 	$corps = array( 'data' => array( $evenement ) );
 	if ( $reglages['test'] ) {
 		$corps['test_event_code'] = $reglages['test'];
 	}
-
-	wp_remote_post(
+	return wp_remote_post(
 		sprintf(
 			'https://graph.facebook.com/v21.0/%s/events?access_token=%s',
 			rawurlencode( $reglages['pixel_id'] ),
@@ -920,13 +925,132 @@ function comptoir_capi_achat( $id, $lignes ) {
 		),
 		array(
 			'timeout'  => 8,
-			'blocking' => false,
+			'blocking' => $bloquant,
 			'headers'  => array( 'Content-Type' => 'application/json' ),
 			'body'     => wp_json_encode( $corps ),
 		)
 	);
+}
+
+/** Les references (slugs) d'une commande, lues dans ses lignes. */
+function comptoir_capi_references( $id ) {
+	preg_match_all( '/\(([a-z0-9-]+)\) — /u', (string) get_post_field( 'post_content', $id ), $m );
+	return array_values( array_unique( $m[1] ) );
+}
+
+/**
+ * Lead, a l'envoi de la commande. Meme reference (event_id) que le Lead du
+ * navigateur (boutique.js, commande.js) : Meta ne le compte qu'une fois.
+ * Il n'y a plus d'achat ici : en paiement a la livraison, une commande
+ * envoyee n'est pas encore une vente. L'achat part a la livraison
+ * (comptoir_capi_livraison).
+ */
+function comptoir_capi_lead( $id, $lignes ) {
+	if ( get_post_meta( $id, 'cp_test', true ) ) {
+		return false;
+	}
+	$refs = array();
+	foreach ( (array) $lignes as $ligne ) {
+		if ( isset( $ligne['s'] ) ) {
+			$refs[] = $ligne['s'];
+		}
+	}
+	// La page ou le formulaire a ete envoye : la fiche parfum (commande
+	// express) ou la page commande.
+	$page = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
+	if ( ! $page || wp_parse_url( $page, PHP_URL_HOST ) !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {
+		$page = home_url( '/?commander=1' );
+	}
+	return comptoir_capi_envoie( array(
+		'event_name'       => 'Lead',
+		'event_time'       => time(),
+		'event_id'         => (string) get_post_meta( $id, 'cp_ref', true ),
+		'action_source'    => 'website',
+		'event_source_url' => $page,
+		'user_data'        => comptoir_capi_client( $id ),
+		'custom_data'      => array(
+			'currency'     => 'MAD',
+			'value'        => (float) get_post_meta( $id, 'cp_total', true ),
+			'num_items'    => (int) get_post_meta( $id, 'cp_articles', true ),
+			'content_type' => 'product',
+			'content_ids'  => $refs,
+		),
+	) );
+}
+
+/**
+ * Purchase, une seule fois par commande, quand elle passe a « Livree » :
+ * en paiement a la livraison, c'est le moment ou elle est payee. Meta
+ * apprend ainsi sur les ventes reelles, pas sur des formulaires dont une
+ * partie ne sera jamais livree.
+ *
+ * Ne part pas pour : une commande d'avant ce changement (son achat a deja
+ * ete compte a l'envoi), une commande de test, une commande dont l'achat est
+ * deja parti — d'ici ou de Comptoir OzonExpress, qui envoie le sien a la
+ * livraison si sa CAPI est activee (meta _cox_capi).
+ */
+function comptoir_capi_livraison( $id ) {
+	if ( 'livraison' !== get_post_meta( $id, 'cp_capi_mode', true ) ) {
+		return false;
+	}
+	if ( get_post_meta( $id, 'cp_test', true ) || comptoir_commande_test( $id, false ) ) {
+		return false;
+	}
+	if ( get_post_meta( $id, 'cp_capi_achat', true ) || get_post_meta( $id, '_cox_capi', true ) ) {
+		return false;
+	}
+	$reglages = comptoir_capi();
+	if ( ! $reglages['pixel_id'] || ! $reglages['token'] || ! comptoir_capi_permise( $reglages ) ) {
+		return false;
+	}
+	// Marquee AVANT l'envoi : OzonExpress declenche son propre achat juste
+	// apres avoir change l'etape, dans la meme requete ; il le voit et s'abstient.
+	update_post_meta( $id, 'cp_capi_achat', time() );
+	update_post_meta( $id, '_cox_capi', time() );
+
+	$ref = (string) get_post_meta( $id, 'cp_ref', true );
+	$reponse = comptoir_capi_envoie( array(
+		'event_name'       => 'Purchase',
+		'event_time'       => time(),
+		'event_id'         => $ref,
+		'action_source'    => 'website',
+		'event_source_url' => home_url( '/?commander=1&merci=1' ),
+		'user_data'        => comptoir_capi_client( $id ),
+		'custom_data'      => array(
+			'currency'     => 'MAD',
+			'value'        => (float) get_post_meta( $id, 'cp_total', true ),
+			'num_items'    => (int) get_post_meta( $id, 'cp_articles', true ),
+			'content_type' => 'product',
+			'content_ids'  => comptoir_capi_references( $id ),
+			'order_id'     => $ref,
+		),
+	), true );
+
+	if ( is_wp_error( $reponse ) || ! $reponse || wp_remote_retrieve_response_code( $reponse ) >= 300 ) {
+		// Rien n'est parti : on retire les marques, OzonExpress (s'il est
+		// regle) ou un prochain passage a « Livree » pourront le faire.
+		$motif = is_wp_error( $reponse ) ? $reponse->get_error_message() : wp_remote_retrieve_body( $reponse );
+		delete_post_meta( $id, 'cp_capi_achat' );
+		delete_post_meta( $id, '_cox_capi' );
+		update_post_meta( $id, 'cp_capi_achat_erreur', comptoir_coupe( wp_strip_all_tags( (string) $motif ), 300 ) );
+		return false;
+	}
+	delete_post_meta( $id, 'cp_capi_achat_erreur' );
 	return true;
 }
+
+/**
+ * Declencheur de l'achat : l'etape de suivi (Comptoir Boutique, meta
+ * cpb_suivi) passe a « livree » — a la main dans l'admin, par le webhook du
+ * livreur ou par OzonExpress. added_ : premiere etape enregistree.
+ */
+function comptoir_capi_etape_suivi( $meta_id, $object_id, $meta_key, $meta_value ) {
+	if ( 'cpb_suivi' === $meta_key && 'livree' === $meta_value && 'cp_commande' === get_post_type( $object_id ) ) {
+		comptoir_capi_livraison( (int) $object_id );
+	}
+}
+add_action( 'added_post_meta', 'comptoir_capi_etape_suivi', 10, 4 );
+add_action( 'updated_post_meta', 'comptoir_capi_etape_suivi', 10, 4 );
 
 /**
  * Deuxieme chance, toutes les heures : les commandes que la feuille n'a pas

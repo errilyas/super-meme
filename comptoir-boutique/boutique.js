@@ -1406,10 +1406,10 @@
      Le formulaire de la page commande, pose sous le prix : en paiement a la
      livraison, chaque page de plus entre l'envie et l'adresse coute des
      commandes. L'envoi suit EXACTEMENT le chemin de commande.js (theme) :
-       Panier.depose()  -> carnet WordPress, feuille Google, CAPI, WhatsApp
+       Panier.depose()  -> carnet WordPress, feuille Google, Lead CAPI
        mesure « Lead »  -> meme reference que la commande
        cp_commande_faite + ?commander=1&merci=1 -> la page de remerciement du
-       theme ouvre WhatsApp et compte l'achat (Purchase) une seule fois.
+       theme. L'achat (Purchase) part du serveur a la livraison.
      Rien n'est recalcule ici : le serveur recalcule le total depuis le
      catalogue, comme pour toute commande.
   ══════════════════════════════════════════════════════════════ */

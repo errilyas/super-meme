@@ -241,40 +241,10 @@
 
     window.scrollTo({ top: 0 });
 
-    /* L'achat, au sens des regies publicitaires. Mesure une seule fois par
-       commande : la page de confirmation peut etre rechargee. L'event_id
-       (la reference) part aussi au serveur (CAPI, voir comptoir_capi_achat
-       dans functions.php) : Meta reconnait le doublon et ne compte l'achat
-       qu'une fois. */
-    if(c.montant && data.ref && !dejaFait('cp_achat_' + data.ref)){
-      marqueFait('cp_achat_' + data.ref);
-      /* content_ids manquait : content_type etait annonce sans dire de quels
-         produits il s'agissait, alors que la copie serveur (CAPI) les envoyait.
-         Les commandes mises de cote avant cette version n'ont pas de slug dans
-         leurs lignes : on n'envoie alors pas le parametre plutot qu'une liste
-         de valeurs vides. */
-      var donneesAchat = {
-        value: c.montant, currency: 'MAD',
-        num_items: c.articles, content_type: 'product'
-      };
-      var idsAchat = (c.lignes || []).map(function(l){ return l.s; }).filter(Boolean);
-      if (idsAchat.length) { donneesAchat.content_ids = idsAchat; }
-      P.mesure('Purchase', donneesAchat, data.ref);
-    }
-  }
-
-  /* « Deja fait » pour tout le navigateur, pas pour un seul onglet. Le retour
-     depuis WhatsApp rouvre souvent la confirmation dans un NOUVEL onglet, ou
-     sessionStorage repart vide : l'achat repartait vers Meta (5 a 6 fois sur
-     les 28 premieres commandes) et WhatsApp se rouvrait. localStorage d'abord,
-     sessionStorage en repli quand il est bloque. */
-  function dejaFait(key){
-    try { if (localStorage.getItem(key)) return true; } catch(e){}
-    try { return !!sessionStorage.getItem(key); } catch(e){ return false; }
-  }
-  function marqueFait(key){
-    try { localStorage.setItem(key, '1'); return; } catch(e){}
-    try { sessionStorage.setItem(key, '1'); } catch(e){}
+    /* Plus d'achat (Purchase) ici. En paiement a la livraison, une commande
+       envoyee n'est pas encore une vente : le Lead part a l'envoi (navigateur
+       et serveur, meme reference), et l'achat part du serveur quand la
+       commande passe a « Livree » (functions.php > comptoir_capi_livraison). */
   }
 
   /* Page de confirmation. Elle se charge comme une page normale, et se

@@ -215,12 +215,12 @@
 
   /* eventId (optionnel) : passe en troisieme argument a fbq pour que Meta
      rapproche cet evenement pixel de son double envoye par le serveur
-     (Conversions API, comptoir_capi_achat dans functions.php) au lieu de
-     compter l'achat deux fois. */
+     (Conversions API, comptoir_capi_lead dans functions.php) au lieu de
+     compter la commande deux fois. */
   /* Identifiant d'evenement (ajout) : AddToCart, InitiateCheckout et Lead
      partaient sans, donc le double serveur pose par WordPress.com comptait
      un second evenement. Une reference commune suffit a ce que Meta les
-     rapproche, exactement comme Purchase le fait deja avec cp_ref. */
+     rapproche, exactement comme Lead le fait avec la reference de commande. */
   function idEvenement(prefixe) {
     var r = '';
     try { if (window.crypto && window.crypto.randomUUID) r = window.crypto.randomUUID(); } catch (e) {}
