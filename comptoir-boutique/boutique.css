@@ -453,6 +453,14 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-x-champ.err input,.cpb-x-champ.err select{border-color:#e0766a}
 .cpb-x-champ.err small{display:block}
 .cpb-x-recap{font-size:13px;line-height:1.6;color:var(--text-dim);margin:4px 0 14px}
+.cpb-x-q1-label{font-weight:400}
+.cpb-x-panier-note{font-size:13px;line-height:1.6;margin:0 0 16px;color:var(--text-dim)}
+.cpb-x-panier-note p{margin:0}
+.cpb-x-modifier{background:none;border:0;color:var(--ember);text-decoration:underline;text-underline-offset:3px;padding:8px 0;min-height:44px;text-align:start;cursor:pointer;font:inherit}
+.cpb-x-articles{border-top:1px solid var(--line);padding-top:10px;margin:12px 0;font-size:13px;line-height:1.6}
+.cpb-x-articles p{display:flex;gap:12px;justify-content:space-between;margin:0 0 8px}
+.cpb-x-articles span{min-width:0;overflow-wrap:anywhere}
+.cpb-x-articles b{flex-shrink:0;font-weight:500;color:var(--bone)}
 .cpb-x-go{width:100%;justify-content:space-between;gap:12px}
 .cpb-x-go svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;flex:none}
 .cpb-x-go span{flex:1;text-align:start}

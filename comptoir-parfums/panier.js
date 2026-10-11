@@ -183,6 +183,36 @@
     ViewContent: 'view_item'
   };
 
+    /* Commandes de test : ni Lead ni Purchase ne partent (Meta, GA4). Test =
+       « test » dans un champ du formulaire de commande, ou numero de test.
+       Le Lead pose la marque avec la reference de la commande ; le Purchase
+       de la page merci ne saute que pour cette meme reference. Le serveur
+       applique la meme regle (functions.php > comptoir_commande_test). */
+    var TELS_TEST = ['212661718238', '212600000000'];
+    function commandeTest(nom, eventId) {
+        if (nom !== 'Lead' && nom !== 'Purchase') return false;
+        try {
+            if (nom === 'Lead') {
+                var txt = '', tels = [];
+                var champs = document.querySelectorAll('input, textarea');
+                for (var i = 0; i < champs.length; i++) {
+                    var c = champs[i], t = String(c.type || '').toLowerCase();
+                    if (t === 'hidden' || t === 'checkbox' || t === 'radio' || t === 'submit' || t === 'button' || t === 'search') continue;
+                    var v = String(c.value || '');
+                    txt += ' ' + v;
+                    var d = v.replace(/[^0-9]/g, '');
+                    if (d.length >= 9) tels.push(d.indexOf('00212') === 0 ? d.slice(2) : (d.charAt(0) === '0' ? '212' + d.slice(1) : d));
+                }
+                var estTest = /\btest/i.test(txt) || tels.some(function (x) { return TELS_TEST.indexOf(x) >= 0; });
+                if (estTest) localStorage.setItem('cp_cmd_test', String(eventId || '1'));
+                else localStorage.removeItem('cp_cmd_test');
+                return estTest;
+            }
+            var r = localStorage.getItem('cp_cmd_test');
+            return !!r && (!eventId || r === String(eventId));
+        } catch (e) { return false; }
+    }
+
   /* eventId (optionnel) : passe en troisieme argument a fbq pour que Meta
      rapproche cet evenement pixel de son double envoye par le serveur
      (Conversions API, comptoir_capi_achat dans functions.php) au lieu de
@@ -200,6 +230,7 @@
 
   function mesure(nom, donnees, eventId) {
     donnees = donnees || {};
+    if (commandeTest(nom, eventId)) return;
     try {
       if (typeof window.fbq === 'function') {
         if (eventId) window.fbq('track', nom, donnees, { eventID: String(eventId) });

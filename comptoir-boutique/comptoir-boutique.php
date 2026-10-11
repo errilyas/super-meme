@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Comptoir Boutique
  * Description:       Les outils des grandes boutiques de parfum, branchés sur le thème Le Comptoir des Parfums : bandeau d'annonce, recherche instantanée, quiz « Trouver mon parfum », favoris, parfums du même esprit et parfums vus récemment. Aucune donnée en double : tout est lu dans le catalogue du thème (produits.php).
- * Version:           1.28.1
+ * Version:           1.28.2
  * Requires at least: 5.9
  * Requires PHP:      7.0
  * Author:            Le Comptoir des Parfums
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPB_VERSION', '1.28.1' );
+define( 'CPB_VERSION', '1.28.2' );
 
 /**
  * Mode de diffusion.
@@ -210,7 +210,7 @@ add_filter( 'rest_endpoints', function ( $routes ) {
 } );
 
 /**
- * Et par les donnees structurees (1.28.1) : le module SEO de Jetpack decrit
+ * Et par les donnees structurees (1.28.2) : le module SEO de Jetpack decrit
  * l'auteur de chaque guide par l'adresse de sa page d'auteur,
  * /author/<identifiant>/#person. Ces pages renvoient de toute facon a
  * l'accueil (ci-dessus) : c'est donc l'accueil qui devient leur adresse

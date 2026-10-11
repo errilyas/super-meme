@@ -205,6 +205,18 @@
     'Indiquez le nom de votre ville.': 'اكتب اسم مدينتك.',
     'C’est cette adresse que le livreur suivra.': 'هذا هو العنوان الذي سيتبعه عامل التوصيل.',
     'Confirmer la commande': 'تأكيد الطلب',
+    'Envoyer ma commande': 'إرسال طلبي',
+    '{n} flacons': '{n} قوارير',
+    'Total avec livraison': 'المجموع مع التوصيل',
+    'Ajouter un parfum': 'إضافة عطر',
+    'Au choix dans le catalogue': 'من اختيارك من الكتالوج',
+    '−{r} par duo': 'خصم {r} لكل عطرين',
+    'Articles de cette commande': 'منتجات هذا الطلب',
+    'Votre panier est inclus dans cette commande.': 'سلتك مشمولة في هذا الطلب.',
+    'Modifier les quantités du panier': 'تعديل كميات السلة',
+    'Choisissez le parfum à ajouter': 'اختر العطر الذي تريد إضافته',
+    'Choisissez un parfum dans la liste.': 'اختر عطرا من القائمة.',
+    'La demande est transmise au site avant l’ouverture de WhatsApp. Confirmez ensuite la disponibilité avec nous par message.': 'يتم إرسال الطلب إلى الموقع قبل فتح واتساب. ثم أكدوا معنا توفر العطر عبر رسالة.',
     'Livraison : {l}': 'التوصيل: {l}',
     'offerte': 'مجاني',
     '+ {n} parfum(s) déjà dans votre panier': '+ {n} عطر موجود في سلتك',
@@ -1413,7 +1425,7 @@
      modifier : total et livraison affiches avant l'envoi. Meme regle que
      Panier.fraisLivraison(). */
   function apercuPanier(voulus) {
-    var c = P.cfg || {}, lignes = {}, autres = 0, n = 0, sous = 0;
+    var c = P.cfg || {}, lignes = {}, articles = [], autres = 0, n = 0, sous = 0;
     P.items().forEach(function (x) { lignes[x.s] = x.q; });
     voulus.forEach(function (s) { if (!lignes[s]) { lignes[s] = 1; } });
     Object.keys(lignes).forEach(function (k) {
@@ -1421,13 +1433,14 @@
       if (!p) { return; }
       n += lignes[k];
       sous += P.prix(p) * lignes[k];
+      articles.push({ s: k, q: lignes[k], p: p, montant: P.prix(p) * lignes[k] });
       if (voulus.indexOf(k) < 0) { autres += lignes[k]; }
     });
     var frais = !n ? 0 : (c.franco && n >= c.franco ? 0 : (c.livraison || 0));
     /* Meme remise « duo » que le panier du theme (P.remise) : absente tant
        que le theme ne la propose pas (c.remise vide). */
     var remise = c.remise > 0 ? Math.floor(n / 2) * c.remise : 0;
-    return { n: n, autres: autres, sous: sous, frais: frais, remise: remise, total: Math.max(0, sous - remise) + frais };
+    return { n: n, autres: autres, lignes: articles, sous: sous, frais: frais, remise: remise, total: Math.max(0, sous - remise) + frais };
   }
 
   function expressFiche() {
@@ -1447,20 +1460,22 @@
     bloc.innerHTML =
       '<p class="cpb-titre-petit">' + esc(t('Commander en 30 secondes')) + '</p>' +
       '<div class="cpb-x-qte" role="radiogroup" aria-label="' + esc(t('Commander en 30 secondes')) + '">' +
-        '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="1" checked><span>' + esc(t('1 flacon')) +
-          '<b>' + P.fmt(P.prix(ref)) + '</b></span></label>' +
-        '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="2"><span>' + esc(t('2 parfums')) +
-          '<b class="cpb-x-q2">' + esc(t('+ un 2e parfum au choix')) + '</b>' +
-          (c.remise > 0 ? '<em>' + esc(t('−{r} + livraison offerte', { r: P.fmt(c.remise) })) + '</em>'
+        '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="1" checked><span><strong class="cpb-x-q1-label"></strong>' +
+          '<b class="cpb-x-q1-total"></b><em>' + esc(t('Total avec livraison')) + '</em></span></label>' +
+        '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="2"><span>' + esc(t('Ajouter un parfum')) +
+          '<b class="cpb-x-q2">' + esc(t('Au choix dans le catalogue')) + '</b>' +
+          (c.remise > 0 ? '<em>' + esc(t('−{r} par duo', { r: P.fmt(c.remise) })) + '</em>'
             : (deuxOffert ? '<em>' + esc(t('Livraison offerte')) + '</em>' : '')) + '</span></label>' +
       '</div>' +
+      '<div class="cpb-x-panier-note" hidden><p>' + esc(t('Votre panier est inclus dans cette commande.')) + '</p>' +
+        '<button type="button" class="cpb-x-modifier">' + esc(t('Modifier les quantités du panier')) + '</button></div>' +
       /* Le deuxieme flacon est un AUTRE parfum, choisi ici : proches du
          premier par les notes, ou trouve par la recherche. Jamais le meme. */
       '<div class="cpb-x-second" hidden>' +
-        '<p class="cpb-x-sous-titre">' + esc(t('Choisissez votre 2e parfum')) + '</p>' +
+        '<p class="cpb-x-sous-titre">' + esc(t('Choisissez le parfum à ajouter')) + '</p>' +
         '<input type="search" class="cpb-x-cherche" autocomplete="off" enterkeyhint="search" placeholder="' + esc(t('Chercher un autre parfum…')) + '" aria-label="' + esc(t('Chercher un autre parfum…')) + '">' +
-        '<div class="cpb-x-props" role="group" aria-label="' + esc(t('Choisissez votre 2e parfum')) + '"></div>' +
-        '<small class="cpb-x-err" hidden>' + esc(t('Choisissez votre deuxième parfum dans la liste.')) + '</small>' +
+        '<div class="cpb-x-props" role="group" aria-label="' + esc(t('Choisissez le parfum à ajouter')) + '"></div>' +
+        '<small class="cpb-x-err" hidden>' + esc(t('Choisissez un parfum dans la liste.')) + '</small>' +
       '</div>' +
       '<label class="cpb-x-champ" data-f="tel"><span>' + esc(t('Téléphone')) + ' *</span>' +
         '<input type="tel" name="tel" autocomplete="tel" inputmode="tel" enterkeyhint="next" placeholder="06 12 34 56 78" required>' +
@@ -1479,10 +1494,11 @@
       '<label class="cpb-x-champ" data-f="adresse"><span>' + esc(t('Adresse complète')) + ' *</span>' +
         '<input type="text" name="adresse" autocomplete="street-address" enterkeyhint="send" placeholder="' + esc(t('Rue, numéro, immeuble, étage')) + '" required>' +
         '<small>' + esc(t('C’est cette adresse que le livreur suivra.')) + '</small></label>' +
+      '<div class="cpb-x-articles" aria-label="' + esc(t('Articles de cette commande')) + '" aria-live="polite"></div>' +
       '<p class="cpb-x-recap" aria-live="polite"></p>' +
-      '<button type="submit" class="cpb-btn-plein cpb-x-go">' + SVG.wa + '<span>' + esc(t('Confirmer la commande')) + '</span><b class="cpb-x-total"></b></button>' +
+      '<button type="submit" class="cpb-btn-plein cpb-x-go">' + SVG.wa + '<span>' + esc(t('Envoyer ma commande')) + '</span><b class="cpb-x-total"></b></button>' +
       '<p class="cpb-x-note">' + esc(t('Rien à payer maintenant : vous réglez en espèces au livreur.')) + ' ' +
-        esc(t('WhatsApp s’ouvre ensuite avec votre commande déjà écrite.')) + '</p>';
+        esc(t('La demande est transmise au site avant l’ouverture de WhatsApp. Confirmez ensuite la disponibilité avec nous par message.')) + '</p>';
     ancre.parentNode.insertBefore(bloc, ancre.nextSibling);
     /* Un seul chemin principal : le bouton « Commander » du theme menait a la
        page commande, ce formulaire la remplace sur la fiche. « Ajouter au
@@ -1495,6 +1511,7 @@
     var second = null;
     var panneau2 = bloc.querySelector('.cpb-x-second'), props = bloc.querySelector('.cpb-x-props');
     var cherche2 = bloc.querySelector('.cpb-x-cherche'), err2 = bloc.querySelector('.cpb-x-err');
+    bloc.querySelector('.cpb-x-modifier').addEventListener('click', function () { P.open(); });
     /* Ce que la commande va contenir, en plus de ce qui est deja au panier. */
     var voulus = function () { return qte() === 2 && second ? [ref.s, second] : [ref.s]; };
 
@@ -1547,12 +1564,17 @@
 
     function recap() {
       var a = apercuPanier(voulus());
+      var base = apercuPanier([ref.s]);
+      bloc.querySelector('.cpb-x-q1-label').textContent = base.n === 1 ? t('1 flacon') : t('{n} flacons', { n: base.n });
+      bloc.querySelector('.cpb-x-q1-total').textContent = P.fmt(base.total);
+      bloc.querySelector('.cpb-x-panier-note').hidden = !P.count();
+      bloc.querySelector('.cpb-x-articles').innerHTML = a.lignes.map(function (l) {
+        return '<p><span>' + l.q + ' × ' + esc(l.p.b + ' ' + l.p.n) + '</span><b>' + P.fmt(l.montant) + '</b></p>';
+      }).join('');
       var lignes = [];
       var manque = qte() === 2 && !second;
-      if (qte() === 2 && second) { lignes.push(t('2e parfum : {nom}', { nom: produit(second).b + ' ' + produit(second).n })); }
-      if (a.autres) { lignes.push(t('+ {n} parfum(s) déjà dans votre panier', { n: a.autres })); }
       if (manque) {
-        lignes.push(t('Choisissez votre 2e parfum'));
+        lignes.push(t('Choisissez le parfum à ajouter'));
       } else {
         if (a.remise) { lignes.push(t('Remise duo : −{r}', { r: P.fmt(a.remise) })); }
         lignes.push(t('Livraison : {l}', { l: a.frais ? P.fmt(a.frais) : t('offerte') }));
@@ -1586,7 +1608,7 @@
       if (debut) { return; }
       debut = true;
       var a = apercuPanier(voulus());
-      P.mesure('InitiateCheckout', { value: a.total, currency: 'MAD', num_items: a.n, content_type: 'product', content_ids: voulus() },
+      P.mesure('InitiateCheckout', { value: a.total, currency: 'MAD', num_items: a.n, content_type: 'product', content_ids: a.lignes.map(function (l) { return l.s; }) },
         P.idEvenement ? P.idEvenement('ic') : '');
     });
 

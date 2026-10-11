@@ -354,6 +354,8 @@
     'Paiement à la livraison.': 'الدفع عند الاستلام.',
     'Vous réglez en espèces au livreur, à la réception de votre colis. Ce site ne demande aucune carte bancaire.': 'تدفع نقدًا لعامل التوصيل عند استلام طردك. هذا الموقع لا يطلب أي بطاقة بنكية.',
     'Casablanca en 24 à 48 heures.': 'الدار البيضاء خلال 24 إلى 48 ساعة.',
+    'Envoyer ma commande': 'إرسال طلبي',
+    'La demande est transmise au site avant l’ouverture de WhatsApp. Confirmez ensuite la disponibilité avec nous par message.': 'يتم إرسال الطلب إلى الموقع قبل فتح واتساب. ثم أكدوا معنا توفر العطر عبر رسالة.',
     'Confirmer la commande': 'أكّد الطلب',
     'WhatsApp s\'ouvre avec votre commande et votre adresse déjà écrites. Un dernier envoi et c\'est confirmé.': 'يفتح واتساب ومعه طلبك وعنوانك مكتوبان مسبقًا. إرسال أخير ويكون الطلب مؤكَّدًا.',
     'Une question avant ?': 'سؤال قبل ذلك؟',
