@@ -817,7 +817,10 @@
 
   function brancher() {
     document.querySelectorAll('[data-langue-bascule]').forEach(function (b) {
-      b.textContent = langue === 'ar' ? 'FR' : 'ع';
+      /* « AR » plutot que la lettre « ع » : deux lettres comme « FR », lues
+         tout de suite comme un choix de langue, meme par qui ne lit pas
+         l'arabe. */
+      b.textContent = langue === 'ar' ? 'FR' : 'AR';
       b.setAttribute('aria-label', langue === 'ar' ? 'Passer en français' : 'التبديل إلى العربية');
       b.addEventListener('click', function () {
         ecrire(langue === 'ar' ? 'fr' : 'ar');

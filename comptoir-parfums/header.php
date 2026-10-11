@@ -114,7 +114,7 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
              vivent ici. Memes attributs que les boutons de l'en-tete, donc
              memes scripts. */ ?>
     <div class="mob-reglages">
-      <button type="button" class="langue-bascule" data-langue-bascule aria-label="التبديل إلى العربية">ع</button>
+      <button type="button" class="langue-bascule" data-langue-bascule aria-label="التبديل إلى العربية">AR</button>
       <button type="button" class="theme-toggle" data-theme-bascule aria-label="Basculer en mode clair" aria-pressed="false">
         <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.9 1.9M17.5 17.5l1.9 1.9M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.9-1.9M17.5 6.5l1.9-1.9"/></svg>
         <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.2 8.2 0 1 0 10.5 10.5z"/></svg>
@@ -142,7 +142,7 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
     <button id="nav-ham" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mob-menu">
       <span></span><span></span><span></span>
     </button>
-    <button type="button" class="langue-bascule" data-langue-bascule aria-label="التبديل إلى العربية">ع</button>
+    <button type="button" class="langue-bascule" data-langue-bascule aria-label="التبديل إلى العربية">AR</button>
     <button id="theme-toggle" class="theme-toggle" type="button" data-theme-bascule aria-label="Basculer en mode clair" aria-pressed="false">
       <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.9 1.9M17.5 17.5l1.9 1.9M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.9-1.9M17.5 6.5l1.9-1.9"/></svg>
       <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.2 8.2 0 1 0 10.5 10.5z"/></svg>
@@ -165,7 +165,7 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
   </ul>
   <div class="nav-right">
     <button type="button" class="nav-pill" data-panier-open aria-label="Ouvrir le panier"><svg class="np-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg><span class="np-txt">Panier</span><span data-panier-count>0</span></button>
-    <button type="button" class="langue-bascule" data-langue-bascule aria-label="التبديل إلى العربية">ع</button>
+    <button type="button" class="langue-bascule" data-langue-bascule aria-label="التبديل إلى العربية">AR</button>
     <button id="theme-toggle" class="theme-toggle" type="button" data-theme-bascule aria-label="Basculer en mode clair" aria-pressed="false">
       <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.9 1.9M17.5 17.5l1.9 1.9M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.9-1.9M17.5 6.5l1.9-1.9"/></svg>
       <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.2 8.2 0 1 0 10.5 10.5z"/></svg>
