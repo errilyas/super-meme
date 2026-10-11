@@ -9,6 +9,21 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.6.2 — PAGE DE REMERCIEMENT QUI RASSURE (avec Comptoir Boutique 1.29.0)
+  La semaine du 5 au 11 octobre, 92 % des formulaires de commande commencés
+  n'étaient pas envoyés. Côté thème :
+  - Page merci : « Commande reçue ✓ », la référence juste dessous, puis
+    « Nous vous appelons sous peu pour confirmer votre commande et l'adresse
+    de livraison ». WhatsApp ne s'ouvre plus tout seul ; il reste en lien
+    discret, avec un message qui cite la référence.
+  - Page commande : sous le bouton, « Rien à payer maintenant. Nous vous
+    appelons pour confirmer, livraison en 24 à 72 h partout au Maroc. » ;
+    un sac remplace la bulle WhatsApp sur le bouton.
+  - Le dépôt reprend les fichiers modifiés en ligne après la 3.6.1
+    (functions.php : commandes de test, cp_vid ; panier.js ; langue.js ;
+    template-commander.php) : ce paquet ne les efface pas.
+  À mettre en ligne après Comptoir Boutique 1.29.0.
+
 VERSION 3.6.1 — CORRECTIONS APRÈS AUDIT (avec Comptoir Boutique 1.28.1)
   Audit du site en ligne : 462 adresses des plans du site, 503 liens et
   images, données structurées, accessibilité (axe-core, WCAG 2.1 AA).
