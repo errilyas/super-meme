@@ -1666,7 +1666,10 @@ function fallbackMode(){
      le menu (telephone). Ils pilotent le meme etat. */
   var btns=[].slice.call(document.querySelectorAll('[data-theme-bascule]'));
   var meta=document.querySelector('meta[name="theme-color"]');
-  function apply(light){
+  /* choisi : vrai seulement au clic. Le theme de depart (jour / nuit, pose
+     par header.php) n'est pas un choix : l'ecrire ici le figerait pour
+     toujours, comme le faisait l'ancienne cle cp_theme. */
+  function apply(light, choisi){
     if(light) root.setAttribute('data-theme','light');
     else root.removeAttribute('data-theme');
     btns.forEach(function(btn){
@@ -1674,9 +1677,9 @@ function fallbackMode(){
       btn.setAttribute('aria-label', light?'Basculer en mode sombre':'Basculer en mode clair');
     });
     if(meta) meta.setAttribute('content', light?'#f8f3ea':'#110814');
-    try{ localStorage.setItem('cp_theme', light?'light':'dark'); }catch(e){}
+    if(choisi){ try{ localStorage.setItem('cp_theme_choisi', light?'light':'dark'); }catch(e){} }
   }
   var isLight = root.getAttribute('data-theme')==='light';
-  apply(isLight);
-  btns.forEach(function(btn){ btn.addEventListener('click',function(){ isLight=!isLight; apply(isLight); }); });
+  apply(isLight, false);
+  btns.forEach(function(btn){ btn.addEventListener('click',function(){ isLight=!isLight; apply(isLight, true); }); });
 })();

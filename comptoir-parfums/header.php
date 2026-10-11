@@ -34,7 +34,12 @@ $cp_is_home = comptoir_est_accueil();
    en francais puis saute en arabe sous les yeux du visiteur. */
 try{var cpL=new URLSearchParams(location.search).get('lang')||localStorage.getItem('cp_langue');
 if(cpL==='ar'){document.documentElement.setAttribute('data-lang','ar');document.documentElement.setAttribute('lang','ar');document.documentElement.setAttribute('dir','rtl');}}catch(e){}</script>
-<script>/* theme memorise, applique avant le rendu pour eviter tout flash */try{if(localStorage.getItem('cp_theme')==='light'){document.documentElement.setAttribute('data-theme','light');}}catch(e){}</script>
+<script>/* Theme pose avant le rendu (sans flash). Par defaut il suit le jour : clair
+   entre le lever et le coucher du soleil au Maroc (heures moyennes du mois,
+   heure du telephone), sombre la nuit. Un choix fait au bouton (cp_theme_choisi)
+   passe avant. L'ancienne cle cp_theme etait ecrite a chaque page vue, pas
+   seulement au clic : elle ne dit rien d'un choix et n'est plus lue. */
+try{var cpC=localStorage.getItem('cp_theme_choisi'),cpClair;if(cpC==='light'||cpC==='dark'){cpClair=cpC==='light';}else{var cpD=new Date(),cpH=cpD.getHours()+cpD.getMinutes()/60,cpS=[[7.5,18],[7.3,18.6],[6.8,19],[6.2,19.3],[5.7,19.7],[5.5,20],[5.7,20],[6.1,19.6],[6.5,19],[6.9,18.2],[7.3,17.7],[7.6,17.6]][cpD.getMonth()];cpClair=cpH>=cpS[0]&&cpH<cpS[1];}if(cpClair){document.documentElement.setAttribute('data-theme','light');var cpM=document.querySelector('meta[name="theme-color"]');if(cpM){cpM.setAttribute('content','#f8f3ea');}}}catch(e){}</script>
 <script>/* Filet de securite : le hero de l'accueil se revele via GSAP
    (theme.js, initHeroSequence), qui attend le prechargeur puis anime chaque
    bloc. Si GSAP est lent a charger (CDN, connexion 4G) ou echoue, ces blocs
