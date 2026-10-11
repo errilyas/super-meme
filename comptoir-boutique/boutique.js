@@ -2455,11 +2455,16 @@
      d'entree de gamme), rien ne cache ce qui est deja a l'ecran au
      chargement (pas de flash, pas de retard sur la photo principale),
      et rien du tout si le telephone demande moins d'animations.
+     Jamais le bloc d'achat (.pf-buy) ni le formulaire express : sur un
+     Android lent, la zone restait vide le temps que l'apparition se
+     declenche, et le client ne voyait pas ou commander. Ils sont la des
+     le rendu ; animations() les ecarte meme si un selecteur les touchait.
   ══════════════════════════════════════════════════════════════ */
   var A_REVELER = [
-    'main.pf .pf-block', 'main.pf .pf-histoire', '.cpb-express', '.cpb-conseil',
+    'main.pf .pf-block', 'main.pf .pf-histoire', '.cpb-conseil',
     '.cpb-dist-visuel', '.cpb-404-visuel', '.pf-sibs .pf-sib'
   ];
+  var JAMAIS_CACHE = '.pf-buy, .cpb-express';
 
   function animations() {
     if (REDUIT || !('IntersectionObserver' in window) || !document.documentElement.classList) { return; }
@@ -2479,6 +2484,7 @@
       var rang = 0, parent = null;
       document.querySelectorAll(sel).forEach(function (el) {
         if (el.getBoundingClientRect().top < bas) { return; }   /* deja visible : on n'y touche pas */
+        if (el.closest(JAMAIS_CACHE) || el.querySelector(JAMAIS_CACHE)) { return; }   /* de quoi commander */
         if (el.parentNode !== parent) { parent = el.parentNode; rang = 0; }
         el.classList.add('cpb-r');
         el.style.setProperty('--cpb-i', String(Math.min(rang++, 6)));
