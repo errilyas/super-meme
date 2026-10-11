@@ -319,3 +319,30 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
      /author/<identifiant>/. L'adresse publique des auteurs devient
      l'accueil, où ces pages renvoyaient déjà.
    - Réseaux sociaux ajoutés aussi au type « OnlineStore » du thème 3.6.1.
+
+33. COMMANDE EXPRESS SUR LA FICHE (versions 1.28.2 et 1.29.0)
+   (1.28.2, 9 octobre) Le formulaire montre la quantité réelle, le total
+   livraison comprise et chaque article avant l'envoi ; il signale que le
+   panier existant est inclus. Bouton « Envoyer ma commande ».
+   (1.29.0) La semaine du 5 au 11 octobre, 92 % des formulaires commencés
+   n'étaient pas envoyés. Ce qui change pour le client :
+   - Trois champs obligatoires : Nom, Téléphone, Ville. « Adresse
+     (facultatif) » en dernier ; elle se prend à l'appel de confirmation.
+     Le carnet du thème exige toujours 8 caractères : une adresse vide lui
+     arrive comme « À préciser lors de l'appel de confirmation ».
+   - Téléphone : « +212 06… », « 00212… », points, tirets et chiffres
+     arabes acceptés ; erreur affichée sous le champ dès qu'on le quitte ;
+     numéro envoyé au format national (0612345678).
+   - Sous le bouton : « Rien à payer maintenant. Nous vous appelons pour
+     confirmer, livraison en 24 à 72 h partout au Maroc. » Un sac remplace
+     la bulle WhatsApp sur le bouton.
+   - Téléphone (900 px et moins) : le formulaire juste sous le prix,
+     « Ajouter au panier » dessous en lien. La barre fixe « Commander »
+     sort dès que le formulaire quitte l'écran, et un toucher amène au
+     champ téléphone.
+   - Plus d'apparition en fondu pour le bloc d'achat et le formulaire.
+   - Bulle WhatsApp (Joinchat) : rien les 30 premières secondes sur la
+     fiche, sur téléphone.
+   La page de remerciement (« Commande reçue ✓ », pas d'ouverture
+   automatique de WhatsApp) est dans le thème : template-commander.php,
+   commande.js et langue.js.
