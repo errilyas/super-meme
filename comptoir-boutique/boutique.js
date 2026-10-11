@@ -201,6 +201,7 @@
     'Rue, numéro, immeuble, étage': 'الشارع، الرقم، العمارة، الطابق',
     'Nom de votre ville': 'اسم مدينتك',
     'Numéro marocain attendu, par exemple 06 12 34 56 78.': 'رقم مغربي، مثلًا 06 12 34 56 78.',
+    'Numéro marocain, ex. 06 12 34 56 78': 'رقم مغربي، مثلًا 06 12 34 56 78',
     'Merci d’indiquer votre nom.': 'المرجو كتابة اسمك.',
     'Choisissez votre ville dans la liste.': 'اختر مدينتك من القائمة.',
     'Indiquez le nom de votre ville.': 'اكتب اسم مدينتك.',
@@ -1416,10 +1417,31 @@
     'Laâyoune', 'Marrakech', 'Meknès', 'Mohammedia', 'Nador', 'Ouarzazate', 'Oujda', 'Rabat', 'Safi', 'Salé',
     'Settat', 'Sidi Slimane', 'Tanger', 'Taza', 'Témara', 'Tétouan'];
 
-  /* Meme regle que commande.js : 0X + 8 chiffres, ou 212 + 9. */
+  /* Le numero tel qu'on le tape au Maroc, ramene a des chiffres : chiffres
+     arabes du clavier arabe convertis, espaces, points, tirets, parentheses
+     et marques de sens retires, +212 / 00212 ramenes a 212, et le 0 garde
+     apres l'indicatif retire (« +212 06 12 34 56 78 » -> 212612345678).
+     L'ancienne regle refusait ce dernier cas, tres courant. */
+  function telChiffres(v) {
+    return String(v)
+      .replace(/[٠-٩]/g, function (c) { return String(c.charCodeAt(0) - 0x0660); })
+      .replace(/[۰-۹]/g, function (c) { return String(c.charCodeAt(0) - 0x06F0); })
+      .replace(/[\s().\-‎‏⁦-⁩]/g, '')
+      .replace(/^(?:\+|00)/, '')
+      .replace(/^2120/, '212');
+  }
+
+  /* 0X + 8 chiffres, ou 212 + 9 (X = 5, 6 ou 7). */
   function telValide(v) {
-    var n = String(v).replace(/[\s().-]/g, '').replace(/^(?:\+|00)/, '');
+    var n = telChiffres(v);
     return /^212[5-7][0-9]{8}$/.test(n) || /^0[5-7][0-9]{8}$/.test(n);
+  }
+
+  /* Format national pour le carnet de commandes : 0612345678. C'est celui
+     que le serveur, le suivi et la CAPI savent deja lire. */
+  function telNational(v) {
+    var n = telChiffres(v);
+    return /^212[5-7][0-9]{8}$/.test(n) ? '0' + n.slice(3) : n;
   }
 
   /* Ce que sera le panier une fois ce flacon pris en quantite q, sans le
@@ -1486,7 +1508,7 @@
         '<small>' + esc(t('Merci d’indiquer votre nom.')) + '</small></label>' +
       '<label class="cpb-x-champ" data-f="tel"><span>' + esc(t('Téléphone')) + ' *</span>' +
         '<input type="tel" name="tel" autocomplete="tel" inputmode="tel" enterkeyhint="next" placeholder="06 12 34 56 78" required>' +
-        '<small>' + esc(t('Numéro marocain attendu, par exemple 06 12 34 56 78.')) + '</small></label>' +
+        '<small>' + esc(t('Numéro marocain, ex. 06 12 34 56 78')) + '</small></label>' +
       '<label class="cpb-x-champ" data-f="ville"><span>' + esc(t('Ville')) + ' *</span>' +
         '<select name="ville" autocomplete="address-level2" required><option value="">' + esc(t('Choisissez votre ville')) + '</option>' +
         VILLES_FR.map(function (v) { return '<option value="' + esc(v) + '">' + esc(ville(v)) + '</option>'; }).join('') +
@@ -1601,7 +1623,14 @@
     P.onChange(recap);
     bloc.addEventListener('input', function (e) {
       var f = e.target.closest('.cpb-x-champ');
-      if (f) { f.classList.remove('err'); }
+      if (f) { f.classList.remove('err'); e.target.removeAttribute('aria-invalid'); }
+    });
+    /* Un numero faux se signale des qu'on quitte le champ, pas seulement au
+       clic sur « Envoyer » : le client corrige pendant qu'il y est. */
+    champ('tel').addEventListener('blur', function () {
+      var bad = !!this.value.trim() && !telValide(this.value);
+      this.closest('.cpb-x-champ').classList.toggle('err', bad);
+      if (bad) { this.setAttribute('aria-invalid', 'true'); }
     });
 
     /* InitiateCheckout, une fois : au premier champ touche, comme la page
@@ -1631,8 +1660,10 @@
         var bad = invalide(n);
         var f = bloc.querySelector('[data-f="' + n + '"]');
         if (n === 'ville' && champ('ville').value === 'autre') { f = blocAutre; }
+        var inp = f && f.querySelector('input,select');
         if (f) { f.classList.toggle('err', bad); }
-        if (bad && !premier) { premier = f && f.querySelector('input,select'); }
+        if (inp) { if (bad) { inp.setAttribute('aria-invalid', 'true'); } else { inp.removeAttribute('aria-invalid'); } }
+        if (bad && !premier) { premier = inp; }
       });
       var manque2 = qte() === 2 && !second;
       err2.hidden = !manque2;
@@ -1655,7 +1686,7 @@
 
       var data = {
         nom: champ('nom').value.trim(),
-        tel: champ('tel').value.trim(),
+        tel: telNational(champ('tel').value),
         ville: champ('ville').value === 'autre' ? champ('ville_autre').value.trim() : champ('ville').value,
         adresse: champ('adresse').value.trim()
       };
