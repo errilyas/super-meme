@@ -514,6 +514,40 @@ function comptoir_retire_bulle_ia() {
 add_action( 'wp_enqueue_scripts', 'comptoir_retire_bulle_ia', 999 );
 add_action( 'wp_footer', 'comptoir_retire_bulle_ia', 1 );
 
+/*
+ * Emojis de WordPress : un script de detection, sa configuration et une
+ * feuille de style poses sur chaque page, pour dessiner les emojis sur les
+ * navigateurs qui ne savent pas le faire. Les telephones de la clientele
+ * les affichent tous nativement ; c'etait du travail a l'ouverture de
+ * chaque page pour rien.
+ */
+add_action( 'init', function () {
+	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+	remove_action( 'embed_head', 'print_emoji_detection_script' );
+	remove_action( 'wp_enqueue_scripts', 'wp_enqueue_emoji_styles' );
+	remove_action( 'wp_print_styles', 'print_emoji_styles' );
+	remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
+	remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
+	remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+	add_filter( 'emoji_svg_url', '__return_false' );
+} );
+
+/*
+ * Statistiques Jetpack : le fichier stats.wp.com part apres le premier geste
+ * du visiteur (ou 1,5 s apres le chargement), comme le pixel Meta et Clarity
+ * (Comptoir SEO, cseoPlusTard). Seule la balise du fichier change : la file
+ * _stq, posee juste avant, garde la vue de page et l'envoie a l'arrivee du
+ * fichier. Sans Comptoir SEO, le fichier part tout de suite.
+ */
+add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
+	if ( is_admin() || 'jetpack-stats' !== $handle || ! $src ) {
+		return $tag;
+	}
+	$plus_tard = '<script id="jetpack-stats-js">(window.cseoPlusTard||function(f){f()})(function(){var s=document.createElement("script");s.src=' . wp_json_encode( $src ) . ';s.defer=true;(document.head||document.documentElement).appendChild(s);});</script>';
+	$nouveau   = preg_replace( '#<script\b[^>]*\bsrc=(["\'])' . preg_quote( $src, '#' ) . '\1[^>]*>\s*</script>#', $plus_tard, $tag, 1 );
+	return is_string( $nouveau ) ? $nouveau : $tag;
+}, 20, 3 );
+
 // Classes <body> — servent au CSS et aux scripts pour reconnaitre le gabarit.
 add_filter( 'body_class', function ( $classes ) {
 	if ( comptoir_parfum_slug_demande() || comptoir_vente_demande() ) {
