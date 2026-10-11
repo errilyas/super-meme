@@ -1924,7 +1924,14 @@
        aussi tant que « Ajouter au panier » (.pf-actions) etait visible ; les
        deux regles se chevauchaient et la barre ne ressortait presque jamais.
        html.cpb-x-barre neutralise ce repli (boutique.css). */
-    if (x.closest('main.pf')) { document.documentElement.classList.add('cpb-x-barre'); }
+    if (x.closest('main.pf')) {
+      document.documentElement.classList.add('cpb-x-barre');
+      /* La bulle WhatsApp (Joinchat) se posait sur le formulaire et ouvrait
+         une sortie du tunnel au moment de commander. Sur la fiche, elle
+         attend 30 s : qui commande vite n'est pas derange, qui hesite la
+         voit arriver. La barre fixe garde son bouton WhatsApp. */
+      setTimeout(function () { document.documentElement.classList.add('cpb-jc-ok'); }, 30000);
+    }
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (es) {
         bar.classList.toggle('cpb-cache', es[0].isIntersecting);

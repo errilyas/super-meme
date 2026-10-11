@@ -764,7 +764,10 @@ html.cpb-lock .joinchat{display:none!important}
 @media(max-width:820px){
   .joinchat{transition:opacity .3s,visibility .3s}
   body.a-cta-fixe:has(.cta-fixe:not(.repli):not(.cpb-cache)) .joinchat,
-  html.cpb-x-barre body.a-cta-fixe:has(.cta-fixe:not(.cpb-cache)) .joinchat{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+  html.cpb-x-barre body.a-cta-fixe:has(.cta-fixe:not(.cpb-cache)) .joinchat,
+  /* Fiche parfum : pas de bulle les 30 premieres secondes (boutique.js,
+     barreFixeVersExpress) — elle se posait sur le formulaire. */
+  html.cpb-x-barre:not(.cpb-jc-ok) .joinchat{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
 }
 
 /* ══════════════════════════════════════════
