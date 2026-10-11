@@ -1227,15 +1227,24 @@ function comptoir_parfums_assets() {
 	wp_enqueue_style( 'comptoir-site', $dir . '/style-site.css', array( 'comptoir-parfums-style' ), $ver_css );
 
 	// Bibliotheques d'animation — memes versions que la maquette de reference.
-	wp_enqueue_script( 'cp-gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js', array(), '3.12.5', true );
-	wp_enqueue_script( 'cp-scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js', array( 'cp-gsap' ), '3.12.5', true );
+	// Sur l'accueil seulement : c'est la seule page mise en scene. La fiche
+	// parfum, la page commande et la page vente, ou arrivent les clics
+	// publicitaires, n'animaient presque rien et payaient quand meme deux
+	// requetes CDN et leur execution sur des telephones d'entree de gamme.
+	// Sans GSAP, theme.js passe en fallbackMode() : en-tete, menu, ancres et
+	// apparitions fonctionnent sans bibliotheque.
+	$cp_anime = comptoir_est_accueil();
+	if ( $cp_anime ) {
+		wp_enqueue_script( 'cp-gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js', array(), '3.12.5', true );
+		wp_enqueue_script( 'cp-scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js', array( 'cp-gsap' ), '3.12.5', true );
+	}
 
 	// three.js ne sert QUE au flacon 3D et a la vitrine du heros, donc a la
 	// seule page d'accueil : le bloc WebGL de theme.js sort immediatement si
 	// #flacon3d est absent. Le charger partout ajoutait 600 Ko inutiles a
 	// chaque fiche parfum, a la page commande et a la page 404 — cher pour
 	// une clientele majoritairement en 4G.
-	$deps_theme = array( 'cp-gsap', 'cp-scrolltrigger', 'comptoir-panier' );
+	$deps_theme = $cp_anime ? array( 'cp-gsap', 'cp-scrolltrigger', 'comptoir-panier' ) : array( 'comptoir-panier' );
 	// Sur telephone (97 % des visites, surtout en 4G), three.js (600 Ko) et la
 	// vitrine ne sont PLUS telecharges : le heros garde l'apercu photo, prevu
 	// comme repli (theme.js teste window.THREE et window.CP_VITRINE). Sur

@@ -1636,13 +1636,31 @@ function fallbackMode(){
   const mob=document.getElementById('mob-menu');
   let mOpen=false;
   if(ham&&mob){
+    /* Depuis la 3.7, ce mode sert aussi sur la fiche, la page commande et la
+       page vente, ou GSAP n'est plus charge : meme menu modal que la version
+       animee — focus dedans a l'ouverture, Echap pour fermer, Tab qui tourne
+       entre le bouton et les liens. */
+    const ferme=()=>{mOpen=false;mob.classList.remove('open');ham.setAttribute('aria-expanded','false');document.body.style.overflow=''};
     ham.addEventListener('click',()=>{
       mOpen=!mOpen;
       mob.classList.toggle('open',mOpen);
       ham.setAttribute('aria-expanded',mOpen);
       document.body.style.overflow=mOpen?'hidden':'';
+      if(mOpen){ const l=mob.querySelector('.mob-link'); if(l) setTimeout(()=>l.focus({preventScroll:true}),60); }
     });
-    document.querySelectorAll('[data-close]').forEach(a=>a.addEventListener('click',()=>{if(mOpen){mOpen=false;mob.classList.remove('open');ham.setAttribute('aria-expanded','false');document.body.style.overflow=''}}));
+    document.querySelectorAll('[data-close]').forEach(a=>a.addEventListener('click',()=>{if(mOpen)ferme()}));
+    document.addEventListener('keydown',e=>{
+      if(!mOpen) return;
+      if(e.key==='Escape'){ ferme(); ham.focus(); return; }
+      if(e.key==='Tab'){
+        const pieges=[ham,...mob.querySelectorAll('a[href]')];
+        const i=pieges.indexOf(document.activeElement), fin=pieges.length-1;
+        let cible=null;
+        if(e.shiftKey){ cible = i<=0 ? pieges[fin] : i===1 ? ham : null; }
+        else { cible = i===fin ? ham : i<=0 ? pieges[1] : null; }
+        if(cible){ e.preventDefault(); cible.focus(); }
+      }
+    });
   }
 
   /* Smooth anchors */

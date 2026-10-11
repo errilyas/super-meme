@@ -52,9 +52,12 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
 <?php /* connect.facebook.net sert le pixel, dont le PageView decide de la
    metrique « vue de page » cote Ads Manager : sans preconnect, il faut une
    resolution DNS et une poignee de main TLS de plus avant qu'il parte.
-   cdnjs sert GSAP, dont depend la revelation du hero. */ ?>
+   cdnjs sert GSAP, dont depend la revelation du hero — sur l'accueil
+   seulement depuis la 3.7 : ailleurs, la connexion serait ouverte pour rien. */ ?>
 <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
+<?php if ( comptoir_est_accueil() ) : ?>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<?php endif; ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <?php /* Les fontes ne bloquent plus le premier rendu : elles portent deja
