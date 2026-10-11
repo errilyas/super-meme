@@ -2467,9 +2467,12 @@
      declenche, et le client ne voyait pas ou commander. Ils sont la des
      le rendu ; animations() les ecarte meme si un selecteur les touchait.
   ══════════════════════════════════════════════════════════════ */
+  /* Rien de la fiche parfum ni de la page vente : ce sont les pages du
+     parcours d'achat, ou arrivent les clics publicitaires. Leurs blocs
+     (la fiche, l'histoire, la meme maison) restaient vides le temps que
+     l'apparition se declenche sur un telephone lent. */
   var A_REVELER = [
-    'main.pf .pf-block', 'main.pf .pf-histoire', '.cpb-conseil',
-    '.cpb-dist-visuel', '.cpb-404-visuel', '.pf-sibs .pf-sib'
+    '.cpb-conseil', '.cpb-dist-visuel', '.cpb-404-visuel'
   ];
   var JAMAIS_CACHE = '.pf-buy, .cpb-express';
 
