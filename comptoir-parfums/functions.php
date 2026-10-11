@@ -209,6 +209,24 @@ function comptoir_capi() {
 }
 
 /**
+ * Vrai sur le site en ligne, et lui seul. Des evenements arrivaient dans le
+ * Pixel depuis http://localhost/ : une copie locale ou de recette mesurait
+ * comme le vrai site. Hors de comptoirparfums.com, le pixel navigateur n'est
+ * pas pose et la CAPI n'envoie rien, sauf avec un code de test (Reglages >
+ * Suivi Meta), qui range les evenements dans l'onglet « Tester les
+ * evenements » sans les compter.
+ */
+function comptoir_est_production() {
+	$hote = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+	return 'comptoirparfums.com' === $hote || 'www.comptoirparfums.com' === $hote;
+}
+
+/** La CAPI peut-elle partir d'ici : en ligne, ou ailleurs avec un code de test. */
+function comptoir_capi_permise( $reglages ) {
+	return comptoir_est_production() || '' !== (string) $reglages['test'];
+}
+
+/**
  * Le jeton d'acces CAPI, par ordre de preference : la constante si elle
  * existe, sinon l'option de la base. Vide = comptoir_capi_achat() ressort
  * sans rien envoyer, exactement comme avant que la CAPI soit activee.
@@ -515,11 +533,14 @@ add_action( 'wp_head', function () {
 	// comptoir_capi_achat() relit pour le doublon serveur — sans lui, ce
 	// doublon part avec un appariement plus faible. Meme pixel_id que
 	// comptoir_capi(), une seule source pour les deux.
+	// Sur le site en ligne seulement (comptoir_est_production), et verifie
+	// une seconde fois dans le navigateur : une copie servie sous un autre
+	// nom (localhost, recette) ne doit jamais mesurer pour le vrai site.
 	$capi = comptoir_capi();
-	if ( ! empty( $capi['pixel_id'] ) ) {
+	if ( ! empty( $capi['pixel_id'] ) && comptoir_est_production() ) {
 		$id = preg_replace( '/[^0-9]/', '', $capi['pixel_id'] );
 		printf(
-			'<script>(function(){try{var q=location.search;if(/[?&]cp_test=1/.test(q)){document.cookie="cp_test=1;path=/;max-age=31536000;SameSite=Lax";}else if(/[?&]cp_test=0/.test(q)){document.cookie="cp_test=;path=/;max-age=0;SameSite=Lax";}var m=document.cookie.match(/(?:^|; )cp_vid=([a-f0-9]{64})/),v=m?m[1]:"";if(!v){try{v=localStorage.getItem("cp_vid")||"";}catch(e){}}if(!/^[a-f0-9]{64}$/.test(v)){var a=new Uint8Array(32);(window.crypto||window.msCrypto).getRandomValues(a);v="";for(var i=0;i<a.length;i++){v+=(a[i]<16?"0":"")+a[i].toString(16);}}try{localStorage.setItem("cp_vid",v);}catch(e){}document.cookie="cp_vid="+v+";path=/;max-age=63072000;SameSite=Lax";window.cpVid=v;}catch(e){}})();if(document.cookie.indexOf("cp_test=1")<0){!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' .
+			'<script>(function(){try{var q=location.search;if(/[?&]cp_test=1/.test(q)){document.cookie="cp_test=1;path=/;max-age=31536000;SameSite=Lax";}else if(/[?&]cp_test=0/.test(q)){document.cookie="cp_test=;path=/;max-age=0;SameSite=Lax";}var m=document.cookie.match(/(?:^|; )cp_vid=([a-f0-9]{64})/),v=m?m[1]:"";if(!v){try{v=localStorage.getItem("cp_vid")||"";}catch(e){}}if(!/^[a-f0-9]{64}$/.test(v)){var a=new Uint8Array(32);(window.crypto||window.msCrypto).getRandomValues(a);v="";for(var i=0;i<a.length;i++){v+=(a[i]<16?"0":"")+a[i].toString(16);}}try{localStorage.setItem("cp_vid",v);}catch(e){}document.cookie="cp_vid="+v+";path=/;max-age=63072000;SameSite=Lax";window.cpVid=v;}catch(e){}})();if(document.cookie.indexOf("cp_test=1")<0&&/(^|\.)comptoirparfums\.com$/.test(location.hostname)){!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' .
 			'n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;' .
 			'n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;' .
 			't.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}' .
@@ -806,7 +827,7 @@ function comptoir_commande_test( $id = 0 ) {
  */
 function comptoir_capi_achat( $id, $lignes ) {
 	$reglages = comptoir_capi();
-	if ( ! $reglages['pixel_id'] || ! $reglages['token'] ) {
+	if ( ! $reglages['pixel_id'] || ! $reglages['token'] || ! comptoir_capi_permise( $reglages ) ) {
 		return false;
 	}
 	if ( comptoir_commande_test( $id ) ) {
