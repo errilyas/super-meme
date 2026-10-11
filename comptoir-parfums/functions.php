@@ -220,6 +220,17 @@ function comptoir_est_production() {
 	return 'comptoirparfums.com' === $hote || 'www.comptoirparfums.com' === $hote;
 }
 
+/**
+ * Quand l'achat (Purchase) part-il ? Decoche (par defaut) : a l'envoi du
+ * formulaire, comme avant. Coche (Reglages > Suivi Meta) : a la livraison
+ * seulement, l'envoi ne donnant plus qu'un Lead. A cocher le jour ou la
+ * campagne cesse d'optimiser sur l'achat : avant, elle perdrait d'un coup
+ * l'evenement sur lequel elle apprend.
+ */
+function comptoir_achat_a_la_livraison() {
+	return '1' === (string) get_option( 'comptoir_achat_livraison', '' );
+}
+
 /** La CAPI peut-elle partir d'ici : en ligne, ou ailleurs avec un code de test. */
 function comptoir_capi_permise( $reglages ) {
 	return comptoir_est_production() || '' !== (string) $reglages['test'];
@@ -295,6 +306,11 @@ function comptoir_page_suivi_meta() {
 			} else {
 				delete_option( 'comptoir_capi_test' );
 			}
+			if ( ! empty( $_POST['achat_livraison'] ) ) {
+				update_option( 'comptoir_achat_livraison', '1', false );
+			} else {
+				delete_option( 'comptoir_achat_livraison' );
+			}
 			$avis = 'Reglages enregistres.';
 		}
 	}
@@ -330,6 +346,11 @@ function comptoir_page_suivi_meta() {
 	echo '<tr><th scope="row"><label for="cp-test">Code de test</label></th><td>';
 	echo '<input type="text" id="cp-test" name="test" value="' . esc_attr( $test ) . '" class="regular-text" autocomplete="off" spellcheck="false">';
 	echo '<p class="description">Onglet Tester les evenements. A retirer une fois la verification faite, sinon les achats restent dans le test et ne comptent pas.</p>';
+	echo '</td></tr>';
+
+	echo '<tr><th scope="row">Moment de l\'achat</th><td>';
+	echo '<label><input type="checkbox" name="achat_livraison" value="1"' . checked( comptoir_achat_a_la_livraison(), true, false ) . '> Compter l\'achat a la livraison</label>';
+	echo '<p class="description">Decoche : l\'achat part a l\'envoi du formulaire (navigateur et serveur). Coche : l\'envoi ne donne qu\'un Lead, et l\'achat part une fois, quand la commande passe a « Livree ». <strong>Avant de cocher, changer l\'evenement d\'optimisation de la campagne Meta</strong>, qui apprend aujourd\'hui sur l\'achat. Ne vaut que pour les commandes passees apres le changement.</p>';
 	echo '</td></tr>';
 
 	echo '</tbody></table>';
@@ -701,10 +722,11 @@ function comptoir_recoit_commande() {
 			'cp_vid'          => $ids_meta['vid'],
 			'cp_ip'           => $ids_meta['ip'],
 			'cp_ua'           => $ids_meta['ua'],
-			/* L'achat Meta de cette commande part a la livraison, plus a
-			   l'envoi du formulaire. Les commandes d'avant n'ont pas cette cle :
-			   leur achat est deja compte, la livraison n'en renvoie pas un. */
-			'cp_capi_mode'    => 'livraison',
+			/* Moment de l'achat Meta pour CETTE commande, fige a l'envoi :
+			   « livraison » (Reglages > Suivi Meta, coche) ou « envoi ». La
+			   livraison ne renvoie un achat que pour les premieres : pour les
+			   autres, il est deja compte. */
+			'cp_capi_mode'    => comptoir_achat_a_la_livraison() ? 'livraison' : 'envoi',
 		),
 	), true );
 
@@ -939,10 +961,10 @@ function comptoir_capi_references( $id ) {
 }
 
 /**
- * Lead, a l'envoi de la commande. Meme reference (event_id) que le Lead du
- * navigateur (boutique.js, commande.js) : Meta ne le compte qu'une fois.
- * Il n'y a plus d'achat ici : en paiement a la livraison, une commande
- * envoyee n'est pas encore une vente. L'achat part a la livraison
+ * A l'envoi de la commande : le Lead, meme reference (event_id) que le Lead
+ * du navigateur (boutique.js, commande.js) — Meta ne le compte qu'une fois.
+ * Et l'achat, seulement si la commande est en mode « envoi » (reglage par
+ * defaut) : en mode « livraison », il part quand la commande est livree
  * (comptoir_capi_livraison).
  */
 function comptoir_capi_lead( $id, $lignes ) {
@@ -961,7 +983,7 @@ function comptoir_capi_lead( $id, $lignes ) {
 	if ( ! $page || wp_parse_url( $page, PHP_URL_HOST ) !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {
 		$page = home_url( '/?commander=1' );
 	}
-	return comptoir_capi_envoie( array(
+	$evenement = array(
 		'event_name'       => 'Lead',
 		'event_time'       => time(),
 		'event_id'         => (string) get_post_meta( $id, 'cp_ref', true ),
@@ -975,7 +997,16 @@ function comptoir_capi_lead( $id, $lignes ) {
 			'content_type' => 'product',
 			'content_ids'  => $refs,
 		),
-	) );
+	);
+	$parti = comptoir_capi_envoie( $evenement );
+	if ( 'livraison' !== get_post_meta( $id, 'cp_capi_mode', true ) ) {
+		// Mode « envoi » : l'achat, comme avant, doublon de celui de la page
+		// merci (commande.js), meme reference.
+		$evenement['event_name']       = 'Purchase';
+		$evenement['event_source_url'] = home_url( '/?commander=1&merci=1' );
+		comptoir_capi_envoie( $evenement );
+	}
+	return $parti;
 }
 
 /**
@@ -1303,6 +1334,9 @@ function comptoir_parfums_assets() {
 		'home'      => home_url( '/' ),
 		'imgBase'   => $dir . '/img/produits/',
 		'imgVer'    => comptoir_version_photos(),
+		// Moment de l'achat Meta (Reglages > Suivi Meta) : la page merci ne
+		// compte l'achat que si ce n'est pas a la livraison.
+		'achatLivraison' => comptoir_achat_a_la_livraison(),
 	);
 
 	wp_add_inline_script(
