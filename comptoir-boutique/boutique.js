@@ -1528,7 +1528,18 @@
          qui laissait croire que la commande n'etait pas passee. */
       '<button type="submit" class="cpb-btn-plein cpb-x-go">' + SVG.sac + '<span>' + esc(t('Envoyer ma commande')) + '</span><b class="cpb-x-total"></b></button>' +
       '<p class="cpb-x-note">' + esc(t('Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.')) + '</p>';
-    ancre.parentNode.insertBefore(bloc, ancre.nextSibling);
+    /* Telephone (900 px et moins) : le formulaire juste sous le prix. Pose
+       sous « Ajouter au panier » et la phrase de reassurance, son bouton
+       d'envoi tombait a pres de deux ecrans du haut de la fiche, et deux
+       boutons se disputaient le premier ecran. « Ajouter au panier » passe
+       dessous, en lien (.cpb-express-haut, boutique.css). */
+    var prix = buy.querySelector('.pf-price');
+    if (prix && window.matchMedia && window.matchMedia('(max-width: 900px)').matches) {
+      prix.parentNode.insertBefore(bloc, prix.nextSibling);
+      buy.classList.add('cpb-express-haut');
+    } else {
+      ancre.parentNode.insertBefore(bloc, ancre.nextSibling);
+    }
     /* Un seul chemin principal : le bouton « Commander » du theme menait a la
        page commande, ce formulaire la remplace sur la fiche. « Ajouter au
        panier » reste, pour qui veut un autre parfum. */
@@ -1895,7 +1906,10 @@
       if (!e.target.closest || !e.target.closest('.cta-fixe-principal') || P.count()) { return; }
       e.preventDefault();
       e.stopPropagation();
-      x.scrollIntoView({ block: 'start', behavior: REDUIT ? 'auto' : 'smooth' });
+      /* Le champ telephone au milieu de l'ecran : le nom juste au-dessus,
+         la ville juste dessous, et rien sous l'en-tete fixe. */
+      var tel = x.querySelector('[name="tel"]');
+      (tel || x).scrollIntoView({ block: 'center', behavior: REDUIT ? 'auto' : 'smooth' });
       var vide = null;
       ['nom', 'tel', 'ville'].some(function (n) {
         var el = x.querySelector('[name="' + n + '"]');
@@ -1905,6 +1919,12 @@
       var cible = vide || x.querySelector('.cpb-x-go');
       if (cible) { setTimeout(function () { try { cible.focus({ preventScroll: true }); } catch (err) { cible.focus(); } }, REDUIT ? 0 : 450); }
     }, true);
+    /* Une seule regle sur la fiche : la barre sort des que le formulaire
+       n'est plus a l'ecran, et rentre quand il y est. Le theme la repliait
+       aussi tant que « Ajouter au panier » (.pf-actions) etait visible ; les
+       deux regles se chevauchaient et la barre ne ressortait presque jamais.
+       html.cpb-x-barre neutralise ce repli (boutique.css). */
+    if (x.closest('main.pf')) { document.documentElement.classList.add('cpb-x-barre'); }
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (es) {
         bar.classList.toggle('cpb-cache', es[0].isIntersecting);

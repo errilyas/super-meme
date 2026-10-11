@@ -421,6 +421,19 @@ html.cpb-lock .joinchat{display:none!important}
 ══════════════════════════════════════════ */
 .cpb-express-on .pf-cta-achat{display:none}
 .cpb-express-on .pf-actions .pf-cta-2{flex:1}
+/* Telephone : le formulaire est pose sous le prix (boutique.js). « Ajouter
+   au panier » passe dessous en simple lien, pour qui veut un autre parfum ;
+   la phrase « Rien a payer maintenant » du theme fait doublon avec la note
+   du formulaire. */
+.cpb-express-haut .pf-rassure-cta{display:none}
+.cpb-express-haut .cpb-express{margin-top:0}
+.cpb-express-haut .pf-actions{flex-direction:row;justify-content:center;margin:2px 0 4px}
+.cpb-express-haut .pf-actions .pf-cta-2{
+  flex:none;width:auto;min-height:44px;padding:10px 6px;
+  background:none;border:0;box-shadow:none;color:var(--text-dim);
+  font-size:11px;letter-spacing:.14em;text-decoration:underline;text-underline-offset:4px;
+}
+.cpb-express-haut .pf-actions .pf-cta-2:hover{color:var(--ember);transform:none}
 .cpb-express{
   margin:18px 0 6px;padding:22px 22px 18px;
   border:1px solid rgba(var(--au-rgb),.35);
@@ -541,6 +554,10 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-estime[hidden]{display:none}
 #ck-form .cpb-estime{margin:14px 0 4px}
 .cpb-a .cta-fixe.cpb-cache{transform:translateY(115%)}
+/* Fiche parfum : le formulaire seul decide de la barre (boutique.js,
+   barreFixeVersExpress). Le repli du theme, cale sur « Ajouter au panier »,
+   ne joue plus : les deux regles se chevauchaient. */
+.cpb-x-barre .cta-fixe.repli:not(.cpb-cache){transform:none}
 
 /* ══════════════════════════════════════════════════════════════
    ANIMATIONS — transform/opacity seulement, coupees si le systeme
@@ -746,7 +763,8 @@ html.cpb-lock .joinchat{display:none!important}
    pied de page). */
 @media(max-width:820px){
   .joinchat{transition:opacity .3s,visibility .3s}
-  body.a-cta-fixe:has(.cta-fixe:not(.repli):not(.cpb-cache)) .joinchat{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+  body.a-cta-fixe:has(.cta-fixe:not(.repli):not(.cpb-cache)) .joinchat,
+  html.cpb-x-barre body.a-cta-fixe:has(.cta-fixe:not(.cpb-cache)) .joinchat{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
 }
 
 /* ══════════════════════════════════════════
