@@ -243,8 +243,13 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
       <button type="button" class="cat-reset" id="cat-reset" hidden>Tout afficher</button>
     </div>
 
-    <div class="cat-grille" id="cat-list" role="list">
-<?php comptoir_rendu_catalogue(); ?>
+    <?php /* 24 cartes dans la page au lieu de 209 : l'accueil pesait 550 Ko
+             de HTML et plus de 3 000 elements a analyser sur un telephone
+             d'entree de gamme. theme.js construit les autres (data-partiel)
+             au premier filtre, tri, recherche ou « Voir plus », sinon quand
+             le navigateur est libre. Chaque fiche reste dans le plan du site. */ ?>
+    <div class="cat-grille" id="cat-list" role="list" data-partiel="24">
+<?php comptoir_rendu_catalogue( 24 ); ?>
     </div>
     <p class="cat-vide" id="cat-vide" hidden>Aucun parfum ne correspond. Essayez le nom de la maison, ou <button type="button" class="cat-vide-reset">affichez tout le catalogue</button>.</p>
   </div>

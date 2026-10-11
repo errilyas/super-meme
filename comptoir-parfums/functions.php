@@ -1865,9 +1865,18 @@ function comptoir_carte_produit( $p ) {
 	<?php
 }
 
-/** La grille complete, dans l'ordre du fichier (maison par maison). */
-function comptoir_rendu_catalogue() {
-	foreach ( comptoir_produits() as $p ) {
+/**
+ * La grille, dans l'ordre du fichier (maison par maison). $limite > 0 : les
+ * $limite premieres cartes seulement — l'accueil n'en rend que 24 (la page
+ * en affichait de toute facon 24 avant « Voir plus ») et theme.js construit
+ * les autres a partir de window.PRODUITS, avec le meme gabarit.
+ */
+function comptoir_rendu_catalogue( $limite = 0 ) {
+	$produits = comptoir_produits();
+	if ( $limite > 0 ) {
+		$produits = array_slice( $produits, 0, (int) $limite );
+	}
+	foreach ( $produits as $p ) {
 		comptoir_carte_produit( $p );
 	}
 }

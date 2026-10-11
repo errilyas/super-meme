@@ -660,6 +660,42 @@ if(CAT.length){
 /* ── Filtrage ─────────────────────────────────────────────────── */
 function cartes(){ return catList ? [...catList.querySelectorAll('.pc')] : []; }
 
+/* ── Catalogue complete a la demande (accueil, 3.7) ───────────────
+   PHP ne rend que les premieres cartes (data-partiel). Les autres sont
+   construites ici depuis window.PRODUITS, deja dans la page, avec carteHTML :
+   meme balisage que comptoir_carte_produit(), verifie carte par carte sur les
+   209. S'y ajoutent ce que Comptoir SEO pose sur les cartes rendues par PHP :
+   le texte alternatif et les tailles d'image (srcset, sizes), recopies de la
+   premiere carte. Construites au premier filtre, tri, recherche ou « Voir
+   plus », et sinon quand le navigateur est libre apres l'affichage. */
+let catComplet = !catList || !catList.hasAttribute('data-partiel');
+function carteSurPage(p, modele){
+  let h = carteHTML(p).replace(' alt=""', ' alt="' + esc('Testeur ' + p.b + ' ' + p.n + ' – parfum original') + '"');
+  if(modele && h.indexOf('pc-img is-empty') === -1){
+    const m = h.match(/ src="([^"]+)"/);
+    if(m){
+      let chemin = '';
+      try { chemin = new URL(m[1].replace(/&amp;/g,'&'), location.href).pathname; } catch(e) {}
+      if(chemin) h = h.replace(' src="', ' srcset="' + esc(modele.srcset.split(modele.chemin).join(chemin)) + '" sizes="' + esc(modele.sizes) + '" src="');
+    }
+  }
+  return h;
+}
+function completerCatalogue(){
+  if(catComplet || !catList) return;
+  catComplet = true;
+  const deja = cartes().length;
+  const img = catList.querySelector('img.pc-img[srcset][sizes]');
+  let modele = null;
+  if(img){ try { modele = { srcset: img.getAttribute('srcset'), sizes: img.getAttribute('sizes'), chemin: new URL(img.getAttribute('src'), location.href).pathname }; } catch(e) {} }
+  if(deja < CAT.length) catList.insertAdjacentHTML('beforeend', CAT.slice(deja).map(p => carteSurPage(p, modele)).join(''));
+  ordreInitial = null;   /* l'ordre d'origine compte maintenant toutes les cartes */
+}
+if(!catComplet){
+  const plusTard = () => { if(!catComplet){ completerCatalogue(); appliquerFiltres({ sansURL: true, garderPage: true }); } };
+  window.addEventListener('load', () => (window.requestIdleCallback ? requestIdleCallback(plusTard, { timeout: 4000 }) : setTimeout(plusTard, 1500)), { once: true });
+}
+
 /* PAGINATION. Les 209 cartes s'affichaient d'un bloc : sur telephone, 36 000
    pixels de grille, et tout ce qui suit — comment commander, garanties,
    questions, bouton final — commencait apres 41 000 pixels, la ou personne
@@ -690,7 +726,7 @@ function paginer(){
     rang++;
     c.classList.toggle('hors-page', rang > limiteCat);
   });
-  const reste = Math.max(0, rang - limiteCat);
+  const reste = catComplet ? Math.max(0, rang - limiteCat) : Math.max(0, CAT.length - limiteCat);
   const b = boutonPlus();
   if(!b) return;
   b.parentNode.hidden = reste === 0;
@@ -707,6 +743,8 @@ function appliquerFiltres(opts){
   const gen  = (selGenre  ? selGenre.value  : '');
   const fam  = (selFamille? selFamille.value: '');
   const tri  = (selTri    ? selTri.value    : 'defaut');
+  /* Filtre, tri ou page suivante : il faut toutes les cartes. */
+  if(q || mai || gen || fam || tri !== 'defaut' || limiteCat > PAGE_CAT) completerCatalogue();
 
   let vues = 0;
   cartes().forEach(c => {
@@ -728,6 +766,8 @@ function appliquerFiltres(opts){
   }
 
   paginer();
+  /* Grille pas encore completee (aucun filtre) : tout le catalogue compte. */
+  if(!catComplet) vues = CAT.length;
 
   if(catCount){
     catCount.textContent = vues + (vues === 1 ? ' parfum' : ' parfums');
