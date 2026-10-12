@@ -9,6 +9,13 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.8.1 — UNE SEULE DESCRIPTION GOOGLE
+  Dans Google :
+  - Accueil et fiches : le module « Outils SEO » de Jetpack ajoutait une
+    deuxième description, le slogan « L'Art du Parfum ». Elle est retirée
+    là où le thème écrit la sienne ; Google n'en lit plus qu'une.
+  Fichiers modifiés : functions.php (+ style.css).
+
 VERSION 3.8.0 — RÉFÉRENCEMENT (avec Comptoir SEO 1.4.0)
   Dans Google :
   - Description des fiches : le prix et le paiement à la livraison en tête

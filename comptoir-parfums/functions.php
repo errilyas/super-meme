@@ -2053,6 +2053,17 @@ add_filter( 'jetpack_enable_open_graph', function ( $actif ) {
 	return '' !== $meta['titre'] ? false : $actif;
 }, 99 );
 
+// Le module « Outils SEO » de Jetpack ajoute sa propre description. Sur
+// l'accueil et sur les fiches (servies a la meme adresse), c'est le slogan
+// du site, « L'Art du Parfum » : Google lisait deux descriptions et pouvait
+// garder celle-la. On retire la sienne la ou le theme ecrit deja la notre.
+add_filter( 'jetpack_seo_meta_tags', function ( $meta ) {
+	if ( is_array( $meta ) && ! empty( comptoir_meta_page()['desc'] ) ) {
+		unset( $meta['description'] );
+	}
+	return $meta;
+} );
+
 // Favicon — sceau CP, utilise seulement si aucune icone de site n'est reglee
 // dans Reglages > General.
 add_action( 'wp_head', function () {
