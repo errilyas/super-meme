@@ -470,6 +470,25 @@ add_filter( 'template_include', function ( $template ) {
 }, 99 );
 
 /**
+ * Fiches retirees du catalogue (3.9.0) : leur photo n'etait pas presentable
+ * (flacon coupe, mauvais produit, fond blanc) et ne pouvait pas etre reprise.
+ * L'ancienne adresse renvoie vers le parfum le plus proche plutot que vers
+ * « Parfum introuvable » : un lien deja partage, ou deja connu de Google,
+ * mene encore a un flacon a commander.
+ */
+function comptoir_parfums_retires() {
+	return array(
+		'azzaro--forever-wanted-elixir'        => 'azzaro--the-most-wanted',
+		'giorgio-armani--si-passione-red-musk' => 'giorgio-armani--si-passione',
+		'versace--dylan-blush-pour-femme'      => 'versace--bright-crystal',
+		'dior--poison-girl'                    => 'dior--hypnotic-poison-edp',
+		'yves-saint-laurent--y-eau-fraiche'    => 'yves-saint-laurent--y-edp',
+		'yves-saint-laurent--libre-leau-nue'   => 'yves-saint-laurent--libre-edp-intense',
+		'rabanne--1-million'                   => 'rabanne--1-million-parfum',
+	);
+}
+
+/**
  * Statut HTTP des gabarits sur-mesure.
  *
  * Un slug inconnu doit repondre 404, sinon Google indexe autant de pages
@@ -480,6 +499,15 @@ add_filter( 'template_include', function ( $template ) {
 add_action( 'template_redirect', function () {
 	$slug = comptoir_parfum_slug_demande();
 	if ( $slug ) {
+		$retires = comptoir_parfums_retires();
+		if ( isset( $retires[ $slug ] ) && comptoir_produit_by_slug( $retires[ $slug ] ) ) {
+			$cible = comptoir_parfum_url( $retires[ $slug ] );
+			if ( isset( $_GET['lang'] ) && 'ar' === $_GET['lang'] ) {
+				$cible = add_query_arg( 'lang', 'ar', $cible );
+			}
+			wp_safe_redirect( $cible, 301 );
+			exit;
+		}
 		if ( comptoir_produit_by_slug( $slug ) ) {
 			status_header( 200 );
 			global $wp_query;

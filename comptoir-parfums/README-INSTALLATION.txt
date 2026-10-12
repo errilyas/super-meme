@@ -9,6 +9,27 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.9.0 — PHOTOS REPRISES, CATALOGUE EN RAYONS SUR TÉLÉPHONE
+  Côté client :
+  - Dix photos reprises : traits et taches laissés par le détourage effacés
+    (Rose Prick, Donna Born in Roma Intense, La Nuit de L'Homme Bleu
+    Électrique, Creed Viking, La Nuit Trésor Le Parfum), reflet coupé sous
+    MYSLF, bords ondulés redressés (Versace Eau Fraîche Extrême), mangue et
+    fleur retirées autour de My Way Ylang, cadre blanc retiré autour de
+    Burberry Goddess (le flacon flottait au-dessus de sa base), coulures
+    blanches retirées sous N°5. Toutes recadrées sur la règle commune :
+    centrées, base à 7 % du bas, 82 % de large et 78 % de haut au plus.
+  - Sept fiches retirées, leur photo ne pouvant pas être reprise :
+    Forever Wanted Elixir (la photo montrait The Most Wanted), Sì Passione
+    Red Musk, Dylan Blush et Poison Girl (flacon coupé), Y Eau Fraîche
+    (flacon caché par un décor), Libre L'Eau Nue (fond blanc), 1 Million
+    (boîte floue). Leur adresse renvoie, en 301, vers le parfum le plus
+    proche (comptoir_parfums_retires). Les duos « Duo Dylan » et « Jour &
+    Soir homme » disparaissent d'eux-mêmes. 202 fiches.
+  Fichiers modifiés : produits.php, functions.php, theme.js, img/produits/
+  (+ style.css). Les photos ne passent pas par l'éditeur de thème :
+  téléverser le paquet complet (Apparence > Thèmes > Ajouter).
+
 VERSION 3.8.1 — UNE SEULE DESCRIPTION GOOGLE
   Dans Google :
   - Accueil et fiches : le module « Outils SEO » de Jetpack ajoutait une
