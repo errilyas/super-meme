@@ -9,6 +9,17 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.9.3 — 24 PHOTOS PRODUIT REMPLACÉES
+  Côté client : nouvelles photos (fournies par la boutique), détourées et
+  cadrées sur la règle commune, pour La Nuit de L'Homme Bleu Électrique,
+  Libre L'Absolu Platine, Cinéma, Dior Homme Parfum, Miss Dior Absolutely
+  Blooming, Miss Dior Blooming Bouquet, Sì Passione Red Musk, Rose Prick,
+  Vanilla Sex, Ombré Leather, Chance, Coco Mademoiselle, Dylan Blue, Eros,
+  Stronger With You Absolutely, Gucci Bloom, Valaya Exclusif, Oriana Royal
+  Essence, Goddess, Her Blossom, Her EDP, Her EDT, La Nuit Trésor Le
+  Parfum, La Vie est Belle. Rien d'autre ne change.
+  Fichiers modifiés : img/produits/ (+ style.css). Paquet complet.
+
 VERSION 3.9.2 — SIX PARFUMS DE RETOUR, AVEC UNE NOUVELLE PHOTO
   Côté client :
   - Forever Wanted Elixir, Sì Passione Red Musk, Dylan Blush, Poison Girl,
