@@ -51,17 +51,20 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
         <span class="h-eye-text">Maroc · Livraison 24h · Paiement à réception</span>
       </div>
 
-      <!-- H1: line-by-line clip reveal -->
-      <h1 class="hero-h1" id="hh" aria-label="Le parfum que vous voulez. Au prix qui reste.">
+      <!-- Accroche : line-by-line clip reveal. Un paragraphe depuis la 3.8 :
+           le titre de la page pour Google est la pastille ci-dessous, qui dit
+           ce que l'on vend. Meme classe, donc meme rendu. -->
+      <p class="hero-h1" id="hh">
         <span class="h1-line"><span class="h1-inner" data-delay="280">Le parfum</span></span>
         <span class="h1-line"><span class="h1-inner" data-delay="420">que vous voulez.</span></span>
         <span class="h1-line"><span class="h1-inner" data-delay="560"><em>Au prix qui reste.</em></span></span>
-      </h1>
+      </p>
 
-      <!-- Value badge -->
+      <!-- Value badge = H1 de la page (3.8) : « testeurs de parfum originaux
+           au Maroc », la recherche que la boutique veut gagner. -->
       <div class="h-badge" id="hbadge">
         <div class="h-badge-dot" aria-hidden="true"></div>
-        <span class="h-badge-text">Testeurs originaux des grandes maisons</span>
+        <h1 class="h-badge-text">Testeurs de parfum originaux au Maroc</h1>
       </div>
 
       <p class="hero-sub" id="hs">

@@ -1900,10 +1900,13 @@ function comptoir_meta_page() {
 	if ( $slug ) {
 		$p = comptoir_produit_by_slug( $slug );
 		if ( $p ) {
+			// Le prix et le paiement a la livraison d'abord (3.8.0) : Google coupe
+			// vers 155 caracteres, et le prix arrivait en fin de phrase, apres la
+			// pyramide olfactive — il disparaissait des resultats.
 			$desc = sprintf(
-				'%s (%s) — %s Tête : %s. Cœur : %s. Fond : %s. %s, livraison partout au Maroc, paiement à la réception.',
-				$p['n'], $p['b'], $p['d'],
-				implode( ', ', $p['t'] ), implode( ', ', $p['c'] ), implode( ', ', $p['f'] ), $p['pr']
+				'%s %s à %s au Maroc : testeur original, le même parfum qu\'en boutique, sans le coffret. Livraison 24-72 h, paiement à la livraison. %s Tête : %s. Cœur : %s. Fond : %s.',
+				$p['b'], $p['n'], $p['pr'], $p['d'],
+				implode( ', ', $p['t'] ), implode( ', ', $p['c'] ), implode( ', ', $p['f'] )
 			);
 			$cache = array(
 				'titre'     => $p['b'] . ' ' . $p['n'] . ' — ' . $nom,
@@ -2034,6 +2037,21 @@ add_action( 'wp_head', function () {
 	echo '<meta name="twitter:card" content="summary_large_image">' . "\n";
 	echo '<meta name="twitter:image" content="' . esc_url( $img ) . '">' . "\n";
 }, 1 );
+
+// Jetpack ecrit ses propres balises Open Graph. Sur les pages ou le theme
+// ecrit deja les siennes (accueil, fiches, commande, vente), elles se
+// doublaient et se contredisaient : deux og:type (« product » puis
+// « website »), deux og:title. Ailleurs (guides, pages), Jetpack reste seul.
+// Jetpack pose aussi la question au chargement, avant que la page demandee
+// soit connue : comptoir_meta_page() garde son premier resultat, on ne
+// l'appelle donc qu'une fois la requete analysee (action « wp »).
+add_filter( 'jetpack_enable_open_graph', function ( $actif ) {
+	if ( ! did_action( 'wp' ) || is_admin() ) {
+		return $actif;
+	}
+	$meta = comptoir_meta_page();
+	return '' !== $meta['titre'] ? false : $actif;
+}, 99 );
 
 // Favicon — sceau CP, utilise seulement si aucune icone de site n'est reglee
 // dans Reglages > General.

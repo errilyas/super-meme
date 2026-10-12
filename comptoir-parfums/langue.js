@@ -78,6 +78,7 @@
     'que vous voulez.': 'الذي تريده.',
     'Au prix qui reste.': 'بثمن يناسبك.',
     'Testeurs originaux des grandes maisons': 'تستر أصلية من كبريات دور العطور',
+    'Testeurs de parfum originaux au Maroc': 'تسترات عطور أصلية في المغرب',
     'Les grands parfums de Chanel, Dior, Tom Ford, Xerjoff — livrés chez vous en 24 à 72h, partout au Maroc. Vous payez à la réception. Pas avant.': 'أشهر عطور Chanel و Dior و Tom Ford و Xerjoff — تصلك خلال 24 إلى 72 ساعة، في كل المغرب. تدفع عند الاستلام، لا قبل ذلك.',
     'Voir le catalogue': 'تصفّح الكتالوج',
 

@@ -9,6 +9,19 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.8.0 — RÉFÉRENCEMENT (avec Comptoir SEO 1.4.0)
+  Dans Google :
+  - Description des fiches : le prix et le paiement à la livraison en tête
+    (« Dior Sauvage Elixir à 349 DH au Maroc : testeur original… ») ; le
+    prix arrivait en fin de phrase et était coupé.
+  - Accueil : le H1 devient « Testeurs de parfum originaux au Maroc » (la
+    pastille sous l'accroche, même rendu) ; l'accroche « Le parfum que vous
+    voulez » passe en paragraphe, même rendu.
+  - Balises Open Graph de Jetpack retirées là où le thème écrit les siennes
+    (elles se doublaient : deux og:type, deux og:title).
+  Fichiers modifiés : functions.php, front-page.php, langue.js (+ style.css).
+  Mettre en ligne avec Comptoir SEO 1.4.0 (plan du site lu dans le thème).
+
 VERSION 3.7.1 — MENU ET EN-TÊTE DU TÉLÉPHONE
   Côté client :
   - Menu du téléphone : le lien « Duos » (ajouté par Comptoir Boutique)
