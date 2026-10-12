@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Comptoir SEO
  * Description: Référencement du Comptoir des Parfums : plan du site des 209 fiches parfum (avec images) pour Google, textes alternatifs des photos produits, titres de pages orientés « testeur original » et « prix au Maroc », pages allégées (catalogue chargé une seule fois dans un fichier mis en cache), version arabe de l'accueil et des fiches visible par Google (hreflang, titres et descriptions en arabe), accès immédiat au site (sans l'écran de chargement de 3 secondes), photos à la bonne taille (WebP) et pixel Meta / Clarity chargés après l'affichage.
- * Version: 1.3.2
+ * Version: 1.4.0
  * Author: Le Comptoir des Parfums
  * Requires PHP: 7.4
  * Text Domain: comptoir-seo
@@ -12,17 +12,53 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CSEO_VER', '1.3.2' );
+define( 'CSEO_VER', '1.4.0' );
 define( 'CSEO_SITEMAP', 'sitemap-parfums.xml' );
 define( 'CSEO_IMG_DIR', '/wp-content/themes/comptoir-parfums/img/produits/' );
 
 /* ------------------------------------------------------------------ */
-/* Catalogue : la liste des fiches est lue sur la page d'accueil       */
-/* (cartes <a class="pc" href="?parfum=…">), mise en cache 12 h.       */
+/* Catalogue : lu dans les données du thème (comptoir_produits) ; à    */
+/* défaut, dans les cartes de la page d'accueil, mis en cache 12 h.    */
 /* ------------------------------------------------------------------ */
 
-/** Retourne [ slug => [ 'nom' => 'Dior Sauvage …', 'img' => URL ] ]. */
+/**
+ * Les 209 fiches, lues dans les données du thème — sans requête HTTP.
+ * Depuis le thème 3.7.0, l'accueil ne rend plus que 24 cartes dans sa page
+ * (les autres sont construites par le navigateur) : lire les cartes ne
+ * donnait plus qu'une partie du catalogue, et le plan du site serait tombé
+ * de 209 fiches à 24 au premier renouvellement du cache.
+ */
+function cseo_catalogue_theme() {
+	static $out = null;
+	if ( null !== $out ) {
+		return $out;
+	}
+	$out = array();
+	if ( ! function_exists( 'comptoir_produits' ) ) {
+		return $out;
+	}
+	foreach ( (array) comptoir_produits() as $p ) {
+		if ( empty( $p['s'] ) ) {
+			continue;
+		}
+		$slug    = strtolower( $p['s'] );
+		$a_photo = function_exists( 'comptoir_a_photo' ) ? comptoir_a_photo( $slug ) : true;
+		$nom     = trim( ( isset( $p['b'] ) ? $p['b'] : '' ) . ' ' . ( isset( $p['n'] ) ? $p['n'] : '' ) );
+		$out[ $slug ] = array(
+			'nom'  => '' !== $nom ? $nom : cseo_nom_depuis_slug( $slug ),
+			'img'  => $a_photo ? home_url( CSEO_IMG_DIR . $slug . '.webp' ) : '',
+			'prix' => isset( $p['pr'] ) ? (int) preg_replace( '/\D/', '', (string) $p['pr'] ) : 0,
+		);
+	}
+	return $out;
+}
+
+/** Retourne [ slug => [ 'nom' => 'Dior Sauvage …', 'img' => URL, 'prix' => 349 ] ]. */
 function cseo_catalogue( $force = false ) {
+	$theme = cseo_catalogue_theme();
+	if ( $theme ) {
+		return $theme;
+	}
 	$cat = get_transient( 'cseo_catalogue' );
 	if ( ! $force && is_array( $cat ) && $cat ) {
 		return $cat;
@@ -172,7 +208,10 @@ function cseo_alt_produits( $html ) {
 	foreach ( cseo_parse_cards( $html ) as $slug => $p ) {
 		$noms[ $slug ] = $p['nom'];
 	}
-	$cache = get_transient( 'cseo_catalogue' );
+	$cache = cseo_catalogue_theme();
+	if ( ! $cache ) {
+		$cache = get_transient( 'cseo_catalogue' );
+	}
 	if ( is_array( $cache ) ) {
 		foreach ( $cache as $slug => $p ) {
 			if ( ! isset( $noms[ $slug ] ) ) {
@@ -208,7 +247,13 @@ function cseo_alt_produits( $html ) {
 /* 3. Titres de page                                                   */
 /* ------------------------------------------------------------------ */
 
-/** Fiches parfum (?parfum=…) : « Dior Sauvage Eau de Parfum – Testeur original, prix au Maroc ». */
+/**
+ * Fiches parfum (?parfum=…) : « Dior Sauvage Elixir – 349 DH au Maroc, testeur original ».
+ * Le prix d'abord (1.4.0) : les fiches arrivaient en 5e-9e position sur le
+ * nom exact du parfum (« dior sauvage elixir », « la vie est belle
+ * l'extrait »), sans presque aucun clic. Le prix au Maroc est ce que la
+ * recherche veut savoir, et ce qui distingue la fiche des grandes enseignes.
+ */
 add_filter(
 	'pre_get_document_title',
 	function ( $title ) {
@@ -218,6 +263,25 @@ add_filter(
 		$nom = trim( preg_replace( '/\s+[—–|-]\s+.*$/u', '', $title ) );
 		if ( '' === $nom ) {
 			return $title;
+		}
+		$slug = strtolower( preg_replace( '/[^A-Za-z0-9-]/', '', (string) wp_unslash( $_GET['parfum'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		$cat  = cseo_catalogue_theme();
+		if ( $cat && ! isset( $cat[ $slug ] ) ) {
+			return $title; // Fiche inconnue : le thème a déjà écrit « Parfum introuvable ».
+		}
+		$prix = isset( $cat[ $slug ]['prix'] ) ? (int) $cat[ $slug ]['prix'] : 0;
+		if ( $prix ) {
+			$titres = array(
+				$nom . ' – ' . $prix . ' DH au Maroc, testeur original',
+				$nom . ' – ' . $prix . ' DH au Maroc',
+				$nom . ' – ' . $prix . ' DH',
+			);
+			foreach ( $titres as $t ) {
+				if ( mb_strlen( $t ) <= 65 ) {
+					return $t;
+				}
+			}
+			return end( $titres );
 		}
 		$long  = $nom . ' – Testeur original, prix au Maroc';
 		$court = $nom . ' – Testeur original au Maroc';
@@ -496,7 +560,10 @@ function cseo_textes_arabes() {
 			'تسترات أصلية لأكبر دور العطور: ديور، شانيل، إيف سان لوران، توم فورد وغيرها. نفس العطر الذي يباع في المتاجر بدون علبة. ' . $livraison,
 		);
 	}
-	$cat = get_transient( 'cseo_catalogue' );
+	$cat = cseo_catalogue_theme();
+	if ( ! $cat ) {
+		$cat = get_transient( 'cseo_catalogue' );
+	}
 	if ( ! is_array( $cat ) ) {
 		$cat = get_option( 'cseo_catalogue_backup', array() );
 	}
@@ -504,7 +571,8 @@ function cseo_textes_arabes() {
 	$nom  = ! empty( $p['nom'] ) ? $p['nom'] : cseo_nom_depuis_slug( $slug );
 	$prix = ! empty( $p['prix'] ) ? (int) $p['prix'] : 0;
 	return array(
-		$nom . ' – تستر أصلي بأفضل ثمن في المغرب',
+		// Le prix d'abord, comme le titre français (1.4.0).
+		$prix ? $nom . ' – ' . $prix . ' درهم، تستر أصلي في المغرب' : $nom . ' – تستر أصلي بأفضل ثمن في المغرب',
 		$nom . ' تستر أصلي' . ( $prix ? ' بـ' . $prix . ' درهم' : '' ) . '، نفس العطر الذي يباع في المتاجر بدون علبة. ' . $livraison,
 	);
 }
