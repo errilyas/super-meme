@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Comptoir SEO
  * Description: Référencement du Comptoir des Parfums : plan du site des 209 fiches parfum (avec images) pour Google, textes alternatifs des photos produits, titres de pages orientés « testeur original » et « prix au Maroc », pages allégées (catalogue chargé une seule fois dans un fichier mis en cache), version arabe de l'accueil et des fiches visible par Google (hreflang, titres et descriptions en arabe), accès immédiat au site (sans l'écran de chargement de 3 secondes), photos à la bonne taille (WebP) et pixel Meta / Clarity chargés après l'affichage.
- * Version: 1.4.0
+ * Version: 1.4.1
  * Author: Le Comptoir des Parfums
  * Requires PHP: 7.4
  * Text Domain: comptoir-seo
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CSEO_VER', '1.4.0' );
+define( 'CSEO_VER', '1.4.1' );
 define( 'CSEO_SITEMAP', 'sitemap-parfums.xml' );
 define( 'CSEO_IMG_DIR', '/wp-content/themes/comptoir-parfums/img/produits/' );
 
@@ -664,6 +664,14 @@ function cseo_images_legeres( $html ) {
 			}
 			$rel = substr( $path, strlen( $rel_path ) );
 			if ( ! preg_match( '#^[a-z0-9/_.-]+\.(?:webp|jpe?g|png)$#i', $rel ) || false !== strpos( $rel, '..' ) ) {
+				return $tag;
+			}
+			// Photos produit : pas de CDN (1.4.1). i0.wp.com garde une photo
+			// d'apres son chemin et ignore le ?v= de version : une photo
+			// remplacee restait l'ancienne sur les telephones, sans limite de
+			// temps. Servies telles quelles (720 px, WebP), elles changent des
+			// que le theme est mis a jour. Les preuves clients gardent le CDN.
+			if ( 0 === strpos( $rel, 'produits/' ) ) {
 				return $tag;
 			}
 			$class = preg_match( '#\sclass\s*=\s*"([^"]*)"#i', $tag, $c ) ? ' ' . $c[1] . ' ' : '';
