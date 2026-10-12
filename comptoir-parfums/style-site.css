@@ -2937,3 +2937,73 @@ html{scroll-padding-top:76px}
      l'en-tête fixe. */
   .hero-text{padding-top:44px}
 }
+
+/* ══════════════════════════════════════════════════════════════
+   CATALOGUE EN RAYONS SUR TÉLÉPHONE — ÉDITION MAISON (v3.9)
+   theme.js construit les rayons (.cat-rayons) et pose .vue-rayons sur la
+   section tant qu'aucune recherche, maison ou tri n'est choisi : la grille
+   s'efface alors derrière une maison par rangée, que l'on fait glisser.
+   Deux cartes et le bord de la troisième : on voit que la rangée continue.
+══════════════════════════════════════════════════════════════ */
+.cat-rayons{display:none}
+.cat-filtres-btn{display:none}
+@media(max-width:620px){
+  /* En-tête du catalogue resserré : il prenait un écran et demi avant le
+     premier flacon. Le titre dit déjà tout, le paragraphe sur les filtres
+     s'efface ; Femme / Homme / Mixte / Tout tiennent sur une ligne. */
+  .catalogue .sect-body{display:none}
+  .cat-quick{display:flex;gap:6px;background:none;margin-top:22px}
+  .cat-quick-item{
+    flex:1 1 0;min-width:0;padding:9px 4px;gap:2px;align-items:center;justify-content:center;
+    text-align:center;background:transparent;border:1px solid var(--line2);border-radius:2px;
+  }
+  .cat-quick-item-all{order:-1;background:transparent}
+  .cat-quick-count{font-size:18px}
+  .cat-quick-label{font-size:8px;letter-spacing:.14em;line-height:1.3}
+  .cat-quick-item.is-actif{background:rgba(var(--au-rgb),.14);border-color:var(--amber)}
+  .cat-quick-item.is-actif .cat-quick-count{color:var(--gilt)}
+  .cat-filtres{margin-top:16px}
+  .cat-filtres-btn{
+    display:flex;align-items:center;justify-content:center;gap:6px;grid-column:1/-1;
+    min-height:44px;padding:0 14px;cursor:pointer;background:transparent;color:var(--bone);
+    border:1px solid var(--line2);border-radius:2px;
+    font-family:var(--sans);font-size:10px;font-weight:400;letter-spacing:.22em;text-transform:uppercase;
+  }
+  .cat-filtres-btn::after{
+    content:'';width:9px;height:9px;margin-left:4px;transition:transform .25s;
+    background:center/9px 6px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23ba913c' stroke-width='1.3'/%3E%3C/svg%3E");
+  }
+  .cat-filtres.is-ouvert .cat-filtres-btn::after{transform:rotate(180deg)}
+  .cat-filtres-nb{color:var(--ember);font-variant-numeric:tabular-nums}
+  .cat-filtres:not(.is-ouvert) > .cat-champ:not(.cat-champ-q){display:none}
+
+  .catalogue.vue-rayons .cat-rayons{display:block}
+  .catalogue.vue-rayons .cat-grille,
+  .catalogue.vue-rayons .cat-plus{display:none}
+  .rayon{padding:18px 0 24px;border-top:1px solid var(--line)}
+  .rayon[hidden]{display:none}
+  .rayon-tete{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .rayon-nom{margin:0;font-family:var(--serif);font-size:22px;font-weight:400;line-height:1.15;color:var(--bone)}
+  .rayon-tout{
+    flex:none;background:none;border:0;padding:10px 0;margin:-10px 0;cursor:pointer;
+    font-family:var(--sans);font-size:10px;font-weight:400;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ember);font-variant-numeric:tabular-nums;
+  }
+  .rayon-piste{
+    display:flex;gap:12px;overflow-x:auto;overscroll-behavior-x:contain;
+    scroll-snap-type:x mandatory;scrollbar-width:none;
+    margin:0 -24px;padding:0 24px 4px;scroll-padding-inline:24px;
+  }
+  .rayon-piste::-webkit-scrollbar{display:none}
+  .rayon-piste .pc{flex:0 0 calc((100% - 12px) / 2.2);scroll-snap-align:start;padding:0;background:none;box-shadow:none}
+  .rayon-piste .pc::after{display:none}
+  .rayon-piste .pc-photo{margin-bottom:10px}
+  .rayon:not(.rayon-mix) .pc-maison{display:none}
+  .rayon-piste .pc-maison{font-size:8.5px;margin-bottom:4px}
+  .rayon-piste .pc-nom{
+    font-size:15px;line-height:1.2;margin-bottom:4px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .rayon-piste .pc-meta{font-size:10px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rayon-piste .pc-prix{font-size:16px}
+}

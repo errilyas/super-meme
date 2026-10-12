@@ -688,13 +688,19 @@ function carteSurPage(p, modele){
   }
   return h;
 }
+/* srcset et sizes d'une carte rendue par PHP, a recopier sur celles qu'on
+   construit ici (grille completee, rayons du telephone). */
+function modeleImage(){
+  const img = catList && catList.querySelector('img.pc-img[srcset][sizes]');
+  if(!img) return null;
+  try { return { srcset: img.getAttribute('srcset'), sizes: img.getAttribute('sizes'), chemin: new URL(img.getAttribute('src'), location.href).pathname }; }
+  catch(e) { return null; }
+}
 function completerCatalogue(){
   if(catComplet || !catList) return;
   catComplet = true;
   const deja = cartes().length;
-  const img = catList.querySelector('img.pc-img[srcset][sizes]');
-  let modele = null;
-  if(img){ try { modele = { srcset: img.getAttribute('srcset'), sizes: img.getAttribute('sizes'), chemin: new URL(img.getAttribute('src'), location.href).pathname }; } catch(e) {} }
+  const modele = modeleImage();
   if(deja < CAT.length) catList.insertAdjacentHTML('beforeend', CAT.slice(deja).map(p => carteSurPage(p, modele)).join(''));
   ordreInitial = null;   /* l'ordre d'origine compte maintenant toutes les cartes */
 }
@@ -784,6 +790,9 @@ function appliquerFiltres(opts){
   const filtre = !!(q || mai || gen || fam) || tri !== 'defaut';
   if(btnReset) btnReset.hidden = !filtre;
 
+  majRayons(q, mai, gen, fam, tri);
+  majCommandes(mai, gen, fam, tri);
+
   /* L'URL garde la maison choisie : le lien reste partageable. */
   if(!opts.sansURL){
     const cible = mai ? '#catalogue?maison=' + mai : '#catalogue';
@@ -815,6 +824,150 @@ function reinitialiser(){
   if(selFamille) selFamille.value = '';
   if(selTri)     selTri.value = 'defaut';
   appliquerFiltres();   /* remet l'ordre d'origine, triCourant s'en charge */
+}
+
+/* ── Rayons par maison, sur téléphone (3.9) ───────────────────────
+   Deux cartes côte à côte pour 202 parfums : 35 000 pixels à faire défiler,
+   et une maison se perdait au milieu des autres. Sur téléphone, tant
+   qu'aucune recherche, maison ou tri n'est choisi, le catalogue devient une
+   suite de rayons : la sélection du moment, puis une maison par rangée que
+   l'on fait glisser du doigt, les plus fournies d'abord, et les maisons à
+   une ou deux références réunies à la fin. Femme / Homme / Mixte et la
+   famille olfactive trient l'intérieur des rayons ; « Tout voir » ouvre la
+   maison dans la grille habituelle. La grille reste en place, cachée : elle
+   donne le compte affiché, et c'est elle que lisent Google et l'ordinateur. */
+const RAYONS_MQ = window.matchMedia ? window.matchMedia('(max-width: 620px)') : null;
+const RAYON_MIN = 3;
+const catSection = document.getElementById('catalogue');
+let rayonsBloc = null;
+let rayonsFiltre = { gen: '', fam: '' };
+
+function rayonOK(genre, famille){
+  return (!rayonsFiltre.gen || genre === rayonsFiltre.gen) &&
+         (!rayonsFiltre.fam || famille === rayonsFiltre.fam);
+}
+
+function rayonsListe(){
+  const tr = window.CP_T || (s => s);
+  const parMaison = {};
+  CAT.forEach(p => { (parMaison[p.b] = parMaison[p.b] || []).push(p); });
+  const liste = [];
+  const vedettes = (catList.dataset.vedettes || '').split(',')
+    .map(s => CAT.find(p => p.s === s)).filter(Boolean);
+  if(vedettes.length) liste.push({ titre: tr('Nos incontournables'), produits: vedettes });
+  /* Dans le rayon de sa maison, un incontournable passe aussi devant. */
+  const enTete = p => vedettes.indexOf(p) === -1 ? 1 : 0;
+  MAISONS.filter(m => parMaison[m].length >= RAYON_MIN)
+    .sort((a, b) => parMaison[b].length - parMaison[a].length || a.localeCompare(b, 'fr'))
+    .forEach(m => liste.push({ titre: m, maison: slugify(m), produits: parMaison[m].slice().sort((a, b) => enTete(a) - enTete(b)) }));
+  const petites = MAISONS.filter(m => parMaison[m].length < RAYON_MIN);
+  if(petites.length) liste.push({ titre: tr('Autres maisons'), produits: [].concat(...petites.map(m => parMaison[m])) });
+  return liste;
+}
+
+/* Le compte du rayon et ses cartes suivent Femme / Homme / Mixte et la
+   famille. Un rayon vide disparaît. */
+function filtrerRayon(sec){
+  const n = sec._produits.filter(p => rayonOK(p.g, familleDe(p.fam))).length;
+  sec.hidden = n === 0;
+  const nb = sec.querySelector('.rayon-nb');
+  if(nb) nb.textContent = n;
+  if(!sec._rempli) return;
+  sec.querySelectorAll('.pc').forEach(c => c.classList.toggle('hidden', !rayonOK(c.dataset.genre, c.dataset.famille)));
+  sec.querySelector('.rayon-piste').scrollLeft = 0;
+}
+
+/* Les cartes d'un rayon ne sont construites qu'à son approche : 202 cartes
+   d'un coup, c'était le poids que la grille partielle avait retiré. */
+function remplirRayon(sec){
+  if(sec._rempli) return;
+  sec._rempli = true;
+  const modele = modeleImage();
+  sec.querySelector('.rayon-piste').innerHTML = sec._produits.map(p => carteSurPage(p, modele)).join('');
+  filtrerRayon(sec);
+}
+
+function construireRayons(){
+  if(rayonsBloc || !catList || !CAT.length) return;
+  const tr = window.CP_T || (s => s);
+  rayonsBloc = document.createElement('div');
+  rayonsBloc.className = 'cat-rayons';
+  rayonsListe().forEach(r => {
+    const sec = document.createElement('section');
+    sec.className = 'rayon' + (r.maison ? '' : ' rayon-mix');
+    sec.setAttribute('aria-label', r.titre);
+    sec._produits = r.produits;
+    sec.innerHTML =
+      '<div class="rayon-tete">' +
+        '<h3 class="rayon-nom">' + esc(r.titre) + '</h3>' +
+        (r.maison ? '<button type="button" class="rayon-tout" data-maison="' + esc(r.maison) + '">' +
+          esc(tr('Tout voir')) + ' (<span class="rayon-nb"></span>)</button>' : '') +
+      '</div>' +
+      '<div class="rayon-piste" role="list"></div>';
+    filtrerRayon(sec);
+    rayonsBloc.appendChild(sec);
+  });
+  catList.insertAdjacentElement('beforebegin', rayonsBloc);
+
+  rayonsBloc.addEventListener('click', e => {
+    const b = e.target.closest('.rayon-tout');
+    if(!b || !selMaison) return;
+    selMaison.value = b.dataset.maison;
+    appliquerFiltres();
+    scrollToCatalogue();
+  });
+
+  const sections = [...rayonsBloc.querySelectorAll('.rayon')];
+  if('IntersectionObserver' in window){
+    const obs = new IntersectionObserver(entrees => entrees.forEach(en => {
+      if(en.isIntersecting){ remplirRayon(en.target); obs.unobserve(en.target); }
+    }), { rootMargin: '900px 0px' });
+    sections.forEach(s => obs.observe(s));
+  } else {
+    sections.forEach(remplirRayon);
+  }
+}
+
+function majRayons(q, mai, gen, fam, tri){
+  if(!catSection || !catList) return;
+  const actif = !!(RAYONS_MQ && RAYONS_MQ.matches) && !q && !mai && tri === 'defaut';
+  if(actif) construireRayons();
+  catSection.classList.toggle('vue-rayons', actif && !!rayonsBloc);
+  if(!rayonsBloc || (rayonsFiltre.gen === gen && rayonsFiltre.fam === fam)) return;
+  rayonsFiltre = { gen: gen, fam: fam };
+  rayonsBloc.querySelectorAll('.rayon').forEach(filtrerRayon);
+}
+
+/* Téléphone : Femme / Homme / Mixte / Tout deviennent une rangée de
+   pastilles, et celle qui trie les rayons reste allumée. Les quatre listes
+   se replient derrière « Filtrer et trier », qui dit combien sont actives :
+   elles occupaient un écran entier avant le premier flacon. */
+const btnFiltres = document.getElementById('cat-filtres-btn');
+const nbFiltres  = document.getElementById('cat-filtres-nb');
+function majCommandes(mai, gen, fam, tri){
+  document.querySelectorAll('[data-genre-tile]').forEach(a => {
+    const on = a.dataset.genreTile === gen;
+    a.classList.toggle('is-actif', on);
+    if(on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+  });
+  if(nbFiltres){
+    const n = [mai, gen, fam].filter(Boolean).length + (tri !== 'defaut' ? 1 : 0);
+    nbFiltres.textContent = n ? '(' + n + ')' : '';
+  }
+}
+if(btnFiltres){
+  btnFiltres.addEventListener('click', () => {
+    const bloc = btnFiltres.closest('.cat-filtres');
+    const ouvert = !bloc.classList.contains('is-ouvert');
+    bloc.classList.toggle('is-ouvert', ouvert);
+    btnFiltres.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+  });
+}
+
+if(RAYONS_MQ){
+  const bascule = () => appliquerFiltres({ sansURL: true, garderPage: true });
+  if(RAYONS_MQ.addEventListener) RAYONS_MQ.addEventListener('change', bascule);
+  else if(RAYONS_MQ.addListener) RAYONS_MQ.addListener(bascule);
 }
 
 [champQ, selMaison, selGenre, selFamille, selTri].forEach(el => {

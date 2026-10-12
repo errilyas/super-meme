@@ -33,7 +33,7 @@
 
   /* Les noms propres. Un nom de parfum traduit devient introuvable. */
   var ZONES = [
-    '.pc-nom', '.pc-maison', '.scent-card-name', '.scent-card-brand',
+    '.pc-nom', '.pc-maison', '.rayon-nom', '.scent-card-name', '.scent-card-brand',
     '.pf-name', '.pf-brand', '.pnr-name', '.pnr-brand', '.ck-in', '.ck-ib',
     '.h-note-card-name', '.h-note-card-brand', '.h-brand-float',
     '.marquee-sect', '.vitrine-maison', '#cat-maison', '.dist-col-tag',
@@ -155,6 +155,7 @@
     'Filtrez par maison, par destinataire ou par famille olfactive. Chaque flacon a sa fiche : description, pyramide olfactive, prix.': 'صفِّ حسب الدار أو حسب من سيرتديه أو حسب العائلة العطرية. لكل قارورة بطاقتها: الوصف، الهرم العطري، السعر.',
     'DH': 'درهم',
     'Rechercher': 'بحث',
+    'Filtrer et trier': 'تصفية وترتيب',
     'Maison': 'الدار',
     'Toutes les maisons': 'كل الدور',
     'Pour': 'لِمَن',
@@ -562,6 +563,11 @@
     /* Bouton de pagination du catalogue : theme.js ajoute le compte apres
        la phrase, qui ne passe donc que par CP_T (T ne la voyait jamais seule). */
     'Voir plus de parfums': 'شاهد عطورًا أخرى',
+    /* Rayons du catalogue sur téléphone (theme.js, 3.9). */
+    'Nos incontournables': 'مختاراتنا',
+    'Autres maisons': 'دور عطور أخرى',
+    'Tout voir': 'عرض الكل',
+    'Filtrer et trier': 'تصفية وترتيب',
     'iris':'سوسن',
     'tendre':'رقيق',
     'Sous-total': 'المجموع الفرعي',

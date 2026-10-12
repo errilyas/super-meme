@@ -206,6 +206,9 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
         <label for="cat-search">Rechercher</label>
         <input type="search" id="cat-search" autocomplete="off" placeholder="Un parfum, une maison…">
       </p>
+      <?php /* Telephone (3.9) : les quatre listes se replient derriere ce
+               bouton, la recherche reste visible. Cache sur ordinateur. */ ?>
+      <button type="button" class="cat-filtres-btn" id="cat-filtres-btn" aria-expanded="false">Filtrer et trier <span class="cat-filtres-nb" id="cat-filtres-nb"></span></button>
       <p class="cat-champ">
         <label for="cat-maison">Maison</label>
         <select id="cat-maison"><option value="">Toutes les maisons</option>
@@ -250,8 +253,17 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
              de HTML et plus de 3 000 elements a analyser sur un telephone
              d'entree de gamme. theme.js construit les autres (data-partiel)
              au premier filtre, tri, recherche ou « Voir plus », sinon quand
-             le navigateur est libre. Chaque fiche reste dans le plan du site. */ ?>
-    <div class="cat-grille" id="cat-list" role="list" data-partiel="24">
+             le navigateur est libre. Chaque fiche reste dans le plan du site.
+             data-vedettes : la selection du moment (ses trois blocs), premier
+             rayon du catalogue sur telephone (3.9). */
+    $cp_vedettes = array();
+    foreach ( comptoir_selection() as $cp_bloc ) {
+    	foreach ( $cp_bloc['parfums'] as $cp_p ) {
+    		$cp_vedettes[] = $cp_p['s'];
+    	}
+    }
+    ?>
+    <div class="cat-grille" id="cat-list" role="list" data-partiel="24" data-vedettes="<?php echo esc_attr( implode( ',', $cp_vedettes ) ); ?>">
 <?php comptoir_rendu_catalogue( 24 ); ?>
     </div>
     <p class="cat-vide" id="cat-vide" hidden>Aucun parfum ne correspond. Essayez le nom de la maison, ou <button type="button" class="cat-vide-reset">affichez tout le catalogue</button>.</p>

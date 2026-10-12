@@ -26,8 +26,20 @@ VERSION 3.9.0 — PHOTOS REPRISES, CATALOGUE EN RAYONS SUR TÉLÉPHONE
     (boîte floue). Leur adresse renvoie, en 301, vers le parfum le plus
     proche (comptoir_parfums_retires). Les duos « Duo Dylan » et « Jour &
     Soir homme » disparaissent d'eux-mêmes. 202 fiches.
-  Fichiers modifiés : produits.php, functions.php, theme.js, img/produits/
-  (+ style.css). Les photos ne passent pas par l'éditeur de thème :
+  - Téléphone : le catalogue devient une suite de rayons que l'on fait
+    glisser du doigt — « Nos incontournables » (la sélection du moment),
+    puis une maison par rangée, les plus fournies d'abord, et « Autres
+    maisons » pour celles qui ont une ou deux références. Deux cartes et le
+    bord de la troisième, « Tout voir (n) » ouvre la maison dans la grille.
+    Femme / Homme / Mixte deviennent une rangée de pastilles qui trient les
+    rayons sur place ; maison, famille, destinataire et tri se replient
+    derrière « Filtrer et trier ». Recherche, choix d'une maison ou tri :
+    retour à la grille habituelle, « Tout afficher » ramène les rayons.
+    De l'en-tête du catalogue au premier flacon : 495 px au lieu de 1 200 ;
+    tout le catalogue : environ 9 000 px au lieu de 35 000.
+  - Ordinateur et tablette : rien ne change.
+  Fichiers modifiés : produits.php, functions.php, theme.js, front-page.php,
+  style-site.css, langue.js, img/produits/ (+ style.css). Les photos ne passent pas par l'éditeur de thème :
   téléverser le paquet complet (Apparence > Thèmes > Ajouter).
 
 VERSION 3.8.1 — UNE SEULE DESCRIPTION GOOGLE
