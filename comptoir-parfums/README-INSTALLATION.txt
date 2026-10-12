@@ -9,6 +9,17 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.9.2 — SIX PARFUMS DE RETOUR, AVEC UNE NOUVELLE PHOTO
+  Côté client :
+  - Forever Wanted Elixir, Sì Passione Red Musk, Dylan Blush, Poison Girl,
+    Y Eau Fraîche et Libre L'Eau Nue reviennent au catalogue, avec une photo
+    neuve détourée et cadrée comme les autres. 208 fiches.
+  - Les duos « Duo Dylan » et « Jour & Soir homme » reviennent d'eux-mêmes.
+  - 1 Million reste retiré (la photo reçue était celle de 1 Million Parfum,
+    déjà au catalogue) ; son adresse renvoie toujours vers 1 Million Parfum.
+  Fichiers modifiés : produits.php, functions.php, theme.js, img/produits/
+  (+ style.css). Paquet complet à téléverser (photos).
+
 VERSION 3.9.1 — PASTILLES « NOS MAISONS » LISIBLES
   Côté client :
   - Accueil, rangée « Nos maisons » (Comptoir Boutique) : en thème clair,

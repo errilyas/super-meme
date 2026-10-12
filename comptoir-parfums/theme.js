@@ -325,6 +325,7 @@ const THUMB_FALLBACK="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/sv
    requête — donc pas de 404 dans la console. Pour ajouter une photo : déposer
    le .webp dans img/produits/ puis ajouter son nom de fichier ici. */
 const PRODUCT_IMAGES = new Set(window.CP_PRODUCT_IMAGES || [
+  "azzaro--forever-wanted-elixir.webp",
   "burberry--goddess.webp",
   "burberry--her-intense.webp",
   "chanel--allure-homme-sport.webp",
@@ -484,12 +485,14 @@ const PRODUCT_IMAGES = new Set(window.CP_PRODUCT_IMAGES || [
   "yves-saint-laurent--la-nuit-de-lhomme-le-parfum.webp",
   "yves-saint-laurent--libre-edp-intense.webp",
   "yves-saint-laurent--libre-labsolu-platine.webp",
+  "yves-saint-laurent--libre-leau-nue.webp",
   "yves-saint-laurent--libre-le-parfum.webp",
   "yves-saint-laurent--mon-paris.webp",
   "yves-saint-laurent--myslf-edp.webp",
   "yves-saint-laurent--myslf-labsolu.webp",
   "yves-saint-laurent--myslf-le-parfum.webp",
   "yves-saint-laurent--y-edp.webp",
+  "yves-saint-laurent--y-eau-fraiche.webp",
   "yves-saint-laurent--y-le-parfum.webp",
   "zadig-voltaire--this-is-her.webp"
 ]);

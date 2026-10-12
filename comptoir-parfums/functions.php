@@ -470,21 +470,16 @@ add_filter( 'template_include', function ( $template ) {
 }, 99 );
 
 /**
- * Fiches retirees du catalogue (3.9.0) : leur photo n'etait pas presentable
- * (flacon coupe, mauvais produit, fond blanc) et ne pouvait pas etre reprise.
- * L'ancienne adresse renvoie vers le parfum le plus proche plutot que vers
- * « Parfum introuvable » : un lien deja partage, ou deja connu de Google,
- * mene encore a un flacon a commander.
+ * Fiches retirees du catalogue : leur photo n'etait pas presentable et ne
+ * pouvait pas etre reprise (3.9.0). L'ancienne adresse renvoie vers le parfum
+ * le plus proche plutot que vers « Parfum introuvable » : un lien deja
+ * partage, ou deja connu de Google, mene encore a un flacon a commander.
+ * Six des sept sont revenues en 3.9.2 avec une nouvelle photo ; une fiche
+ * remise dans produits.php doit sortir de cette liste.
  */
 function comptoir_parfums_retires() {
 	return array(
-		'azzaro--forever-wanted-elixir'        => 'azzaro--the-most-wanted',
-		'giorgio-armani--si-passione-red-musk' => 'giorgio-armani--si-passione',
-		'versace--dylan-blush-pour-femme'      => 'versace--bright-crystal',
-		'dior--poison-girl'                    => 'dior--hypnotic-poison-edp',
-		'yves-saint-laurent--y-eau-fraiche'    => 'yves-saint-laurent--y-edp',
-		'yves-saint-laurent--libre-leau-nue'   => 'yves-saint-laurent--libre-edp-intense',
-		'rabanne--1-million'                   => 'rabanne--1-million-parfum',
+		'rabanne--1-million' => 'rabanne--1-million-parfum',
 	);
 }
 
