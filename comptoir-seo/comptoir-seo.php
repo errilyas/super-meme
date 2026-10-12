@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Comptoir SEO
  * Description: Référencement du Comptoir des Parfums : plan du site des 209 fiches parfum (avec images) pour Google, textes alternatifs des photos produits, titres de pages orientés « testeur original » et « prix au Maroc », pages allégées (catalogue chargé une seule fois dans un fichier mis en cache), version arabe de l'accueil et des fiches visible par Google (hreflang, titres et descriptions en arabe), accès immédiat au site (sans l'écran de chargement de 3 secondes), photos à la bonne taille (WebP) et pixel Meta / Clarity chargés après l'affichage.
- * Version: 1.4.1
+ * Version: 1.5.0
  * Author: Le Comptoir des Parfums
  * Requires PHP: 7.4
  * Text Domain: comptoir-seo
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CSEO_VER', '1.4.1' );
+define( 'CSEO_VER', '1.5.0' );
 define( 'CSEO_SITEMAP', 'sitemap-parfums.xml' );
 define( 'CSEO_IMG_DIR', '/wp-content/themes/comptoir-parfums/img/produits/' );
 
@@ -170,6 +170,142 @@ add_filter(
 	20,
 	2
 );
+
+/* ------------------------------------------------------------------ */
+/* 1 bis. Catalogue produits : /catalogue-produits.xml (1.5.0)         */
+/*                                                                    */
+/* Le flux que lit le catalogue Meta (Facebook, Instagram, catalogue   */
+/* WhatsApp, publicités catalogue) : un article par fiche, au format   */
+/* RSS de Google, que Meta et Google Merchant Center lisent tous deux. */
+/* L'identifiant est le slug de la fiche, celui que le pixel envoie    */
+/* dans content_ids : Meta relie ainsi visites, paniers et achats aux  */
+/* produits. Un prix ou une photo changés dans le thème y sont         */
+/* aussitôt.                                                           */
+/* Photos : Meta attend du JPEG ou du PNG, les photos du thème sont    */
+/* des WebP détourés. /?catalogue_photo=<slug> les pose au carré       */
+/* (1080 px) sur un fond crème, en JPEG ; le ?v= suit la date du       */
+/* fichier, Meta reprend donc une photo dès qu'elle change.            */
+/* ------------------------------------------------------------------ */
+
+define( 'CSEO_FLUX', 'catalogue-produits.xml' );
+
+/** Les fiches du flux : [ slug => champs ], seulement celles qui ont une photo et un prix. */
+function cseo_flux_produits() {
+	if ( ! function_exists( 'comptoir_produits' ) ) {
+		return array();
+	}
+	$genres = array(
+		'Homme' => array( 'male', 'Parfums homme' ),
+		'Femme' => array( 'female', 'Parfums femme' ),
+		'Mixte' => array( 'unisex', 'Parfums mixtes' ),
+	);
+	$dir    = trailingslashit( get_stylesheet_directory() ) . 'img/produits/';
+	$out    = array();
+	foreach ( (array) comptoir_produits() as $p ) {
+		$slug = isset( $p['s'] ) ? strtolower( (string) $p['s'] ) : '';
+		$prix = isset( $p['pr'] ) ? (int) preg_replace( '/\D/', '', (string) $p['pr'] ) : 0;
+		$f    = $dir . $slug . '.webp';
+		if ( '' === $slug || $prix <= 0 || ! is_readable( $f ) ) {
+			continue;
+		}
+		$b    = isset( $p['b'] ) ? (string) $p['b'] : '';
+		$n    = isset( $p['n'] ) ? (string) $p['n'] : '';
+		$x    = isset( $p['x'] ) ? (string) $p['x'] : '';
+		$g    = isset( $p['g'], $genres[ $p['g'] ] ) ? $genres[ $p['g'] ] : array( 'unisex', 'Parfums mixtes' );
+		$note = function ( $k ) use ( $p ) {
+			return isset( $p[ $k ] ) ? implode( ', ', (array) $p[ $k ] ) : '';
+		};
+		$desc = trim( ( isset( $p['d'] ) ? $p['d'] : '' ) . ' Testeur original ' . $b . ' ' . $n . ( '' !== $x ? ' (' . $x . ')' : '' )
+			. ' : le même parfum qu\'en boutique, sans le coffret. Tête : ' . $note( 't' ) . '. Cœur : ' . $note( 'c' ) . '. Fond : ' . $note( 'f' )
+			. '. Livraison 24 à 72 h partout au Maroc, paiement à la livraison.' );
+		$out[ $slug ] = array(
+			'titre'   => trim( $b . ' ' . $n ) . ' – Testeur original',
+			'desc'    => $desc,
+			'lien'    => function_exists( 'comptoir_parfum_url' ) ? comptoir_parfum_url( $slug ) : add_query_arg( 'parfum', $slug, home_url( '/' ) ),
+			'photo'   => add_query_arg( array( 'catalogue_photo' => $slug, 'v' => (int) @filemtime( $f ) ), home_url( '/' ) ), // phpcs:ignore
+			'prix'    => $prix,
+			'marque'  => $b,
+			'genre'   => $g[0],
+			'type'    => $g[1] . ' > ' . $b,
+			'famille' => isset( $p['fam'] ) ? (string) $p['fam'] : '',
+		);
+	}
+	return $out;
+}
+
+add_action( 'init', 'cseo_maybe_flux', 1 );
+
+function cseo_maybe_flux() {
+	$path = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH ) : '';
+	if ( '/' . CSEO_FLUX !== rtrim( (string) $path, '/' ) ) {
+		return;
+	}
+	$items = cseo_flux_produits();
+	$x     = function ( $s ) {
+		return htmlspecialchars( (string) $s, ENT_XML1 | ENT_QUOTES, 'UTF-8' );
+	};
+	status_header( $items ? 200 : 503 );
+	header( 'Content-Type: application/xml; charset=UTF-8' );
+	header( 'X-Robots-Tag: noindex' );
+	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+	echo '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n<channel>\n";
+	echo "\t<title>" . $x( get_bloginfo( 'name' ) ) . "</title>\n\t<link>" . $x( home_url( '/' ) ) . "</link>\n";
+	echo "\t<description>" . $x( 'Testeurs de parfum originaux, livrés partout au Maroc.' ) . "</description>\n";
+	foreach ( $items as $slug => $i ) {
+		echo "\t<item>\n";
+		echo "\t\t<g:id>" . $x( $slug ) . "</g:id>\n";
+		echo "\t\t<g:title>" . $x( $i['titre'] ) . "</g:title>\n";
+		echo "\t\t<g:description>" . $x( $i['desc'] ) . "</g:description>\n";
+		echo "\t\t<g:link>" . $x( $i['lien'] ) . "</g:link>\n";
+		echo "\t\t<g:image_link>" . $x( $i['photo'] ) . "</g:image_link>\n";
+		echo "\t\t<g:availability>in stock</g:availability>\n";
+		echo "\t\t<g:condition>new</g:condition>\n";
+		echo "\t\t<g:price>" . $x( number_format( $i['prix'], 2, '.', '' ) . ' MAD' ) . "</g:price>\n";
+		echo "\t\t<g:brand>" . $x( $i['marque'] ) . "</g:brand>\n";
+		echo "\t\t<g:identifier_exists>no</g:identifier_exists>\n";
+		echo "\t\t<g:google_product_category>479</g:google_product_category>\n";
+		echo "\t\t<g:product_type>" . $x( $i['type'] ) . "</g:product_type>\n";
+		echo "\t\t<g:gender>" . $x( $i['genre'] ) . "</g:gender>\n";
+		echo "\t\t<g:age_group>adult</g:age_group>\n";
+		if ( '' !== $i['famille'] ) {
+			echo "\t\t<g:custom_label_0>" . $x( $i['famille'] ) . "</g:custom_label_0>\n";
+		}
+		echo "\t</item>\n";
+	}
+	echo "</channel>\n</rss>\n";
+	exit;
+}
+
+add_action( 'init', 'cseo_maybe_photo_catalogue', 1 );
+
+function cseo_maybe_photo_catalogue() {
+	if ( empty( $_GET['catalogue_photo'] ) || ! is_string( $_GET['catalogue_photo'] ) ) {
+		return;
+	}
+	$slug = preg_replace( '/[^a-z0-9-]/', '', strtolower( wp_unslash( $_GET['catalogue_photo'] ) ) );
+	$f    = trailingslashit( get_stylesheet_directory() ) . 'img/produits/' . $slug . '.webp';
+	$src  = ( '' !== $slug && is_readable( $f ) && function_exists( 'imagecreatefromwebp' ) ) ? @imagecreatefromwebp( $f ) : false; // phpcs:ignore
+	if ( ! $src ) {
+		status_header( 404 );
+		exit;
+	}
+	$c   = 1080;
+	$dst = imagecreatetruecolor( $c, $c );
+	imagefill( $dst, 0, 0, imagecolorallocate( $dst, 245, 239, 228 ) );
+	imagealphablending( $dst, true );
+	$w = imagesx( $src );
+	$h = imagesy( $src );
+	$k = min( $c / $w, $c / $h );
+	$nw = (int) round( $w * $k );
+	$nh = (int) round( $h * $k );
+	imagecopyresampled( $dst, $src, (int) ( ( $c - $nw ) / 2 ), (int) ( ( $c - $nh ) / 2 ), 0, 0, $nw, $nh, $w, $h );
+	status_header( 200 );
+	header( 'Content-Type: image/jpeg' );
+	header( 'Cache-Control: public, max-age=31536000' );
+	header( 'X-Robots-Tag: noindex' );
+	imagejpeg( $dst, null, 88 );
+	exit;
+}
 
 /* ------------------------------------------------------------------ */
 /* 2. Textes alternatifs des photos produits                           */
@@ -842,6 +978,8 @@ function cseo_page() {
 	}
 	echo '<table class="widefat striped" style="max-width:800px"><tbody>';
 	echo '<tr><td><strong>Plan du site des fiches parfum</strong></td><td><a href="' . esc_url( $url ) . '" target="_blank">' . esc_html( $url ) . '</a><br><span class="description">' . (int) count( $cat ) . ' fiches. À ajouter une fois dans Google Search Console › Sitemaps.</span></td></tr>';
+	$flux = home_url( '/' . CSEO_FLUX );
+	echo '<tr><td><strong>Catalogue produits</strong></td><td><a href="' . esc_url( $flux ) . '" target="_blank">' . esc_html( $flux ) . '</a><br><span class="description">' . (int) count( cseo_flux_produits() ) . ' parfums, prix et photos à jour. Lu chaque jour par le catalogue Meta (Facebook, Instagram, WhatsApp) ; à donner aussi à Google Merchant Center.</span></td></tr>';
 	echo '<tr><td><strong>Textes alternatifs</strong></td><td>Ajoutés automatiquement aux photos produits qui n\'en ont pas : « Testeur Dior Sauvage … – parfum original ».</td></tr>';
 	$f = get_option( 'cseo_catalogue_file' );
 	echo '<tr><td><strong>Pages allégées</strong></td><td>' . ( is_array( $f ) ? 'Catalogue servi depuis un fichier en cache : <code>' . esc_html( basename( $f['path'] ) ) . '</code>' : 'Le fichier du catalogue sera créé à la prochaine visite du site.' ) . '</td></tr>';
