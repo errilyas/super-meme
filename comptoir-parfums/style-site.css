@@ -3007,3 +3007,11 @@ html{scroll-padding-top:76px}
   .rayon-piste .pc-meta{font-size:10px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rayon-piste .pc-prix{font-size:16px}
 }
+
+/* « Nos maisons » et [maisons] (Comptoir Boutique) : le nom de maison y porte
+   .pnr-brand, que panier.js colore en crème pour le tiroir du panier, sombre.
+   En thème clair, les pastilles paraissaient vides. Le nom reprend le style
+   de la pastille, comme ailleurs dans l'extension (.pnr-brand.cpb-maison). */
+.cpb-puce .pnr-brand,.cpb-maisons .pnr-brand{
+  font:inherit;margin:0;letter-spacing:inherit;text-transform:inherit;color:inherit;line-height:inherit;
+}

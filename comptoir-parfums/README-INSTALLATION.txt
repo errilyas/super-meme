@@ -9,6 +9,13 @@ style-site.css, dans les blocs « ÉDITION MAISON » (un par version et par
 page). Les gabarits ont aussi évolué (pied de page, fiche, commande, vente,
 404, menu) : le détail est ci-dessous, et l'historique git garde la v2.
 
+VERSION 3.9.1 — PASTILLES « NOS MAISONS » LISIBLES
+  Côté client :
+  - Accueil, rangée « Nos maisons » (Comptoir Boutique) : en thème clair,
+    les noms de maison étaient écrits crème sur crème et les pastilles
+    paraissaient vides. Ils reprennent la couleur de la pastille.
+  Fichiers modifiés : style-site.css (+ style.css).
+
 VERSION 3.9.0 — PHOTOS REPRISES, CATALOGUE EN RAYONS SUR TÉLÉPHONE
   Côté client :
   - Dix photos reprises : traits et taches laissés par le détourage effacés
