@@ -72,7 +72,11 @@ get_header();
   <div class="pf-top">
     <div class="pf-visual<?php echo $cp_a_photo ? '' : ' is-empty'; ?>">
 		<?php if ( $cp_a_photo ) : ?>
-      <img src="<?php echo esc_url( $cp_img ); ?>" alt="<?php echo esc_attr( $cp_parfum['b'] . ' ' . $cp_parfum['n'] ); ?>" width="600" height="600" decoding="async">
+      <?php /* fetchpriority : la photo est l'element LCP de la fiche. Depuis que
+               la feuille du theme bloque le premier affichage (3.9.5), le
+               navigateur ne la savait visible qu'apres cette feuille et la
+               laissait derriere les polices et les scripts (LCP 7,6 s). */ ?>
+      <img src="<?php echo esc_url( $cp_img ); ?>" alt="<?php echo esc_attr( $cp_parfum['b'] . ' ' . $cp_parfum['n'] ); ?>" width="600" height="600" decoding="async" fetchpriority="high">
 		<?php endif; ?>
     </div>
 
