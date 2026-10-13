@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Comptoir SEO
- * Description: Référencement du Comptoir des Parfums : plan du site des 209 fiches parfum (avec images) pour Google, textes alternatifs des photos produits, titres de pages orientés « testeur original » et « prix au Maroc », pages allégées (catalogue chargé une seule fois dans un fichier mis en cache), version arabe de l'accueil et des fiches visible par Google (hreflang, titres et descriptions en arabe), accès immédiat au site (sans l'écran de chargement de 3 secondes), photos à la bonne taille (WebP) et pixel Meta / Clarity chargés après l'affichage.
- * Version: 1.5.0
+ * Description: Référencement du Comptoir des Parfums : plan du site des 209 fiches parfum (avec images) pour Google, textes alternatifs des photos produits, titres de pages orientés « testeur original » et « prix au Maroc », pages allégées (catalogue chargé une seule fois dans un fichier mis en cache), version arabe de l'accueil et des fiches visible par Google (hreflang, titres et descriptions en arabe), accès immédiat au site (sans l'écran de chargement de 3 secondes), photos à la bonne taille (WebP) et Clarity chargé après l'affichage.
+ * Version: 1.5.1
  * Author: Le Comptoir des Parfums
  * Requires PHP: 7.4
  * Text Domain: comptoir-seo
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CSEO_VER', '1.5.0' );
+define( 'CSEO_VER', '1.5.1' );
 define( 'CSEO_SITEMAP', 'sitemap-parfums.xml' );
 define( 'CSEO_IMG_DIR', '/wp-content/themes/comptoir-parfums/img/produits/' );
 
@@ -856,13 +856,18 @@ function cseo_images_legeres( $html ) {
 /* par Meta et envoyés dès que le fichier arrive : rien n'est perdu.   */
 /* 1.3.2 : le fichier est ajouté dans <head> (le thème retire certains */
 /* de ses scripts, et le pixel Meta visait l'un d'eux).               */
+/* 1.5.1 : le pixel Meta n'attend plus. Qui repartait avant le premier */
+/* geste n'envoyait jamais son PageView (vues de page des pubs : 81 %  */
+/* fin septembre, 51 % mi-octobre). Le thème l'imprime en tête de      */
+/* <head> avec le chargement asynchrone standard de Meta ; seul        */
+/* Clarity reste différé ici.                                         */
 /* ------------------------------------------------------------------ */
 
 function cseo_traceurs_plus_tard( $html ) {
 	if ( ! apply_filters( 'cseo_delay_trackers', cseo_opt( 'traceurs' ) ) ) {
 		return $html;
 	}
-	if ( false === strpos( $html, 'connect.facebook.net' ) && false === strpos( $html, 'clarity.ms/tag' ) ) {
+	if ( false === strpos( $html, 'clarity.ms/tag' ) ) {
 		return $html;
 	}
 	$new = preg_replace_callback(
@@ -872,7 +877,7 @@ function cseo_traceurs_plus_tard( $html ) {
 			if ( false !== stripos( $m[1], ' src=' ) || false !== strpos( $code, 'cseoPlusTard' ) ) {
 				return $m[0];
 			}
-			if ( false === strpos( $code, 'connect.facebook.net' ) && false === strpos( $code, 'clarity.ms/tag' ) ) {
+			if ( false === strpos( $code, 'clarity.ms/tag' ) ) {
 				return $m[0];
 			}
 			$code2 = preg_replace(
