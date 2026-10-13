@@ -1468,6 +1468,46 @@ add_filter( 'jetpack_boost_async_style', function ( $methode, $poignees ) {
 }, 10, 2 );
 
 /**
+ * Accueil : les scripts du site sont differes (defer). Jetpack Boost les met en
+ * bas de page, mais en scripts ordinaires, que PageSpeed comptait comme
+ * bloquant l'affichage (GSAP et ScrollTrigger sur cdnjs, theme.js, panier.js,
+ * langue.js, boutique.js : 110 Ko). defer garde leur ordre et les execute
+ * avant DOMContentLoaded : boutique.js et theme.js demarrent comme avant.
+ * WordPress refuse lui-meme de differer un script suivi d'un code qui en
+ * depend ('after') ou dont un dependant reste bloquant. Le chargeur de la
+ * vitrine (grand ecran) reste un script en ligne : three.js et vitrine.js
+ * passent toujours avant theme.js. La fiche et la page commande ne changent
+ * pas ici (etape 4 du plan, liste a valider d'abord).
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( ! comptoir_est_accueil() ) {
+		return;
+	}
+	foreach ( array( 'cp-gsap', 'cp-scrolltrigger', 'comptoir-langue', 'comptoir-panier', 'comptoir-theme', 'comptoir-boutique' ) as $poignee ) {
+		if ( wp_script_is( $poignee, 'enqueued' ) || wp_script_is( $poignee, 'registered' ) ) {
+			wp_script_add_data( $poignee, 'strategy', 'defer' );
+		}
+	}
+}, 20 );
+
+/**
+ * Jetpack ouvre des connexions anticipees (preconnect) vers i0.wp.com et
+ * c0.wp.com sur chaque page : c0 ne sert a rien ici, i0 seulement a des
+ * images hors du premier ecran (Comptoir SEO lui garde un dns-prefetch).
+ * Chaque preconnect inutile prend une poignee de main TLS au debut du
+ * chargement, la ou se jouent le premier affichage et le pixel.
+ */
+add_filter( 'wp_resource_hints', function ( $urls, $type ) {
+	if ( 'preconnect' !== $type || ! is_array( $urls ) ) {
+		return $urls;
+	}
+	return array_values( array_filter( $urls, function ( $u ) {
+		$href = is_array( $u ) ? ( isset( $u['href'] ) ? $u['href'] : '' ) : (string) $u;
+		return ! preg_match( '#^(https?:)?//(i0|c0)\.wp\.com\b#', $href );
+	} ) );
+}, 99, 2 );
+
+/**
  * Noms de fichiers reellement presents dans img/produits/.
  *
  * Cote maquette cette liste est tenue a la main dans le HTML et peut donc

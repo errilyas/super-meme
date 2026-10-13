@@ -1131,25 +1131,16 @@ function initHeroSequence(){
         .fromTo('.h-eye-line',{scaleX:0,transformOrigin:'left'},{scaleX:1,duration:.55,ease:'power2.out'},0)
         .fromTo('.h-eye-text',{opacity:0,x:-14},{opacity:1,x:0,duration:.6},0.2);
 
-  /* H1 — line-by-line clip reveal (the .h1-inner spans)
-     y:0 est explicite dans LES DEUX etats : sans lui GSAP conserve, en plus
-     de yPercent, le translateY(105%) du CSS de base (soit y:48.7px), et les
-     lignes restent clippees hors de leur .h1-line (overflow:hidden) —
-     autrement dit le titre du hero ne s'affichait jamais. */
-  master.fromTo('.h1-inner',
-    {yPercent:105, y:0, opacity:0},
-    {yPercent:0, y:0, opacity:1, duration:1, stagger:0.14, ease:'power3.out'},
-    0.18);
+  /* H1 et sous-titre (#hs) : plus d'entree animee (3.9.7). Ils partaient de
+     opacity:0 / clippes et n'apparaissaient qu'avec GSAP ; or le sous-titre
+     est l'element LCP de l'accueil. Ils sont visibles des le premier
+     affichage (style-site.css, header.php) et le reste du heros s'anime
+     autour d'eux. */
 
   /* Value badge */
   master.fromTo('#hbadge',
     {opacity:0,y:12,scale:.96},
     {opacity:1,y:0,scale:1,duration:.7},0.72);
-
-  /* Subtitle — slight blur-in */
-  master.fromTo('#hs',
-    {opacity:0,y:14,filter:'blur(3px)'},
-    {opacity:1,y:0,filter:'blur(0px)',duration:.85},0.88);
 
   /* Action buttons */
   master.fromTo('#ha',

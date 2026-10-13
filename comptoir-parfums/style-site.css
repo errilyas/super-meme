@@ -336,10 +336,11 @@ body{
 .hero-h1 .h1-line{
   display:block;overflow:hidden;
 }
+/* 3.9.7 : visible des le premier affichage (le titre et le sous-titre sont
+   l'element LCP de l'accueil) ; GSAP ne les anime plus. */
 .hero-h1 .h1-inner{
   display:block;
-  opacity:0;transform:translateY(105%);
-  transition:opacity .001s,transform .9s var(--ease-out);
+  opacity:1;transform:none;
 }
 .hero-h1 .h1-inner.in{opacity:1;transform:none}
 .hero-h1 em{font-style:italic;color:var(--ember)}
@@ -363,8 +364,6 @@ body{
 .hero-sub{
   margin-top:22px;font-size:15px;font-weight:200;
   color:rgba(var(--fg-rgb),.70);max-width:44ch;line-height:1.85;
-  opacity:0;transform:translateY(10px);
-  transition:opacity .8s var(--ease-out) .9s,transform .8s var(--ease-out) .9s;
 }
 .hero-sub.in{opacity:1;transform:none}
 

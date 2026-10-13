@@ -30,11 +30,17 @@ $cp_is_home = comptoir_est_accueil();
 <meta charset="<?php bloginfo( 'charset' ); ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#110814">
-<script>/* langue memorisee, posee avant le rendu : sans cela la page s'affiche
+<?php /* 3.9.7 : data-jetpack-boost="ignore" sur ces deux scripts. Sans lui,
+   Jetpack Boost les repoussait en bas de page avec tous les autres, et ils ne
+   tournaient plus « avant le rendu » : la page pouvait s'afficher en sombre
+   puis passer en clair (ou en francais puis en arabe) sous les yeux du
+   visiteur. Le filet de securite ci-dessous reste en bas : son minuteur
+   partirait sinon avant GSAP et couperait les animations du heros. */ ?>
+<script data-jetpack-boost="ignore">/* langue memorisee, posee avant le rendu : sans cela la page s'affiche
    en francais puis saute en arabe sous les yeux du visiteur. */
 try{var cpL=new URLSearchParams(location.search).get('lang')||localStorage.getItem('cp_langue');
 if(cpL==='ar'){document.documentElement.setAttribute('data-lang','ar');document.documentElement.setAttribute('lang','ar');document.documentElement.setAttribute('dir','rtl');}}catch(e){}</script>
-<script>/* Theme pose avant le rendu (sans flash). Par defaut il suit le jour : clair
+<script data-jetpack-boost="ignore">/* Theme pose avant le rendu (sans flash). Par defaut il suit le jour : clair
    entre le lever et le coucher du soleil au Maroc (heures moyennes du mois,
    heure du telephone), sombre la nuit. Un choix fait au bouton (cp_theme_choisi)
    passe avant. L'ancienne cle cp_theme etait ecrite a chaque page vue, pas
@@ -52,13 +58,14 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
 <?php /* connect.facebook.net sert le pixel, dont le PageView decide de la
    metrique « vue de page » cote Ads Manager : sans preconnect, il faut une
    resolution DNS et une poignee de main TLS de plus avant qu'il parte.
-   cdnjs sert GSAP, dont depend la revelation du hero — sur l'accueil
-   seulement depuis la 3.7 : ailleurs, la connexion serait ouverte pour rien. */ ?>
+   fonts.gstatic.com sert les deux polices prechargees ci-dessous.
+   3.9.7 : deux preconnect seulement (PageSpeed en comptait six et demande
+   de s'en tenir a l'essentiel). fonts.googleapis.com est ouvert de toute
+   facon par le prechargement de sa feuille, trois lignes plus bas ; cdnjs
+   (GSAP, accueil) ne sert plus au premier affichage depuis que ses scripts
+   sont differes, WordPress lui garde un dns-prefetch. Ceux de Jetpack vers
+   i0/c0.wp.com sont retires dans functions.php. */ ?>
 <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
-<?php if ( comptoir_est_accueil() ) : ?>
-<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-<?php endif; ?>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <?php /* 3.9.5 : les deux fichiers qui dessinent tout le texte latin (Cormorant
    Garamond droit, Jost ; polices variables, un fichier pour toutes les
@@ -81,6 +88,14 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
 @font-face{font-family:'CP sans repli';font-weight:350 900;src:local('Arial'),local('ArialMT'),local('Helvetica'),local('Liberation Sans'),local('Arimo'),local('Roboto'),local('Roboto-Regular');size-adjust:95.1%;ascent-override:112.5%;descent-override:40%;line-gap-override:0%}
 html:root{--serif:'Cormorant Garamond','CP serif repli','CP serif repli A',Georgia,serif;--sans:'Jost','CP sans repli',sans-serif}
 </style>
+<?php if ( comptoir_est_accueil() ) : ?>
+<?php /* 3.9.7 : le titre et le sous-titre du heros (element LCP, #hs) sont
+   visibles des le premier affichage, sur grand ecran aussi : ils partaient de
+   opacity:0 et attendaient GSAP. Meme regle dans style-site.css ; celle-ci
+   passe devant le CSS critique de Jetpack Boost tant qu'il n'est pas
+   regenere (il garde l'ancien etat de depart). */ ?>
+<style id="cp-heros">html .hero-h1 .h1-inner,html .hero-sub{opacity:1;transform:none;filter:none}</style>
+<?php endif; ?>
 <?php /* Les fontes ne bloquent plus le premier rendu : elles portent deja
    display=swap, le texte s'affichait donc de toute facon en police de repli
    avant de basculer. Autant que ce premier affichage arrive plus tot. */ ?>
