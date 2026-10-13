@@ -1531,6 +1531,22 @@ add_filter( 'wp_resource_hints', function ( $urls, $type ) {
 }, 99, 2 );
 
 /**
+ * Bulle WhatsApp (Joinchat) chargee comme Clarity : au premier geste du
+ * visiteur, ou 1,5 s apres le chargement complet (window.cseoPlusTard,
+ * Comptoir SEO). Son script prenait ~90 ms de calcul pendant l'ouverture de
+ * la fiche. La bulle est deja dans le HTML (cachee) et Joinchat demarre
+ * aussitot s'il arrive apres la page ; elle s'affiche donc un peu plus tard
+ * qu'avant, jamais pas du tout. Sans Comptoir SEO, chargement immediat.
+ * Valide par la boutique (etape 4, point 2).
+ */
+add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
+	if ( 'joinchat' !== $handle || is_admin() || ! $src ) {
+		return $tag;
+	}
+	return '<script id="joinchat-js-plus-tard">(window.cseoPlusTard||function(f){f()})(function(){var s=document.createElement("script");s.src=' . wp_json_encode( $src ) . ';s.async=true;document.head.appendChild(s);});</script>' . "\n";
+}, 10, 3 );
+
+/**
  * Noms de fichiers reellement presents dans img/produits/.
  *
  * Cote maquette cette liste est tenue a la main dans le HTML et peut donc
