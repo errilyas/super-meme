@@ -60,6 +60,27 @@ setTimeout(function(){document.documentElement.classList.add('force-reveal');},1
 <?php endif; ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<?php /* 3.9.5 : les deux fichiers qui dessinent tout le texte latin (Cormorant
+   Garamond droit, Jost ; polices variables, un fichier pour toutes les
+   graisses) partent des la premiere ligne, et leurs @font-face sont declares
+   ici : la feuille Google Fonts, chargee sans bloquer, arrivait apres le
+   premier affichage. Memes URL que cette feuille, donc un seul telechargement.
+   Les polices de repli « CP » sont des polices du telephone (Times / Noto
+   Serif, Arial / Helvetica / Roboto) mises aux dimensions de Cormorant et de
+   Jost (size-adjust, ascent/descent mesures) : le texte ne bouge plus quand
+   la vraie police arrive. html:root passe devant le CSS critique de Jetpack
+   Boost, qui redeclare --serif et --sans en :root. */ ?>
+<link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/cormorantgaramond/v21/co3bmX5slCNuHLi8bLeY9MK7whWMhyjYqXtKky2F7g.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/jost/v20/92zatBhPNqw73oTd4jQmfxI.woff2" crossorigin>
+<style id="cp-polices">
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:300 400;font-display:swap;src:url(https://fonts.gstatic.com/s/cormorantgaramond/v21/co3bmX5slCNuHLi8bLeY9MK7whWMhyjYqXtKky2F7g.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Jost';font-style:normal;font-weight:200 500;font-display:swap;src:url(https://fonts.gstatic.com/s/jost/v20/92zatBhPNqw73oTd4jQmfxI.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'CP serif repli';src:local('Times New Roman'),local('TimesNewRomanPSMT'),local('Times'),local('Liberation Serif'),local('Tinos');size-adjust:96.5%;ascent-override:95.3%;descent-override:30%;line-gap-override:0%}
+@font-face{font-family:'CP serif repli A';src:local('Noto Serif'),local('NotoSerif-Regular'),local('Droid Serif');size-adjust:81.7%;ascent-override:112.6%;descent-override:35.5%;line-gap-override:0%}
+@font-face{font-family:'CP sans repli';font-weight:100 349;src:local('Arial'),local('ArialMT'),local('Helvetica'),local('Liberation Sans'),local('Arimo'),local('Roboto'),local('Roboto-Regular');size-adjust:92.3%;ascent-override:115.9%;descent-override:41.2%;line-gap-override:0%}
+@font-face{font-family:'CP sans repli';font-weight:350 900;src:local('Arial'),local('ArialMT'),local('Helvetica'),local('Liberation Sans'),local('Arimo'),local('Roboto'),local('Roboto-Regular');size-adjust:95.1%;ascent-override:112.5%;descent-override:40%;line-gap-override:0%}
+html:root{--serif:'Cormorant Garamond','CP serif repli','CP serif repli A',Georgia,serif;--sans:'Jost','CP sans repli',sans-serif}
+</style>
 <?php /* Les fontes ne bloquent plus le premier rendu : elles portent deja
    display=swap, le texte s'affichait donc de toute facon en police de repli
    avant de basculer. Autant que ce premier affichage arrive plus tot. */ ?>

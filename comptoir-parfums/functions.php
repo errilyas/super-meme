@@ -1449,6 +1449,25 @@ function comptoir_parfums_assets() {
 add_action( 'wp_enqueue_scripts', 'comptoir_parfums_assets' );
 
 /**
+ * Fiche parfum, page commande et page vente : la feuille du theme bloque le
+ * premier affichage au lieu d'arriver apres lui. Ces trois pages sont servies
+ * depuis l'accueil (?parfum=, ?commander=1, ?vente=1) et Jetpack Boost leur
+ * donne donc le CSS critique de l'accueil, qui ne connait ni .pf-* ni .ck-* :
+ * la page s'affichait sans sa mise en page puis sautait en entier a
+ * l'arrivee de la feuille (CLS 0,33 a 0,48 sur la fiche, mesure PageSpeed).
+ * 35 Ko compresses, en cache un an. Filtre documente par Boost : toute autre
+ * valeur que 'async' ou 'deferred' laisse le chargement normal. Le groupe vise
+ * est celui qui contient comptoir-site (Boost passe les poignees concatenees,
+ * separees par des virgules) ; l'accueil garde son CSS critique.
+ */
+add_filter( 'jetpack_boost_async_style', function ( $methode, $poignees ) {
+	if ( ! comptoir_parfum_slug_demande() && ! comptoir_commander_demande() && ! comptoir_vente_demande() ) {
+		return $methode;
+	}
+	return in_array( 'comptoir-site', array_map( 'trim', explode( ',', (string) $poignees ) ), true ) ? false : $methode;
+}, 10, 2 );
+
+/**
  * Noms de fichiers reellement presents dans img/produits/.
  *
  * Cote maquette cette liste est tenue a la main dans le HTML et peut donc

@@ -90,6 +90,11 @@ get_header();
         <span class="now"><?php echo esc_html( $cp_parfum['pr'] ); ?></span>
         <span class="pf-price-note">Testeur original · 100 % authentique</span>
       </div>
+      <?php /* Place du formulaire express de boutique.js (voir .pf-x-place dans
+               style-site.css). Si le formulaire n'est pas la au chargement
+               complet, la place est rendue : jamais un trou sous le prix. */ ?>
+      <div class="pf-x-place" aria-hidden="true"></div>
+      <script data-jetpack-boost="ignore">addEventListener('load',function(){var b=document.querySelector('main.pf .pf-buy');if(b&&!b.classList.contains('cpb-express-on')){b.classList.add('pf-x-sans');}});</script>
 
       <?php /* UN chemin principal : le flacon entre au panier et le client part
                droit au formulaire (Panier.acheter). « Ajouter au panier » reste
