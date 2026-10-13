@@ -617,32 +617,40 @@ add_action( 'wp_head', function () {
 			esc_attr( $id )
 		);
 	}
+}, 5 );
 
-	// Le Pixel navigateur : sans lui window.fbq n'existe jamais, et
-	// AddToCart / InitiateCheckout / Lead / Purchase dans panier.js et
-	// commande.js (mesure()) restent des appels dans le vide, silencieux
-	// par conception. C'est aussi lui qui pose le cookie _fbp que
-	// comptoir_capi_ids_requete() relit pour le doublon serveur — sans lui, ce
-	// doublon part avec un appariement plus faible. Meme pixel_id que
-	// comptoir_capi(), une seule source pour les deux.
-	// Sur le site en ligne seulement (comptoir_est_production), et verifie
-	// une seconde fois dans le navigateur : une copie servie sous un autre
-	// nom (localhost, recette) ne doit jamais mesurer pour le vrai site.
-	// Le cookie _fbc (le clic publicitaire) est pose ICI, des la premiere
-	// ligne de la page : le pixel, charge plus tard (Comptoir SEO attend le
-	// premier geste), ne le posait jamais pour qui repartait avant. Un
-	// nouveau clic remplace l'ancien (fbclid different), sur le domaine
-	// comme le fait Meta ; l'ancien cookie limite a l'hote, pose par
-	// panier.js jusqu'ici, est efface : il passait avant le bon.
-	// PageView porte un eventID : un doublon serveur qui le reprend est
-	// deduplique par Meta. Plus d'image <noscript> : elle seule faisait
-	// compter une vue a un robot sans JavaScript (moins de 0,1 % de vrais
-	// visiteurs sans JavaScript).
+/**
+ * Le Pixel navigateur : sans lui window.fbq n'existe jamais, et
+ * AddToCart / InitiateCheckout / Lead / Purchase dans panier.js et
+ * commande.js (mesure()) restent des appels dans le vide, silencieux
+ * par conception. C'est aussi lui qui pose le cookie _fbp que
+ * comptoir_capi_ids_requete() relit pour le doublon serveur — sans lui, ce
+ * doublon part avec un appariement plus faible. Meme pixel_id que
+ * comptoir_capi(), une seule source pour les deux.
+ * Sur le site en ligne seulement (comptoir_est_production), et verifie
+ * une seconde fois dans le navigateur : une copie servie sous un autre
+ * nom (localhost, recette) ne doit jamais mesurer pour le vrai site.
+ * Priorite 1 et data-jetpack-boost="ignore" : le code de base part en
+ * tete de <head>, avant tout le reste. Imprime en priorite 5 sans cet
+ * attribut, il etait repousse par Jetpack Boost vers 90 % du HTML, et
+ * Comptoir SEO (avant 1.5.1) attendait en plus le premier geste : qui
+ * repartait vite n'etait jamais compte. Chargement asynchrone standard
+ * de Meta, une seule fois sur toutes les pages.
+ * Le cookie _fbc (le clic publicitaire) est pose ICI, des la premiere
+ * ligne de la page. Un nouveau clic remplace l'ancien (fbclid different),
+ * sur le domaine comme le fait Meta ; l'ancien cookie limite a l'hote,
+ * pose par panier.js jusqu'ici, est efface : il passait avant le bon.
+ * PageView porte un eventID : un doublon serveur qui le reprend est
+ * deduplique par Meta. Plus d'image <noscript> : elle seule faisait
+ * compter une vue a un robot sans JavaScript (moins de 0,1 % de vrais
+ * visiteurs sans JavaScript).
+ */
+add_action( 'wp_head', function () {
 	$capi = comptoir_capi();
 	if ( ! empty( $capi['pixel_id'] ) && comptoir_est_production() ) {
 		$id = preg_replace( '/[^0-9]/', '', $capi['pixel_id'] );
 		printf(
-			'<script>(function(){try{var q=location.search;if(/[?&]cp_test=1/.test(q)){document.cookie="cp_test=1;path=/;max-age=31536000;SameSite=Lax";}else if(/[?&]cp_test=0/.test(q)){document.cookie="cp_test=;path=/;max-age=0;SameSite=Lax";}var fq=q.match(/[?&]fbclid=([^&#]+)/);if(fq){var fc=document.cookie.match(/(?:^|; )_fbc=([^;]+)/);if(!fc||fc[1].split(".").slice(3).join(".")!==fq[1]){document.cookie="_fbc=;path=/;max-age=0";document.cookie="_fbc=fb.1."+Date.now()+"."+fq[1]+";path=/;max-age=7776000;SameSite=Lax;domain=."+location.hostname.replace(/^www\./,"");}}var m=document.cookie.match(/(?:^|; )cp_vid=([a-f0-9]{64})/),v=m?m[1]:"";if(!v){try{v=localStorage.getItem("cp_vid")||"";}catch(e){}}if(!/^[a-f0-9]{64}$/.test(v)){var a=new Uint8Array(32);(window.crypto||window.msCrypto).getRandomValues(a);v="";for(var i=0;i<a.length;i++){v+=(a[i]<16?"0":"")+a[i].toString(16);}}try{localStorage.setItem("cp_vid",v);}catch(e){}document.cookie="cp_vid="+v+";path=/;max-age=63072000;SameSite=Lax";window.cpVid=v;}catch(e){}})();if(document.cookie.indexOf("cp_test=1")<0&&/(^|\.)comptoirparfums\.com$/.test(location.hostname)){!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' .
+			'<script data-jetpack-boost="ignore">(function(){try{var q=location.search;if(/[?&]cp_test=1/.test(q)){document.cookie="cp_test=1;path=/;max-age=31536000;SameSite=Lax";}else if(/[?&]cp_test=0/.test(q)){document.cookie="cp_test=;path=/;max-age=0;SameSite=Lax";}var fq=q.match(/[?&]fbclid=([^&#]+)/);if(fq){var fc=document.cookie.match(/(?:^|; )_fbc=([^;]+)/);if(!fc||fc[1].split(".").slice(3).join(".")!==fq[1]){document.cookie="_fbc=;path=/;max-age=0";document.cookie="_fbc=fb.1."+Date.now()+"."+fq[1]+";path=/;max-age=7776000;SameSite=Lax;domain=."+location.hostname.replace(/^www\./,"");}}var m=document.cookie.match(/(?:^|; )cp_vid=([a-f0-9]{64})/),v=m?m[1]:"";if(!v){try{v=localStorage.getItem("cp_vid")||"";}catch(e){}}if(!/^[a-f0-9]{64}$/.test(v)){var a=new Uint8Array(32);(window.crypto||window.msCrypto).getRandomValues(a);v="";for(var i=0;i<a.length;i++){v+=(a[i]<16?"0":"")+a[i].toString(16);}}try{localStorage.setItem("cp_vid",v);}catch(e){}document.cookie="cp_vid="+v+";path=/;max-age=63072000;SameSite=Lax";window.cpVid=v;}catch(e){}})();if(document.cookie.indexOf("cp_test=1")<0&&/(^|\.)comptoirparfums\.com$/.test(location.hostname)){!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' .
 			'n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;' .
 			'n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;' .
 			't.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}' .
@@ -651,7 +659,7 @@ add_action( 'wp_head', function () {
 			esc_attr( $id )
 		);
 	}
-}, 5 );
+}, 1 );
 
 /* ══════════════════════════════════════════════════════════════
    REGISTRE DES COMMANDES
