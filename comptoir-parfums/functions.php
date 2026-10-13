@@ -1378,23 +1378,27 @@ function comptoir_parfums_assets() {
 	// evenements standards (avec AddToCart, InitiateCheckout, Lead, Purchase)
 	// jamais code, ni cote pixel ni cote CAPI. Meme forme de donnees que
 	// AddToCart dans panier.js, pour que le catalogue Meta rapproche les
-	// deux. 'after' : le code doit s'executer une fois panier.js charge,
-	// sinon window.Panier n'existe pas encore.
+	// deux. Le code doit s'executer une fois panier.js charge, sinon
+	// window.Panier n'existe pas encore. 3.9.8 : il attend DOMContentLoaded,
+	// imprime en pied de page, au lieu d'etre accroche 'after' a panier.js :
+	// WordPress refuse de differer un script suivi d'un tel code, et panier.js
+	// (avec tout ce qui en depend) restait bloquant sur la fiche. Les scripts
+	// differes s'executent avant DOMContentLoaded : meme evenement, meme
+	// identifiant (vc.*), envoye au meme chargement.
 	$cp_vc_slug = comptoir_parfum_slug_demande();
 	if ( $cp_vc_slug ) {
 		$cp_vc_p = comptoir_produit_by_slug( $cp_vc_slug );
 		if ( $cp_vc_p ) {
-			wp_add_inline_script(
-				'comptoir-panier',
-				'window.Panier && window.Panier.mesure("ViewContent",' . wp_json_encode( array(
-					'content_ids'   => array( $cp_vc_p['s'] ),
-					'content_type'  => 'product',
-					'content_name'  => $cp_vc_p['b'] . ' ' . $cp_vc_p['n'],
-					'value'         => comptoir_prix_entier( $cp_vc_p ),
-					'currency'      => 'MAD',
-				) ) . ',window.Panier.idEvenement?window.Panier.idEvenement("vc"):"");',
-				'after'
-			);
+			$cp_vc_js = 'window.Panier && window.Panier.mesure("ViewContent",' . wp_json_encode( array(
+				'content_ids'   => array( $cp_vc_p['s'] ),
+				'content_type'  => 'product',
+				'content_name'  => $cp_vc_p['b'] . ' ' . $cp_vc_p['n'],
+				'value'         => comptoir_prix_entier( $cp_vc_p ),
+				'currency'      => 'MAD',
+			) ) . ',window.Panier.idEvenement?window.Panier.idEvenement("vc"):"");';
+			add_action( 'wp_footer', function () use ( $cp_vc_js ) {
+				echo '<script id="cp-viewcontent">(function(){function f(){' . $cp_vc_js . '}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",f);}else{f();}})();</script>' . "\n";
+			}, 100 );
 		}
 	}
 
@@ -1476,19 +1480,38 @@ add_filter( 'jetpack_boost_async_style', function ( $methode, $poignees ) {
  * WordPress refuse lui-meme de differer un script suivi d'un code qui en
  * depend ('after') ou dont un dependant reste bloquant. Le chargeur de la
  * vitrine (grand ecran) reste un script en ligne : three.js et vitrine.js
- * passent toujours avant theme.js. La fiche et la page commande ne changent
- * pas ici (etape 4 du plan, liste a valider d'abord).
+ * passent toujours avant theme.js.
+ * 3.9.8 : meme chose sur la fiche parfum (langue, descriptions traduites,
+ * panier, theme, boutique), validee par la boutique ; la page commande ne
+ * change pas.
  */
+function comptoir_scripts_differes() {
+	return comptoir_est_accueil() || '' !== comptoir_parfum_slug_demande();
+}
 add_action( 'wp_enqueue_scripts', function () {
-	if ( ! comptoir_est_accueil() ) {
+	if ( ! comptoir_scripts_differes() ) {
 		return;
 	}
-	foreach ( array( 'cp-gsap', 'cp-scrolltrigger', 'comptoir-langue', 'comptoir-panier', 'comptoir-theme', 'comptoir-boutique' ) as $poignee ) {
+	foreach ( array( 'cp-gsap', 'cp-scrolltrigger', 'comptoir-langue', 'comptoir-langue-parfums', 'comptoir-panier', 'comptoir-theme', 'comptoir-boutique' ) as $poignee ) {
 		if ( wp_script_is( $poignee, 'enqueued' ) || wp_script_is( $poignee, 'registered' ) ) {
 			wp_script_add_data( $poignee, 'strategy', 'defer' );
 		}
 	}
 }, 20 );
+
+/**
+ * Le catalogue (window.PRODUITS, photos, visuels du heros : environ 90 Ko),
+ * sorti du HTML par Comptoir SEO dans un fichier en cache (poignee
+ * cseo-catalogue, dependance de panier.js), part lui aussi en differe sur ces
+ * pages : c'etait le dernier script bloquant signale par PageSpeed sur
+ * l'accueil. Il est enregistre tard (Comptoir SEO, priorite 9999), d'ou ce
+ * second passage ; s'il n'existe pas, rien ne change.
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( comptoir_scripts_differes() && wp_script_is( 'cseo-catalogue', 'registered' ) ) {
+		wp_script_add_data( 'cseo-catalogue', 'strategy', 'defer' );
+	}
+}, 10000 );
 
 /**
  * Jetpack ouvre des connexions anticipees (preconnect) vers i0.wp.com et
