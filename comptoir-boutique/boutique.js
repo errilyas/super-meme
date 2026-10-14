@@ -275,10 +275,27 @@
 
   var VIDE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5'%3E%3C/svg%3E";
 
+  /* 1.31.0 : largeurs reduites des photos (img/produits/360/, 480/ du
+     theme 3.9.10), annoncees par le theme dans P.cfg.imgLarg. Sans elles,
+     pas de srcset : un theme plus ancien n'a pas ces fichiers. Tailles
+     d'affichage mesurees sur 412 px et sur grand ecran (object-fit:contain :
+     c'est le flacon dessine qui compte). */
+  var TAILLES = {
+    'pf-sib-img': '(max-width: 900px) 90px, 160px'
+  };
+  function jeuPhotos(p) {
+    var c = P.cfg || {}, l = c.imgLarg;
+    if (!l || !l.length || !P.aPhoto(p.s)) { return ''; }
+    var v = c.imgVer ? '?v=' + c.imgVer : '', b = c.imgBase || '';
+    return l.map(function (w) { return b + w + '/' + p.s + '.webp' + v + ' ' + w + 'w'; })
+      .concat(b + p.s + '.webp' + v + ' 720w').join(', ');
+  }
+
   function vignette(p, classe, l, h) {
-    var src = photo(p);
+    var src = photo(p), jeu = src ? jeuPhotos(p) : '';
     return '<img class="' + classe + (src ? '' : ' is-empty') + '" alt="" width="' + l + '" height="' + h +
-      '" loading="lazy" decoding="async" src="' + esc(src || VIDE) + '">';
+      '" loading="lazy" decoding="async" src="' + esc(src || VIDE) + '"' +
+      (jeu ? ' srcset="' + esc(jeu) + '" sizes="' + esc(TAILLES[classe] || '(max-width: 900px) 40vw, 240px') + '"' : '') + '>';
   }
 
   /* En apercu, les liens internes gardent ?apercu=boutique. */
@@ -328,6 +345,8 @@
   document.addEventListener('error', function (e) {
     var im = e.target;
     if (im && im.tagName === 'IMG' && im.closest && im.closest('.cpb') && im.getAttribute('src') !== VIDE) {
+      /* Avec un srcset, le navigateur ignorerait le nouveau src (1.31.0). */
+      im.removeAttribute('srcset');
       im.setAttribute('src', VIDE);
       im.classList.add('is-empty');
     }

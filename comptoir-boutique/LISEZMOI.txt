@@ -354,3 +354,11 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
      (event.isTrusted), une fois par page ; plus au premier focus ni à la
      reprise automatique des coordonnées.
    À mettre en ligne avec le thème 3.7.0 (ou après la 3.6.2).
+   (1.31.0) Reprend tout la 1.30.0, plus :
+   - Vignettes (offre duo, « même esprit », recherche, quiz, favoris) :
+     srcset vers les photos réduites du thème (360 et 480 px), seulement
+     si le thème les annonce (CP_PANIER.imgLarg, thème 3.9.10 ou plus).
+     Sinon, rien ne change.
+   - Une vignette en erreur perd aussi son srcset avant de passer en
+     silhouette.
+   À mettre en ligne APRÈS le thème 3.9.10.
