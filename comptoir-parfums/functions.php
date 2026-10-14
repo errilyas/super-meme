@@ -1554,15 +1554,21 @@ add_action( 'wp', function () {
  * 3.9.8 : meme chose sur la fiche parfum (langue, descriptions traduites,
  * panier, theme, boutique), validee par la boutique ; la page commande ne
  * change pas.
+ * 3.9.12 : la page commande aussi, commande.js compris. mesure.js (Comptoir
+ * Boutique, dependance de panier.js) y restait bloquant malgre sa strategie
+ * defer : WordPress ne differe pas un script dont un dependant est bloquant.
+ * commande.js lit le formulaire et l'ecran merci des son execution ; un
+ * script differe s'execute HTML entierement lu, dans l'ordre (mesure, panier,
+ * commande) : l'achat part au meme moment du parcours, depuis le meme ecran.
  */
 function comptoir_scripts_differes() {
-	return comptoir_est_accueil() || '' !== comptoir_parfum_slug_demande();
+	return comptoir_est_accueil() || '' !== comptoir_parfum_slug_demande() || comptoir_commander_demande();
 }
 add_action( 'wp_enqueue_scripts', function () {
 	if ( ! comptoir_scripts_differes() ) {
 		return;
 	}
-	foreach ( array( 'cp-gsap', 'cp-scrolltrigger', 'comptoir-langue', 'comptoir-langue-parfums', 'comptoir-panier', 'comptoir-theme', 'comptoir-boutique' ) as $poignee ) {
+	foreach ( array( 'cp-gsap', 'cp-scrolltrigger', 'comptoir-langue', 'comptoir-langue-parfums', 'comptoir-panier', 'comptoir-theme', 'comptoir-commande', 'comptoir-boutique' ) as $poignee ) {
 		if ( wp_script_is( $poignee, 'enqueued' ) || wp_script_is( $poignee, 'registered' ) ) {
 			wp_script_add_data( $poignee, 'strategy', 'defer' );
 		}
