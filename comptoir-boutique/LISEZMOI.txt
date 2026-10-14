@@ -362,3 +362,7 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    - Une vignette en erreur perd aussi son srcset avant de passer en
      silhouette.
    À mettre en ligne APRÈS le thème 3.9.10.
+   (1.31.1) Reprend tout la 1.31.0, plus :
+   - mesure.js (traduction GA4) en différé sur l'accueil et la fiche,
+     comme le panier qui en dépend. Sur la page commande, le
+     remerciement et les autres pages, il reste chargé comme avant.
