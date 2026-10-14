@@ -60,10 +60,10 @@ get_header();
 <main class="wrap lp" id="cp-main">
 
   <?php if ( $cp_vedette ) : ?>
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        VEDETTE — le flacon de la publicite, avec son prix et le bouton,
        dans le premier ecran. Meme bloc d'achat que la fiche parfum.
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="lp-vedette" aria-label="<?php echo esc_attr( $cp_vedette['b'] . ' ' . $cp_vedette['n'] ); ?>">
     <div class="pf-top">
       <div class="pf-visual<?php echo comptoir_a_photo( $cp_vedette['s'] ) ? '' : ' is-empty'; ?>">
@@ -96,11 +96,11 @@ get_header();
     </div>
   </section>
   <?php else : ?>
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        HERO — une promesse, un chemin. Raccourci : sur telephone, les
        premiers flacons de la selection doivent apparaitre sans defiler.
        WhatsApp n'y est plus un bouton de commande (voir template-parfum.php).
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="lp-hero" aria-label="Présentation">
     <div class="lp-hero-inner r">
       <div class="sect-kicker"><span>Testeurs originaux · Livraison partout au Maroc</span></div>
@@ -134,9 +134,9 @@ get_header();
   </section>
   <?php endif; ?>
 
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        SÉLECTION — preuve immédiate, quelques flacons connus
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="pick lp-produits" id="lp-produits" aria-label="Sélection">
     <div class="pick-inner">
       <div class="pick-head r">
@@ -164,9 +164,9 @@ get_header();
 
   <?php comptoir_bloc_testeur( 'testeur-lp' ); ?>
 
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        POURQUOI CE PRIX
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="distinction" id="distinction" aria-label="Notre approche">
     <div class="dist-inner">
       <div class="dist-header r">
@@ -207,9 +207,9 @@ get_header();
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        FAQ — les trois objections qui comptent avant d'acheter
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="faq" id="faq" aria-label="Questions fréquentes">
     <div class="faq-inner">
       <div class="faq-sidebar r-left">
@@ -242,9 +242,9 @@ get_header();
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        CTA FINAL
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="finale" aria-label="Commander">
     <div class="fin-inner r">
       <span class="fin-mark" aria-hidden="true">

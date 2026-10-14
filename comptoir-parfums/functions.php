@@ -1516,6 +1516,32 @@ add_filter( 'jetpack_boost_async_style', function ( $methode, $poignees ) {
 }, 10, 2 );
 
 /**
+ * 3.9.11 : sur ces trois pages, le CSS critique de Jetpack Boost (celui de
+ * l'accueil, ~31 Ko, 7,7 Ko compresses) n'est plus imprime. La feuille du
+ * theme y bloque le premier affichage (filtre ci-dessus) : ce CSS ne servait
+ * plus a rien, sinon a alourdir la page et son analyse. Boost l'accroche a
+ * wp_head (priorite 0) pendant l'action 'wp' ; on retire ce seul crochet
+ * juste apres, en reconnaissant sa classe (Display_Critical_CSS). Le reste de
+ * Boost (chargement des autres feuilles) ne change pas.
+ */
+add_action( 'wp', function () {
+	if ( ! comptoir_parfum_slug_demande() && ! comptoir_commander_demande() && ! comptoir_vente_demande() ) {
+		return;
+	}
+	global $wp_filter;
+	if ( empty( $wp_filter['wp_head'] ) || empty( $wp_filter['wp_head']->callbacks[0] ) ) {
+		return;
+	}
+	foreach ( $wp_filter['wp_head']->callbacks[0] as $crochet ) {
+		$f = $crochet['function'];
+		if ( is_array( $f ) && is_object( $f[0] ) && 'display_critical_css' === $f[1]
+			&& 'Display_Critical_CSS' === substr( strrchr( '\\' . get_class( $f[0] ), '\\' ), 1 ) ) {
+			remove_action( 'wp_head', $f, 0 );
+		}
+	}
+}, 11 );
+
+/**
  * Accueil : les scripts du site sont differes (defer). Jetpack Boost les met en
  * bas de page, mais en scripts ordinaires, que PageSpeed comptait comme
  * bloquant l'affichage (GSAP et ScrollTrigger sur cdnjs, theme.js, panier.js,

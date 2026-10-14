@@ -31,8 +31,8 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
 
 <section id="hero" aria-label="Présentation">
 
-  <!-- Eclairage fixe : grain, ligne de balayage, noms de maisons en
-       filigrane et anneaux en orbite sont retires en v3.6 -->
+  <?php /* Eclairage fixe : grain, ligne de balayage, noms de maisons en
+       filigrane et anneaux en orbite sont retires en v3.6 */ ?>
   <div class="hero-canvas" aria-hidden="true">
     <div class="hc-light-key"></div>
     <div class="hc-light-fill"></div>
@@ -40,10 +40,10 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
     <div class="hc-vignette"></div>
   </div>
 
-  <!-- Split grid -->
+  <?php /* Split grid */ ?>
   <div class="hero-inner">
 
-    <!-- LEFT: TEXT -->
+    <?php /* LEFT: TEXT */ ?>
     <div class="hero-text">
 
       <div class="h-eyebrow" id="he">
@@ -51,17 +51,17 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
         <span class="h-eye-text">Maroc · Livraison 24h · Paiement à réception</span>
       </div>
 
-      <!-- Accroche : line-by-line clip reveal. Un paragraphe depuis la 3.8 :
+      <?php /* Accroche : line-by-line clip reveal. Un paragraphe depuis la 3.8 :
            le titre de la page pour Google est la pastille ci-dessous, qui dit
-           ce que l'on vend. Meme classe, donc meme rendu. -->
+           ce que l'on vend. Meme classe, donc meme rendu. */ ?>
       <p class="hero-h1" id="hh">
         <span class="h1-line"><span class="h1-inner" data-delay="280">Le parfum</span></span>
         <span class="h1-line"><span class="h1-inner" data-delay="420">que vous voulez.</span></span>
         <span class="h1-line"><span class="h1-inner" data-delay="560"><em>Au prix qui reste.</em></span></span>
       </p>
 
-      <!-- Value badge = H1 de la page (3.8) : « testeurs de parfum originaux
-           au Maroc », la recherche que la boutique veut gagner. -->
+      <?php /* Value badge = H1 de la page (3.8) : « testeurs de parfum originaux
+           au Maroc », la recherche que la boutique veut gagner. */ ?>
       <div class="h-badge" id="hbadge">
         <div class="h-badge-dot" aria-hidden="true"></div>
         <h1 class="h-badge-text">Testeurs de parfum originaux au Maroc</h1>
@@ -78,7 +78,7 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
 
       <?php comptoir_gages( 'gages-hero' ); ?>
 
-      <!-- Trust strip -->
+      <?php /* Trust strip */ ?>
       <div class="hero-trust" id="ht" role="list">
         <div class="ht-item" role="listitem">
           <strong data-refs-total><?php echo (int) $cp_nb_refs; ?></strong>
@@ -96,29 +96,29 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
         </div>
       </div>
 
-    </div><!-- /hero-text -->
+    </div><?php /* /hero-text */ ?>
 
-    <!-- RIGHT: VISUAL STAGE -->
+    <?php /* RIGHT: VISUAL STAGE */ ?>
     <div class="hero-visual" id="hv" aria-hidden="true">
 
-      <!-- Atmosphere glows -->
+      <?php /* Atmosphere glows */ ?>
       <div class="f-glow-outer"></div>
       <div class="f-glow-inner"></div>
 
-      <!-- Logo 3D — flacon-sceau « CP » (WebGL, cf. bloc script en bas de page) -->
+      <?php /* Logo 3D — flacon-sceau « CP » (WebGL, cf. bloc script en bas de page) */ ?>
       <div class="flacon-stage" id="flacon-stage">
         <div class="flacon3d" id="flacon3d">
           <svg class="flacon3d-fallback" viewBox="0 0 96 96" aria-hidden="true"><use href="#cp-seal-full"/></svg>
         </div>
-        <!-- Aperçu : vraie photo produit de la maison survolée/centrée dans le ruban -->
+        <?php /* Aperçu : vraie photo produit de la maison survolée/centrée dans le ruban */ ?>
         <div class="hero-shot" id="hero-shot" aria-hidden="true">
           <span class="hero-shot-floor"></span>
           <img alt="" decoding="async" loading="lazy" width="600" height="600">
         </div>
-      </div><!-- /flacon-stage -->
+      </div><?php /* /flacon-stage */ ?>
 
-      <!-- VITRINE — anneau de flacons (WebGL). Occupe toute la largeur du héros,
-           pas la scène étroite du flacon : une vitrine se regarde en largeur. -->
+      <?php /* VITRINE — anneau de flacons (WebGL). Occupe toute la largeur du héros,
+           pas la scène étroite du flacon : une vitrine se regarde en largeur. */ ?>
       <div class="vitrine" id="vitrine" aria-hidden="true">
         <div class="vitrine-cap">
           <span class="vitrine-maison"></span>
@@ -126,13 +126,13 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
         </div>
       </div>
 
-      <!-- Reflection at base -->
+      <?php /* Reflection at base */ ?>
       <div class="f-reflect"></div>
       <div class="f-shadow"></div>
 
-      <!-- Floating note cards — nom et prix lus dans produits.php, comme
+      <?php /* Floating note cards — nom et prix lus dans produits.php, comme
            partout ailleurs : un prix ecrit en dur finit par mentir. Une
-           reference retiree du catalogue fait simplement disparaitre sa carte. -->
+           reference retiree du catalogue fait simplement disparaitre sa carte. */ ?>
       <?php
       $cp_cartes = array( 'hnc1' => 'dior--sauvage-elixir', 'hnc2' => 'chanel--coco-mademoiselle' );
       $cp_n      = 0;
@@ -150,25 +150,25 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
       </div>
       <?php endforeach; ?>
 
-    </div><!-- /hero-visual -->
+    </div><?php /* /hero-visual */ ?>
 
-  </div><!-- /hero-inner -->
+  </div><?php /* /hero-inner */ ?>
 
-  <!-- Gradient edge into next section -->
+  <?php /* Gradient edge into next section */ ?>
   <div class="hero-edge" aria-hidden="true"></div>
 
 </section>
 
-<!-- ════════════════════════════════════════
+<?php /* ════════════════════════════════════════
      2 · RUBAN DES MAISONS
-════════════════════════════════════════ -->
+════════════════════════════════════════ */ ?>
 <nav class="marquee-sect" aria-label="Maisons représentées — raccourci vers le catalogue">
   <div class="marquee-track" id="mq-track"></div>
 </nav>
 
-<!-- ════════════════════════════════════════
+<?php /* ════════════════════════════════════════
      3 · CATALOGUE
-════════════════════════════════════════ -->
+════════════════════════════════════════ */ ?>
 <section class="catalogue" id="catalogue" aria-label="Catalogue complet">
   <div class="cat-inner">
     <div class="r">
@@ -276,13 +276,13 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
 
 <div class="testeur-home"><?php comptoir_bloc_testeur(); ?></div>
 
-<!-- ════════════════════════════════════════
+<?php /* ════════════════════════════════════════
      6 · COMMANDER — les etapes, puis l'appel final.
      v3.6 : reunit « Comment commander », « Nos engagements » et
      « Commander maintenant », qui disaient trois fois la meme chose
      (paiement a la livraison, partout au Maroc, satisfait ou rembourse :
      c'est dans les etapes 03 et 04).
-════════════════════════════════════════ -->
+════════════════════════════════════════ */ ?>
 <section class="commande-home" id="commander" aria-label="Commander">
   <div class="proc-inner">
     <div class="r">
@@ -323,8 +323,8 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
       <a href="<?php echo esc_url( home_url( '/?commander=1' ) ); ?>" class="btn-fin">Commander maintenant</a>
       <a href="#catalogue" class="btn-fin-g">Parcourir le catalogue</a>
     </div>
-    <!-- Le formulaire reste le chemin principal : c'est lui qui inscrit la
-         commande au carnet. Mais on ne force personne a le remplir. -->
+    <?php /* Le formulaire reste le chemin principal : c'est lui qui inscrit la
+         commande au carnet. Mais on ne force personne a le remplir. */ ?>
     <p class="fin-ou">
       <a href="<?php echo esc_url( $cp_wa ); ?>" target="_blank" rel="noopener">
         <?php comptoir_icone_whatsapp(); ?>ou commandez directement sur WhatsApp</a>
@@ -332,9 +332,9 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
   </div>
 </section>
 
-<!-- ════════════════════════════════════════
+<?php /* ════════════════════════════════════════
      7 · QUESTIONS FREQUENTES
-════════════════════════════════════════ -->
+════════════════════════════════════════ */ ?>
 <section class="faq" id="faq" aria-label="Questions fréquentes">
   <div class="faq-inner">
     <div class="faq-sidebar r-left">
