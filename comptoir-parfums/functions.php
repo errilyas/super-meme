@@ -1507,13 +1507,82 @@ add_action( 'wp_enqueue_scripts', 'comptoir_parfums_assets' );
  * valeur que 'async' ou 'deferred' laisse le chargement normal. Le groupe vise
  * est celui qui contient comptoir-site (Boost passe les poignees concatenees,
  * separees par des virgules) ; l'accueil garde son CSS critique.
+ * 3.9.13 : sur la fiche et la page commande, la feuille repart en asynchrone,
+ * mais seulement quand comptoir_css_critique() a imprime leur propre CSS du
+ * premier ecran. La page vente garde la feuille bloquante.
  */
 add_filter( 'jetpack_boost_async_style', function ( $methode, $poignees ) {
 	if ( ! comptoir_parfum_slug_demande() && ! comptoir_commander_demande() && ! comptoir_vente_demande() ) {
 		return $methode;
 	}
-	return in_array( 'comptoir-site', array_map( 'trim', explode( ',', (string) $poignees ) ), true ) ? false : $methode;
+	if ( ! in_array( 'comptoir-site', array_map( 'trim', explode( ',', (string) $poignees ) ), true ) ) {
+		return $methode;
+	}
+	return '' !== comptoir_css_critique() ? 'async' : false;
 }, 10, 2 );
+
+/**
+ * 3.9.13 : le CSS du premier ecran de la fiche parfum et de la page commande,
+ * imprime dans le <head>. Avec lui, la feuille complete (35 Ko compresses)
+ * n'a plus besoin de bloquer l'affichage : le premier rendu attendait un
+ * aller-retour reseau de plus pour elle.
+ *
+ * css-critique/fiche.css et commande.css sont produits par
+ * outils/css-critique.js, qui ouvre les vraies pages (tailles d'ecran, clair
+ * et sombre, francais et arabe, formulaire express pose) et garde chaque
+ * regle qui touche le premier ecran, dans l'ordre de la feuille. Il verifie
+ * ensuite que la page rendue avec ce seul CSS a la meme mise en page qu'avec
+ * la feuille complete : sans cela, c'est le saut de mise en page d'avant la
+ * 3.9.5 qui revient.
+ *
+ * En tete de chaque fichier, l'empreinte SHA-1 des feuilles d'ou il vient.
+ * Si style-site.css ou boutique.css ont change depuis, rien n'est imprime et
+ * la feuille reste bloquante : une regle modifiee sans relancer l'outil ne
+ * peut pas faire sauter la page.
+ */
+function comptoir_css_critique() {
+	static $css = null;
+	if ( null !== $css ) {
+		return $css;
+	}
+	$css = '';
+	if ( '' !== comptoir_parfum_slug_demande() ) {
+		$nom = 'fiche';
+	} elseif ( comptoir_commander_demande() ) {
+		$nom = 'commande';
+	} else {
+		return $css;
+	}
+	$fichier = get_template_directory() . '/css-critique/' . $nom . '.css';
+	$texte   = is_readable( $fichier ) ? (string) file_get_contents( $fichier ) : '';
+	if ( ! preg_match( '#^/\* critique style-site\.css=([a-f0-9]{40}) boutique\.css=([a-f0-9]{40}) \*/#', $texte, $m ) ) {
+		return $css;
+	}
+	$sources = array(
+		get_template_directory() . '/style-site.css'        => $m[1],
+		WP_PLUGIN_DIR . '/comptoir-boutique/boutique.css' => $m[2],
+	);
+	foreach ( $sources as $chemin => $attendu ) {
+		if ( ! is_readable( $chemin ) || sha1_file( $chemin ) !== $attendu ) {
+			return $css;
+		}
+	}
+	$css = trim( substr( $texte, strlen( $m[0] ) ) );
+	if ( false !== stripos( $css, '</style' ) ) {
+		$css = '';
+	}
+	return $css;
+}
+
+/* Avant les feuilles (wp_print_styles, priorite 8) : le CSS du premier
+   ecran les precede dans la cascade, et la feuille complete, arrivee
+   ensuite, garde le dernier mot regle pour regle. */
+add_action( 'wp_head', function () {
+	$css = comptoir_css_critique();
+	if ( '' !== $css ) {
+		echo '<style id="cp-critique">' . $css . '</style>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSS du theme, sans </style.
+	}
+}, 7 );
 
 /**
  * 3.9.11 : sur ces trois pages, le CSS critique de Jetpack Boost (celui de
