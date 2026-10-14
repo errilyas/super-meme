@@ -77,6 +77,47 @@ function comptoir_photo_url( $slug ) {
 	return get_template_directory_uri() . '/img/produits/' . $slug . '.webp?v=' . comptoir_version_photos();
 }
 
+/**
+ * Largeurs reduites des photos produit (3.9.10) : img/produits/360/ et 480/,
+ * memes noms que l'original (720 x 900). Les photos s'affichent entre 80 et
+ * 420 px de large ; le navigateur prend la plus petite qui suffit a l'ecran.
+ * Servies telles quelles, sans le CDN d'images (voir Comptoir SEO 1.4.1), avec
+ * la meme empreinte de version que l'original.
+ */
+function comptoir_photo_largeurs() {
+	return array( 360, 480 );
+}
+
+/** srcset d'une photo produit, ou '' si ses largeurs reduites manquent. */
+function comptoir_photo_srcset( $slug ) {
+	$base = get_template_directory_uri() . '/img/produits/';
+	$dir  = get_template_directory() . '/img/produits/';
+	$v    = '.webp?v=' . comptoir_version_photos();
+	$set  = array();
+	foreach ( comptoir_photo_largeurs() as $w ) {
+		if ( ! file_exists( $dir . $w . '/' . $slug . '.webp' ) ) {
+			return '';
+		}
+		$set[] = $base . $w . '/' . $slug . $v . ' ' . $w . 'w';
+	}
+	$set[] = $base . $slug . $v . ' 720w';
+	return implode( ', ', $set );
+}
+
+/**
+ * Taille d'affichage annoncee au navigateur, par usage (mesuree sur 412 px et
+ * sur grand ecran). Les photos sont en object-fit:contain : c'est la largeur
+ * du flacon dessine qui compte, pas celle de la boite.
+ */
+function comptoir_photo_sizes( $classe ) {
+	$tailles = array(
+		'pf-visual'  => '(max-width: 900px) 190px, 440px',
+		'pc-img'     => '(max-width: 900px) 40vw, 240px',
+		'pf-sib-img' => '(max-width: 900px) 90px, 160px',
+	);
+	return isset( $tailles[ $classe ] ) ? $tailles[ $classe ] : '(max-width: 900px) 45vw, 300px';
+}
+
 /** La phrase des frais de livraison, ecrite une fois pour toutes les pages. */
 function comptoir_note_livraison() {
 	$frais  = comptoir_livraison_dh();
@@ -1435,6 +1476,9 @@ function comptoir_parfums_assets() {
 		'home'      => home_url( '/' ),
 		'imgBase'   => $dir . '/img/produits/',
 		'imgVer'    => comptoir_version_photos(),
+		// Largeurs reduites presentes (img/produits/360/, 480/) : Comptoir
+		// Boutique ne pose son srcset que si le theme les annonce ici.
+		'imgLarg'   => is_dir( $abs . '/img/produits/' . comptoir_photo_largeurs()[0] ) ? comptoir_photo_largeurs() : array(),
 		// Moment de l'achat Meta (Reglages > Suivi Meta) : la page merci ne
 		// compte l'achat que si ce n'est pas a la livraison.
 		'achatLivraison' => comptoir_achat_a_la_livraison(),
@@ -1835,14 +1879,16 @@ function comptoir_vignette_vide() {
  * et le cadrage changent, jamais la regle de secours.
  */
 function comptoir_vignette_img( $p, $classe, $largeur, $hauteur ) {
-	$photo = comptoir_a_photo( $p['s'] ) ? comptoir_photo_url( $p['s'] ) : '';
+	$photo  = comptoir_a_photo( $p['s'] ) ? comptoir_photo_url( $p['s'] ) : '';
+	$srcset = $photo ? comptoir_photo_srcset( $p['s'] ) : '';
 	return sprintf(
-		'<img class="%s%s" alt="" width="%d" height="%d" loading="lazy" decoding="async" src="%s">',
+		'<img class="%s%s" alt="" width="%d" height="%d" loading="lazy" decoding="async" src="%s"%s>',
 		esc_attr( $classe ),
 		$photo ? '' : ' is-empty',
 		(int) $largeur,
 		(int) $hauteur,
-		$photo ? esc_url( $photo ) : esc_attr( comptoir_vignette_vide() )
+		$photo ? esc_url( $photo ) : esc_attr( comptoir_vignette_vide() ),
+		$srcset ? ' srcset="' . esc_attr( $srcset ) . '" sizes="' . esc_attr( comptoir_photo_sizes( $classe ) ) . '"' : ''
 	);
 }
 

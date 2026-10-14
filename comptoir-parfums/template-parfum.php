@@ -76,7 +76,8 @@ get_header();
                la feuille du theme bloque le premier affichage (3.9.5), le
                navigateur ne la savait visible qu'apres cette feuille et la
                laissait derriere les polices et les scripts (LCP 7,6 s). */ ?>
-      <img src="<?php echo esc_url( $cp_img ); ?>" alt="<?php echo esc_attr( $cp_parfum['b'] . ' ' . $cp_parfum['n'] ); ?>" width="600" height="600" decoding="async" fetchpriority="high">
+      <?php $cp_srcset = comptoir_photo_srcset( $cp_parfum['s'] ); /* 3.9.10 : 360 ou 480 px sur telephone au lieu de 720 */ ?>
+      <img src="<?php echo esc_url( $cp_img ); ?>"<?php if ( $cp_srcset ) : ?> srcset="<?php echo esc_attr( $cp_srcset ); ?>" sizes="<?php echo esc_attr( comptoir_photo_sizes( 'pf-visual' ) ); ?>"<?php endif; ?> alt="<?php echo esc_attr( $cp_parfum['b'] . ' ' . $cp_parfum['n'] ); ?>" width="600" height="600" decoding="async" fetchpriority="high">
 		<?php endif; ?>
     </div>
 

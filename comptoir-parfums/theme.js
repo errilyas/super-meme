@@ -686,7 +686,12 @@ function carteSurPage(p, modele){
     if(m){
       let chemin = '';
       try { chemin = new URL(m[1].replace(/&amp;/g,'&'), location.href).pathname; } catch(e) {}
-      if(chemin) h = h.replace(' src="', ' srcset="' + esc(modele.srcset.split(modele.chemin).join(chemin)) + '" sizes="' + esc(modele.sizes) + '" src="');
+      /* 3.9.10 : on remplace le NOM du fichier, pas son chemin complet. Les
+         largeurs reduites vivent dans img/produits/360/ et 480/ : le chemin
+         de la carte modele n'y figure pas tel quel, et ces entrees auraient
+         garde la photo du modele. */
+      const ancien = '/' + modele.chemin.split('/').pop(), nouveau = '/' + chemin.split('/').pop();
+      if(chemin) h = h.replace(' src="', ' srcset="' + esc(modele.srcset.split(ancien).join(nouveau)) + '" sizes="' + esc(modele.sizes) + '" src="');
     }
   }
   return h;
