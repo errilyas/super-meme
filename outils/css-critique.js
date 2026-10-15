@@ -11,8 +11,10 @@
       CSSOM du navigateur, qui jette les proprietes qu'il ne connait pas et
       dont Safari a parfois besoin) ;
    2. ouvre chaque page dans des cadres de 360, 412, 768 et 1366 px de large,
-      en sombre et en clair, en francais et en arabe, attend que boutique.js
-      ait pose le formulaire express, puis garde toute regle dont le
+      en sombre et en clair, en francais et en arabe, une fois JavaScript
+      coupe (le premier affichage, avant les scripts differes) et une fois
+      apres que boutique.js a pose le formulaire express, puis garde toute
+      regle dont le
       selecteur touche un element du premier ecran, un element qui le
       precede dans le document, un enfant d'un element visible, ou un
       element positionne (fixe, absolu, colle) : sans sa regle, un tiroir ou
@@ -166,10 +168,12 @@ window.cpCritique = async function (o) {
     const tous = Array.from(doc.querySelectorAll('*'));
     const Q = new Set();
     const horsFlux = new Set();
+    const fixes = new Set();
     let dernier = -1;
     tous.forEach((el, k) => {
       const cs = vue.getComputedStyle(el);
       const pos = cs.position;
+      if (pos === 'fixed') { el.classList.forEach((c) => fixes.add('.' + c)); if (el.id) fixes.add('#' + el.id); }
       if (pos === 'fixed' || pos === 'absolute' || horsFlux.has(el.parentElement)) horsFlux.add(el);
       if (pos === 'fixed' || pos === 'absolute' || pos === 'sticky') Q.add(el);
       const r = el.getBoundingClientRect();
@@ -180,12 +184,25 @@ window.cpCritique = async function (o) {
       if (/flex|grid/.test(cs.display)) for (const c of el.children) Q.add(c);
     });
     for (let k = 0; k <= dernier; k++) Q.add(tous[k]);
+    Q.fixes = fixes;
     return Q;
+  }
+  /* Un element fixe (barre d'achat, en-tete, tiroir) change d'etat par
+     classes posees au defilement (.repli, .cpb-cache, .open…) : ses regles
+     d'etat ne correspondent a rien au moment de l'extraction. On garde toute
+     regle dont le sujet (dernier maillon du selecteur, hors :not()) porte
+     une classe ou l'id d'un element fixe. */
+  function sujetFixe(sel, fixes) {
+    const nu = sel.replace(/:not\([^()]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/\([^()]*\)/g, '');
+    const maillons = nu.split(/[\s>+~]+/).filter(Boolean);
+    const sujet = maillons[maillons.length - 1] || '';
+    return (sujet.match(/[.#][\w-]+/g) || []).some((x) => fixes.has(x));
   }
   function retenues(doc, Q, garde) {
     regles.forEach((r, k) => {
       if (garde.has(k)) return;
       for (const p of tests[k]) {
+        if (sujetFixe(p.brut, Q.fixes)) { garde.add(k); return; }
         let els;
         try { els = doc.querySelectorAll(p.test); } catch (e) {
           if (/-moz-|-ms-/.test(p.brut)) continue;
@@ -222,13 +239,22 @@ window.cpCritique = async function (o) {
         if (w === 412) scenarios.push({ page: 'fiche', theme, lang, w, h, url: '/?parfum=' + o.fiches[2] + '&lang=' + lang, panier: paniers[0] });
         paniers.concat('[]').forEach((pn) => scenarios.push({ page: 'commande', theme, lang, w, h, url: '/?commander=1&lang=' + lang, panier: pn }));
         scenarios.push({ page: 'commande', theme, lang, w, h, url: '/?commander=1&merci=1&lang=' + lang, panier: '[]', merci });
+        /* Le premier affichage a lieu avant les scripts differes : meme page,
+           JavaScript coupe. C'est l'etat ou .pf-x-place reserve la place du
+           formulaire express ; une fois le formulaire pose, plus rien ne
+           correspond a cette regle. */
+        o.fiches.forEach((s, k) => {
+          if (k > 0 && w !== 412) return;
+          scenarios.push({ page: 'fiche', theme, lang, w, h, url: '/?parfum=' + s + '&lang=' + lang, sansJs: true });
+        });
+        scenarios.push({ page: 'commande', theme, lang, w, h, url: '/?commander=1&lang=' + lang, sansJs: true });
       }
     }
   }
 
   /* localStorage est partage entre les cadres : on charge par lots de meme
      etat (theme, panier, remerciement). */
-  const cle = (s) => [s.theme, s.panier || '', s.merci || ''].join('|');
+  const cle = (s) => [s.theme, s.panier || '', s.merci || '', s.sansJs ? 'sansJs' : ''].join('|');
   const lots = {};
   scenarios.forEach((s) => { (lots[cle(s)] = lots[cle(s)] || []).push(s); });
 
@@ -236,7 +262,17 @@ window.cpCritique = async function (o) {
     return new Promise((ok) => {
       const f = document.createElement('iframe');
       f.style.cssText = 'position:fixed;left:0;top:0;width:' + s.w + 'px;height:' + s.h + 'px;border:0;opacity:0.01;pointer-events:none;z-index:-1';
-      f.onload = () => setTimeout(() => ok(f), o.attente);
+      /* Sans JavaScript, les deux scripts du <head> (langue, theme) ne
+         tournent pas : on pose leurs attributs a leur place. */
+      if (s.sansJs) f.sandbox = 'allow-same-origin';
+      f.onload = () => setTimeout(() => {
+        if (s.sansJs) {
+          const de = f.contentDocument.documentElement;
+          if (s.theme === 'light') de.setAttribute('data-theme', 'light');
+          if (s.lang === 'ar') { de.setAttribute('data-lang', 'ar'); de.setAttribute('lang', 'ar'); de.setAttribute('dir', 'rtl'); }
+        }
+        ok(f);
+      }, o.attente);
       f.src = o.origine + s.url + '&critique=' + Math.random().toString(36).slice(2);
       document.body.appendChild(f);
     });
@@ -325,7 +361,7 @@ window.cpCritique = async function (o) {
         ecarts.push({ el: chemin(el), r: diffR ? [a.r, b.r] : undefined, props: PROPS.filter((p, j) => pa[j] !== pb[j]) });
       }
     });
-    return { s: s.page + ' ' + s.theme + ' ' + s.lang + ' ' + s.w + ' ' + s.url, ecarts: ecarts.slice(0, 12), total: ecarts.length };
+    return { s: s.page + ' ' + s.theme + ' ' + s.lang + ' ' + s.w + ' ' + s.url + (s.sansJs ? ' sans JS' : ''), ecarts: ecarts.slice(0, 12), total: ecarts.length };
   }
   const controle = await parLots(scenarios, verifie);
 
