@@ -366,3 +366,10 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
    - mesure.js (traduction GA4) en différé sur l'accueil et la fiche,
      comme le panier qui en dépend. Sur la page commande, le
      remerciement et les autres pages, il reste chargé comme avant.
+   (1.31.2) Reprend tout la 1.31.1, plus :
+   - Commande express : une adresse de moins de 8 caractères (un quartier
+     seul, « Maarif », « Agdal ») faisait refuser la commande par le
+     carnet du thème, sans rien afficher : le client lisait « Commande
+     reçue », le pixel comptait l'achat, et la commande n'existait nulle
+     part. Elle part maintenant avec la mention « (à préciser lors de
+     l'appel) » après ce que le client a écrit.

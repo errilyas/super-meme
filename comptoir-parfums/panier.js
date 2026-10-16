@@ -187,18 +187,30 @@
        « test » dans un champ du formulaire de commande, ou numero de test.
        Le Lead pose la marque avec la reference de la commande ; le Purchase
        de la page merci ne saute que pour cette meme reference. Le serveur
-       applique la meme regle (functions.php > comptoir_commande_test). */
+       applique la meme regle (functions.php > comptoir_commande_test).
+       Seuls les champs du client comptent (nom, telephone, ville, adresse),
+       dans un formulaire qui porte un telephone : la page commande ou la
+       commande express. Jusqu'en 3.9.14, TOUS les champs de la page etaient
+       lus, y compris les formulaires caches que le pixel Meta pose pour ses
+       envois (description de la page : « testeur original ») ; un envoi
+       Meta encore en cours suffisait a faire d'une vraie commande un test. */
     var TELS_TEST = ['212661718238', '212600000000'];
+    var CHAMPS_CLIENT = ['nom', 'tel', 'ville', 'ville_autre', 'adresse'];
     function commandeTest(nom, eventId) {
         if (nom !== 'Lead' && nom !== 'Purchase') return false;
         try {
             if (nom === 'Lead') {
-                var txt = '', tels = [];
-                var champs = document.querySelectorAll('input, textarea');
+                var txt = '', tels = [], champs = [];
+                var formulaires = document.querySelectorAll('form');
+                for (var j = 0; j < formulaires.length; j++) {
+                    if (!formulaires[j].querySelector('[name="tel"]')) continue;
+                    for (var k = 0; k < CHAMPS_CLIENT.length; k++) {
+                        var el = formulaires[j].querySelector('[name="' + CHAMPS_CLIENT[k] + '"]');
+                        if (el) champs.push(el);
+                    }
+                }
                 for (var i = 0; i < champs.length; i++) {
-                    var c = champs[i], t = String(c.type || '').toLowerCase();
-                    if (t === 'hidden' || t === 'checkbox' || t === 'radio' || t === 'submit' || t === 'button' || t === 'search') continue;
-                    var v = String(c.value || '');
+                    var v = String(champs[i].value || '');
                     txt += ' ' + v;
                     var d = v.replace(/[^0-9]/g, '');
                     if (d.length >= 9) tels.push(d.indexOf('00212') === 0 ? d.slice(2) : (d.charAt(0) === '0' ? '212' + d.slice(1) : d));

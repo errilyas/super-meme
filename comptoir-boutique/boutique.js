@@ -1740,13 +1740,18 @@
         livraison: P.fraisLivraison(), sousTotal: P.subtotal(), remise: (P.remise ? P.remise() : 0), t: Date.now()
       };
 
-      /* Adresse laissee vide : le carnet de commandes du theme refuse une
-         adresse de moins de 8 caracteres (functions.php), et l'envoi part
-         sans attendre de reponse — la commande serait perdue sans bruit. Il
-         recoit donc la mention que le message WhatsApp porte deja. */
+      /* Adresse vide ou trop courte : le carnet de commandes du theme refuse
+         une adresse de moins de 8 caracteres (functions.php), et l'envoi part
+         sans attendre de reponse — la commande serait perdue sans bruit,
+         pendant que le client lit « Commande reçue ». Vide, il recoit la
+         mention que le message WhatsApp porte deja. Courte (un quartier
+         seul : « Maarif », « Agdal », jusqu'en 1.31.1 la commande partait
+         a la poubelle), il garde ce que le client a ecrit, suivi de la meme
+         mention. */
       var pourCarnet = {};
       Object.keys(data).forEach(function (k) { pourCarnet[k] = data[k]; });
       if (!pourCarnet.adresse) { pourCarnet.adresse = 'À préciser lors de l’appel de confirmation'; }
+      else if (pourCarnet.adresse.length < 8) { pourCarnet.adresse += ' (à préciser lors de l’appel)'; }
       P.depose(pourCarnet);
       P.mesure('Lead', {
         value: montant, currency: 'MAD', num_items: articles, content_type: 'product',
