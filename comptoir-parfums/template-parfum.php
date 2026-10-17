@@ -112,10 +112,12 @@ get_header();
                Sur telephone, le formulaire express se pose juste au-dessus :
                le lien tombe sous son bouton d'envoi, avant « Ajouter au
                panier » et le quiz. Il etait a 2,7 ecrans, apres le quiz, et
-               la bulle WhatsApp reste cachee tant que le formulaire est la. */ ?>
-      <a class="pf-question" href="<?php echo esc_url( $cp_wa_href ); ?>" target="_blank" rel="noopener">
+               la bulle WhatsApp reste cachee tant que le formulaire est la.
+               3.9.17 : un petit bouton « Une question ? », pas un second
+               chemin pour commander a cote du formulaire. */ ?>
+      <a class="pf-question" href="<?php echo esc_url( $cp_wa_href ); ?>" target="_blank" rel="noopener" aria-label="Une question sur ce parfum ? Écrivez-nous sur WhatsApp">
         <?php comptoir_icone_whatsapp(); ?>
-        <span>Une question sur ce parfum ? Écrivez-nous</span>
+        <span>Une question ?</span>
       </a>
 
       <?php /* UN chemin principal : le flacon entre au panier et le client part

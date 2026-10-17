@@ -3043,10 +3043,11 @@ html{scroll-padding-top:76px}
 .pf-top > .pf-buy{min-width:0}
 .pf-buy > .preuves-pf{margin-top:36px}
 @media(max-width:900px){
-  /* Sous le formulaire, un vrai bouton plutot qu'un lien souligne. */
+  /* Sous le formulaire, un petit bouton centre « Une question ? » : il ne
+     doit pas peser autant que le bouton d'envoi (3.9.17). */
   .pf-buy > .pf-question{
-    display:flex;justify-content:center;margin:18px 0 4px;padding:14px 16px;
-    border:1px solid var(--line2);border-radius:3px;font-size:13px;color:var(--bone);
+    display:flex;width:max-content;margin:16px auto 4px;padding:9px 16px;
+    border:1px solid var(--line2);border-radius:999px;font-size:12px;color:var(--text-dim);
   }
   .pf-buy > .preuves-pf{margin-top:28px}
 }

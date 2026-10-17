@@ -287,7 +287,7 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
   <div class="proc-inner">
     <div class="r">
       <div class="sect-kicker"><span>Comment commander</span></div>
-      <h2 class="sect-h2">Simple, et rien à payer d'avance.</h2>
+      <h2 class="sect-h2">Commandez en 30 secondes, payez à la livraison.</h2>
     </div>
     <div class="proc-steps">
       <div class="proc-step r d1">
@@ -299,7 +299,7 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
       <div class="proc-step r d2">
         <div class="proc-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
         <div class="proc-num" aria-hidden="true" data-n="02"></div>
-        <h3>Commandez en 30 secondes</h3>
+        <h3>Envoyez votre commande</h3>
         <p>Laissez votre nom, votre téléphone et votre adresse. Rien à payer en ligne : nous vous appelons pour confirmer la commande.</p>
       </div>
       <div class="proc-step r d3">

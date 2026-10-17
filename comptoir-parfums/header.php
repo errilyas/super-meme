@@ -108,7 +108,7 @@ html:root{--serif:'Cormorant Garamond','CP serif repli','CP serif repli A',Georg
   .h-eyebrow,.hero-h1 .h1-inner,.h-badge,.hero-sub,.hero-actions,.hero-trust,.hero-visual,
   .h-note-card{opacity:1!important;transform:none!important}
   #cat-list::after{
-    content:'Activez JavaScript pour parcourir le catalogue complet, ou commandez directement sur WhatsApp.';
+    content:'Activez JavaScript pour parcourir le catalogue et commander. Une question ? Écrivez-nous sur WhatsApp.';
     display:block;padding:28px 0;color:var(--smoke);font-size:14px;line-height:1.7
   }
 </style></noscript>

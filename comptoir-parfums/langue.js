@@ -174,10 +174,10 @@
     'Mixte': 'للجنسين',
 
     /* Les quatre etapes */
-    'Simple, et rien à payer d\'avance.': 'بسيط، ولا شيء تدفعه مسبقًا.',
+    'Commandez en 30 secondes, payez à la livraison.': 'اطلب في 30 ثانية، وادفع عند الاستلام.',
     'Choisissez votre parfum': 'اختر عطرك',
     'Parcourez le catalogue ou faites le quiz en 4 questions. Vous hésitez ? Dites-nous sur WhatsApp ce que vous portez déjà, nous vous conseillons.': 'تصفّح الكتالوج أو أجب عن الاختبار في 4 أسئلة. متردّد؟ قل لنا على واتساب ما ترتديه الآن، وننصحك.',
-    'Commandez en 30 secondes': 'اطلب في 30 ثانية',
+    'Envoyez votre commande': 'أرسل طلبك',
     'Laissez votre nom, votre téléphone et votre adresse. Rien à payer en ligne : nous vous appelons pour confirmer la commande.': 'اترك اسمك وهاتفك وعنوانك. لا شيء تدفعه عبر الإنترنت: نتصل بك لتأكيد الطلب.',
     'Livraison 24–72h': 'التوصيل خلال 24 إلى 72 ساعة',
     'Casablanca, Rabat, Marrakech, Tanger et toutes les villes. Transporteur partenaire suivi.': 'الدار البيضاء، الرباط، مراكش، طنجة وكل المدن. شركة توصيل شريكة مع تتبّع.',
@@ -254,6 +254,7 @@
     'Commander sur WhatsApp': 'اطلب عبر واتساب',
     /* Bulle Joinchat (reglage de l'extension depuis 3.9.17) */
     'Une question ?': 'عندك سؤال؟',
+    'Une question sur ce parfum ? Écrivez-nous sur WhatsApp': 'سؤال حول هذا العطر؟ راسلنا على واتساب',
     'Confirmation immédiate par WhatsApp': 'تأكيد فوري عبر واتساب',
     'Flacon neuf, jamais utilisé': 'قارورة جديدة، لم تُستعمل قط',
     'Testeur original · 100 % authentique': 'تستر أصلي · أصلي 100%',
