@@ -251,6 +251,65 @@ function comptoir_produit_by_slug( $slug ) {
 	return isset( $index[ $slug ] ) ? $index[ $slug ] : null;
 }
 
+/**
+ * Offres a prix fixe : plusieurs flacons vendus ensemble, a un prix qui n'est
+ * pas la somme des fiches. Elles ne font PAS partie du catalogue
+ * (comptoir_produits) : ni grille, ni maisons, ni sitemap, ni flux Meta, et
+ * pas de fiche ?parfum=. On y arrive par la page vente :
+ * /?vente=1&p=<slug de l'offre>.
+ * Une offre compte pour UN article : le panier et le serveur lui appliquent
+ * donc la livraison (comptoir_livraison_dh) et aucune remise duo, sans
+ * regle a part. Champs en plus de ceux d'un parfum : o (offre), avec (les
+ * slugs des flacons), barre (le prix des flacons achetes un par un).
+ */
+function comptoir_offres() {
+	static $cache = null;
+	if ( null !== $cache ) {
+		return $cache;
+	}
+	$cache = array();
+	$liste = array(
+		array(
+			's'    => 'pack--stronger-intensely-born-in-roma',
+			'b'    => 'Pack duo',
+			'n'    => 'Stronger With You Intensely + Born In Roma Intense',
+			'pr'   => '499 DH',
+			'g'    => 'Homme',
+			'x'    => '2 testeurs originaux',
+			'd'    => 'Emporio Armani Stronger With You Intensely et Valentino Uomo Born In Roma Intense : deux ambrés vanillés pour homme, réunis à un prix de pack.',
+			'avec' => array( 'emporio-armani--stronger-with-you-intensely', 'valentino--uomo-born-in-roma-intense' ),
+		),
+	);
+	foreach ( $liste as $o ) {
+		$barre = 0;
+		foreach ( $o['avec'] as $s ) {
+			$p = comptoir_produit_by_slug( $s );
+			if ( ! $p ) {
+				continue 2;   // un flacon retire du catalogue retire l'offre
+			}
+			$barre += comptoir_prix_entier( $p );
+		}
+		$cache[] = array_merge( $o, array( 'o' => 1, 'barre' => $barre, 'fam' => '', 't' => array(), 'c' => array(), 'f' => array() ) );
+	}
+	return $cache;
+}
+
+/** Une offre par son slug, ou null. */
+function comptoir_offre_by_slug( $slug ) {
+	foreach ( comptoir_offres() as $o ) {
+		if ( $o['s'] === $slug ) {
+			return $o;
+		}
+	}
+	return null;
+}
+
+/** Ce qui peut entrer dans un panier : un parfum du catalogue ou une offre. */
+function comptoir_article_by_slug( $slug ) {
+	$p = comptoir_produit_by_slug( $slug );
+	return $p ? $p : comptoir_offre_by_slug( $slug );
+}
+
 /** URL publique d'une fiche parfum. */
 function comptoir_parfum_url( $slug ) {
 	return home_url( '/?parfum=' . rawurlencode( $slug ) );

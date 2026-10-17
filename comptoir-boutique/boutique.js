@@ -19,7 +19,12 @@
 
   var CFG = window.CPB || {};
   var P = window.Panier;
-  var LISTE = window.PRODUITS || [];
+  /* Le theme fait suivre le catalogue des offres a prix fixe (o:1, un pack
+     de deux flacons par exemple). Elles doivent etre reconnues (INDEX : le
+     panier, la commande express de la page vente), mais ne sont ni proposees,
+     ni cherchees, ni comptees comme des parfums (LISTE). */
+  var TOUT = window.PRODUITS || [];
+  var LISTE = TOUT.filter(function (p) { return p && !p.o; });
   /* Sans le panier ou le catalogue du theme, il n'y a rien a brancher. */
   if (!P || !LISTE.length) { return; }
 
@@ -260,7 +265,7 @@
   }
 
   var INDEX = {};
-  LISTE.forEach(function (p) { if (p && p.s) { INDEX[p.s] = p; } });
+  TOUT.forEach(function (p) { if (p && p.s) { INDEX[p.s] = p; } });
   function produit(s) { return Object.prototype.hasOwnProperty.call(INDEX, s) ? INDEX[s] : null; }
 
   function prixTexte(p) { return P.fmt(P.prix(p)); }
@@ -1624,7 +1629,9 @@
     function recap() {
       var a = apercuPanier(voulus());
       var base = apercuPanier([ref.s]);
-      bloc.querySelector('.cpb-x-q1-label').textContent = base.n === 1 ? t('1 flacon') : t('{n} flacons', { n: base.n });
+      /* Des flacons, pas des articles : un pack (p.avec) en contient plusieurs. */
+      var flacons = base.lignes.reduce(function (s, l) { return s + l.q * ((l.p.avec && l.p.avec.length) || 1); }, 0);
+      bloc.querySelector('.cpb-x-q1-label').textContent = flacons === 1 ? t('1 flacon') : t('{n} flacons', { n: flacons });
       bloc.querySelector('.cpb-x-q1-total').textContent = P.fmt(base.total);
       bloc.querySelector('.cpb-x-panier-note').hidden = !P.count();
       bloc.querySelector('.cpb-x-articles').innerHTML = a.lignes.map(function (l) {

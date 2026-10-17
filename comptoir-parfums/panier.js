@@ -305,8 +305,9 @@
       var prixRef = priceNum(ref), maisons = {};
       /* Une maison par suggestion : trois Tom Ford a cote d'un Tom Ford, c'est
          un seul choix presente trois fois. */
+      /* p.o : une offre a prix fixe (comptoir_offres), jamais proposee ici. */
       return (window.PRODUITS || []).filter(function (p) {
-        return !dans[p.s] && aPhoto(p.s) && (p.g === ref.g || p.g === 'Mixte' || ref.g === 'Mixte');
+        return !p.o && !dans[p.s] && aPhoto(p.s) && (p.g === ref.g || p.g === 'Mixte' || ref.g === 'Mixte');
       }).sort(function (a, b) {
         return Math.abs(priceNum(a) - prixRef) - Math.abs(priceNum(b) - prixRef) || (a.s < b.s ? -1 : 1);
       }).filter(function (p) {

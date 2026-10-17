@@ -801,7 +801,7 @@ function comptoir_recoit_commande() {
 			}
 		}
 	}
-	if ( ! is_array( $lignes ) || ! count( $lignes ) || count( $lignes ) > count( comptoir_produits() ) ) {
+	if ( ! is_array( $lignes ) || ! count( $lignes ) || count( $lignes ) > count( comptoir_produits() ) + count( comptoir_offres() ) ) {
 		wp_send_json_error( 'panier', 400 );
 	}
 	$articles = 0;
@@ -811,7 +811,8 @@ function comptoir_recoit_commande() {
 		if ( ! is_array( $ligne ) || ! isset( $ligne['s'], $ligne['q'] ) || ! is_string( $ligne['s'] ) || ! is_int( $ligne['q'] ) || $ligne['q'] < 1 || $ligne['q'] > 999 ) {
 			wp_send_json_error( 'panier', 400 );
 		}
-		$p = comptoir_produit_by_slug( $ligne['s'] );
+		// Un parfum, ou une offre a prix fixe (un article, son propre prix).
+		$p = comptoir_article_by_slug( $ligne['s'] );
 		if ( ! $p ) { wp_send_json_error( 'produit', 400 ); }
 		$articles += $ligne['q'];
 		$total += comptoir_prix_entier( $p ) * $ligne['q'];
@@ -1461,20 +1462,20 @@ function comptoir_parfums_assets() {
 	// differes s'executent avant DOMContentLoaded : meme evenement, meme
 	// identifiant (vc.*), envoye au meme chargement.
 	$cp_vc_slug = comptoir_parfum_slug_demande();
-	if ( $cp_vc_slug ) {
-		$cp_vc_p = comptoir_produit_by_slug( $cp_vc_slug );
-		if ( $cp_vc_p ) {
-			$cp_vc_js = 'window.Panier && window.Panier.mesure("ViewContent",' . wp_json_encode( array(
-				'content_ids'   => array( $cp_vc_p['s'] ),
-				'content_type'  => 'product',
-				'content_name'  => $cp_vc_p['b'] . ' ' . $cp_vc_p['n'],
-				'value'         => comptoir_prix_entier( $cp_vc_p ),
-				'currency'      => 'MAD',
-			) ) . ',window.Panier.idEvenement?window.Panier.idEvenement("vc"):"");';
-			add_action( 'wp_footer', function () use ( $cp_vc_js ) {
-				echo '<script id="cp-viewcontent">(function(){function f(){' . $cp_vc_js . '}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",f);}else{f();}})();</script>' . "\n";
-			}, 100 );
-		}
+	// La page vente ouverte sur un parfum ou une offre (?vente=1&p=) montre
+	// elle aussi UN article a acheter : meme ViewContent que la fiche.
+	$cp_vc_p = $cp_vc_slug ? comptoir_produit_by_slug( $cp_vc_slug ) : ( comptoir_vente_demande() ? comptoir_vente_vedette() : null );
+	if ( $cp_vc_p ) {
+		$cp_vc_js = 'window.Panier && window.Panier.mesure("ViewContent",' . wp_json_encode( array(
+			'content_ids'   => array( $cp_vc_p['s'] ),
+			'content_type'  => 'product',
+			'content_name'  => $cp_vc_p['b'] . ' ' . $cp_vc_p['n'],
+			'value'         => comptoir_prix_entier( $cp_vc_p ),
+			'currency'      => 'MAD',
+		) ) . ',window.Panier.idEvenement?window.Panier.idEvenement("vc"):"");';
+		add_action( 'wp_footer', function () use ( $cp_vc_js ) {
+			echo '<script id="cp-viewcontent">(function(){function f(){' . $cp_vc_js . '}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",f);}else{f();}})();</script>' . "\n";
+		}, 100 );
 	}
 
 	// Script du site — MEME fichier que celui charge par la maquette.
@@ -1496,7 +1497,11 @@ function comptoir_parfums_assets() {
 	// ligne cote navigateur (panier.js le fait, comme produits.js cote
 	// maquette) : l'envoyer aussi doublait la charge utile, 135 Ko au lieu de
 	// 66 sur chaque page.
-	$produits = comptoir_produits();
+	// Les offres a prix fixe suivent le catalogue, marquees o:1 : le panier
+	// doit les connaitre sur toutes les pages (un panier se garde d'une page
+	// a l'autre), mais theme.js, panier.js et Comptoir Boutique les sortent
+	// de la grille, des suggestions et de la recherche.
+	$produits = array_merge( comptoir_produits(), comptoir_offres() );
 
 	$cfg = array(
 		'ajax'      => admin_url( 'admin-ajax.php' ),
@@ -1738,7 +1743,7 @@ function comptoir_photos_produits() {
 	}
 	$cache = array();
 	$dir   = get_template_directory() . '/img/produits/';
-	foreach ( comptoir_produits() as $p ) {
+	foreach ( array_merge( comptoir_produits(), comptoir_offres() ) as $p ) {
 		if ( file_exists( $dir . $p['s'] . '.webp' ) ) {
 			$cache[] = $p['s'] . '.webp';
 		}
@@ -2065,7 +2070,9 @@ function comptoir_vente_vedette() {
 	// Meme nettoyage que comptoir_parfum_slug_demande(). Pas sanitize_title() :
 	// il reduit « -- » a « - », et « valentino--uomo… » ne trouvait plus rien.
 	$slug = preg_replace( '/[^a-z0-9-]/', '', strtolower( (string) wp_unslash( $_GET['p'] ) ) );
-	return $slug ? comptoir_produit_by_slug( $slug ) : null;
+	// Un parfum, ou une offre a prix fixe (comptoir_offres) : la page vente
+	// est la seule page ou une offre s'affiche.
+	return $slug ? comptoir_article_by_slug( $slug ) : null;
 }
 
 /**
@@ -2266,6 +2273,15 @@ function comptoir_meta_page() {
 			'type'      => 'website',
 			'indexable' => false,
 		);
+		// Ouverte sur une offre : l'apercu du lien (WhatsApp, Messenger) dit
+		// l'offre et son prix, avec la photo du pack.
+		$o = comptoir_vente_vedette();
+		if ( $o && ! empty( $o['o'] ) ) {
+			$cache['titre'] = $o['b'] . ' ' . $o['n'] . ' — ' . $o['pr'] . ' — ' . $nom;
+			$cache['desc']  = sprintf( '%s Le pack à %s au lieu de %s DH, + %d DH de livraison. Paiement à la livraison, partout au Maroc.', $o['d'], $o['pr'], comptoir_prix_format( $o['barre'] ), comptoir_livraison_dh() );
+			$cache['url']   = home_url( '/?vente=1&p=' . rawurlencode( $o['s'] ) );
+			$cache['image'] = comptoir_a_photo( $o['s'] ) ? comptoir_photo_url( $o['s'] ) : '';
+		}
 		return $cache;
 	}
 

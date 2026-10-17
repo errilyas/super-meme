@@ -49,8 +49,12 @@ $cp_vitrine_slugs = array(
 // Le parfum de la publicite, s'il est donne (?p=slug) : il passe en tete et
 // sort de la grille, pour ne pas apparaitre deux fois.
 $cp_vedette = comptoir_vente_vedette();
+// Une offre a prix fixe (comptoir_offres) plutot qu'un parfum : ses flacons
+// sortent aussi de la grille, ils sont deja en tete.
+$cp_offre      = $cp_vedette && ! empty( $cp_vedette['o'] );
+$cp_offre_avec = $cp_offre ? array_values( array_filter( array_map( 'comptoir_produit_by_slug', $cp_vedette['avec'] ) ) ) : array();
 if ( $cp_vedette ) {
-	$cp_vitrine_slugs = array_values( array_diff( $cp_vitrine_slugs, array( $cp_vedette['s'] ) ) );
+	$cp_vitrine_slugs = array_values( array_diff( $cp_vitrine_slugs, array( $cp_vedette['s'] ), $cp_offre ? $cp_vedette['avec'] : array() ) );
 	$cp_vitrine_slugs = array_slice( $cp_vitrine_slugs, 0, 6 );
 }
 
@@ -75,6 +79,26 @@ get_header();
         <div class="pf-brand"><?php echo esc_html( $cp_vedette['b'] ); ?></div>
         <h1 class="pf-name"><?php echo esc_html( $cp_vedette['n'] ); ?></h1>
         <div class="pf-meta"><?php echo esc_html( $cp_vedette['x'] . ' · ' . $cp_vedette['g'] ); ?></div>
+        <?php if ( $cp_offre ) : ?>
+        <?php /* Styles de la liste des flacons, ici et pas dans style-site.css :
+             ce fichier est hache dans l'en-tete du CSS critique des fiches
+             (css-critique/), y toucher obligerait a le regenerer. */ ?>
+        <style>.pf-offre-avec{list-style:none;margin:2px 0 18px;padding:0;display:grid;gap:6px;font-size:14px;font-weight:300}.pf-offre-avec li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line2)}.pf-offre-avec a{color:inherit;text-decoration:underline;text-decoration-color:rgba(var(--au-rgb),.4);text-underline-offset:3px}.pf-offre-avec span{color:var(--text-dim);text-decoration:line-through;white-space:nowrap}</style>
+        <?php /* Une offre (comptoir_offres) : ses flacons, chacun vers sa fiche,
+             le prix des deux a l'unite barre, et la livraison dite tout de
+             suite — elle n'est pas offerte sur un pack, la phrase « deux
+             parfums = livraison offerte » n'a donc rien a faire ici. */ ?>
+        <ul class="pf-offre-avec">
+          <?php foreach ( $cp_offre_avec as $cp_x ) : ?>
+          <li><a href="<?php echo esc_url( comptoir_parfum_url( $cp_x['s'] ) ); ?>"><?php echo esc_html( $cp_x['b'] . ' ' . $cp_x['n'] ); ?></a> <span><?php echo esc_html( $cp_x['pr'] ); ?></span></li>
+          <?php endforeach; ?>
+        </ul>
+        <div class="pf-price">
+          <span class="now"><?php echo esc_html( $cp_vedette['pr'] ); ?></span>
+          <span class="was"><?php echo esc_html( comptoir_prix_format( $cp_vedette['barre'] ) ); ?> DH</span>
+          <span class="pf-price-note">+ <?php echo (int) comptoir_livraison_dh(); ?> DH de livraison · testeurs originaux</span>
+        </div>
+        <?php else : ?>
         <?php if ( comptoir_notes_courtes( $cp_vedette ) ) : ?>
         <a class="pf-notes-cle" href="<?php echo esc_url( comptoir_parfum_url( $cp_vedette['s'] ) ); ?>#pf-histoire"><span class="pf-notes-lib">Notes</span><span><?php echo esc_html( comptoir_notes_courtes( $cp_vedette ) ); ?></span></a>
         <?php endif; ?>
@@ -82,6 +106,7 @@ get_header();
           <span class="now"><?php echo esc_html( $cp_vedette['pr'] ); ?></span>
           <span class="pf-price-note">Testeur original · 100 % authentique</span>
         </div>
+        <?php endif; ?>
         <div class="pf-actions">
           <button class="pf-cta pf-cta-achat" type="button" data-panier-acheter="<?php echo esc_attr( $cp_vedette['s'] ); ?>">
             <span>Commander</span><span class="pf-cta-prix"><?php echo esc_html( $cp_vedette['pr'] ); ?></span>
@@ -89,9 +114,11 @@ get_header();
           <button class="pf-cta pf-cta-2" type="button" data-panier-add="<?php echo esc_attr( $cp_vedette['s'] ); ?>">Ajouter au panier</button>
         </div>
         <p class="pf-rassure-cta">Rien à payer maintenant · réglez en espèces à la livraison</p>
-        <?php comptoir_note_franco( 'franco-pf' ); ?>
+        <?php if ( ! $cp_offre ) { comptoir_note_franco( 'franco-pf' ); } ?>
         <?php comptoir_gages(); ?>
+        <?php if ( ! $cp_offre ) : ?>
         <a class="pf-all" href="<?php echo esc_url( comptoir_parfum_url( $cp_vedette['s'] ) ); ?>">Notes et fiche complète</a>
+        <?php endif; ?>
       </div>
     </div>
   </section>

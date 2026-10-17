@@ -526,8 +526,10 @@ const catList  = document.getElementById('cat-list');
 const catCount = document.getElementById('cat-count');
 const catVide  = document.getElementById('cat-vide');
 
-/* Catalogue en mémoire, dans l'ordre du fichier (maison par maison). */
-const CAT = window.PRODUITS || [];
+/* Catalogue en mémoire, dans l'ordre du fichier (maison par maison). Les
+   offres a prix fixe (o:1, comptoir_offres) suivent dans window.PRODUITS pour
+   le panier : elles ne sont ni des fiches ni une maison. */
+const CAT = (window.PRODUITS || []).filter(p => !p.o);
 const TOTAL_REFS = CAT.length;
 const MAISONS = (function(){
   const vues = [], vu = {};

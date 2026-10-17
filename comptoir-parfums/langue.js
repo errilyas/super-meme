@@ -39,7 +39,7 @@
     '.marquee-sect', '.vitrine-maison', '#cat-maison', '.dist-col-tag',
     '.nl-serif', '.nl-sans', '.pf-signature-maison', '.ldr-serif', '.ldr-sans',
     '.foot-wm-serif', '.foot-wm-sans', '.fin-mark-serif', '.fin-mark-sans',
-    '.crumb span', '.foot-copy', 'script', 'style',
+    '.crumb span', '.foot-copy', '.pf-offre-avec a', 'script', 'style',
     /* Les options sont traitees a part : leur texte EST leur valeur
        quand l'attribut manque, et l'ordre compte. */
     'option'
@@ -258,6 +258,9 @@
     'Confirmation immédiate par WhatsApp': 'تأكيد فوري عبر واتساب',
     'Flacon neuf, jamais utilisé': 'قارورة جديدة، لم تُستعمل قط',
     'Testeur original · 100 % authentique': 'تستر أصلي · أصلي 100%',
+    /* Page vente ouverte sur un pack (comptoir_offres) */
+    '2 testeurs originaux': 'جوج تسترات أصلية',
+    'testeurs originaux': 'تسترات أصلية',
     'Rien à payer maintenant · réglez en espèces à la livraison': 'لا شيء تدفعه الآن · ادفع نقدًا عند الاستلام',
     'Le même jus qu\'en boutique, sans le coffret': 'نفس العطر الموجود في المتجر، بدون العلبة',
     'Livré en 24 à 72 h, partout au Maroc': 'يصلك خلال 24 إلى 72 ساعة، في كل المغرب',
@@ -622,6 +625,7 @@
     [/^(\d+) maisons, de (.+) à (.+) DH\. Chaque flacon a sa fiche complète : pyramide olfactive, prix, disponibilité\.$/, '$1 دار عطور، من $2 إلى $3 درهم. لكل قارورة بطاقتها الكاملة: الهرم العطري، السعر، التوفر.'],
     [/^(\d+) DH de livraison — offerte dès le deuxième parfum\.$/, 'التوصيل بـ$1 درهم — مجاني ابتداءً من العطر الثاني.'],
     [/^(\d+) DH de livraison\.$/, 'التوصيل بـ$1 درهم.'],
+    [/^\+ (\d+) DH de livraison$/, '+ $1 درهم للتوصيل'],
     [/^Le lien est peut-être incomplet, ou la page a été retirée\. Le catalogue, lui, est toujours là : (\d+) parfums, (\d+) maisons, livrés partout au Maroc\.$/, 'ربما الرابط غير مكتمل، أو أُزيلت الصفحة. أمّا الكتالوج فما زال هنا: $1 عطر و$2 دار عطور، مع التوصيل إلى كل المغرب.'],
     [/^Frais de livraison confirmés à la commande\.$/, 'تُحدَّد رسوم التوصيل عند الطلب.']
   ];
