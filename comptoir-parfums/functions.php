@@ -1303,8 +1303,10 @@ add_action( 'manage_cp_commande_posts_custom_column', function ( $col, $id ) {
 		/* Les UTM passent avant le fbclid : Instagram ajoute lui-meme un fbclid
 		   a tout lien sortant, lien de la bio compris
 		   (?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=...).
-		   Les pubs Meta, elles, ne portent pas d'UTM a ce jour : un fbclid sans
-		   utm_medium=social reste une publicite. */
+		   Un fbclid sans utm_medium=social reste une publicite. Les pubs Meta
+		   portent utm_medium=paid et utm_content={{ad.name}} : on affiche le nom
+		   de la pub, pour savoir quelle creation a vendu, meme si le fbclid
+		   s'est perdu en route. */
 		if ( 'social' === $support && $utm ) {
 			$reseau = strtolower( $utm );
 			if ( in_array( $reseau, array( 'ig', 'instagram' ), true ) ) {
@@ -1315,8 +1317,12 @@ add_action( 'manage_cp_commande_posts_custom_column', function ( $col, $id ) {
 				$libelle = $utm;
 			}
 			echo esc_html( $libelle );
-		} elseif ( $fbclid ) {
+		} elseif ( $fbclid || 'paid' === $support ) {
+			$pub = get_post_meta( $id, 'cp_utm_content', true );
 			echo esc_html__( 'Publicité', 'comptoir-parfums' );
+			if ( $pub ) {
+				echo '<br><small>' . esc_html( $pub ) . '</small>';
+			}
 		} elseif ( $utm ) {
 			echo esc_html( $utm );
 		} elseif ( $ref ) {
