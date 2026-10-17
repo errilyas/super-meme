@@ -3024,3 +3024,44 @@ html{scroll-padding-top:76px}
 .cpb-puce .pnr-brand,.cpb-maisons .pnr-brand{
   font:inherit;margin:0;letter-spacing:inherit;text-transform:inherit;color:inherit;line-height:inherit;
 }
+
+/* ══════════════════════════════════════════
+   FICHE (3.9.16) : CE QUI RASSURE, PLUS HAUT
+   Le visiteur venu d'une publicite decide dans le premier ecran. Les
+   garanties passent au-dessus du prix, le paiement a la livraison en tete
+   et en gros ; la question WhatsApp tombe sous le formulaire express ; les
+   captures de clients suivent l'achat au lieu d'attendre 4,5 ecrans.
+══════════════════════════════════════════ */
+.gages-pf{margin:0 0 16px;gap:8px 18px}
+.gages-pf .gage{font-size:12px;letter-spacing:.03em;color:var(--text-dim)}
+.gages-pf .gage:first-child{flex-basis:100%;font-size:15px;font-weight:500;letter-spacing:.01em;color:var(--ember)}
+.gages-pf .gage:first-child svg{width:18px;height:18px}
+.pf-buy > .pf-question{margin-top:20px}
+/* La rangee de captures defile dans la colonne d'achat ; sans min-width:0,
+   la colonne de la grille .pf-top prenait la largeur des quatre captures
+   et la fiche debordait de l'ecran. */
+.pf-top > .pf-buy{min-width:0}
+.pf-buy > .preuves-pf{margin-top:36px}
+@media(max-width:900px){
+  /* Sous le formulaire, un vrai bouton plutot qu'un lien souligne. */
+  .pf-buy > .pf-question{
+    display:flex;justify-content:center;margin:18px 0 4px;padding:14px 16px;
+    border:1px solid var(--line2);border-radius:3px;font-size:13px;color:var(--bone);
+  }
+  .pf-buy > .preuves-pf{margin-top:28px}
+}
+/* Les garanties ajoutent une ligne au-dessus du prix : sur un telephone de
+   360 x 780, le prix passait sous la barre fixe « Commander ». On reprend
+   la place sur la photo (25 % de l'ecran au lieu de 34 %) et sur quelques
+   marges, et les deux garanties secondaires tiennent sur une ligne. */
+@media(max-width:640px){
+  .pf-visual{height:clamp(180px,25vh,270px)}
+  .pf-badge{margin-bottom:8px}
+  .pf-meta{margin-bottom:10px}
+  .pf-notes-cle{margin-bottom:14px}
+  .gages-pf{gap:6px 12px;margin-bottom:12px}
+  .gages-pf .gage{font-size:11px;letter-spacing:0;gap:6px}
+  .gages-pf .gage svg{width:12px;height:12px}
+  .gages-pf .gage:first-child{font-size:15px;gap:8px}
+  .gages-pf .gage:first-child svg{width:17px;height:17px}
+}

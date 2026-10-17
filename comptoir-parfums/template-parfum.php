@@ -6,8 +6,9 @@
  * ?parfum=<slug> : aucune page a creer dans l'admin.
  *
  * Ordre (v3.1) : achat, puis le parfum et sa pyramide, la fiche, les
- * preuves, le testeur explique, la meme maison. La maquette parfum.html
- * garde l'ordre v2.
+ * preuves, le testeur explique, la meme maison. Depuis 3.9.16, les
+ * garanties, la question WhatsApp et les preuves sont dans le bloc d'achat.
+ * La maquette parfum.html garde l'ordre v2.
  *
  * Autre difference avec la maquette : ici tout est rendu par PHP. La
  * maquette construit la fiche en JavaScript, donc son contenu est invisible
@@ -91,6 +92,12 @@ get_header();
       <?php if ( comptoir_notes_courtes( $cp_parfum ) ) : ?>
       <a class="pf-notes-cle" href="#pf-histoire"><span class="pf-notes-lib">Notes</span><span><?php echo esc_html( comptoir_notes_courtes( $cp_parfum ) ); ?></span></a>
       <?php endif; ?>
+      <?php /* 3.9.16 : les garanties AU-DESSUS du prix, dans le premier ecran.
+               Placees sous le prix, elles finissaient sous le formulaire
+               express (boutique.js le pose juste apres .pf-price) : a 2,3
+               ecrans sur telephone, en 11 px, alors que le paiement a la
+               livraison est ce qui decide un achat venu d'une publicite. */ ?>
+      <?php comptoir_gages( 'gages-pf' ); ?>
       <div class="pf-price">
         <span class="now"><?php echo esc_html( $cp_parfum['pr'] ); ?></span>
         <span class="pf-price-note">Testeur original · 100 % authentique</span>
@@ -100,6 +107,16 @@ get_header();
                complet, la place est rendue : jamais un trou sous le prix. */ ?>
       <div class="pf-x-place" aria-hidden="true"></div>
       <script data-jetpack-boost="ignore">addEventListener('load',function(){var b=document.querySelector('main.pf .pf-buy');if(b&&!b.classList.contains('cpb-express-on')){b.classList.add('pf-x-sans');}});</script>
+
+      <?php /* 3.9.16 : la question WhatsApp, ici plutot qu'en bas du bloc.
+               Sur telephone, le formulaire express se pose juste au-dessus :
+               le lien tombe sous son bouton d'envoi, avant « Ajouter au
+               panier » et le quiz. Il etait a 2,7 ecrans, apres le quiz, et
+               la bulle WhatsApp reste cachee tant que le formulaire est la. */ ?>
+      <a class="pf-question" href="<?php echo esc_url( $cp_wa_href ); ?>" target="_blank" rel="noopener">
+        <?php comptoir_icone_whatsapp(); ?>
+        <span>Une question sur ce parfum ? Écrivez-nous</span>
+      </a>
 
       <?php /* UN chemin principal : le flacon entre au panier et le client part
                droit au formulaire (Panier.acheter). « Ajouter au panier » reste
@@ -113,9 +130,12 @@ get_header();
 
       <p class="pf-rassure-cta">Rien à payer maintenant · réglez en espèces à la livraison</p>
 
-      <?php comptoir_note_franco( 'franco-pf' ); ?>
+      <?php /* 3.9.16 : les captures de clients, juste apres l'achat (boutique.js
+               pose les favoris et le quiz entre les deux). Elles etaient a
+               4,5 ecrans, apres l'histoire, la pyramide et la fiche. */ ?>
+      <?php comptoir_bloc_preuves( 'preuves-pf' ); ?>
 
-      <?php comptoir_gages(); ?>
+      <?php comptoir_note_franco( 'franco-pf' ); ?>
 
       <?php /* Ce que le client recoit, dit AVANT qu'il se le demande : c'est
                la question qui retient un achat de testeur. Faits confirmes par
@@ -130,11 +150,6 @@ get_header();
         </ul>
         <a class="pf-recu-lien" href="#testeur">Pourquoi un testeur coûte moins cher</a>
       </div>
-
-      <a class="pf-question" href="<?php echo esc_url( $cp_wa_href ); ?>" target="_blank" rel="noopener">
-        <?php comptoir_icone_whatsapp(); ?>
-        <span>Une question sur ce parfum ? Écrivez-nous</span>
-      </a>
     </div>
   </div>
 
@@ -183,8 +198,6 @@ get_header();
       <div><dt>Prix</dt><dd><?php echo esc_html( $cp_parfum['pr'] ); ?> — paiement à la réception</dd></div>
     </dl>
   </section>
-
-  <?php comptoir_bloc_preuves( 'preuves-pf' ); ?>
 
   <?php comptoir_bloc_testeur( 'testeur-pf' ); ?>
 
