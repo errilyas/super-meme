@@ -217,7 +217,7 @@ get_header();
         <h2 class="sect-h2">Ce qu'on nous demande le plus.</h2>
         <p class="sect-body">Une réponse manque ? Écrivez-nous directement.</p>
         <div class="wa-block">
-          <p>Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, commandes.</p>
+          <p>Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, suivi de commande.</p>
           <a href="<?php echo esc_url( $cp_wa ); ?>" class="wa-cta" target="_blank" rel="noopener">Poser une question</a>
         </div>
       </div>
@@ -254,14 +254,14 @@ get_header();
       </span>
       <div class="fin-kicker">Commander maintenant</div>
       <h2 class="fin-h2">Un grand parfum livré chez vous demain.</h2>
-      <p class="fin-body">Choisissez vos flacons, laissez votre adresse, confirmez d'un message — et payez seulement quand le colis est entre vos mains, en 24 à 72h.</p>
+      <p class="fin-body">Choisissez vos flacons, laissez votre nom et votre téléphone — et payez seulement quand le colis est entre vos mains, en 24 à 72h.</p>
       <div class="fin-actions">
         <a href="<?php echo esc_url( home_url( '/?commander=1' ) ); ?>" class="btn-fin">Commander maintenant</a>
         <a href="<?php echo esc_url( home_url( '/#catalogue' ) ); ?>" class="btn-fin-g">Parcourir le catalogue</a>
       </div>
       <p class="fin-ou">
         <a href="<?php echo esc_url( $cp_wa ); ?>" target="_blank" rel="noopener">
-          <?php comptoir_icone_whatsapp(); ?>ou commandez directement sur WhatsApp</a>
+          <?php comptoir_icone_whatsapp(); ?>Un doute avant de commander ? Réponse sur WhatsApp</a>
       </p>
       <div class="fin-trust" aria-label="Garanties">
         <span class="fin-trust-item">

@@ -174,11 +174,11 @@
     'Mixte': 'للجنسين',
 
     /* Les quatre etapes */
-    'Simple comme un message.': 'بسيط كرسالة.',
-    'Choisissez sur WhatsApp': 'اختر عبر واتساب',
-    'Parcourez le catalogue et écrivez-nous le parfum voulu. Hésitation ? Dites-nous ce que vous portez déjà.': 'تصفّح الكتالوج واكتب لنا العطر الذي تريده. متردّد؟ قل لنا ما ترتديه الآن.',
-    'Confirmation sous 1h': 'تأكيد خلال ساعة',
-    'Nous vérifions la disponibilité et confirmons le prix. Aucune avance demandée à cette étape.': 'نتحقّق من التوفّر ونؤكّد السعر. لا تسبيق مطلوب في هذه المرحلة.',
+    'Simple, et rien à payer d\'avance.': 'بسيط، ولا شيء تدفعه مسبقًا.',
+    'Choisissez votre parfum': 'اختر عطرك',
+    'Parcourez le catalogue ou faites le quiz en 4 questions. Vous hésitez ? Dites-nous sur WhatsApp ce que vous portez déjà, nous vous conseillons.': 'تصفّح الكتالوج أو أجب عن الاختبار في 4 أسئلة. متردّد؟ قل لنا على واتساب ما ترتديه الآن، وننصحك.',
+    'Commandez en 30 secondes': 'اطلب في 30 ثانية',
+    'Laissez votre nom, votre téléphone et votre adresse. Rien à payer en ligne : nous vous appelons pour confirmer la commande.': 'اترك اسمك وهاتفك وعنوانك. لا شيء تدفعه عبر الإنترنت: نتصل بك لتأكيد الطلب.',
     'Livraison 24–72h': 'التوصيل خلال 24 إلى 72 ساعة',
     'Casablanca, Rabat, Marrakech, Tanger et toutes les villes. Transporteur partenaire suivi.': 'الدار البيضاء، الرباط، مراكش، طنجة وكل المدن. شركة توصيل شريكة مع تتبّع.',
     'Cash à réception': 'الدفع عند الاستلام',
@@ -216,7 +216,7 @@
     'Questions fréquentes': 'الأسئلة الشائعة',
     'Ce qu\'on nous demande le plus.': 'أكثر ما يُسأل عنه.',
     'Une réponse manque ? Écrivez-nous directement.': 'لم تجد جوابك؟ راسلنا مباشرة.',
-    'Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, commandes.': 'فريقنا يجيب على واتساب في أقل من ساعتين — نصائح، توفّر، طلبات.',
+    'Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, suivi de commande.': 'فريقنا يجيب على واتساب في أقل من ساعتين — نصائح، توفّر، تتبّع الطلب.',
     'Poser une question': 'اطرح سؤالك',
     'Qu\'est-ce qu\'un testeur, exactement ?': 'ما هو التستر بالضبط؟',
     'Un flacon': 'قارورة',
@@ -231,13 +231,13 @@
     'Livrez-vous partout au Maroc ?': 'هل توصّلون إلى كل المغرب؟',
     'Oui — de Tanger à Dakhla, en passant par toutes les villes et zones rurales. Casablanca, Rabat, Marrakech et les grandes agglomérations sont livrées en 24 à 48h. Le reste du Royaume en 2 à 4 jours ouvrables via nos transporteurs partenaires.': 'نعم — من طنجة إلى الداخلة، مرورًا بكل المدن والقرى. الدار البيضاء والرباط ومراكش والمدن الكبرى خلال 24 إلى 48 ساعة، وباقي المملكة خلال 2 إلى 4 أيام عمل عبر شركائنا في التوصيل.',
     'Les prix affichés sont-ils définitifs ?': 'هل الأسعار المعروضة نهائية؟',
-    'Les prix du catalogue sont indicatifs et régulièrement mis à jour. Le prix ferme est confirmé par message au moment de votre commande, selon disponibilité et volume. Aucune surprise à la livraison.': 'أسعار الكتالوج إرشادية وتُحدَّث بانتظام. السعر النهائي يُؤكَّد برسالة عند الطلب، حسب التوفّر والحجم. لا مفاجآت عند التوصيل.',
+    'Oui. Le prix affiché est celui que vous payez : pas d\'acompte, pas de frais cachés. Seule la livraison s\'ajoute, offerte dès le deuxième parfum, et le total exact s\'affiche avant l\'envoi de votre commande. Vous le réglez au livreur, colis en main.': 'نعم. السعر المعروض هو الذي تدفعه: لا عربون ولا مصاريف خفية. يُضاف فقط ثمن التوصيل، وهو مجاني ابتداءً من العطر الثاني، ويظهر المجموع النهائي قبل إرسال طلبك. تدفعه لعامل التوصيل والطرد بين يديك.',
 
     /* Bloc final */
     'Commander maintenant': 'اطلب الآن',
     'ou commandez directement sur WhatsApp': 'أو اطلب مباشرة عبر واتساب',
     'Un grand parfum livré chez vous demain.': 'عطر كبير يصلك غدًا.',
-    'Choisissez vos flacons, laissez votre adresse, confirmez d\'un message — et payez seulement quand le colis est entre vos mains, en 24 à 72h.': 'اختر قواريرك، اترك عنوانك، أكّد برسالة — وادفع فقط حين يصل الطرد إلى يديك، خلال 24 إلى 72 ساعة.',
+    'Choisissez vos flacons, laissez votre nom et votre téléphone — et payez seulement quand le colis est entre vos mains, en 24 à 72h.': 'اختر قواريرك، اترك اسمك وهاتفك — وادفع فقط حين يصل الطرد إلى يديك، خلال 24 إلى 72 ساعة.',
     'Parcourir le catalogue': 'تصفّح الكتالوج',
     'Parcourir le catalogue →': 'تصفّح الكتالوج ←',
     'Tout le Maroc': 'كل المغرب',
@@ -252,6 +252,8 @@
     'Le catalogue': 'الكتالوج',
     'Ajouter au panier': 'أضف إلى السلة',
     'Commander sur WhatsApp': 'اطلب عبر واتساب',
+    /* Bulle Joinchat (reglage de l'extension depuis 3.9.17) */
+    'Une question ?': 'عندك سؤال؟',
     'Confirmation immédiate par WhatsApp': 'تأكيد فوري عبر واتساب',
     'Flacon neuf, jamais utilisé': 'قارورة جديدة، لم تُستعمل قط',
     'Testeur original · 100 % authentique': 'تستر أصلي · أصلي 100%',
@@ -364,6 +366,8 @@
     'Une question avant ?': 'سؤال قبل ذلك؟',
     'Écrivez-nous': 'راسلنا',
     'Dites-nous ce que vous cherchez, on s\'occupe du reste — ou choisissez vos parfums dans le catalogue.': 'قل لنا ما تبحث عنه ونتكفّل بالباقي — أو اختر عطورك من الكتالوج.',
+    'Choisissez vos parfums dans le catalogue. Besoin d\'un conseil pour choisir ? Écrivez-nous sur WhatsApp.': 'اختر عطورك من الكتالوج. تحتاج نصيحة للاختيار؟ راسلنا على واتساب.',
+    'Demander conseil sur WhatsApp': 'اطلب نصيحة على واتساب',
 
     /* Page de remerciement */
     'Commande reçue ✓': 'تم استلام طلبك ✓',

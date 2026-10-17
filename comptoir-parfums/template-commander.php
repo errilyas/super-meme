@@ -180,16 +180,17 @@ get_header();
     </div>
   </div>
 
-  <?php /* Panier vide : jusqu'ici la page n'offrait qu'un retour au catalogue.
-       Quelqu'un qui arrive ici veut commander MAINTENANT — le renvoyer en
-       arriere sans autre issue, c'est le perdre. On lui laisse ecrire. */ ?>
+  <?php /* Panier vide : le catalogue d'abord, WhatsApp pour un conseil.
+       Jusqu'en 3.9.16, « Commander sur WhatsApp » passait devant : une
+       commande par message n'entre ni au carnet ni dans la mesure Meta, et
+       deux chemins pour commander font hesiter. */ ?>
   <div id="ck-empty" class="ck-empty" hidden>
     <p>Votre panier est vide.</p>
-    <p class="ck-empty-sous">Dites-nous ce que vous cherchez, on s'occupe du reste — ou choisissez vos parfums dans le catalogue.</p>
+    <p class="ck-empty-sous">Choisissez vos parfums dans le catalogue. Besoin d'un conseil pour choisir ? Écrivez-nous sur WhatsApp.</p>
     <div class="ck-empty-actions">
-      <a class="ck-empty-cta" href="<?php echo esc_url( $cp_wa ); ?>" target="_blank" rel="noopener">
-        <?php comptoir_icone_whatsapp(); ?>Commander sur WhatsApp</a>
-      <a class="ck-empty-cta ck-empty-cta-g" href="<?php echo esc_url( $cp_home ); ?>#catalogue">Parcourir le catalogue →</a>
+      <a class="ck-empty-cta" href="<?php echo esc_url( $cp_home ); ?>#catalogue">Parcourir le catalogue →</a>
+      <a class="ck-empty-cta ck-empty-cta-g" href="<?php echo esc_url( $cp_wa ); ?>" target="_blank" rel="noopener">
+        <?php comptoir_icone_whatsapp(); ?>Demander conseil sur WhatsApp</a>
     </div>
   </div>
 

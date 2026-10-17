@@ -287,20 +287,20 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
   <div class="proc-inner">
     <div class="r">
       <div class="sect-kicker"><span>Comment commander</span></div>
-      <h2 class="sect-h2">Simple comme un message.</h2>
+      <h2 class="sect-h2">Simple, et rien à payer d'avance.</h2>
     </div>
     <div class="proc-steps">
       <div class="proc-step r d1">
-        <div class="proc-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="proc-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         <div class="proc-num" aria-hidden="true" data-n="01"></div>
-        <h3>Choisissez sur WhatsApp</h3>
-        <p>Parcourez le catalogue et écrivez-nous le parfum voulu. Hésitation ? Dites-nous ce que vous portez déjà.</p>
+        <h3>Choisissez votre parfum</h3>
+        <p>Parcourez le catalogue ou faites le quiz en 4 questions. Vous hésitez ? Dites-nous sur WhatsApp ce que vous portez déjà, nous vous conseillons.</p>
       </div>
       <div class="proc-step r d2">
         <div class="proc-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
         <div class="proc-num" aria-hidden="true" data-n="02"></div>
-        <h3>Confirmation sous 1h</h3>
-        <p>Nous vérifions la disponibilité et confirmons le prix. Aucune avance demandée à cette étape.</p>
+        <h3>Commandez en 30 secondes</h3>
+        <p>Laissez votre nom, votre téléphone et votre adresse. Rien à payer en ligne : nous vous appelons pour confirmer la commande.</p>
       </div>
       <div class="proc-step r d3">
         <div class="proc-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
@@ -318,16 +318,18 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
   </div>
   <div class="fin-inner r">
     <h3 class="fin-h2">Un grand parfum livré chez vous demain.</h3>
-    <p class="fin-body">Choisissez vos flacons, laissez votre adresse, confirmez d'un message — et payez seulement quand le colis est entre vos mains, en 24 à 72h.</p>
+    <p class="fin-body">Choisissez vos flacons, laissez votre nom et votre téléphone — et payez seulement quand le colis est entre vos mains, en 24 à 72h.</p>
     <div class="fin-actions">
       <a href="<?php echo esc_url( home_url( '/?commander=1' ) ); ?>" class="btn-fin">Commander maintenant</a>
       <a href="#catalogue" class="btn-fin-g">Parcourir le catalogue</a>
     </div>
-    <?php /* Le formulaire reste le chemin principal : c'est lui qui inscrit la
-         commande au carnet. Mais on ne force personne a le remplir. */ ?>
+    <?php /* Un seul chemin pour commander : le formulaire, qui inscrit la
+         commande au carnet et la fait compter par le pixel. WhatsApp sert aux
+         questions (3.9.17) : « ou commandez directement sur WhatsApp » ouvrait
+         un second chemin, qui faisait hesiter et que Meta ne voyait pas. */ ?>
     <p class="fin-ou">
       <a href="<?php echo esc_url( $cp_wa ); ?>" target="_blank" rel="noopener">
-        <?php comptoir_icone_whatsapp(); ?>ou commandez directement sur WhatsApp</a>
+        <?php comptoir_icone_whatsapp(); ?>Un doute avant de commander ? Réponse sur WhatsApp</a>
     </p>
   </div>
 </section>
@@ -342,7 +344,7 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
       <h2 class="sect-h2">Ce qu'on nous demande le plus.</h2>
       <p class="sect-body">Une réponse manque ? Écrivez-nous directement.</p>
       <div class="wa-block">
-        <p>Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, commandes.</p>
+        <p>Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, suivi de commande.</p>
         <a href="<?php echo esc_url( $cp_wa ); ?>" class="wa-cta" target="_blank" rel="noopener">Poser une question</a>
       </div>
     </div>
@@ -373,7 +375,7 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
       </div>
       <div class="faq-item" role="listitem">
         <button class="faq-btn" aria-expanded="false">Les prix affichés sont-ils définitifs ?<span class="faq-ico" aria-hidden="true"></span></button>
-        <div class="faq-ans"><p>Les prix du catalogue sont indicatifs et régulièrement mis à jour. Le prix ferme est confirmé par message au moment de votre commande, selon disponibilité et volume. Aucune surprise à la livraison.</p></div>
+        <div class="faq-ans"><p>Oui. Le prix affiché est celui que vous payez : pas d'acompte, pas de frais cachés. Seule la livraison s'ajoute, offerte dès le deuxième parfum, et le total exact s'affiche avant l'envoi de votre commande. Vous le réglez au livreur, colis en main.</p></div>
       </div>
     </div>
   </div>
