@@ -1621,14 +1621,14 @@ main.pf{padding:140px 72px 40px}
 .pf-price .was{font-size:14px;color:var(--smoke);text-decoration:line-through}
 .pf-actions{display:flex;flex-wrap:wrap;gap:12px}
 /* Place du formulaire « Commander en 30 secondes » : sur telephone,
-   boutique.js le glisse sous le prix (730 a 770 px de haut) une fois la page
+   boutique.js le glisse sous le prix (625 a 665 px de haut) une fois la page
    affichee, et tout ce qui suivait descendait d'autant sous les yeux du
    visiteur. La place est tenue des le premier affichage ; elle s'efface au
    moment exact ou le formulaire arrive (.cpb-express-on), ou au chargement
    complet s'il n'arrive pas (.pf-x-sans, template-parfum.php). */
 .pf-x-place{display:none}
 @media(max-width:900px){
-  .pf-buy:not(.cpb-express-on):not(.pf-x-sans) .pf-x-place{display:block;height:730px}
+  .pf-buy:not(.cpb-express-on):not(.pf-x-sans) .pf-x-place{display:block;height:625px}
 }
 .pf-cta{
   display:inline-flex;align-items:center;justify-content:center;gap:12px;text-decoration:none;

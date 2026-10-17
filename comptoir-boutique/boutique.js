@@ -129,7 +129,6 @@
     'Dans le même esprit': 'بنفس الروح',
     'Commander en 30 secondes': 'اطلب في 30 ثانية',
     'Rien à payer maintenant : vous réglez en espèces au livreur.': 'لا شيء تدفعه الآن: تدفع نقدًا لعامل التوصيل.',
-    '1 flacon': 'قارورة واحدة',
     '2 flacons': 'قارورتان',
     'Vos coordonnées de la dernière fois sont reprises.': 'معلوماتك من المرة الماضية معبأة مسبقًا.',
     'Effacer': 'مسح',
@@ -215,16 +214,13 @@
     'Envoyer ma commande': 'إرسال طلبي',
     'Votre commande n’a pas pu être enregistrée. Envoyez-la-nous sur WhatsApp, nous la traitons tout de suite.': 'تعذّر تسجيل طلبك. أرسله لنا عبر واتساب وسنتكفل به فورًا.',
     'Envoyer ma commande sur WhatsApp': 'أرسل طلبي عبر واتساب',
-    '{n} flacons': '{n} قوارير',
-    'Total avec livraison': 'المجموع مع التوصيل',
-    'Ajouter un parfum': 'إضافة عطر',
-    'Au choix dans le catalogue': 'من اختيارك من الكتالوج',
+    'Agrandir la photo': 'تكبير الصورة',
+    'Ajouter un 2e parfum': 'أضف عطرًا ثانيًا',
     '−{r} par duo': 'خصم {r} لكل عطرين',
     'Articles de cette commande': 'منتجات هذا الطلب',
     'Votre panier est inclus dans cette commande.': 'سلتك مشمولة في هذا الطلب.',
     'Modifier les quantités du panier': 'تعديل كميات السلة',
     'Choisissez le parfum à ajouter': 'اختر العطر الذي تريد إضافته',
-    'Choisissez un parfum dans la liste.': 'اختر عطرا من القائمة.',
     'Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.': 'لا شيء تدفعه الآن. سنتصل بك لتأكيد الطلب، والتوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
     'Livraison : {l}': 'التوصيل: {l}',
     'offerte': 'مجاني',
@@ -1509,24 +1505,8 @@
     bloc.setAttribute('aria-label', t('Commander en 30 secondes'));
     bloc.innerHTML =
       '<p class="cpb-titre-petit">' + esc(t('Commander en 30 secondes')) + '</p>' +
-      '<div class="cpb-x-qte" role="radiogroup" aria-label="' + esc(t('Commander en 30 secondes')) + '">' +
-        '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="1" checked><span><strong class="cpb-x-q1-label"></strong>' +
-          '<b class="cpb-x-q1-total"></b><em>' + esc(t('Total avec livraison')) + '</em></span></label>' +
-        '<label class="cpb-x-q"><input type="radio" name="cpb_q" value="2"><span>' + esc(t('Ajouter un parfum')) +
-          '<b class="cpb-x-q2">' + esc(t('Au choix dans le catalogue')) + '</b>' +
-          (c.remise > 0 ? '<em>' + esc(t('−{r} par duo', { r: P.fmt(c.remise) })) + '</em>'
-            : (deuxOffert ? '<em>' + esc(t('Livraison offerte')) + '</em>' : '')) + '</span></label>' +
-      '</div>' +
       '<div class="cpb-x-panier-note" hidden><p>' + esc(t('Votre panier est inclus dans cette commande.')) + '</p>' +
         '<button type="button" class="cpb-x-modifier">' + esc(t('Modifier les quantités du panier')) + '</button></div>' +
-      /* Le deuxieme flacon est un AUTRE parfum, choisi ici : proches du
-         premier par les notes, ou trouve par la recherche. Jamais le meme. */
-      '<div class="cpb-x-second" hidden>' +
-        '<p class="cpb-x-sous-titre">' + esc(t('Choisissez le parfum à ajouter')) + '</p>' +
-        '<input type="search" class="cpb-x-cherche" autocomplete="off" enterkeyhint="search" placeholder="' + esc(t('Chercher un autre parfum…')) + '" aria-label="' + esc(t('Chercher un autre parfum…')) + '">' +
-        '<div class="cpb-x-props" role="group" aria-label="' + esc(t('Choisissez le parfum à ajouter')) + '"></div>' +
-        '<small class="cpb-x-err" hidden>' + esc(t('Choisissez un parfum dans la liste.')) + '</small>' +
-      '</div>' +
       /* Trois champs obligatoires : nom, telephone, ville. L'adresse se prend
          a l'appel de confirmation ; chaque champ de plus perdait des
          commandes (92 % des formulaires commences n'etaient pas envoyes). */
@@ -1548,6 +1528,19 @@
         '<input type="text" name="adresse" autocomplete="street-address" enterkeyhint="send" placeholder="' + esc(t('Rue, numéro, immeuble, étage')) + '"></label>' +
       '<div class="cpb-x-articles" aria-label="' + esc(t('Articles de cette commande')) + '" aria-live="polite"></div>' +
       '<p class="cpb-x-recap" aria-live="polite"></p>' +
+      /* Le deuxieme flacon : une offre sous le total, plus un choix a faire
+         avant les champs. En tete du formulaire, « Ajouter un parfum » etait
+         le premier clic des fiches, et 17 visiteurs sur 21 qui l'ouvraient
+         repartaient sans commander (Clarity, 7 jours au 17 octobre). Le
+         second est un AUTRE parfum, proche du premier ou trouve par la
+         recherche ; sans choix, la commande part avec un flacon. */
+      '<button type="button" class="cpb-x-duo" aria-expanded="false">+ ' + esc(t('Ajouter un 2e parfum')) +
+        (c.remise > 0 ? ' · ' + esc(t('−{r} par duo', { r: P.fmt(c.remise) })) : (deuxOffert ? ' · ' + esc(t('Livraison offerte')) : '')) + '</button>' +
+      '<div class="cpb-x-second" hidden>' +
+        '<p class="cpb-x-sous-titre">' + esc(t('Choisissez le parfum à ajouter')) + '</p>' +
+        '<input type="search" class="cpb-x-cherche" autocomplete="off" enterkeyhint="search" placeholder="' + esc(t('Chercher un autre parfum…')) + '" aria-label="' + esc(t('Chercher un autre parfum…')) + '">' +
+        '<div class="cpb-x-props" role="group" aria-label="' + esc(t('Choisissez le parfum à ajouter')) + '"></div>' +
+      '</div>' +
       /* Un sac, pas la bulle WhatsApp : le bouton passe la commande, il
          n'ouvre pas une discussion. Et la note dit ce qui se passe ensuite
          (un appel), au lieu de « confirmez la disponibilite par message »,
@@ -1573,13 +1566,19 @@
 
     var champ = function (n) { return bloc.querySelector('[name="' + n + '"]'); };
     var selVille = champ('ville'), blocAutre = bloc.querySelector('[data-f="ville_autre"]');
-    var qte = function () { var r = bloc.querySelector('[name="cpb_q"]:checked'); return r ? parseInt(r.value, 10) : 1; };
-    var second = null;
+    var duo = false, second = null;
     var panneau2 = bloc.querySelector('.cpb-x-second'), props = bloc.querySelector('.cpb-x-props');
-    var cherche2 = bloc.querySelector('.cpb-x-cherche'), err2 = bloc.querySelector('.cpb-x-err');
+    var cherche2 = bloc.querySelector('.cpb-x-cherche'), btnDuo = bloc.querySelector('.cpb-x-duo');
     bloc.querySelector('.cpb-x-modifier').addEventListener('click', function () { P.open(); });
+    btnDuo.addEventListener('click', function () {
+      duo = !duo;
+      btnDuo.setAttribute('aria-expanded', String(duo));
+      panneau2.hidden = !duo;
+      if (duo && !props.children.length) { rendProps(); }
+      recap();
+    });
     /* Ce que la commande va contenir, en plus de ce qui est deja au panier. */
-    var voulus = function () { return qte() === 2 && second ? [ref.s, second] : [ref.s]; };
+    var voulus = function () { return duo && second ? [ref.s, second] : [ref.s]; };
 
     /* Les propositions : sans recherche, les parfums proches du premier
        (« Dans le meme esprit »), completes par des flacons du meme public
@@ -1617,8 +1616,6 @@
       var b = e.target.closest('[data-cpb-second]');
       if (!b) { return; }
       second = b.getAttribute('data-cpb-second');
-      err2.hidden = true;
-      panneau2.classList.remove('err');
       [].forEach.call(props.querySelectorAll('[data-cpb-second]'), function (x) {
         x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
       });
@@ -1630,36 +1627,22 @@
 
     function recap() {
       var a = apercuPanier(voulus());
-      var base = apercuPanier([ref.s]);
-      /* Des flacons, pas des articles : un pack (p.avec) en contient plusieurs. */
-      var flacons = base.lignes.reduce(function (s, l) { return s + l.q * ((l.p.avec && l.p.avec.length) || 1); }, 0);
-      bloc.querySelector('.cpb-x-q1-label').textContent = flacons === 1 ? t('1 flacon') : t('{n} flacons', { n: flacons });
-      bloc.querySelector('.cpb-x-q1-total').textContent = P.fmt(base.total);
       bloc.querySelector('.cpb-x-panier-note').hidden = !P.count();
       bloc.querySelector('.cpb-x-articles').innerHTML = a.lignes.map(function (l) {
         return '<p><span>' + l.q + ' × ' + esc(l.p.b + ' ' + l.p.n) + '</span><b>' + P.fmt(l.montant) + '</b></p>';
       }).join('');
       var lignes = [];
-      var manque = qte() === 2 && !second;
-      if (manque) {
-        lignes.push(t('Choisissez le parfum à ajouter'));
-      } else {
-        if (a.remise) { lignes.push(t('Remise duo : −{r}', { r: P.fmt(a.remise) })); }
-        lignes.push(t('Livraison : {l}', { l: a.frais ? P.fmt(a.frais) : t('offerte') }));
-        lignes.push(t('Total à payer au livreur : {t}', { t: P.fmt(a.total) }));
-      }
+      if (a.remise) { lignes.push(t('Remise duo : −{r}', { r: P.fmt(a.remise) })); }
+      lignes.push(t('Livraison : {l}', { l: a.frais ? P.fmt(a.frais) : t('offerte') }));
+      lignes.push(t('Total à payer au livreur : {t}', { t: P.fmt(a.total) }));
       bloc.querySelector('.cpb-x-recap').textContent = lignes.join(' · ');
-      bloc.querySelector('.cpb-x-total').textContent = manque ? '' : P.fmt(a.total);
+      bloc.querySelector('.cpb-x-total').textContent = P.fmt(a.total);
     }
     recap();
     bloc.addEventListener('change', function (e) {
       if (e.target === selVille) {
         blocAutre.hidden = selVille.value !== 'autre';
         if (!blocAutre.hidden) { champ('ville_autre').focus(); }
-      }
-      if (e.target.name === 'cpb_q') {
-        panneau2.hidden = qte() !== 2;
-        if (!panneau2.hidden && !props.children.length) { rendProps(); }
       }
       recap();
     });
@@ -1713,15 +1696,6 @@
         if (inp) { if (bad) { inp.setAttribute('aria-invalid', 'true'); } else { inp.removeAttribute('aria-invalid'); } }
         if (bad && !premier) { premier = inp; }
       });
-      var manque2 = qte() === 2 && !second;
-      err2.hidden = !manque2;
-      panneau2.classList.toggle('err', manque2);
-      if (manque2) {
-        panneau2.scrollIntoView({ block: 'center', behavior: REDUIT ? 'auto' : 'smooth' });
-        var p1 = props.querySelector('[data-cpb-second]');
-        if (p1) { try { p1.focus({ preventScroll: true }); } catch (x) { p1.focus(); } }
-        return;
-      }
       if (premier) { premier.focus(); return; }
 
       envoi = true;
@@ -2166,7 +2140,7 @@
     n.textContent = visioListe.length > 1 ? (visioI + 1) + ' / ' + visioListe.length : '';
     visio.querySelector('.cpb-visio-prec').hidden = visio.querySelector('.cpb-visio-suiv').hidden = visioListe.length < 2;
   }
-  function visioOuvre(liste, i) {
+  function visioOuvre(liste, i, libelle) {
     if (!visio) {
       visio = creeCalque('cpb-visio', t('Capture de client agrandie'));
       visio.innerHTML =
@@ -2193,6 +2167,9 @@
         else if (dy > 90 && Math.abs(dy) > Math.abs(dx) * 1.5) { fermer(); }
       });
     }
+    /* libelle : la photo d'un flacon n'est pas une capture de client. */
+    visio.setAttribute('aria-label', libelle || t('Capture de client agrandie'));
+    visio.querySelector('.cpb-visio-img').alt = libelle || t('Message ou colis d’un client');
     visioListe = liste;
     visioMontre(i);
     ouvrir(visio, '.cpb-visio-fermer');
@@ -2220,6 +2197,20 @@
     photos.forEach(function (a, i) {
       a.addEventListener('click', function (e) { e.preventDefault(); visioOuvre(ps, i); });
     });
+    /* La photo du flacon : le premier « clic sans effet » des fiches
+       (Clarity, 7 jours au 17 octobre : 8 sur 29). On veut la voir de pres. */
+    var pv = document.querySelector('main.pf .pf-visual:not(.is-empty) img, .lp-vedette .pf-visual:not(.is-empty) img');
+    if (pv && !pv.hasAttribute('data-cpb-visio')) {
+      pv.setAttribute('data-cpb-visio', '');
+      pv.setAttribute('role', 'button');
+      pv.setAttribute('tabindex', '0');
+      pv.style.cursor = 'zoom-in';
+      var nomPv = pv.alt;
+      pv.setAttribute('aria-label', t('Agrandir la photo'));
+      var voirPv = function () { visioOuvre([pv.src], 0, nomPv); };
+      pv.addEventListener('click', voirPv);
+      pv.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); voirPv(); } });
+    }
   }
 
   /* Remerciement : le lien de suivi, reference deja remplie. */
