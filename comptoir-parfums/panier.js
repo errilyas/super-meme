@@ -22,9 +22,10 @@
       utm_source:   q.get('utm_source') || '',
       utm_medium:   q.get('utm_medium') || '',
       utm_campaign: q.get('utm_campaign') || '',
+      utm_content:  q.get('utm_content') || '',
       referent:     document.referrer || ''
     };
-    var porteUneCampagne = src.fbclid || src.utm_source || src.utm_medium || src.utm_campaign;
+    var porteUneCampagne = src.fbclid || src.utm_source || src.utm_medium || src.utm_campaign || src.utm_content;
     var deja = null;
     try { deja = JSON.parse(localStorage.getItem('cp_provenance') || 'null'); } catch (e) {}
     /* On n'ecrase une provenance connue que si la nouvelle porte un identifiant
@@ -470,7 +471,7 @@
              commande des semaines plus tard et savoir d'ou elle venait. */
           try {
             var prov = window.cpProvenance ? window.cpProvenance() : {};
-            ['fbclid', 'utm_source', 'utm_medium', 'utm_campaign', 'referent'].forEach(function (k) {
+            ['fbclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'referent'].forEach(function (k) {
               if (prov[k]) d.append(k, prov[k]);
             });
           } catch (e) {}

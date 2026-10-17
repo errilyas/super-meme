@@ -841,6 +841,7 @@ function comptoir_recoit_commande() {
 			'cp_utm_source'   => $champ( 'utm_source', 100 ),
 			'cp_utm_medium'   => $champ( 'utm_medium', 100 ),
 			'cp_utm_campaign' => $champ( 'utm_campaign', 200 ),
+			'cp_utm_content'  => $champ( 'utm_content', 100 ),
 			'cp_referent'     => esc_url_raw( $champ( 'referent', 400 ) ),
 			/* Identifiants Meta de la commande : ils servent au Lead envoye tout
 			   de suite et a l'achat envoye a la livraison (comptoir_capi_livraison).
@@ -1277,10 +1278,27 @@ add_action( 'manage_cp_commande_posts_custom_column', function ( $col, $id ) {
 		echo esc_html( get_post_meta( $id, 'cp_etat', true ) );
 	}
 	if ( 'cp_source' === $col ) {
-		$fbclid = get_post_meta( $id, 'cp_fbclid', true );
-		$utm    = get_post_meta( $id, 'cp_utm_source', true );
-		$ref    = get_post_meta( $id, 'cp_referent', true );
-		if ( $fbclid ) {
+		$fbclid  = get_post_meta( $id, 'cp_fbclid', true );
+		$utm     = get_post_meta( $id, 'cp_utm_source', true );
+		$support = strtolower( (string) get_post_meta( $id, 'cp_utm_medium', true ) );
+		$contenu = strtolower( (string) get_post_meta( $id, 'cp_utm_content', true ) );
+		$ref     = get_post_meta( $id, 'cp_referent', true );
+		/* Les UTM passent avant le fbclid : Instagram ajoute lui-meme un fbclid
+		   a tout lien sortant, lien de la bio compris
+		   (?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=...).
+		   Les pubs Meta, elles, ne portent pas d'UTM a ce jour : un fbclid sans
+		   utm_medium=social reste une publicite. */
+		if ( 'social' === $support && $utm ) {
+			$reseau = strtolower( $utm );
+			if ( in_array( $reseau, array( 'ig', 'instagram' ), true ) ) {
+				$libelle = 'link_in_bio' === $contenu ? __( 'Instagram (bio)', 'comptoir-parfums' ) : __( 'Instagram', 'comptoir-parfums' );
+			} elseif ( in_array( $reseau, array( 'fb', 'facebook' ), true ) ) {
+				$libelle = __( 'Facebook', 'comptoir-parfums' );
+			} else {
+				$libelle = $utm;
+			}
+			echo esc_html( $libelle );
+		} elseif ( $fbclid ) {
 			echo esc_html__( 'Publicité', 'comptoir-parfums' );
 		} elseif ( $utm ) {
 			echo esc_html( $utm );
