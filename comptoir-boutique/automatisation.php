@@ -170,6 +170,11 @@ function cpb_auto_statut_etape( $statut ) {
 	if ( preg_match( '/\b(retour|retourne|returned|refus|refuse|annul|cancel)/', $s ) ) {
 		return 'annulee';
 	}
+	// « Non livré », « pas livré », « not delivered », « non payé » : le test
+	// suivant y lisait « livre » et marquait la commande livree, sans retour.
+	if ( preg_match( '/\b(non|pas|not|un)[\s-]*(livr|deliver|pay)/', $s ) ) {
+		return '';
+	}
 	if ( preg_match( '/\b(livre|livree|delivered|paye)\b/', $s ) ) {
 		return 'livree';
 	}

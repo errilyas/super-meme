@@ -77,7 +77,14 @@ function cpb_url_suivi( $id = 0 ) {
 
 /** Telephone ramene a 9 chiffres (sans 0 ni 212) pour comparer. */
 function cpb_suivi_tel( $tel ) {
-	$t = preg_replace( '/\D/', '', (string) $tel );
+	// Chiffres du clavier arabe ramenes a 0-9 : \D les effacait, et le suivi
+	// repondait « aucune commande » a un numero juste.
+	$t = str_replace(
+		array( '٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹' ),
+		array( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ),
+		(string) $tel
+	);
+	$t = preg_replace( '/\D/', '', $t );
 	$t = preg_replace( '/^(00212|212|0)/', '', $t );
 	return substr( $t, -9 );
 }

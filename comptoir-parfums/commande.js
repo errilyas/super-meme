@@ -147,11 +147,27 @@
   /* Un numéro marocain : 0X suivi de 8 chiffres, ou +212 / 212 suivi de 9.
      L'ancien test « au moins 8 chiffres » laissait passer un numéro tronqué,
      et un numéro faux, c'est une livraison perdue. */
+  /* Meme lecture que le formulaire express (boutique.js > telChiffres) :
+     chiffres du clavier arabe, marques de sens d'un copier-coller et
+     « +212 06… » etaient refuses ici et acceptes la-bas. */
+  function telChiffres(v){
+    return String(v)
+      .replace(/[٠-٩]/g, function(c){ return String(c.charCodeAt(0) - 0x0660); })
+      .replace(/[۰-۹]/g, function(c){ return String(c.charCodeAt(0) - 0x06F0); })
+      .replace(/[\s().\-‎‏⁦-⁩]/g, '')
+      .replace(/^(?:\+|00)/, '')
+      .replace(/^2120/, '212');
+  }
   function telValide(v){
-    var n = v.replace(/[\s().-]/g,'').replace(/^(?:\+|00)/,'');
+    var n = telChiffres(v);
     if(/^212[5-7][0-9]{8}$/.test(n)) return true;   /* 212 6 12 34 56 78 */
     if(/^0[5-7][0-9]{8}$/.test(n))   return true;   /* 06 12 34 56 78    */
     return false;
+  }
+  /* Ce qui part au serveur et a WhatsApp : 0612345678, que le serveur sait lire. */
+  function telNational(v){
+    var n = telChiffres(v);
+    return /^212[5-7][0-9]{8}$/.test(n) ? '0' + n.slice(3) : n;
   }
 
   function champInvalide(inp){
@@ -324,6 +340,7 @@
       f.classList.toggle('err', bad);
       if(bad) ok=false;
     });
+    if(data.tel) data.tel = telNational(data.tel);
     /* La ville envoyee est celle qu'on livre, pas le mot « autre ». */
     if(data.ville === 'autre') data.ville = villeAutre();
     delete data.ville_autre;
