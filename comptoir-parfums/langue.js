@@ -382,6 +382,9 @@
     'Un empêchement ? Appelez-nous —': 'طارئ؟ اتصل بنا —',
     'Bonjour, j’ai une question sur ma commande {ref}.': 'السلام عليكم، عندي سؤال حول طلبي {ref}.',
     'Bonjour, j’ai une question sur ma commande.': 'السلام عليكم، عندي سؤال حول طلبي.',
+    /* Commande refusee par le serveur (commande.js > refusee) */
+    'Votre commande n’a pas pu être enregistrée. Envoyez-la-nous sur WhatsApp, nous la traitons tout de suite.': 'تعذّر تسجيل طلبك. أرسله لنا عبر واتساب وسنتكفل به فورًا.',
+    'Envoyer ma commande sur WhatsApp': 'أرسل طلبي عبر واتساب',
     'Merci, c\'est noté.': 'شكرًا، تمّ تسجيل طلبك.',
     'Votre commande est arrivée chez nous. Un message WhatsApp vous attend : un appui et nous préparons votre colis. Vous ne l\'avez pas reçu ? Le bouton ci-dessous fait la même chose.': 'وصلنا طلبك. رسالة واتساب في انتظارك: ضغطة واحدة ونبدأ تحضير طردك. لم تصلك؟ الزر أسفله يقوم بنفس الشيء.',
     'Ce que vous avez commandé': 'ما طلبته',

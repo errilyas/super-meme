@@ -352,9 +352,9 @@
     }
     if(!P.count()) return;
 
-    /* Dans cet ordre, et pas un autre : on depose la commande, on mesure,
-       puis on ouvre WhatsApp — l'ouverture doit rester dans le geste du
-       clic, sinon le navigateur la bloque. */
+    /* Dans cet ordre, et pas un autre : on depose la commande, on attend un
+       eventuel refus du serveur (1,5 s au plus), puis on mesure et on part
+       vers la confirmation. */
     submitting = true;
     data.ref = P.reference();
     var montant = P.total(), articles = P.count(), lien = P.waHref(data);
@@ -366,7 +366,19 @@
     });
     var fraisLiv = P.fraisLivraison(), sousTotal = P.subtotal();
 
-    P.depose(data);
+    var remise = P.remise ? P.remise() : 0;
+    var go = document.getElementById('ck-go');
+    if(go) go.setAttribute('aria-busy', 'true');
+    P.depose(data, function(refus){
+      if(go) go.removeAttribute('aria-busy');
+      /* Refusee par le serveur : rien n'est au carnet. Le panier reste, pas
+         de « Commande reçue » ni d'achat compte, et le client peut l'envoyer
+         sur WhatsApp, ou on le rappellerait pour rien. */
+      if(refus){ submitting = false; refusee(lien); return; }
+      apresDepot();
+    });
+
+    function apresDepot(){
     P.mesure('Lead', {
       value: montant, currency: 'MAD',
       num_items: articles, content_type: 'product',
@@ -383,7 +395,7 @@
     var confirmation = {
         ref: data.ref, prenom: (data.nom||'').trim().split(/\s+/)[0],
         ville: data.ville, lien: lien, montant: montant, articles: articles,
-        lignes: lignes, livraison: fraisLiv, sousTotal: sousTotal, remise: (P.remise ? P.remise() : 0), t: Date.now()
+        lignes: lignes, livraison: fraisLiv, sousTotal: sousTotal, remise: remise, t: Date.now()
     };
     var saved = false;
     try{
@@ -399,6 +411,26 @@
     P.clear();
     location.href = (P.cfg.commander || '?commander=1')
       + (String(P.cfg.commander||'').indexOf('?') >= 0 ? '&' : '?') + 'merci=1';
+    }
+  }
+
+  /* Message sous le bouton quand le serveur a refuse la commande. */
+  function refusee(lien){
+    var go = document.getElementById('ck-go'), b = document.getElementById('ck-refus');
+    if(!go) return;
+    if(!b){
+      b = document.createElement('p');
+      b.id = 'ck-refus';
+      /* La couleur d'erreur de Comptoir Boutique (sombre et clair). */
+      b.className = 'cpb-x-err';
+      b.setAttribute('role', 'alert');
+      b.style.cssText = 'margin:12px 0 0;font-size:14px;line-height:1.5';
+      go.parentNode.insertBefore(b, go.nextSibling);
+    }
+    b.innerHTML = esc(T('Votre commande n’a pas pu être enregistrée. Envoyez-la-nous sur WhatsApp, nous la traitons tout de suite.'))
+      + ' <a href="' + esc(lien) + '" style="color:inherit;font-weight:600;text-decoration:underline">'
+      + esc(T('Envoyer ma commande sur WhatsApp')) + '</a>';
+    b.scrollIntoView({block:'center'});
   }
   document.getElementById('ck-go').addEventListener('click', submitOrder);
   form.addEventListener('submit', submitOrder);

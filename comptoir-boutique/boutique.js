@@ -213,6 +213,8 @@
     'C’est cette adresse que le livreur suivra.': 'هذا هو العنوان الذي سيتبعه عامل التوصيل.',
     'Confirmer la commande': 'تأكيد الطلب',
     'Envoyer ma commande': 'إرسال طلبي',
+    'Votre commande n’a pas pu être enregistrée. Envoyez-la-nous sur WhatsApp, nous la traitons tout de suite.': 'تعذّر تسجيل طلبك. أرسله لنا عبر واتساب وسنتكفل به فورًا.',
+    'Envoyer ma commande sur WhatsApp': 'أرسل طلبي عبر واتساب',
     '{n} flacons': '{n} قوارير',
     'Total avec livraison': 'المجموع مع التوصيل',
     'Ajouter un parfum': 'إضافة عطر',
@@ -1759,7 +1761,20 @@
       Object.keys(data).forEach(function (k) { pourCarnet[k] = data[k]; });
       if (!pourCarnet.adresse) { pourCarnet.adresse = 'À préciser lors de l’appel de confirmation'; }
       else if (pourCarnet.adresse.length < 8) { pourCarnet.adresse += ' (à préciser lors de l’appel)'; }
-      P.depose(pourCarnet);
+      /* Theme 3.9.25 et plus : depose(client, suite) attend un eventuel refus
+         du serveur (panier.js). Un theme plus ancien ignore la suite : on
+         l'appelle alors nous-memes, comme avant. */
+      var attend = P.depose.length > 1;
+      var go = bloc.querySelector('.cpb-x-go');
+      if (go) { go.setAttribute('aria-busy', 'true'); }
+      P.depose(pourCarnet, suite);
+      if (!attend) { suite(''); }
+
+      function suite(refus) {
+        if (go) { go.removeAttribute('aria-busy'); }
+        /* Refusee : rien au carnet. Pas de « Commande reçue » ni d'achat
+           compte ; le client peut l'envoyer sur WhatsApp. */
+        if (refus) { envoi = false; refusee(lien); return; }
       P.mesure('Lead', {
         value: montant, currency: 'MAD', num_items: articles, content_type: 'product',
         content_ids: lignes.map(function (l) { return l.s; })
@@ -1777,7 +1792,24 @@
       }
       P.clear();
       location.href = cible + (cible.indexOf('?') >= 0 ? '&' : '?') + 'merci=1';
+      }
     });
+
+    /* Message sous le bouton quand le serveur a refuse la commande. */
+    function refusee(lien) {
+      var go = bloc.querySelector('.cpb-x-go'), b = bloc.querySelector('.cpb-x-refus');
+      if (!go) { return; }
+      if (!b) {
+        b = document.createElement('p');
+        b.className = 'cpb-x-err cpb-x-refus';
+        b.setAttribute('role', 'alert');
+        b.style.cssText = 'margin:12px 0 0;font-size:14px;line-height:1.5';
+        go.parentNode.insertBefore(b, go.nextSibling);
+      }
+      b.innerHTML = esc(t('Votre commande n’a pas pu être enregistrée. Envoyez-la-nous sur WhatsApp, nous la traitons tout de suite.')) +
+        ' <a href="' + esc(lien) + '" style="color:inherit;font-weight:600;text-decoration:underline">' + esc(t('Envoyer ma commande sur WhatsApp')) + '</a>';
+      b.scrollIntoView({ block: 'center' });
+    }
   }
 
   /* ══════════════════════════════════════════════════════════════

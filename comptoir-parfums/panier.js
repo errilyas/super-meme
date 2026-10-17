@@ -441,9 +441,16 @@
     /* Depose la commande AVANT d'ouvrir WhatsApp : un client qui n'appuie pas
        sur « Envoyer » laisse quand meme son numero, et c'est lui qu'on rappelle.
        sendBeacon part sans bloquer et survit au changement d'application ;
-       en cas d'echec on ne dit rien et on laisse la vente se faire. */
-    depose: function (client) {
-      if (!CFG.ajax && !CFG.feuille) return false;
+       en cas d'echec on ne dit rien et on laisse la vente se faire.
+       suite (optionnel) : appelee une fois, avec le motif si le serveur
+       REFUSE la commande (400, 429), sinon avec ''. Sans elle, une commande
+       refusee affichait « Commande reçue » et comptait un achat chez Meta,
+       sans rien laisser au carnet. Le refus revient vite (la validation
+       passe avant le relais Google et la CAPI) ; au-dela de 1,5 s, ou si le
+       reseau coupe, on continue comme avant : la requete, elle, se poursuit. */
+    depose: function (client, suite) {
+      var fini = false, fin = function (motif) { if (suite && !fini) { fini = true; suite(motif); } };
+      if (!CFG.ajax && !CFG.feuille) { fin(''); return false; }
       var envoye = false;
       try {
         var panier = P.items().map(function (x) {
@@ -486,9 +493,20 @@
           return true;
         };
 
+        if (CFG.ajax && suite && window.fetch) {
+          setTimeout(function () { fin(''); }, 1500);
+          fetch(CFG.ajax, { method: 'POST', body: remplir(new FormData(), true), keepalive: true, credentials: 'same-origin' })
+            .then(function (rep) {
+              if (rep.status !== 400 && rep.status !== 429) { fin(''); return; }
+              return rep.json().then(function (j) { fin(String((j && j.data) || rep.status)); },
+                function () { fin(String(rep.status)); });
+            }, function () { fin(''); });
+          return true;
+        }
         if (CFG.ajax)    envoye = envoie(CFG.ajax, remplir(new FormData(), true)) || envoye;
         if (!CFG.ajax && CFG.feuille) envoye = envoie(CFG.feuille, remplir(new FormData(), false)) || envoye;
       } catch (e) { /* jamais au detriment de la vente */ }
+      fin('');
       return envoye;
     }
   };

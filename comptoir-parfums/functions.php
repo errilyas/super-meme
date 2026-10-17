@@ -753,13 +753,14 @@ function comptoir_coupe( $s, $max ) {
 
 /** Depot d'une commande. Repond toujours en JSON, ne fait jamais echouer la vente. */
 function comptoir_recoit_commande() {
-	// Garde-fou anti-flood : un visiteur ne depose pas dix commandes a l'heure.
+	// Garde-fou anti-flood, par adresse IP. Au Maroc, un operateur mobile fait
+	// sortir beaucoup de telephones par la meme adresse : la limite est large
+	// (30 a l'heure) et ne compte que les commandes enregistrees, pas un
+	// formulaire refuse puis corrige.
 	$cle = 'cp_cmd_' . md5( isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '' );
-	$vus = (int) get_transient( $cle );
-	if ( $vus >= 10 ) {
+	if ( (int) get_transient( $cle ) >= 30 ) {
 		wp_send_json_error( 'trop de depots', 429 );
 	}
-	set_transient( $cle, $vus + 1, HOUR_IN_SECONDS );
 
 	// Le jeton ne REJETTE pas : sur un hebergement qui met les pages en cache,
 	// il arrive perime chez un vrai client, et perdre sa commande couterait
@@ -880,6 +881,7 @@ function comptoir_recoit_commande() {
 	if ( is_wp_error( $id ) ) {
 		wp_send_json_error( 'enregistrement', 500 );
 	}
+	set_transient( $cle, (int) get_transient( $cle ) + 1, HOUR_IN_SECONDS );
 	// Commande de test (admin connecte, appareil en mode test, « test » dans
 	// les champs, numero de test) : notee, pour que la livraison n'envoie pas
 	// d'achat non plus — c'est alors l'admin qui change l'etat, pas le client.
@@ -2279,12 +2281,14 @@ function comptoir_meta_page() {
 			'type'      => 'website',
 			'indexable' => false,
 		);
-		// Ouverte sur une offre : l'apercu du lien (WhatsApp, Messenger) dit
-		// l'offre et son prix, avec la photo du pack.
+		// Ouverte sur un parfum ou une offre (le lien d'une pub) : l'apercu du
+		// lien (WhatsApp, Messenger) dit le flacon et son prix, avec sa photo.
 		$o = comptoir_vente_vedette();
-		if ( $o && ! empty( $o['o'] ) ) {
+		if ( $o ) {
 			$cache['titre'] = $o['b'] . ' ' . $o['n'] . ' — ' . $o['pr'] . ' — ' . $nom;
-			$cache['desc']  = sprintf( '%s Le pack à %s au lieu de %s DH, + %d DH de livraison. Paiement à la livraison, partout au Maroc.', $o['d'], $o['pr'], comptoir_prix_format( $o['barre'] ), comptoir_livraison_dh() );
+			$cache['desc']  = ! empty( $o['o'] )
+				? sprintf( '%s Le pack à %s au lieu de %s DH, + %d DH de livraison. Paiement à la livraison, partout au Maroc.', $o['d'], $o['pr'], comptoir_prix_format( $o['barre'] ), comptoir_livraison_dh() )
+				: sprintf( '%s %s à %s : testeur original, le même parfum qu\'en boutique, sans le coffret. Livraison 24-72 h, paiement à la livraison.', $o['b'], $o['n'], $o['pr'] );
 			$cache['url']   = home_url( '/?vente=1&p=' . rawurlencode( $o['s'] ) );
 			$cache['image'] = comptoir_a_photo( $o['s'] ) ? comptoir_photo_url( $o['s'] ) : '';
 		}
