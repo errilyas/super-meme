@@ -33,13 +33,13 @@
 
   /* Les noms propres. Un nom de parfum traduit devient introuvable. */
   var ZONES = [
-    '.pc-nom', '.pc-maison', '.scent-card-name', '.scent-card-brand',
+    '.pc-nom', '.pc-maison', '.rayon-nom', '.scent-card-name', '.scent-card-brand',
     '.pf-name', '.pf-brand', '.pnr-name', '.pnr-brand', '.ck-in', '.ck-ib',
     '.h-note-card-name', '.h-note-card-brand', '.h-brand-float',
     '.marquee-sect', '.vitrine-maison', '#cat-maison', '.dist-col-tag',
     '.nl-serif', '.nl-sans', '.pf-signature-maison', '.ldr-serif', '.ldr-sans',
     '.foot-wm-serif', '.foot-wm-sans', '.fin-mark-serif', '.fin-mark-sans',
-    '.crumb span', '.foot-copy', 'script', 'style',
+    '.crumb span', '.foot-copy', '.pf-offre-avec a', 'script', 'style',
     /* Les options sont traitees a part : leur texte EST leur valeur
        quand l'attribut manque, et l'ordre compte. */
     'option'
@@ -78,6 +78,7 @@
     'que vous voulez.': 'الذي تريده.',
     'Au prix qui reste.': 'بثمن يناسبك.',
     'Testeurs originaux des grandes maisons': 'تستر أصلية من كبريات دور العطور',
+    'Testeurs de parfum originaux au Maroc': 'تسترات عطور أصلية في المغرب',
     'Les grands parfums de Chanel, Dior, Tom Ford, Xerjoff — livrés chez vous en 24 à 72h, partout au Maroc. Vous payez à la réception. Pas avant.': 'أشهر عطور Chanel و Dior و Tom Ford و Xerjoff — تصلك خلال 24 إلى 72 ساعة، في كل المغرب. تدفع عند الاستلام، لا قبل ذلك.',
     'Voir le catalogue': 'تصفّح الكتالوج',
 
@@ -146,6 +147,7 @@
 
     /* Catalogue et filtres */
     'Livraison offerte dès le deuxième parfum.': 'التوصيل مجاني ابتداءً من العطر الثاني.',
+    'Dès le deuxième parfum : livraison offerte et 50 DH de remise.': 'ابتداءً من العطر الثاني: توصيل مجاني وخصم 50 درهم.',
     'Catalogue complet': 'الكتالوج الكامل',
     'Tout le catalogue': 'كل الكتالوج',
     'parfums ·': 'عطر ·',
@@ -153,6 +155,7 @@
     'Filtrez par maison, par destinataire ou par famille olfactive. Chaque flacon a sa fiche : description, pyramide olfactive, prix.': 'صفِّ حسب الدار أو حسب من سيرتديه أو حسب العائلة العطرية. لكل قارورة بطاقتها: الوصف، الهرم العطري، السعر.',
     'DH': 'درهم',
     'Rechercher': 'بحث',
+    'Filtrer et trier': 'تصفية وترتيب',
     'Maison': 'الدار',
     'Toutes les maisons': 'كل الدور',
     'Pour': 'لِمَن',
@@ -171,11 +174,11 @@
     'Mixte': 'للجنسين',
 
     /* Les quatre etapes */
-    'Simple comme un message.': 'بسيط كرسالة.',
-    'Choisissez sur WhatsApp': 'اختر عبر واتساب',
-    'Parcourez le catalogue et écrivez-nous le parfum voulu. Hésitation ? Dites-nous ce que vous portez déjà.': 'تصفّح الكتالوج واكتب لنا العطر الذي تريده. متردّد؟ قل لنا ما ترتديه الآن.',
-    'Confirmation sous 1h': 'تأكيد خلال ساعة',
-    'Nous vérifions la disponibilité et confirmons le prix. Aucune avance demandée à cette étape.': 'نتحقّق من التوفّر ونؤكّد السعر. لا تسبيق مطلوب في هذه المرحلة.',
+    'Commandez en 30 secondes, payez à la livraison.': 'اطلب في 30 ثانية، وادفع عند الاستلام.',
+    'Choisissez votre parfum': 'اختر عطرك',
+    'Parcourez le catalogue ou faites le quiz en 4 questions. Vous hésitez ? Dites-nous sur WhatsApp ce que vous portez déjà, nous vous conseillons.': 'تصفّح الكتالوج أو أجب عن الاختبار في 4 أسئلة. متردّد؟ قل لنا على واتساب ما ترتديه الآن، وننصحك.',
+    'Envoyez votre commande': 'أرسل طلبك',
+    'Laissez votre nom, votre téléphone et votre adresse. Rien à payer en ligne : nous vous appelons pour confirmer la commande.': 'اترك اسمك وهاتفك وعنوانك. لا شيء تدفعه عبر الإنترنت: نتصل بك لتأكيد الطلب.',
     'Livraison 24–72h': 'التوصيل خلال 24 إلى 72 ساعة',
     'Casablanca, Rabat, Marrakech, Tanger et toutes les villes. Transporteur partenaire suivi.': 'الدار البيضاء، الرباط، مراكش، طنجة وكل المدن. شركة توصيل شريكة مع تتبّع.',
     'Cash à réception': 'الدفع عند الاستلام',
@@ -213,7 +216,7 @@
     'Questions fréquentes': 'الأسئلة الشائعة',
     'Ce qu\'on nous demande le plus.': 'أكثر ما يُسأل عنه.',
     'Une réponse manque ? Écrivez-nous directement.': 'لم تجد جوابك؟ راسلنا مباشرة.',
-    'Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, commandes.': 'فريقنا يجيب على واتساب في أقل من ساعتين — نصائح، توفّر، طلبات.',
+    'Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, suivi de commande.': 'فريقنا يجيب على واتساب في أقل من ساعتين — نصائح، توفّر، تتبّع الطلب.',
     'Poser une question': 'اطرح سؤالك',
     'Qu\'est-ce qu\'un testeur, exactement ?': 'ما هو التستر بالضبط؟',
     'Un flacon': 'قارورة',
@@ -226,15 +229,15 @@
     'Comment choisir sans pouvoir sentir le parfum ?': 'كيف أختار دون أن أشمّ العطر؟',
     'Écrivez-nous les parfums que vous portez actuellement ou que vous aimez. Nous vous orientons vers des testeurs dont les notes partagent le même ADN olfactif, en expliquant les différences. Ce service est gratuit et sans engagement.': 'اكتب لنا العطور التي ترتديها حاليًا أو التي تحبّها. نوجّهك إلى عطور مطابقة أو تستر تشترك نوتاتها في نفس البصمة العطرية، مع شرح الفروق. هذه الخدمة مجانية وبلا التزام.',
     'Livrez-vous partout au Maroc ?': 'هل توصّلون إلى كل المغرب؟',
-    'Oui — de Tanger à Dakhla, en passant par toutes les villes et zones rurales. Casablanca, Rabat, Marrakech et les grandes agglomérations sont livrées en 24 à 48h. Le reste du Royaume en 2 à 4 jours ouvrables via nos transporteurs partenaires.': 'نعم — من طنجة إلى الداخلة، مرورًا بكل المدن والقرى. الدار البيضاء والرباط ومراكش والمدن الكبرى خلال 24 إلى 48 ساعة، وباقي المملكة خلال 2 إلى 4 أيام عمل عبر شركائنا في التوصيل.',
+    'Oui — de Tanger à Dakhla, toutes les villes et les zones rurales sont livrées en 24 à 72 h par nos transporteurs partenaires.': 'نعم — من طنجة إلى الداخلة، كل المدن والقرى يصلها التوصيل خلال 24 إلى 72 ساعة عبر شركائنا في التوصيل.',
     'Les prix affichés sont-ils définitifs ?': 'هل الأسعار المعروضة نهائية؟',
-    'Les prix du catalogue sont indicatifs et régulièrement mis à jour. Le prix ferme est confirmé par message au moment de votre commande, selon disponibilité et volume. Aucune surprise à la livraison.': 'أسعار الكتالوج إرشادية وتُحدَّث بانتظام. السعر النهائي يُؤكَّد برسالة عند الطلب، حسب التوفّر والحجم. لا مفاجآت عند التوصيل.',
+    'Oui. Le prix affiché est celui que vous payez : pas d\'acompte, pas de frais cachés. Seule la livraison s\'ajoute, offerte dès le deuxième parfum, et le total exact s\'affiche avant l\'envoi de votre commande. Vous le réglez au livreur, colis en main.': 'نعم. السعر المعروض هو الذي تدفعه: لا عربون ولا مصاريف خفية. يُضاف فقط ثمن التوصيل، وهو مجاني ابتداءً من العطر الثاني، ويظهر المجموع النهائي قبل إرسال طلبك. تدفعه لعامل التوصيل والطرد بين يديك.',
 
     /* Bloc final */
     'Commander maintenant': 'اطلب الآن',
     'ou commandez directement sur WhatsApp': 'أو اطلب مباشرة عبر واتساب',
     'Un grand parfum livré chez vous demain.': 'عطر كبير يصلك غدًا.',
-    'Choisissez vos flacons, laissez votre adresse, confirmez d\'un message — et payez seulement quand le colis est entre vos mains, en 24 à 72h.': 'اختر قواريرك، اترك عنوانك، أكّد برسالة — وادفع فقط حين يصل الطرد إلى يديك، خلال 24 إلى 72 ساعة.',
+    'Choisissez vos flacons, laissez votre nom et votre téléphone — et payez seulement quand le colis est entre vos mains, en 24 à 72h.': 'اختر قواريرك، اترك اسمك وهاتفك — وادفع فقط حين يصل الطرد إلى يديك، خلال 24 إلى 72 ساعة.',
     'Parcourir le catalogue': 'تصفّح الكتالوج',
     'Parcourir le catalogue →': 'تصفّح الكتالوج ←',
     'Tout le Maroc': 'كل المغرب',
@@ -249,9 +252,15 @@
     'Le catalogue': 'الكتالوج',
     'Ajouter au panier': 'أضف إلى السلة',
     'Commander sur WhatsApp': 'اطلب عبر واتساب',
+    /* Bulle Joinchat (reglage de l'extension depuis 3.9.17) */
+    'Une question ?': 'عندك سؤال؟',
+    'Une question sur ce parfum ? Écrivez-nous sur WhatsApp': 'سؤال حول هذا العطر؟ راسلنا على واتساب',
     'Confirmation immédiate par WhatsApp': 'تأكيد فوري عبر واتساب',
     'Flacon neuf, jamais utilisé': 'قارورة جديدة، لم تُستعمل قط',
     'Testeur original · 100 % authentique': 'تستر أصلي · أصلي 100%',
+    /* Page vente ouverte sur un pack (comptoir_offres) */
+    '2 testeurs originaux': 'جوج تسترات أصلية',
+    'testeurs originaux': 'تسترات أصلية',
     'Rien à payer maintenant · réglez en espèces à la livraison': 'لا شيء تدفعه الآن · ادفع نقدًا عند الاستلام',
     'Le même jus qu\'en boutique, sans le coffret': 'نفس العطر الموجود في المتجر، بدون العلبة',
     'Livré en 24 à 72 h, partout au Maroc': 'يصلك خلال 24 إلى 72 ساعة، في كل المغرب',
@@ -352,21 +361,37 @@
     'C\'est cette adresse que le livreur suivra.': 'هذا هو العنوان الذي سيقصده عامل التوصيل.',
     'Paiement à la livraison.': 'الدفع عند الاستلام.',
     'Vous réglez en espèces au livreur, à la réception de votre colis. Ce site ne demande aucune carte bancaire.': 'تدفع نقدًا لعامل التوصيل عند استلام طردك. هذا الموقع لا يطلب أي بطاقة بنكية.',
-    'Casablanca en 24 à 48 heures.': 'الدار البيضاء خلال 24 إلى 48 ساعة.',
+    'Livraison en 24 à 72 h partout au Maroc.': 'التوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
+    'Envoyer ma commande': 'إرسال طلبي',
+    'La demande est transmise au site avant l’ouverture de WhatsApp. Confirmez ensuite la disponibilité avec nous par message.': 'يتم إرسال الطلب إلى الموقع قبل فتح واتساب. ثم أكدوا معنا توفر العطر عبر رسالة.',
+    'Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.': 'لا شيء تدفعه الآن. سنتصل بك لتأكيد الطلب، والتوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
     'Confirmer la commande': 'أكّد الطلب',
     'WhatsApp s\'ouvre avec votre commande et votre adresse déjà écrites. Un dernier envoi et c\'est confirmé.': 'يفتح واتساب ومعه طلبك وعنوانك مكتوبان مسبقًا. إرسال أخير ويكون الطلب مؤكَّدًا.',
     'Une question avant ?': 'سؤال قبل ذلك؟',
     'Écrivez-nous': 'راسلنا',
     'Dites-nous ce que vous cherchez, on s\'occupe du reste — ou choisissez vos parfums dans le catalogue.': 'قل لنا ما تبحث عنه ونتكفّل بالباقي — أو اختر عطورك من الكتالوج.',
+    'Choisissez vos parfums dans le catalogue. Besoin d\'un conseil pour choisir ? Écrivez-nous sur WhatsApp.': 'اختر عطورك من الكتالوج. تحتاج نصيحة للاختيار؟ راسلنا على واتساب.',
+    'Demander conseil sur WhatsApp': 'اطلب نصيحة على واتساب',
 
     /* Page de remerciement */
+    'Commande reçue ✓': 'تم استلام طلبك ✓',
+    'Nous vous appelons sous peu pour confirmer votre commande et l\'adresse de livraison.': 'سنتصل بك قريبًا لتأكيد طلبك وعنوان التوصيل.',
+    'Nous vous appelons': 'نتصل بك',
+    '— pour confirmer la commande et noter l\'adresse de livraison.': '— لتأكيد الطلب وتسجيل عنوان التوصيل.',
+    'Une question sur votre commande ? Écrivez-nous sur WhatsApp': 'سؤال حول طلبك؟ راسلنا عبر واتساب',
+    'Un empêchement ? Appelez-nous —': 'طارئ؟ اتصل بنا —',
+    'Bonjour, j’ai une question sur ma commande {ref}.': 'السلام عليكم، عندي سؤال حول طلبي {ref}.',
+    'Bonjour, j’ai une question sur ma commande.': 'السلام عليكم، عندي سؤال حول طلبي.',
+    /* Commande refusee par le serveur (commande.js > refusee) */
+    'Votre commande n’a pas pu être enregistrée. Envoyez-la-nous sur WhatsApp, nous la traitons tout de suite.': 'تعذّر تسجيل طلبك. أرسله لنا عبر واتساب وسنتكفل به فورًا.',
+    'Envoyer ma commande sur WhatsApp': 'أرسل طلبي عبر واتساب',
     'Merci, c\'est noté.': 'شكرًا، تمّ تسجيل طلبك.',
     'Votre commande est arrivée chez nous. Un message WhatsApp vous attend : un appui et nous préparons votre colis. Vous ne l\'avez pas reçu ? Le bouton ci-dessous fait la même chose.': 'وصلنا طلبك. رسالة واتساب في انتظارك: ضغطة واحدة ونبدأ تحضير طردك. لم تصلك؟ الزر أسفله يقوم بنفس الشيء.',
     'Ce que vous avez commandé': 'ما طلبته',
     'Vous confirmez sur WhatsApp': 'تؤكّد عبر واتساب',
     '— le message est déjà écrit, un appui suffit.': '— الرسالة مكتوبة سلفًا، ضغطة واحدة تكفي.',
     'Nous expédions': 'نرسل الطرد',
-    '— Casablanca en 24 à 48 h, le reste du Maroc en 2 à 4 jours.': '— الدار البيضاء خلال 24 إلى 48 ساعة، وباقي المغرب خلال 2 إلى 4 أيام.',
+    '— livraison en 24 à 72 h partout au Maroc.': '— التوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
     'Vous payez à la remise': 'تدفع عند التسليم',
     '— en espèces, au livreur. Rien n\'est payé à l\'avance.': '— نقدًا لعامل التوصيل. لا شيء يُدفع مسبقًا.',
     'Votre récapitulatif est prêt. Envoyez le message sur WhatsApp pour confirmer votre demande et vérifier la disponibilité.': 'ملخص طلبك جاهز. أرسل الرسالة عبر واتساب لتأكيد طلبك والتحقق من توفر العطر.',
@@ -546,6 +571,14 @@
 
   /* ── Les phrases fabriquées par le JavaScript, via window.CP_T() ──── */
   var MOTS = {
+    /* Bouton de pagination du catalogue : theme.js ajoute le compte apres
+       la phrase, qui ne passe donc que par CP_T (T ne la voyait jamais seule). */
+    'Voir plus de parfums': 'شاهد عطورًا أخرى',
+    /* Rayons du catalogue sur téléphone (theme.js, 3.9). */
+    'Nos incontournables': 'مختاراتنا',
+    'Autres maisons': 'دور عطور أخرى',
+    'Tout voir': 'عرض الكل',
+    'Filtrer et trier': 'تصفية وترتيب',
     'iris':'سوسن',
     'tendre':'رقيق',
     'Sous-total': 'المجموع الفرعي',
@@ -557,6 +590,10 @@
     'Retirer': 'حذف',
     'Paiement à la livraison, en espèces. Aucune carte bancaire.': 'الدفع عند الاستلام، نقدًا. لا حاجة لبطاقة بنكية.',
     'Ajoutez un second parfum : la livraison passe à 0 DH.': 'أضف عطرًا ثانيًا ويصبح التوصيل مجانيًا.',
+    'Remise duo': 'خصم الثنائي',
+    'Ajoutez un second parfum : livraison offerte et {r} de remise.': 'أضف عطرًا ثانيًا: توصيل مجاني وخصم {r}.',
+    'Ajoutez un parfum : {r} de remise en plus.': 'أضف عطرًا آخر: خصم {r} إضافي.',
+    'Livraison offerte et {r} de remise.': 'توصيل مجاني وخصم {r}.',
     'Ajoutez un second parfum et la livraison passe à <b>0 DH</b>. ': 'أضف عطرًا ثانيًا ويصبح التوصيل مجانيًا. ',
     'Voir le catalogue': 'تصفّح الكتالوج',
     'Votre panier est vide.': 'سلّتك فارغة.',
@@ -589,8 +626,9 @@
     [/^(\d+) maisons$/, '$1 دار عطور'],
     [/^(\d+) parmi (\d+)$/, '$1 من $2'],
     [/^(\d+) maisons, de (.+) à (.+) DH\. Chaque flacon a sa fiche complète : pyramide olfactive, prix, disponibilité\.$/, '$1 دار عطور، من $2 إلى $3 درهم. لكل قارورة بطاقتها الكاملة: الهرم العطري، السعر، التوفر.'],
-    [/^Le reste du Maroc en 2 à 4 jours ouvrables\. (\d+) DH de livraison, partout — offerte dès le deuxième parfum\.$/, 'باقي المغرب خلال 2 إلى 4 أيام عمل. التوصيل بـ$1 درهم في كل المغرب — مجاني ابتداءً من العطر الثاني.'],
-    [/^(\d+) DH de livraison, partout\.$/, 'التوصيل بـ$1 درهم في كل المغرب.'],
+    [/^(\d+) DH de livraison — offerte dès le deuxième parfum\.$/, 'التوصيل بـ$1 درهم — مجاني ابتداءً من العطر الثاني.'],
+    [/^(\d+) DH de livraison\.$/, 'التوصيل بـ$1 درهم.'],
+    [/^\+ (\d+) DH de livraison$/, '+ $1 درهم للتوصيل'],
     [/^Le lien est peut-être incomplet, ou la page a été retirée\. Le catalogue, lui, est toujours là : (\d+) parfums, (\d+) maisons, livrés partout au Maroc\.$/, 'ربما الرابط غير مكتمل، أو أُزيلت الصفحة. أمّا الكتالوج فما زال هنا: $1 عطر و$2 دار عطور، مع التوصيل إلى كل المغرب.'],
     [/^Frais de livraison confirmés à la commande\.$/, 'تُحدَّد رسوم التوصيل عند الطلب.']
   ];
@@ -598,10 +636,21 @@
   /* ══════════════════════════════════════════════════════════════
      ÉTAT
   ══════════════════════════════════════════════════════════════ */
+  /* Dans l'ordre : ?lang= dans l'adresse, puis le choix fait avec le bouton
+     AR / FR, puis la langue du telephone. Les publicites parlent darija :
+     un telephone regle en arabe ouvrait pourtant le site en francais,
+     faute de choix memorise. La langue du telephone n'est pas memorisee :
+     seul un choix du client l'est, et il passe devant. Meme regle dans le
+     script pose en tete de page (header.php). */
   function lire() {
     var url = new URLSearchParams(location.search).get('lang');
     if (url === 'ar' || url === 'fr') { ecrire(url); return url; }
-    try { return localStorage.getItem(CLE) === 'ar' ? 'ar' : 'fr'; } catch (e) { return 'fr'; }
+    try {
+      var choix = localStorage.getItem(CLE);
+      if (choix === 'ar' || choix === 'fr') { return choix; }
+    } catch (e) {}
+    var tel = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+    return /^ar\b/i.test(tel) ? 'ar' : 'fr';
   }
   function ecrire(l) { try { localStorage.setItem(CLE, l); } catch (e) {} }
 
@@ -798,7 +847,10 @@
 
   function brancher() {
     document.querySelectorAll('[data-langue-bascule]').forEach(function (b) {
-      b.textContent = langue === 'ar' ? 'FR' : 'ع';
+      /* « AR » plutot que la lettre « ع » : deux lettres comme « FR », lues
+         tout de suite comme un choix de langue, meme par qui ne lit pas
+         l'arabe. */
+      b.textContent = langue === 'ar' ? 'FR' : 'AR';
       b.setAttribute('aria-label', langue === 'ar' ? 'Passer en français' : 'التبديل إلى العربية');
       b.addEventListener('click', function () {
         ecrire(langue === 'ar' ? 'fr' : 'ar');

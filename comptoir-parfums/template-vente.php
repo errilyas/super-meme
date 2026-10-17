@@ -49,8 +49,12 @@ $cp_vitrine_slugs = array(
 // Le parfum de la publicite, s'il est donne (?p=slug) : il passe en tete et
 // sort de la grille, pour ne pas apparaitre deux fois.
 $cp_vedette = comptoir_vente_vedette();
+// Une offre a prix fixe (comptoir_offres) plutot qu'un parfum : ses flacons
+// sortent aussi de la grille, ils sont deja en tete.
+$cp_offre      = $cp_vedette && ! empty( $cp_vedette['o'] );
+$cp_offre_avec = $cp_offre ? array_values( array_filter( array_map( 'comptoir_produit_by_slug', $cp_vedette['avec'] ) ) ) : array();
 if ( $cp_vedette ) {
-	$cp_vitrine_slugs = array_values( array_diff( $cp_vitrine_slugs, array( $cp_vedette['s'] ) ) );
+	$cp_vitrine_slugs = array_values( array_diff( $cp_vitrine_slugs, array( $cp_vedette['s'] ), $cp_offre ? $cp_vedette['avec'] : array() ) );
 	$cp_vitrine_slugs = array_slice( $cp_vitrine_slugs, 0, 6 );
 }
 
@@ -60,10 +64,10 @@ get_header();
 <main class="wrap lp" id="cp-main">
 
   <?php if ( $cp_vedette ) : ?>
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        VEDETTE — le flacon de la publicite, avec son prix et le bouton,
        dans le premier ecran. Meme bloc d'achat que la fiche parfum.
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="lp-vedette" aria-label="<?php echo esc_attr( $cp_vedette['b'] . ' ' . $cp_vedette['n'] ); ?>">
     <div class="pf-top">
       <div class="pf-visual<?php echo comptoir_a_photo( $cp_vedette['s'] ) ? '' : ' is-empty'; ?>">
@@ -75,6 +79,26 @@ get_header();
         <div class="pf-brand"><?php echo esc_html( $cp_vedette['b'] ); ?></div>
         <h1 class="pf-name"><?php echo esc_html( $cp_vedette['n'] ); ?></h1>
         <div class="pf-meta"><?php echo esc_html( $cp_vedette['x'] . ' · ' . $cp_vedette['g'] ); ?></div>
+        <?php if ( $cp_offre ) : ?>
+        <?php /* Styles de la liste des flacons, ici et pas dans style-site.css :
+             ce fichier est hache dans l'en-tete du CSS critique des fiches
+             (css-critique/), y toucher obligerait a le regenerer. */ ?>
+        <style>.pf-offre-avec{list-style:none;margin:2px 0 18px;padding:0;display:grid;gap:6px;font-size:14px;font-weight:300}.pf-offre-avec li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line2)}.pf-offre-avec a{color:inherit;text-decoration:underline;text-decoration-color:rgba(var(--au-rgb),.4);text-underline-offset:3px}.pf-offre-avec span{color:var(--text-dim);text-decoration:line-through;white-space:nowrap}</style>
+        <?php /* Une offre (comptoir_offres) : ses flacons, chacun vers sa fiche,
+             le prix des deux a l'unite barre, et la livraison dite tout de
+             suite — elle n'est pas offerte sur un pack, la phrase « deux
+             parfums = livraison offerte » n'a donc rien a faire ici. */ ?>
+        <ul class="pf-offre-avec">
+          <?php foreach ( $cp_offre_avec as $cp_x ) : ?>
+          <li><a href="<?php echo esc_url( comptoir_parfum_url( $cp_x['s'] ) ); ?>"><?php echo esc_html( $cp_x['b'] . ' ' . $cp_x['n'] ); ?></a> <span><?php echo esc_html( $cp_x['pr'] ); ?></span></li>
+          <?php endforeach; ?>
+        </ul>
+        <div class="pf-price">
+          <span class="now"><?php echo esc_html( $cp_vedette['pr'] ); ?></span>
+          <span class="was"><?php echo esc_html( comptoir_prix_format( $cp_vedette['barre'] ) ); ?> DH</span>
+          <span class="pf-price-note">+ <?php echo (int) comptoir_livraison_dh(); ?> DH de livraison · testeurs originaux</span>
+        </div>
+        <?php else : ?>
         <?php if ( comptoir_notes_courtes( $cp_vedette ) ) : ?>
         <a class="pf-notes-cle" href="<?php echo esc_url( comptoir_parfum_url( $cp_vedette['s'] ) ); ?>#pf-histoire"><span class="pf-notes-lib">Notes</span><span><?php echo esc_html( comptoir_notes_courtes( $cp_vedette ) ); ?></span></a>
         <?php endif; ?>
@@ -82,6 +106,7 @@ get_header();
           <span class="now"><?php echo esc_html( $cp_vedette['pr'] ); ?></span>
           <span class="pf-price-note">Testeur original · 100 % authentique</span>
         </div>
+        <?php endif; ?>
         <div class="pf-actions">
           <button class="pf-cta pf-cta-achat" type="button" data-panier-acheter="<?php echo esc_attr( $cp_vedette['s'] ); ?>">
             <span>Commander</span><span class="pf-cta-prix"><?php echo esc_html( $cp_vedette['pr'] ); ?></span>
@@ -89,18 +114,20 @@ get_header();
           <button class="pf-cta pf-cta-2" type="button" data-panier-add="<?php echo esc_attr( $cp_vedette['s'] ); ?>">Ajouter au panier</button>
         </div>
         <p class="pf-rassure-cta">Rien à payer maintenant · réglez en espèces à la livraison</p>
-        <?php comptoir_note_franco( 'franco-pf' ); ?>
+        <?php if ( ! $cp_offre ) { comptoir_note_franco( 'franco-pf' ); } ?>
         <?php comptoir_gages(); ?>
+        <?php if ( ! $cp_offre ) : ?>
         <a class="pf-all" href="<?php echo esc_url( comptoir_parfum_url( $cp_vedette['s'] ) ); ?>">Notes et fiche complète</a>
+        <?php endif; ?>
       </div>
     </div>
   </section>
   <?php else : ?>
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        HERO — une promesse, un chemin. Raccourci : sur telephone, les
        premiers flacons de la selection doivent apparaitre sans defiler.
        WhatsApp n'y est plus un bouton de commande (voir template-parfum.php).
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="lp-hero" aria-label="Présentation">
     <div class="lp-hero-inner r">
       <div class="sect-kicker"><span>Testeurs originaux · Livraison partout au Maroc</span></div>
@@ -134,9 +161,9 @@ get_header();
   </section>
   <?php endif; ?>
 
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        SÉLECTION — preuve immédiate, quelques flacons connus
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="pick lp-produits" id="lp-produits" aria-label="Sélection">
     <div class="pick-inner">
       <div class="pick-head r">
@@ -164,9 +191,9 @@ get_header();
 
   <?php comptoir_bloc_testeur( 'testeur-lp' ); ?>
 
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        POURQUOI CE PRIX
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="distinction" id="distinction" aria-label="Notre approche">
     <div class="dist-inner">
       <div class="dist-header r">
@@ -207,9 +234,9 @@ get_header();
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        FAQ — les trois objections qui comptent avant d'acheter
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="faq" id="faq" aria-label="Questions fréquentes">
     <div class="faq-inner">
       <div class="faq-sidebar r-left">
@@ -217,7 +244,7 @@ get_header();
         <h2 class="sect-h2">Ce qu'on nous demande le plus.</h2>
         <p class="sect-body">Une réponse manque ? Écrivez-nous directement.</p>
         <div class="wa-block">
-          <p>Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, commandes.</p>
+          <p>Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, suivi de commande.</p>
           <a href="<?php echo esc_url( $cp_wa ); ?>" class="wa-cta" target="_blank" rel="noopener">Poser une question</a>
         </div>
       </div>
@@ -236,15 +263,15 @@ get_header();
         </div>
         <div class="faq-item" role="listitem">
           <button class="faq-btn" aria-expanded="false">Livrez-vous partout au Maroc ?<span class="faq-ico" aria-hidden="true"></span></button>
-          <div class="faq-ans"><p>Oui — de Tanger à Dakhla, en passant par toutes les villes et zones rurales. Casablanca, Rabat, Marrakech et les grandes agglomérations sont livrées en 24 à 48h. Le reste du Royaume en 2 à 4 jours ouvrables via nos transporteurs partenaires.</p></div>
+          <div class="faq-ans"><p>Oui — de Tanger à Dakhla, toutes les villes et les zones rurales sont livrées en 24 à 72 h par nos transporteurs partenaires.</p></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════
+  <?php /* ════════════════════════════════════════
        CTA FINAL
-  ════════════════════════════════════════ -->
+  ════════════════════════════════════════ */ ?>
   <section class="finale" aria-label="Commander">
     <div class="fin-inner r">
       <span class="fin-mark" aria-hidden="true">
@@ -254,14 +281,14 @@ get_header();
       </span>
       <div class="fin-kicker">Commander maintenant</div>
       <h2 class="fin-h2">Un grand parfum livré chez vous demain.</h2>
-      <p class="fin-body">Choisissez vos flacons, laissez votre adresse, confirmez d'un message — et payez seulement quand le colis est entre vos mains, en 24 à 72h.</p>
+      <p class="fin-body">Choisissez vos flacons, laissez votre nom et votre téléphone — et payez seulement quand le colis est entre vos mains, en 24 à 72h.</p>
       <div class="fin-actions">
         <a href="<?php echo esc_url( home_url( '/?commander=1' ) ); ?>" class="btn-fin">Commander maintenant</a>
         <a href="<?php echo esc_url( home_url( '/#catalogue' ) ); ?>" class="btn-fin-g">Parcourir le catalogue</a>
       </div>
       <p class="fin-ou">
         <a href="<?php echo esc_url( $cp_wa ); ?>" target="_blank" rel="noopener">
-          <?php comptoir_icone_whatsapp(); ?>ou commandez directement sur WhatsApp</a>
+          <?php comptoir_icone_whatsapp(); ?>Un doute avant de commander ? Réponse sur WhatsApp</a>
       </p>
       <div class="fin-trust" aria-label="Garanties">
         <span class="fin-trust-item">

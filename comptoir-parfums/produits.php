@@ -1,7 +1,7 @@
 <?php
 /**
  * Le Comptoir des Parfums — donnees produit (source unique).
- * 209 fiches : catalogue de la page d'accueil + pages parfum (template-parfum.php).
+ * 208 fiches : catalogue de la page d'accueil + pages parfum (template-parfum.php).
  * Genere depuis produits.js — garder les deux synchronises.
  *
  * Champs : s slug | b maison | n nom | pr prix | g genre | fam famille olfactive
@@ -24,7 +24,7 @@ function comptoir_produits() {
 		return $cache;
 	}
 	$cache = array(
-		array('s' => 'azzaro--forever-wanted-elixir', 'b' => 'Azzaro', 'n' => 'Forever Wanted Elixir', 'pr' => '389 DH', 'g' => 'Femme', 'fam' => 'Floral gourmand', 'x' => 'Eau de Parfum Intense', 't' => array('Gingembre', 'Poire'), 'c' => array('Fleur de gingembre', 'Fleur d\'oranger'), 'f' => array('Caramel', 'Vanille', 'Bois ambré'), 'd' => 'Un floral électrique qui bascule vite dans le caramel et la vanille chaude.'),
+		array('s' => 'azzaro--forever-wanted-elixir', 'b' => 'Azzaro', 'n' => 'Forever Wanted Elixir', 'pr' => '389 DH', 'g' => 'Homme', 'fam' => 'Boisé fruité', 'x' => 'Eau de Parfum Intense', 't' => array('Framboise', 'Mandarine verte', 'Bergamote'), 'c' => array('Cardamome', 'Lavande', 'Sauge sclarée'), 'f' => array('Cuir', 'Vétiver', 'Bois'), 'd' => 'Une framboise vive sur la lavande et la cardamome, posée sur un fond de cuir et de vétiver : intense et élégant.'),
 		array('s' => 'azzaro--the-most-wanted', 'b' => 'Azzaro', 'n' => 'The Most Wanted', 'pr' => '389 DH', 'g' => 'Homme', 'fam' => 'Ambré épicé', 'x' => 'Eau de Parfum Intense', 't' => array('Liqueur de gingembre', 'Cardamome'), 'c' => array('Toffee', 'Caramel'), 'f' => array('Bois ambré', 'Vétiver', 'Cèdre'), 'd' => 'Un gingembre liquoreux qui fond sur un caramel boisé, chaleureux et addictif.'),
 		array('s' => 'burberry--goddess', 'b' => 'Burberry', 'n' => 'Goddess', 'pr' => '349 DH', 'g' => 'Femme', 'fam' => 'Ambré vanillé', 'x' => 'Eau de Parfum', 't' => array('Lavande', 'Gingembre'), 'c' => array('Vanille de Madagascar', 'Vanille caramel'), 'f' => array('Vanille absolue', 'Cacao'), 'd' => 'Trois vanilles superposées, adoucies d\'une lavande lactée et d\'un soupçon de cacao.'),
 		array('s' => 'burberry--her-intense', 'b' => 'Burberry', 'n' => 'Her Intense', 'pr' => '339 DH', 'g' => 'Femme', 'fam' => 'Floral fruité', 'x' => 'Eau de Parfum', 't' => array('Cassis', 'Myrtille', 'Mûre'), 'c' => array('Jasmin', 'Fruits rouges'), 'f' => array('Ambre', 'Patchouli', 'Musc'), 'd' => 'Une bourrasque de fruits noirs sucrés sur un fond ambré et patchouli.'),
@@ -120,7 +120,7 @@ function comptoir_produits() {
 		array('s' => 'jean-paul-gaultier--la-belle-le-parfum', 'b' => 'Jean Paul Gaultier', 'n' => 'La Belle Le Parfum', 'pr' => '369 DH', 'g' => 'Femme', 'fam' => 'Oriental vanillé', 'x' => 'Eau de Parfum Intense', 't' => array('Poire', 'Bergamote'), 'c' => array('Vanille', 'Jasmin'), 'f' => array('Bois de santal', 'Fève tonka', 'Vétiver'), 'd' => 'La Belle réchauffée : poire liquoreuse et vanille dense sur bois toastés.'),
 		array('s' => 'jean-paul-gaultier--le-beau-le-parfum', 'b' => 'Jean Paul Gaultier', 'n' => 'Le Beau Le Parfum', 'pr' => '349 DH', 'g' => 'Homme', 'fam' => 'Boisé ambré', 'x' => 'Eau de Parfum Intense', 't' => array('Bergamote', 'Gingembre'), 'c' => array('Noix de coco', 'Accord tiaré'), 'f' => array('Cèdre', 'Bois ambré', 'Fève tonka'), 'd' => 'Une noix de coco boisée et solaire, virile, sur un cèdre profond.'),
 		array('s' => 'jean-paul-gaultier--le-male-elixir', 'b' => 'Jean Paul Gaultier', 'n' => 'Le Male Elixir', 'pr' => '319 DH', 'g' => 'Homme', 'fam' => 'Oriental vanillé', 'x' => 'Elixir', 't' => array('Lavande', 'Menthe'), 'c' => array('Vanille', 'Benjoin'), 'f' => array('Miel', 'Fève tonka', 'Tabac'), 'd' => 'Une chaleur incandescente où la lavande fondante rencontre le miel et le tabac.'),
-		array('s' => 'jean-paul-gaultier--le-male-elixir-absolu', 'b' => 'Jean Paul Gaultier', 'n' => 'Le Male Elixir Absolu', 'pr' => '349 DH', 'g' => 'Homme', 'fam' => 'Oriental vanillé', 'x' => 'Elixir', 't' => array('Lavande', 'Menthe'), 'c' => array('Vanille', 'Benjoin'), 'f' => array('Miel', 'Tabac', 'Fève tonka'), 'd' => 'Un élixir magnétique aux notes profondes et gourmandes, miel et tabac en fond.'),
+		array('s' => 'jean-paul-gaultier--le-male-elixir-absolu', 'b' => 'Jean Paul Gaultier', 'n' => 'Le Male Elixir Absolu', 'pr' => '349 DH', 'g' => 'Homme', 'fam' => 'Oriental vanillé', 'x' => 'Parfum Intense', 't' => array('Lavande', 'Menthe'), 'c' => array('Vanille', 'Benjoin'), 'f' => array('Miel', 'Tabac', 'Fève tonka'), 'd' => 'Un élixir magnétique aux notes profondes et gourmandes, miel et tabac en fond.'),
 		array('s' => 'jean-paul-gaultier--le-male-le-parfum', 'b' => 'Jean Paul Gaultier', 'n' => 'Le Male Le Parfum', 'pr' => '349 DH', 'g' => 'Homme', 'fam' => 'Ambré', 'x' => 'Parfum Intense', 't' => array('Cardamome', 'Bergamote'), 'c' => array('Iris', 'Lavande'), 'f' => array('Vanille', 'Bois ambré', 'Fève tonka'), 'd' => 'La menthe-vanille de Le Male transformée en ambre lisse et cardamome.'),
 		array('s' => 'jean-paul-gaultier--le-male-lover', 'b' => 'Jean Paul Gaultier', 'n' => 'Le Male Lover', 'pr' => '349 DH', 'g' => 'Homme', 'fam' => 'Oriental vanillé', 'x' => 'Eau de Parfum', 't' => array('Gingembre confit', 'Bergamote'), 'c' => array('Ananas', 'Accord metal chaud'), 'f' => array('Vanille', 'Bois de cachemire'), 'd' => 'Un gingembre confit juteux qui glisse vers une vanille boisée addictive.'),
 		array('s' => 'jean-paul-gaultier--scandal-edp-pour-femme', 'b' => 'Jean Paul Gaultier', 'n' => 'Scandal EDP Pour Femme', 'pr' => '349 DH', 'g' => 'Femme', 'fam' => 'Floral gourmand', 'x' => 'Eau de Parfum', 't' => array('Miel', 'Orange sanguine', 'Mandarine'), 'c' => array('Fleur de miel', 'Gardénia', 'Jasmin'), 'f' => array('Cire d\'abeille', 'Patchouli', 'Caramel'), 'd' => 'Un miel floral opulent, patchouli net, sillage puissant et sucré.'),
@@ -169,12 +169,11 @@ function comptoir_produits() {
 		array('s' => 'parfums-de-marly--delina-royal-essence', 'b' => 'Parfums de Marly', 'n' => 'Delina Royal Essence', 'pr' => '359 DH', 'g' => 'Femme', 'fam' => 'Floral rosé', 'x' => 'Eau de Parfum', 't' => array('Litchi', 'Bergamote'), 'c' => array('Rose', 'Pivoine'), 'f' => array('Vanille', 'Musc', 'Bois de cachemire'), 'd' => 'Delina dans sa version la plus dense, la rose serrée sur un fond vanillé.'),
 		array('s' => 'parfums-de-marly--valaya-exclusif', 'b' => 'Parfums de Marly', 'n' => 'Valaya Exclusif', 'pr' => '369 DH', 'g' => 'Femme', 'fam' => 'Floral musqué', 'x' => 'Parfum', 't' => array('Bergamote', 'Poire'), 'c' => array('Fleur d\'oranger', 'Jasmin'), 'f' => array('Musc blanc', 'Bois blond', 'Ambrette'), 'd' => 'Le propre absolu : un musc de linge frais, lumineux, qui ne crie jamais.'),
 		array('s' => 'prada--carbon-luna-rossa-edt', 'b' => 'Prada', 'n' => 'Carbon Luna Rossa EDT', 'pr' => '369 DH', 'g' => 'Homme', 'fam' => 'Aromatique métallique', 'x' => 'Eau de Toilette', 't' => array('Bergamote', 'Poivre', 'Accord métallique'), 'c' => array('Lavande', 'Sauge'), 'f' => array('Ambre', 'Patchouli', 'Bois de cèdre'), 'd' => 'Un aromatique froid et minéral, lavande sur accord métal et patchouli.'),
-		array('s' => 'prada--paradigme', 'b' => 'Prada', 'n' => 'Paradigme', 'pr' => '369 DH', 'g' => 'Mixte', 'fam' => 'Floral musqué', 'x' => 'Eau de Parfum', 't' => array('Mandarine', 'Poivre rose'), 'c' => array('Néroli', 'Fleur d\'oranger'), 'f' => array('Musc', 'Ambre', 'Bois blond'), 'd' => 'Un floral solaire et propre, néroli lumineux enveloppé de musc doux.'),
+		array('s' => 'prada--paradigme', 'b' => 'Prada', 'n' => 'Paradigme', 'pr' => '369 DH', 'g' => 'Homme', 'fam' => 'Ambré boisé', 'x' => 'Eau de Parfum', 't' => array('Bergamote'), 'c' => array('Géranium', 'Rose'), 'f' => array('Baume du Pérou', 'Benjoin', 'Bois de gaïac', 'Musc'), 'd' => 'Une bergamote lumineuse sur un géranium vert, puis des bois ambrés et résineux : élégant et moderne.'),
 		array('s' => 'prada--paradoxe-intense', 'b' => 'Prada', 'n' => 'Paradoxe Intense', 'pr' => '369 DH', 'g' => 'Femme', 'fam' => 'Floral ambré', 'x' => 'Eau de Parfum Intense', 't' => array('Néroli', 'Bergamote'), 'c' => array('Fleur d\'oranger', 'Jasmin'), 'f' => array('Vanille', 'Ambre', 'Musc'), 'd' => 'La fleur d\'oranger de Paradoxe alourdie de vanille et d\'ambre, plus nocturne.'),
 		array('s' => 'prada--paradoxe-radical-essence', 'b' => 'Prada', 'n' => 'Paradoxe Radical Essence', 'pr' => '369 DH', 'g' => 'Femme', 'fam' => 'Floral musqué', 'x' => 'Eau de Parfum', 't' => array('Bergamote', 'Poivre rose'), 'c' => array('Néroli', 'Fleur d\'oranger', 'Jasmin'), 'f' => array('Musc blanc', 'Bois ambré', 'Vanille'), 'd' => 'Un néroli net et musqué, minimaliste et propre, sillage seconde peau.'),
 		array('s' => 'rabanne--1-million-parfum', 'b' => 'Rabanne', 'n' => '1 Million Parfum', 'pr' => '349 DH', 'g' => 'Homme', 'fam' => 'Ambré épicé cuir', 'x' => 'Parfum', 't' => array('Cannelle', 'Cardamome', 'Pamplemousse'), 'c' => array('Rose', 'Cuir'), 'f' => array('Ambre', 'Fève tonka', 'Bois blonds'), 'd' => 'Le 1 Million originel rendu plus cuiré et plus épicé, sillage massif.'),
 		array('s' => 'rabanne--1-million-royal', 'b' => 'Rabanne', 'n' => '1 Million Royal', 'pr' => '349 DH', 'g' => 'Homme', 'fam' => 'Ambré aromatique', 'x' => 'Parfum', 't' => array('Absinthe', 'Menthe glaciale'), 'c' => array('Bois aromatiques'), 'f' => array('Ambre doré', 'Résines', 'Fève tonka'), 'd' => 'Une menthe glacée qui s\'écrase sur un ambre doré massif, frais puis chaud.'),
-		array('s' => 'rabanne--1-million', 'b' => 'Rabanne', 'n' => '1 Million', 'pr' => '369 DH', 'g' => 'Homme', 'fam' => 'Ambré épicé', 'x' => 'Eau de Toilette', 't' => array('Pamplemousse', 'Menthe', 'Mandarine rouge'), 'c' => array('Rose', 'Cannelle', 'Épices'), 'f' => array('Cuir blond', 'Bois ambré', 'Patchouli'), 'd' => 'La cannelle et le cuir blond du lingot d\'or : reconnaissable à trois mètres, depuis 2008.'),
 		array('s' => 'rabanne--1-million-lucky', 'b' => 'Rabanne', 'n' => '1 Million Lucky', 'pr' => '369 DH', 'g' => 'Homme', 'fam' => 'Boisé fruité', 'x' => 'Eau de Toilette', 't' => array('Prune', 'Noisette'), 'c' => array('Rose', 'Notes vertes'), 'f' => array('Cèdre', 'Ambre', 'Bois de santal'), 'd' => 'Une prune sucrée et une noisette grillée, le 1 Million le plus tendre.'),
 		array('s' => 'stephane-humbert-lucas-777--god-of-fire', 'b' => 'Stéphane Humbert Lucas 777', 'n' => 'God of Fire', 'pr' => '569 DH', 'g' => 'Mixte', 'fam' => 'Boisé ambré fruité', 'x' => 'Eau de Parfum', 't' => array('Cassis', 'Bergamote', 'Poire'), 'c' => array('Bois de santal', 'Ambre'), 'f' => array('Vanille', 'Fève tonka', 'Musc'), 'd' => 'Un cassis-poire opulent fondu dans un santal ambré très crémeux.'),
 		array('s' => 'tom-ford--bitter-peach', 'b' => 'Tom Ford', 'n' => 'Bitter Peach', 'pr' => '369 DH', 'g' => 'Mixte', 'fam' => 'Fruité gourmand', 'x' => 'Eau de Parfum', 't' => array('Pêche sanguine', 'Cognac', 'Cardamome'), 'c' => array('Fleur d\'oranger', 'Rhum', 'Datura'), 'f' => array('Vanille', 'Santal', 'Cuir', 'Patchouli'), 'd' => 'Une pêche liquoreuse et boozy, opulente et collante, très Tom Ford.'),
@@ -250,6 +249,65 @@ function comptoir_produit_by_slug( $slug ) {
 		}
 	}
 	return isset( $index[ $slug ] ) ? $index[ $slug ] : null;
+}
+
+/**
+ * Offres a prix fixe : plusieurs flacons vendus ensemble, a un prix qui n'est
+ * pas la somme des fiches. Elles ne font PAS partie du catalogue
+ * (comptoir_produits) : ni grille, ni maisons, ni sitemap, ni flux Meta, et
+ * pas de fiche ?parfum=. On y arrive par la page vente :
+ * /?vente=1&p=<slug de l'offre>.
+ * Une offre compte pour UN article : le panier et le serveur lui appliquent
+ * donc la livraison (comptoir_livraison_dh) et aucune remise duo, sans
+ * regle a part. Champs en plus de ceux d'un parfum : o (offre), avec (les
+ * slugs des flacons), barre (le prix des flacons achetes un par un).
+ */
+function comptoir_offres() {
+	static $cache = null;
+	if ( null !== $cache ) {
+		return $cache;
+	}
+	$cache = array();
+	$liste = array(
+		array(
+			's'    => 'pack--stronger-intensely-born-in-roma',
+			'b'    => 'Pack duo',
+			'n'    => 'Stronger With You Intensely + Born In Roma Intense',
+			'pr'   => '499 DH',
+			'g'    => 'Homme',
+			'x'    => '2 testeurs originaux',
+			'd'    => 'Emporio Armani Stronger With You Intensely et Valentino Uomo Born In Roma Intense : deux ambrés vanillés pour homme, réunis à un prix de pack.',
+			'avec' => array( 'emporio-armani--stronger-with-you-intensely', 'valentino--uomo-born-in-roma-intense' ),
+		),
+	);
+	foreach ( $liste as $o ) {
+		$barre = 0;
+		foreach ( $o['avec'] as $s ) {
+			$p = comptoir_produit_by_slug( $s );
+			if ( ! $p ) {
+				continue 2;   // un flacon retire du catalogue retire l'offre
+			}
+			$barre += comptoir_prix_entier( $p );
+		}
+		$cache[] = array_merge( $o, array( 'o' => 1, 'barre' => $barre, 'fam' => '', 't' => array(), 'c' => array(), 'f' => array() ) );
+	}
+	return $cache;
+}
+
+/** Une offre par son slug, ou null. */
+function comptoir_offre_by_slug( $slug ) {
+	foreach ( comptoir_offres() as $o ) {
+		if ( $o['s'] === $slug ) {
+			return $o;
+		}
+	}
+	return null;
+}
+
+/** Ce qui peut entrer dans un panier : un parfum du catalogue ou une offre. */
+function comptoir_article_by_slug( $slug ) {
+	$p = comptoir_produit_by_slug( $slug );
+	return $p ? $p : comptoir_offre_by_slug( $slug );
 }
 
 /** URL publique d'une fiche parfum. */

@@ -22,9 +22,10 @@
       utm_source:   q.get('utm_source') || '',
       utm_medium:   q.get('utm_medium') || '',
       utm_campaign: q.get('utm_campaign') || '',
+      utm_content:  q.get('utm_content') || '',
       referent:     document.referrer || ''
     };
-    var porteUneCampagne = src.fbclid || src.utm_source || src.utm_medium || src.utm_campaign;
+    var porteUneCampagne = src.fbclid || src.utm_source || src.utm_medium || src.utm_campaign || src.utm_content;
     var deja = null;
     try { deja = JSON.parse(localStorage.getItem('cp_provenance') || 'null'); } catch (e) {}
     /* On n'ecrase une provenance connue que si la nouvelle porte un identifiant
@@ -92,6 +93,7 @@
     franco: 2,                     // livraison offerte à partir de N articles
     wa: '212717961180',            // numéro WhatsApp (sans +)
     livraison: 35,                 // frais de livraison, DH — 0 = « à confirmer »
+    remise: 0,                     // remise par paire de parfums (« duo »), DH
     commander: 'commander.html',   // URL de la page commande
     home: 'comptoirv3-motion.html',// URL de l'accueil (pour le lien catalogue)
     imgBase: 'img/produits/',      // base des photos (WordPress : URL absolue du thème)
@@ -182,14 +184,56 @@
     ViewContent: 'view_item'
   };
 
+    /* Commandes de test : ni Lead ni Purchase ne partent (Meta, GA4). Test =
+       « test » dans un champ du formulaire de commande, ou numero de test.
+       Le Lead pose la marque avec la reference de la commande ; le Purchase
+       de la page merci ne saute que pour cette meme reference. Le serveur
+       applique la meme regle (functions.php > comptoir_commande_test).
+       Seuls les champs du client comptent (nom, telephone, ville, adresse),
+       dans un formulaire qui porte un telephone : la page commande ou la
+       commande express. Jusqu'en 3.9.14, TOUS les champs de la page etaient
+       lus, y compris les formulaires caches que le pixel Meta pose pour ses
+       envois (description de la page : « testeur original ») ; un envoi
+       Meta encore en cours suffisait a faire d'une vraie commande un test. */
+    var TELS_TEST = ['212661718238', '212600000000'];
+    var CHAMPS_CLIENT = ['nom', 'tel', 'ville', 'ville_autre', 'adresse'];
+    function commandeTest(nom, eventId) {
+        if (nom !== 'Lead' && nom !== 'Purchase') return false;
+        try {
+            if (nom === 'Lead') {
+                var txt = '', tels = [], champs = [];
+                var formulaires = document.querySelectorAll('form');
+                for (var j = 0; j < formulaires.length; j++) {
+                    if (!formulaires[j].querySelector('[name="tel"]')) continue;
+                    for (var k = 0; k < CHAMPS_CLIENT.length; k++) {
+                        var el = formulaires[j].querySelector('[name="' + CHAMPS_CLIENT[k] + '"]');
+                        if (el) champs.push(el);
+                    }
+                }
+                for (var i = 0; i < champs.length; i++) {
+                    var v = String(champs[i].value || '');
+                    txt += ' ' + v;
+                    var d = v.replace(/[^0-9]/g, '');
+                    if (d.length >= 9) tels.push(d.indexOf('00212') === 0 ? d.slice(2) : (d.charAt(0) === '0' ? '212' + d.slice(1) : d));
+                }
+                var estTest = /\btest/i.test(txt) || tels.some(function (x) { return TELS_TEST.indexOf(x) >= 0; });
+                if (estTest) localStorage.setItem('cp_cmd_test', String(eventId || '1'));
+                else localStorage.removeItem('cp_cmd_test');
+                return estTest;
+            }
+            var r = localStorage.getItem('cp_cmd_test');
+            return !!r && (!eventId || r === String(eventId));
+        } catch (e) { return false; }
+    }
+
   /* eventId (optionnel) : passe en troisieme argument a fbq pour que Meta
      rapproche cet evenement pixel de son double envoye par le serveur
-     (Conversions API, comptoir_capi_achat dans functions.php) au lieu de
-     compter l'achat deux fois. */
+     (Conversions API, comptoir_capi_lead dans functions.php) au lieu de
+     compter la commande deux fois. */
   /* Identifiant d'evenement (ajout) : AddToCart, InitiateCheckout et Lead
      partaient sans, donc le double serveur pose par WordPress.com comptait
      un second evenement. Une reference commune suffit a ce que Meta les
-     rapproche, exactement comme Purchase le fait deja avec cp_ref. */
+     rapproche, exactement comme Lead le fait avec la reference de commande. */
   function idEvenement(prefixe) {
     var r = '';
     try { if (window.crypto && window.crypto.randomUUID) r = window.crypto.randomUUID(); } catch (e) {}
@@ -199,6 +243,7 @@
 
   function mesure(nom, donnees, eventId) {
     donnees = donnees || {};
+    if (commandeTest(nom, eventId)) return;
     try {
       if (typeof window.fbq === 'function') {
         if (eventId) window.fbq('track', nom, donnees, { eventID: String(eventId) });
@@ -260,8 +305,9 @@
       var prixRef = priceNum(ref), maisons = {};
       /* Une maison par suggestion : trois Tom Ford a cote d'un Tom Ford, c'est
          un seul choix presente trois fois. */
+      /* p.o : une offre a prix fixe (comptoir_offres), jamais proposee ici. */
       return (window.PRODUITS || []).filter(function (p) {
-        return !dans[p.s] && aPhoto(p.s) && (p.g === ref.g || p.g === 'Mixte' || ref.g === 'Mixte');
+        return !p.o && !dans[p.s] && aPhoto(p.s) && (p.g === ref.g || p.g === 'Mixte' || ref.g === 'Mixte');
       }).sort(function (a, b) {
         return Math.abs(priceNum(a) - prixRef) - Math.abs(priceNum(b) - prixRef) || (a.s < b.s ? -1 : 1);
       }).filter(function (p) {
@@ -314,7 +360,10 @@
       if (!CFG.franco || !P.count()) return 0;
       return Math.max(0, CFG.franco - P.count());
     },
-    total: function () { return P.subtotal() + P.fraisLivraison(); },
+    /* Remise « duo » : CFG.remise DH par paire de parfums (2 = 1 remise,
+       4 = 2). Le serveur applique la meme regle (comptoir_remise_duo). */
+    remise: function () { return CFG.remise > 0 ? Math.floor(P.count() / 2) * CFG.remise : 0; },
+    total: function () { return Math.max(0, P.subtotal() - P.remise()) + P.fraisLivraison(); },
     clear: function () { write([]); },
     onChange: function (fn) { listeners.push(fn); },
     open: function () {
@@ -373,6 +422,7 @@
         L.push('• ' + x.q + '× ' + x.p.b + ' ' + x.p.n + ' — ' + fmt(priceNum(x.p)));
       });
       L.push('', T('Sous-total') + ' : ' + fmt(P.subtotal()));
+      if (P.remise()) { L.push(T('Remise duo') + ' : −' + fmt(P.remise())); }
       L.push(T('Livraison') + ' : ' + (P.livraisonOfferte() ? T('offerte')
         : (CFG.livraison ? fmt(CFG.livraison) : T('à confirmer'))));
       L.push(T('Total') + ' : ' + fmt(P.total()));
@@ -391,9 +441,16 @@
     /* Depose la commande AVANT d'ouvrir WhatsApp : un client qui n'appuie pas
        sur « Envoyer » laisse quand meme son numero, et c'est lui qu'on rappelle.
        sendBeacon part sans bloquer et survit au changement d'application ;
-       en cas d'echec on ne dit rien et on laisse la vente se faire. */
-    depose: function (client) {
-      if (!CFG.ajax && !CFG.feuille) return false;
+       en cas d'echec on ne dit rien et on laisse la vente se faire.
+       suite (optionnel) : appelee une fois, avec le motif si le serveur
+       REFUSE la commande (400, 429), sinon avec ''. Sans elle, une commande
+       refusee affichait « Commande reçue » et comptait un achat chez Meta,
+       sans rien laisser au carnet. Le refus revient vite (la validation
+       passe avant le relais Google et la CAPI) ; au-dela de 1,5 s, ou si le
+       reseau coupe, on continue comme avant : la requete, elle, se poursuit. */
+    depose: function (client, suite) {
+      var fini = false, fin = function (motif) { if (suite && !fini) { fini = true; suite(motif); } };
+      if (!CFG.ajax && !CFG.feuille) { fin(''); return false; }
       var envoye = false;
       try {
         var panier = P.items().map(function (x) {
@@ -409,6 +466,7 @@
           d.append('adresse', client.adresse || '');
           d.append('total', P.total());
           d.append('livraison', P.fraisLivraison());
+          d.append('remise', P.remise());
           d.append('articles', P.count());
           d.append('panier', panier);
           d.append('lignes', JSON.stringify(P.items().map(function(x){ return {s:x.s, q:x.q}; })));
@@ -421,7 +479,7 @@
              commande des semaines plus tard et savoir d'ou elle venait. */
           try {
             var prov = window.cpProvenance ? window.cpProvenance() : {};
-            ['fbclid', 'utm_source', 'utm_medium', 'utm_campaign', 'referent'].forEach(function (k) {
+            ['fbclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'referent'].forEach(function (k) {
               if (prov[k]) d.append(k, prov[k]);
             });
           } catch (e) {}
@@ -435,9 +493,20 @@
           return true;
         };
 
+        if (CFG.ajax && suite && window.fetch) {
+          setTimeout(function () { fin(''); }, 1500);
+          fetch(CFG.ajax, { method: 'POST', body: remplir(new FormData(), true), keepalive: true, credentials: 'same-origin' })
+            .then(function (rep) {
+              if (rep.status !== 400 && rep.status !== 429) { fin(''); return; }
+              return rep.json().then(function (j) { fin(String((j && j.data) || rep.status)); },
+                function () { fin(String(rep.status)); });
+            }, function () { fin(''); });
+          return true;
+        }
         if (CFG.ajax)    envoye = envoie(CFG.ajax, remplir(new FormData(), true)) || envoye;
         if (!CFG.ajax && CFG.feuille) envoye = envoie(CFG.feuille, remplir(new FormData(), false)) || envoye;
       } catch (e) { /* jamais au detriment de la vente */ }
+      fin('');
       return envoye;
     }
   };
@@ -672,13 +741,19 @@
     var manque = P.manquePourFranco();
     /* La relance ne s'affiche que lorsqu'elle est utile : il manque un flacon,
        et le client a le tiroir sous les yeux. */
+    var impair = CFG.remise > 0 && P.count() % 2 === 1;
     var relance = manque === 1
-      ? '<div class="pnr-franco">' + T('Ajoutez un second parfum : la livraison passe à 0 DH.') + '</div>'
-      : (P.livraisonOfferte() ? '<div class="pnr-franco acquis">' + T('Livraison offerte.') + '</div>' : '');
+      ? '<div class="pnr-franco">' + (CFG.remise > 0
+          ? T('Ajoutez un second parfum : livraison offerte et {r} de remise.', { r: fmt(CFG.remise) })
+          : T('Ajoutez un second parfum : la livraison passe à 0 DH.')) + '</div>'
+      : (impair ? '<div class="pnr-franco">' + T('Ajoutez un parfum : {r} de remise en plus.', { r: fmt(CFG.remise) }) + '</div>'
+      : (P.livraisonOfferte() ? '<div class="pnr-franco acquis">' + (P.remise()
+          ? T('Livraison offerte et {r} de remise.', { r: fmt(P.remise()) }) : T('Livraison offerte.')) + '</div>' : ''));
     if (manque === 1) body.insertAdjacentHTML('beforeend', P.suggestionsHTML(3));
     foot.hidden = false;
     foot.innerHTML =
       '<div class="pnr-sum"><span>' + T('Sous-total') + '</span><span>' + fmt(P.subtotal()) + '</span></div>' +
+      (P.remise() ? '<div class="pnr-sum pnr-remise"><span>' + T('Remise duo') + '</span><span>−' + fmt(P.remise()) + '</span></div>' : '') +
       '<div class="pnr-sum"><span>' + T('Livraison') + '</span><span>' + liv + '</span></div>' +
       '<div class="pnr-sum total"><span>' + T('Total') + '</span><b>' + fmt(P.total()) + '</b></div>' +
       relance +

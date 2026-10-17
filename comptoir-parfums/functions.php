@@ -33,6 +33,20 @@ function comptoir_livraison_dh() {
 }
 
 /**
+ * Remise « duo » en DH : retiree pour chaque paire de parfums du panier
+ * (2 parfums = 1 remise, 4 = 2…). 0 desactive la remise. Meme regle cote
+ * navigateur (panier.js, P.remise) et cote serveur (montant enregistre).
+ */
+function comptoir_remise_duo_dh() {
+	return 50;
+}
+
+/** Remise totale pour un nombre d'articles. */
+function comptoir_remise_duo( $articles ) {
+	return (int) floor( max( 0, (int) $articles ) / 2 ) * comptoir_remise_duo_dh();
+}
+
+/**
  * Livraison offerte a partir de N articles. 0 desactive la regle.
  * Reglee a 2 : le deuxieme flacon paie sa propre livraison, et fait monter
  * le panier moyen sans un dirham de publicite.
@@ -63,7 +77,50 @@ function comptoir_photo_url( $slug ) {
 	return get_template_directory_uri() . '/img/produits/' . $slug . '.webp?v=' . comptoir_version_photos();
 }
 
-/** La phrase des frais de livraison, ecrite une fois pour toutes les pages. */
+/**
+ * Largeurs reduites des photos produit (3.9.10) : img/produits/360/ et 480/,
+ * memes noms que l'original (720 x 900). Les photos s'affichent entre 80 et
+ * 420 px de large ; le navigateur prend la plus petite qui suffit a l'ecran.
+ * Servies telles quelles, sans le CDN d'images (voir Comptoir SEO 1.4.1), avec
+ * la meme empreinte de version que l'original.
+ */
+function comptoir_photo_largeurs() {
+	return array( 360, 480 );
+}
+
+/** srcset d'une photo produit, ou '' si ses largeurs reduites manquent. */
+function comptoir_photo_srcset( $slug ) {
+	$base = get_template_directory_uri() . '/img/produits/';
+	$dir  = get_template_directory() . '/img/produits/';
+	$v    = '.webp?v=' . comptoir_version_photos();
+	$set  = array();
+	foreach ( comptoir_photo_largeurs() as $w ) {
+		if ( ! file_exists( $dir . $w . '/' . $slug . '.webp' ) ) {
+			return '';
+		}
+		$set[] = $base . $w . '/' . $slug . $v . ' ' . $w . 'w';
+	}
+	$set[] = $base . $slug . $v . ' 720w';
+	return implode( ', ', $set );
+}
+
+/**
+ * Taille d'affichage annoncee au navigateur, par usage (mesuree sur 412 px et
+ * sur grand ecran). Les photos sont en object-fit:contain : c'est la largeur
+ * du flacon dessine qui compte, pas celle de la boite.
+ */
+function comptoir_photo_sizes( $classe ) {
+	$tailles = array(
+		'pf-visual'  => '(max-width: 900px) 190px, 440px',
+		'pc-img'     => '(max-width: 900px) 40vw, 240px',
+		'pf-sib-img' => '(max-width: 900px) 90px, 160px',
+	);
+	return isset( $tailles[ $classe ] ) ? $tailles[ $classe ] : '(max-width: 900px) 45vw, 300px';
+}
+
+/** La phrase des frais de livraison, ecrite une fois pour toutes les pages.
+ *  Sans « partout » : la page commande la pose juste apres « Livraison en
+ *  24 a 72 h partout au Maroc. », le mot y etait deux fois. */
 function comptoir_note_livraison() {
 	$frais  = comptoir_livraison_dh();
 	$franco = comptoir_franco_articles();
@@ -72,11 +129,11 @@ function comptoir_note_livraison() {
 	}
 	if ( $franco > 1 ) {
 		return sprintf(
-			'%s DH de livraison, partout — offerte dès le deuxième parfum.',
+			'%s DH de livraison — offerte dès le deuxième parfum.',
 			comptoir_prix_format( $frais )
 		);
 	}
-	return comptoir_prix_format( $frais ) . ' DH de livraison, partout.';
+	return comptoir_prix_format( $frais ) . ' DH de livraison.';
 }
 
 /**
@@ -99,9 +156,12 @@ function comptoir_note_franco( $classe = '' ) {
 		. '<svg viewBox="0 0 24 24" aria-hidden="true">'
 		. '<path d="M1.5 16.5V6.5h12v10M13.5 9.5h4l3 3.5v3.5h-7"/>'
 		. '<circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>'
-		. '<span><b>Livraison offerte dès le deuxième parfum.</b> '
+		. '<span><b>%s</b> '
 		. 'Sinon %s DH, partout au Maroc.</span></p>',
 		$classe ? ' ' . esc_attr( $classe ) : '',
+		esc_html( comptoir_remise_duo_dh() > 0
+			? sprintf( 'Dès le deuxième parfum : livraison offerte et %s DH de remise.', comptoir_prix_format( comptoir_remise_duo_dh() ) )
+			: 'Livraison offerte dès le deuxième parfum.' ),
 		esc_html( comptoir_prix_format( $frais ) )
 	);
 }
@@ -166,12 +226,11 @@ function comptoir_mesure() {
  * Reglages Meta Conversions API (CAPI). Vide = aucun envoi, comme les autres
  * identifiants ci-dessus.
  *
- * C'est le doublon serveur du Pixel, pour l'achat que le pixel seul rate
- * souvent : bloqueur de pub, Safari qui coupe les cookies tiers, ou l'appli
- * WhatsApp qui tue l'onglet avant que fbq n'ait fini de partir. WordPress
- * renvoie le meme achat depuis le serveur, avec la meme reference de
- * commande comme event_id (voir comptoir_capi_achat) : Meta reconnait le
- * doublon et ne le compte qu'une fois.
+ * Deux evenements partent du serveur : le Lead a l'envoi de la commande,
+ * doublon de celui du navigateur (meme reference de commande en event_id :
+ * Meta ne le compte qu'une fois, voir comptoir_capi_lead), et l'achat, a la
+ * livraison seulement (comptoir_capi_livraison) — en paiement a la
+ * livraison, c'est la que la vente a lieu.
  *
  *   pixel_id : identifiant du Pixel deja pose par WordPress.com — Gestionnaire
  *              d'evenements Meta > cette source de donnees, en haut de la page.
@@ -192,8 +251,52 @@ function comptoir_capi() {
 }
 
 /**
+ * Vrai sur le site en ligne, et lui seul. Des evenements arrivaient dans le
+ * Pixel depuis http://localhost/ : une copie locale ou de recette mesurait
+ * comme le vrai site. Hors de comptoirparfums.com, le pixel navigateur n'est
+ * pas pose et la CAPI n'envoie rien, sauf avec un code de test (Reglages >
+ * Suivi Meta), qui range les evenements dans l'onglet « Tester les
+ * evenements » sans les compter.
+ */
+function comptoir_est_production() {
+	$hote = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+	return 'comptoirparfums.com' === $hote || 'www.comptoirparfums.com' === $hote;
+}
+
+/**
+ * Quand l'achat (Purchase) part-il ? Decoche (par defaut) : a l'envoi du
+ * formulaire, comme avant. Coche (Reglages > Suivi Meta) : a la livraison
+ * seulement, l'envoi ne donnant plus qu'un Lead. A cocher le jour ou la
+ * campagne cesse d'optimiser sur l'achat : avant, elle perdrait d'un coup
+ * l'evenement sur lequel elle apprend.
+ */
+function comptoir_achat_a_la_livraison() {
+	return '1' === (string) get_option( 'comptoir_achat_livraison', '' );
+}
+
+/**
+ * Un robot, d'apres son user-agent : moteurs, aspirateurs, outils de mesure
+ * de vitesse, navigateurs sans tete, scripts. Rien ne part a Meta pour lui
+ * (le formulaire de commande peut etre poste par un script). Les navigateurs
+ * integres de Facebook et d'Instagram (FBAN, FBAV, Instagram) ne sont pas
+ * des robots ; facebookexternalhit, l'apercu de lien de Meta, en est un.
+ */
+function comptoir_ua_robot( $ua ) {
+	$ua = (string) $ua;
+	if ( '' === trim( $ua ) ) {
+		return true;
+	}
+	return (bool) preg_match( '/bot\b|bot\/|crawl|spider|slurp|headless|python|curl|wget|lighthouse|pagespeed|gtmetrix|pingdom|uptime|facebookexternalhit|httpclient|go-http|okhttp|axios|node-fetch|scrapy|phantom|selenium|puppeteer|playwright/i', $ua );
+}
+
+/** La CAPI peut-elle partir d'ici : en ligne, ou ailleurs avec un code de test. */
+function comptoir_capi_permise( $reglages ) {
+	return comptoir_est_production() || '' !== (string) $reglages['test'];
+}
+
+/**
  * Le jeton d'acces CAPI, par ordre de preference : la constante si elle
- * existe, sinon l'option de la base. Vide = comptoir_capi_achat() ressort
+ * existe, sinon l'option de la base. Vide = comptoir_capi_envoie() ressort
  * sans rien envoyer, exactement comme avant que la CAPI soit activee.
  */
 function comptoir_capi_jeton() {
@@ -261,6 +364,11 @@ function comptoir_page_suivi_meta() {
 			} else {
 				delete_option( 'comptoir_capi_test' );
 			}
+			if ( ! empty( $_POST['achat_livraison'] ) ) {
+				update_option( 'comptoir_achat_livraison', '1', false );
+			} else {
+				delete_option( 'comptoir_achat_livraison' );
+			}
 			$avis = 'Reglages enregistres.';
 		}
 	}
@@ -296,6 +404,11 @@ function comptoir_page_suivi_meta() {
 	echo '<tr><th scope="row"><label for="cp-test">Code de test</label></th><td>';
 	echo '<input type="text" id="cp-test" name="test" value="' . esc_attr( $test ) . '" class="regular-text" autocomplete="off" spellcheck="false">';
 	echo '<p class="description">Onglet Tester les evenements. A retirer une fois la verification faite, sinon les achats restent dans le test et ne comptent pas.</p>';
+	echo '</td></tr>';
+
+	echo '<tr><th scope="row">Moment de l\'achat</th><td>';
+	echo '<label><input type="checkbox" name="achat_livraison" value="1"' . checked( comptoir_achat_a_la_livraison(), true, false ) . '> Compter l\'achat a la livraison</label>';
+	echo '<p class="description">Decoche : l\'achat part a l\'envoi du formulaire (navigateur et serveur). Coche : l\'envoi ne donne qu\'un Lead, et l\'achat part une fois, quand la commande passe a « Livree ». <strong>Avant de cocher, changer l\'evenement d\'optimisation de la campagne Meta</strong>, qui apprend aujourd\'hui sur l\'achat. Ne vaut que pour les commandes passees apres le changement.</p>';
 	echo '</td></tr>';
 
 	echo '</tbody></table>';
@@ -400,6 +513,20 @@ add_filter( 'template_include', function ( $template ) {
 }, 99 );
 
 /**
+ * Fiches retirees du catalogue : leur photo n'etait pas presentable et ne
+ * pouvait pas etre reprise (3.9.0). L'ancienne adresse renvoie vers le parfum
+ * le plus proche plutot que vers « Parfum introuvable » : un lien deja
+ * partage, ou deja connu de Google, mene encore a un flacon a commander.
+ * Six des sept sont revenues en 3.9.2 avec une nouvelle photo ; une fiche
+ * remise dans produits.php doit sortir de cette liste.
+ */
+function comptoir_parfums_retires() {
+	return array(
+		'rabanne--1-million' => 'rabanne--1-million-parfum',
+	);
+}
+
+/**
  * Statut HTTP des gabarits sur-mesure.
  *
  * Un slug inconnu doit repondre 404, sinon Google indexe autant de pages
@@ -410,6 +537,15 @@ add_filter( 'template_include', function ( $template ) {
 add_action( 'template_redirect', function () {
 	$slug = comptoir_parfum_slug_demande();
 	if ( $slug ) {
+		$retires = comptoir_parfums_retires();
+		if ( isset( $retires[ $slug ] ) && comptoir_produit_by_slug( $retires[ $slug ] ) ) {
+			$cible = comptoir_parfum_url( $retires[ $slug ] );
+			if ( isset( $_GET['lang'] ) && 'ar' === $_GET['lang'] ) {
+				$cible = add_query_arg( 'lang', 'ar', $cible );
+			}
+			wp_safe_redirect( $cible, 301 );
+			exit;
+		}
 		if ( comptoir_produit_by_slug( $slug ) ) {
 			status_header( 200 );
 			global $wp_query;
@@ -444,6 +580,40 @@ function comptoir_retire_bulle_ia() {
 add_action( 'wp_enqueue_scripts', 'comptoir_retire_bulle_ia', 999 );
 add_action( 'wp_footer', 'comptoir_retire_bulle_ia', 1 );
 
+/*
+ * Emojis de WordPress : un script de detection, sa configuration et une
+ * feuille de style poses sur chaque page, pour dessiner les emojis sur les
+ * navigateurs qui ne savent pas le faire. Les telephones de la clientele
+ * les affichent tous nativement ; c'etait du travail a l'ouverture de
+ * chaque page pour rien.
+ */
+add_action( 'init', function () {
+	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+	remove_action( 'embed_head', 'print_emoji_detection_script' );
+	remove_action( 'wp_enqueue_scripts', 'wp_enqueue_emoji_styles' );
+	remove_action( 'wp_print_styles', 'print_emoji_styles' );
+	remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
+	remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
+	remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+	add_filter( 'emoji_svg_url', '__return_false' );
+} );
+
+/*
+ * Statistiques Jetpack : le fichier stats.wp.com part apres le premier geste
+ * du visiteur (ou 1,5 s apres le chargement), comme le pixel Meta et Clarity
+ * (Comptoir SEO, cseoPlusTard). Seule la balise du fichier change : la file
+ * _stq, posee juste avant, garde la vue de page et l'envoie a l'arrivee du
+ * fichier. Sans Comptoir SEO, le fichier part tout de suite.
+ */
+add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
+	if ( is_admin() || 'jetpack-stats' !== $handle || ! $src ) {
+		return $tag;
+	}
+	$plus_tard = '<script id="jetpack-stats-js">(window.cseoPlusTard||function(f){f()})(function(){var s=document.createElement("script");s.src=' . wp_json_encode( $src ) . ';s.defer=true;(document.head||document.documentElement).appendChild(s);});</script>';
+	$nouveau   = preg_replace( '#<script\b[^>]*\bsrc=(["\'])' . preg_quote( $src, '#' ) . '\1[^>]*>\s*</script>#', $plus_tard, $tag, 1 );
+	return is_string( $nouveau ) ? $nouveau : $tag;
+}, 20, 3 );
+
 // Classes <body> — servent au CSS et aux scripts pour reconnaitre le gabarit.
 add_filter( 'body_class', function ( $classes ) {
 	if ( comptoir_parfum_slug_demande() || comptoir_vente_demande() ) {
@@ -463,6 +633,20 @@ add_filter( 'body_class', function ( $classes ) {
 	}
 	return $classes;
 } );
+
+/**
+ * Verification Google Search Console. C'est Site Kit qui la posait ; le
+ * theme la reprend pour que Site Kit puisse etre desactive (sa balise Google
+ * pesait 178 Kio sur chaque page) sans que la propriete Search Console perde
+ * sa verification. Tant que Site Kit est actif, il la pose lui-meme : pas de
+ * doublon. Valeur publique, lisible dans le code de chaque page.
+ */
+add_action( 'wp_head', function () {
+	if ( defined( 'GOOGLESITEKIT_VERSION' ) ) {
+		return;
+	}
+	echo '<meta name="google-site-verification" content="gYE7mbuwc_Ki8aPw2PBGusYBGFdGrsXPhMcTc__HleU">' . "\n";
+}, 1 );
 
 /**
  * Balises de mesure dans <head>. Rien n'est imprime tant que comptoir_mesure()
@@ -490,30 +674,49 @@ add_action( 'wp_head', function () {
 			esc_attr( $id )
 		);
 	}
+}, 5 );
 
-	// Le Pixel navigateur : sans lui window.fbq n'existe jamais, et
-	// AddToCart / InitiateCheckout / Lead / Purchase dans panier.js et
-	// commande.js (mesure()) restent des appels dans le vide, silencieux
-	// par conception. C'est aussi lui qui pose les cookies _fbp / _fbc que
-	// comptoir_capi_achat() relit pour le doublon serveur — sans lui, ce
-	// doublon part avec un appariement plus faible. Meme pixel_id que
-	// comptoir_capi(), une seule source pour les deux.
+/**
+ * Le Pixel navigateur : sans lui window.fbq n'existe jamais, et
+ * AddToCart / InitiateCheckout / Lead / Purchase dans panier.js et
+ * commande.js (mesure()) restent des appels dans le vide, silencieux
+ * par conception. C'est aussi lui qui pose le cookie _fbp que
+ * comptoir_capi_ids_requete() relit pour le doublon serveur — sans lui, ce
+ * doublon part avec un appariement plus faible. Meme pixel_id que
+ * comptoir_capi(), une seule source pour les deux.
+ * Sur le site en ligne seulement (comptoir_est_production), et verifie
+ * une seconde fois dans le navigateur : une copie servie sous un autre
+ * nom (localhost, recette) ne doit jamais mesurer pour le vrai site.
+ * Priorite 1 et data-jetpack-boost="ignore" : le code de base part en
+ * tete de <head>, avant tout le reste. Imprime en priorite 5 sans cet
+ * attribut, il etait repousse par Jetpack Boost vers 90 % du HTML, et
+ * Comptoir SEO (avant 1.5.1) attendait en plus le premier geste : qui
+ * repartait vite n'etait jamais compte. Chargement asynchrone standard
+ * de Meta, une seule fois sur toutes les pages.
+ * Le cookie _fbc (le clic publicitaire) est pose ICI, des la premiere
+ * ligne de la page. Un nouveau clic remplace l'ancien (fbclid different),
+ * sur le domaine comme le fait Meta ; l'ancien cookie limite a l'hote,
+ * pose par panier.js jusqu'ici, est efface : il passait avant le bon.
+ * PageView porte un eventID : un doublon serveur qui le reprend est
+ * deduplique par Meta. Plus d'image <noscript> : elle seule faisait
+ * compter une vue a un robot sans JavaScript (moins de 0,1 % de vrais
+ * visiteurs sans JavaScript).
+ */
+add_action( 'wp_head', function () {
 	$capi = comptoir_capi();
-	if ( ! empty( $capi['pixel_id'] ) ) {
+	if ( ! empty( $capi['pixel_id'] ) && comptoir_est_production() ) {
 		$id = preg_replace( '/[^0-9]/', '', $capi['pixel_id'] );
 		printf(
-			'<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' .
+			'<script data-jetpack-boost="ignore">(function(){try{var q=location.search;if(/[?&]cp_test=1/.test(q)){document.cookie="cp_test=1;path=/;max-age=31536000;SameSite=Lax";}else if(/[?&]cp_test=0/.test(q)){document.cookie="cp_test=;path=/;max-age=0;SameSite=Lax";}var fq=q.match(/[?&]fbclid=([^&#]+)/);if(fq){var fc=document.cookie.match(/(?:^|; )_fbc=([^;]+)/);if(!fc||fc[1].split(".").slice(3).join(".")!==fq[1]){document.cookie="_fbc=;path=/;max-age=0";document.cookie="_fbc=fb.1."+Date.now()+"."+fq[1]+";path=/;max-age=7776000;SameSite=Lax;domain=."+location.hostname.replace(/^www\./,"");}}var m=document.cookie.match(/(?:^|; )cp_vid=([a-f0-9]{64})/),v=m?m[1]:"";if(!v){try{v=localStorage.getItem("cp_vid")||"";}catch(e){}}if(!/^[a-f0-9]{64}$/.test(v)){var a=new Uint8Array(32);(window.crypto||window.msCrypto).getRandomValues(a);v="";for(var i=0;i<a.length;i++){v+=(a[i]<16?"0":"")+a[i].toString(16);}}try{localStorage.setItem("cp_vid",v);}catch(e){}document.cookie="cp_vid="+v+";path=/;max-age=63072000;SameSite=Lax";window.cpVid=v;}catch(e){}})();if(document.cookie.indexOf("cp_test=1")<0&&/(^|\.)comptoirparfums\.com$/.test(location.hostname)){!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' .
 			'n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;' .
 			'n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;' .
 			't.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}' .
 			'(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");' .
-			'fbq("init","%1$s");fbq("track","PageView");</script>' .
-			'<noscript><img height="1" width="1" style="display:none" alt=""' .
-			' src="https://www.facebook.com/tr?id=%1$s&amp;ev=PageView&amp;noscript=1"></noscript>',
+			'fbq("init","%1$s",window.cpVid?{external_id:window.cpVid}:{});fbq("track","PageView",{},{eventID:"pv."+(window.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2))});}</script>',
 			esc_attr( $id )
 		);
 	}
-}, 5 );
+}, 1 );
 
 /* ══════════════════════════════════════════════════════════════
    REGISTRE DES COMMANDES
@@ -550,13 +753,14 @@ function comptoir_coupe( $s, $max ) {
 
 /** Depot d'une commande. Repond toujours en JSON, ne fait jamais echouer la vente. */
 function comptoir_recoit_commande() {
-	// Garde-fou anti-flood : un visiteur ne depose pas dix commandes a l'heure.
+	// Garde-fou anti-flood, par adresse IP. Au Maroc, un operateur mobile fait
+	// sortir beaucoup de telephones par la meme adresse : la limite est large
+	// (30 a l'heure) et ne compte que les commandes enregistrees, pas un
+	// formulaire refuse puis corrige.
 	$cle = 'cp_cmd_' . md5( isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '' );
-	$vus = (int) get_transient( $cle );
-	if ( $vus >= 10 ) {
+	if ( (int) get_transient( $cle ) >= 30 ) {
 		wp_send_json_error( 'trop de depots', 429 );
 	}
-	set_transient( $cle, $vus + 1, HOUR_IN_SECONDS );
 
 	// Le jeton ne REJETTE pas : sur un hebergement qui met les pages en cache,
 	// il arrive perime chez un vrai client, et perdre sa commande couterait
@@ -598,7 +802,7 @@ function comptoir_recoit_commande() {
 			}
 		}
 	}
-	if ( ! is_array( $lignes ) || ! count( $lignes ) || count( $lignes ) > count( comptoir_produits() ) ) {
+	if ( ! is_array( $lignes ) || ! count( $lignes ) || count( $lignes ) > count( comptoir_produits() ) + count( comptoir_offres() ) ) {
 		wp_send_json_error( 'panier', 400 );
 	}
 	$articles = 0;
@@ -608,15 +812,22 @@ function comptoir_recoit_commande() {
 		if ( ! is_array( $ligne ) || ! isset( $ligne['s'], $ligne['q'] ) || ! is_string( $ligne['s'] ) || ! is_int( $ligne['q'] ) || $ligne['q'] < 1 || $ligne['q'] > 999 ) {
 			wp_send_json_error( 'panier', 400 );
 		}
-		$p = comptoir_produit_by_slug( $ligne['s'] );
+		// Un parfum, ou une offre a prix fixe (un article, son propre prix).
+		$p = comptoir_article_by_slug( $ligne['s'] );
 		if ( ! $p ) { wp_send_json_error( 'produit', 400 ); }
 		$articles += $ligne['q'];
 		$total += comptoir_prix_entier( $p ) * $ligne['q'];
 		$resume[] = $ligne['q'] . '× ' . $p['b'] . ' ' . $p['n'] . ' (' . $p['s'] . ') — ' . $p['pr'];
 	}
 	$livraison = comptoir_franco_articles() > 0 && $articles >= comptoir_franco_articles() ? 0 : comptoir_livraison_dh();
-	$total += $livraison;
+	$remise    = comptoir_remise_duo( $articles );
+	$total     = max( 0, $total - $remise ) + $livraison;
 	$panier = implode( "\n", $resume );
+
+	// Identifiants de mesure lus ICI, dans la requete du client : l'achat ne
+	// part qu'a la livraison, des jours plus tard, depuis l'admin ou le
+	// livreur, sans les cookies ni le navigateur du client.
+	$ids_meta = comptoir_capi_ids_requete();
 
 	$id = wp_insert_post( array(
 		'post_type'    => 'cp_commande',
@@ -638,6 +849,7 @@ function comptoir_recoit_commande() {
 			'cp_adresse' => $champ( 'adresse', 400 ),
 			'cp_articles'  => $articles,
 			'cp_livraison' => $livraison,
+			'cp_remise'    => $remise,
 			'cp_total'   => $total,
 			'cp_etat'    => $jeton_ok ? 'a-rappeler' : 'a-verifier',
 			/* Provenance du visiteur. Elle n'entre dans aucun calcul : elle sert a
@@ -647,24 +859,40 @@ function comptoir_recoit_commande() {
 			'cp_utm_source'   => $champ( 'utm_source', 100 ),
 			'cp_utm_medium'   => $champ( 'utm_medium', 100 ),
 			'cp_utm_campaign' => $champ( 'utm_campaign', 200 ),
+			'cp_utm_content'  => $champ( 'utm_content', 100 ),
 			'cp_referent'     => esc_url_raw( $champ( 'referent', 400 ) ),
-			/* Identifiants Meta recus avec la commande. Ils partent deja a la
-			   CAPI ; on les garde ici pour savoir, commande par commande, si le
-			   clic publicitaire a survecu jusqu'a l'achat. La couverture que Meta
-			   publie donne un pourcentage, pas la liste. */
-			'cp_fbc'          => $champ( 'fbc', 255 ),
-			'cp_fbp'          => $champ( 'fbp', 100 ),
+			/* Identifiants Meta de la commande : ils servent au Lead envoye tout
+			   de suite et a l'achat envoye a la livraison (comptoir_capi_livraison).
+			   La colonne « Clic » de la liste dit aussi, commande par commande,
+			   si le clic publicitaire a survecu jusqu'a la commande. */
+			'cp_fbc'          => $ids_meta['fbc'],
+			'cp_fbp'          => $ids_meta['fbp'],
+			'cp_vid'          => $ids_meta['vid'],
+			'cp_ip'           => $ids_meta['ip'],
+			'cp_ua'           => $ids_meta['ua'],
+			/* Moment de l'achat Meta pour CETTE commande, fige a l'envoi :
+			   « livraison » (Reglages > Suivi Meta, coche) ou « envoi ». La
+			   livraison ne renvoie un achat que pour les premieres : pour les
+			   autres, il est deja compte. */
+			'cp_capi_mode'    => comptoir_achat_a_la_livraison() ? 'livraison' : 'envoi',
 		),
 	), true );
 
 	if ( is_wp_error( $id ) ) {
 		wp_send_json_error( 'enregistrement', 500 );
 	}
+	set_transient( $cle, (int) get_transient( $cle ) + 1, HOUR_IN_SECONDS );
+	// Commande de test (admin connecte, appareil en mode test, « test » dans
+	// les champs, numero de test) : notee, pour que la livraison n'envoie pas
+	// d'achat non plus — c'est alors l'admin qui change l'etat, pas le client.
+	if ( comptoir_commande_test( $id ) ) {
+		update_post_meta( $id, 'cp_test', 1 );
+	}
 
 	// Le client n'attend pas cette reponse (sendBeacon), le relais peut donc
 	// prendre son temps sans rien ralentir a l'ecran.
 	$feuille = comptoir_envoie_feuille( $id );
-	comptoir_capi_achat( $id, $lignes );
+	comptoir_capi_lead( $id, $lignes );
 	// Message WhatsApp « je confirme / annuler » (sans effet si le module n'est pas regle).
 	comptoir_wa_confirmation( $id );
 
@@ -742,96 +970,125 @@ function comptoir_envoie_feuille( $id ) {
 }
 
 /**
- * Evenement Purchase envoye au serveur Meta (Conversions API) juste apres
- * l'enregistrement de la commande. Le client n'attend pas cette reponse : la
- * vente est deja passee (WhatsApp s'ouvre de son cote), donc un echec ici ne
- * doit jamais se voir a l'ecran ni ralentir quoi que ce soit.
- *
- * @param int   $id     Post cp_commande deja enregistre.
- * @param array $lignes Lignes de la commande, telles que validees plus haut
- *                       (chacune avec 's' et 'q') — pour donner a Meta les
- *                       references achetees, utiles au ciblage dynamique.
+ * Commande de test : rien ne part vers Meta pour elle (ni l'achat serveur ici,
+ * ni Lead/Purchase cote navigateur, filtres dans panier.js > commandeTest()).
+ * C'est un test si : un administrateur connecte passe la commande ; l'appareil
+ * est en mode test (ouvrir comptoirparfums.com/?cp_test=1, annuler avec
+ * ?cp_test=0) ; le nom, la ville ou l'adresse contiennent « test » ; ou le
+ * numero fait partie des numeros de test ci-dessous.
+ * $requete a faux (livraison) : seules les donnees de la commande comptent.
+ * C'est alors l'admin ou le livreur qui change l'etat, pas le client — un
+ * admin connecte ne fait pas de la commande un test.
  */
-function comptoir_capi_achat( $id, $lignes ) {
-	$reglages = comptoir_capi();
-	if ( ! $reglages['pixel_id'] || ! $reglages['token'] ) {
+function comptoir_commande_test( $id = 0, $requete = true ) {
+	if ( $requete && function_exists( 'current_user_can' ) && current_user_can( 'manage_options' ) ) {
+		return true;
+	}
+	if ( $requete && isset( $_COOKIE['cp_test'] ) && '1' === $_COOKIE['cp_test'] ) {
+		return true;
+	}
+	if ( ! $id ) {
 		return false;
 	}
-
-	$tel = get_post_meta( $id, 'cp_tel', true );
-	$content_ids = array();
-	if ( is_array( $lignes ) ) {
-		foreach ( $lignes as $ligne ) {
-			if ( isset( $ligne['s'] ) ) {
-				$content_ids[] = $ligne['s'];
-			}
-		}
+	$texte = '';
+	foreach ( array( 'cp_nom', 'cp_ville', 'cp_adresse' ) as $cle ) {
+		$texte .= ' ' . (string) get_post_meta( $id, $cle, true );
 	}
+	if ( preg_match( '/\btest/i', $texte ) ) {
+		return true;
+	}
+	$tel = (string) get_post_meta( $id, 'cp_tel', true );
+	$numeros_test = array( '212661718238', '212600000000' );
+	if ( '' !== $tel && in_array( comptoir_capi_tel_e164( $tel ), $numeros_test, true ) ) {
+		return true;
+	}
+	return false;
+}
 
-	$user_data = array(
-		'client_ip_address' => isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '',
-		'client_user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+/**
+ * Les identifiants Meta du client, lus dans SA requete (l'envoi de la
+ * commande) : cookies _fbc / _fbp poses par le pixel ou par le theme, a
+ * defaut ceux que panier.js joint a la commande (navigateur integre
+ * d'Instagram, cookies bloques), plus l'identifiant visiteur cp_vid, l'IP et
+ * le navigateur. Ils sont gardes avec la commande : l'achat part a la
+ * livraison, sans le client en face.
+ */
+function comptoir_capi_ids_requete() {
+	$lit = function ( $source, $nom, $max ) {
+		return isset( $source[ $nom ] ) && is_string( $source[ $nom ] )
+			? comptoir_coupe( sanitize_text_field( wp_unslash( $source[ $nom ] ) ), $max )
+			: '';
+	};
+	$motif_fbc = '/^fb\.\d\.\d+\.[A-Za-z0-9_\-]+$/';
+	$fbc = $lit( $_COOKIE, '_fbc', 255 );
+	if ( ! preg_match( $motif_fbc, $fbc ) ) {
+		$fbc = $lit( $_POST, 'fbc', 255 );
+	}
+	$fbp = $lit( $_COOKIE, '_fbp', 100 );
+	if ( '' === $fbp ) {
+		$fbp = $lit( $_POST, 'fbp', 100 );
+	}
+	$vid = $lit( $_COOKIE, 'cp_vid', 64 );
+	return array(
+		'fbc' => preg_match( $motif_fbc, $fbc ) ? $fbc : '',
+		'fbp' => $fbp,
+		'vid' => preg_match( '/^[a-f0-9]{64}$/', $vid ) ? $vid : '',
+		'ip'  => $lit( $_SERVER, 'REMOTE_ADDR', 64 ),
+		'ua'  => $lit( $_SERVER, 'HTTP_USER_AGENT', 400 ),
 	);
-	if ( $tel ) {
-		$user_data['ph'] = array( hash( 'sha256', comptoir_capi_tel_e164( $tel ) ) );
-	}
-	// _fbp / _fbc : deposes par le Pixel Meta cote navigateur (WordPress.com),
-	// relus ici pour que le meme visiteur se recoupe des deux cotes.
-	if ( isset( $_COOKIE['_fbp'] ) ) {
-		$user_data['fbp'] = sanitize_text_field( wp_unslash( $_COOKIE['_fbp'] ) );
-	}
-	if ( isset( $_COOKIE['_fbc'] ) ) {
-		$user_data['fbc'] = sanitize_text_field( wp_unslash( $_COOKIE['_fbc'] ) );
-	}
-	// Filet de securite (ajout) : _fbc / _fbp transmis par panier.js avec la
-	// commande, quand le navigateur n'a pas envoye le cookie (in-app, ITP...).
-	if ( empty( $user_data['fbc'] ) && ! empty( $_POST['fbc'] ) ) {
-		$fbc_post = sanitize_text_field( wp_unslash( $_POST['fbc'] ) );
-		if ( preg_match( '/^fb\.\d\.\d+\.[A-Za-z0-9_\-]+$/', $fbc_post ) ) {
-			$user_data['fbc'] = $fbc_post;
-		}
-	}
-	if ( empty( $user_data['fbp'] ) && ! empty( $_POST['fbp'] ) ) {
-		$user_data['fbp'] = sanitize_text_field( wp_unslash( $_POST['fbp'] ) );
-	}
-	// Donnees d'appariement supplementaires (hachees) : prenom, ville, pays, id.
-	$cp_nom = isset( $_POST['nom'] ) ? sanitize_text_field( wp_unslash( $_POST['nom'] ) ) : '';
-	$cp_prenom = strtok( trim( $cp_nom ), ' ' );
-	if ( $cp_prenom ) {
-		$user_data['fn'] = array( hash( 'sha256', mb_strtolower( $cp_prenom, 'UTF-8' ) ) );
-	}
-	$cp_ville = isset( $_POST['ville'] ) ? sanitize_text_field( wp_unslash( $_POST['ville'] ) ) : '';
-	$cp_ville = preg_replace( '/[^a-z]/', '', strtolower( remove_accents( $cp_ville ) ) );
-	if ( $cp_ville ) {
-		$user_data['ct'] = array( hash( 'sha256', $cp_ville ) );
-	}
-	$user_data['country'] = array( hash( 'sha256', 'ma' ) );
-	$user_data['external_id'] = array( hash( 'sha256', 'cp-' . (string) $id ) );
+}
 
-	$evenement = array(
-		'event_name'       => 'Purchase',
-		'event_time'       => time(),
-		// Meme reference que l'event_id du pixel navigateur (commande.js) :
-		// c'est ce rapprochement qui evite de compter l'achat deux fois.
-		'event_id'         => get_post_meta( $id, 'cp_ref', true ),
-		'action_source'    => 'website',
-		'event_source_url' => home_url( '/?commander=1&merci=1' ),
-		'user_data'        => $user_data,
-		'custom_data'      => array(
-			'currency'     => 'MAD',
-			'value'        => (float) get_post_meta( $id, 'cp_total', true ),
-			'num_items'    => (int) get_post_meta( $id, 'cp_articles', true ),
-			'content_type' => 'product',
-			'content_ids'  => $content_ids,
-		),
+/**
+ * Les donnees client d'une commande, au format de Meta : telephone, prenom,
+ * ville et pays haches ; identifiants (numero de commande haché, cp_vid deja
+ * haché), fbc, fbp, IP et navigateur tels que gardes a l'envoi.
+ */
+function comptoir_capi_client( $id ) {
+	$meta = function ( $cle ) use ( $id ) {
+		return (string) get_post_meta( $id, $cle, true );
+	};
+	$client = array(
+		'client_ip_address' => $meta( 'cp_ip' ),
+		'client_user_agent' => $meta( 'cp_ua' ),
+		'country'           => array( hash( 'sha256', 'ma' ) ),
+		'external_id'       => array( hash( 'sha256', 'cp-' . (string) $id ) ),
+		'fbc'               => $meta( 'cp_fbc' ),
+		'fbp'               => $meta( 'cp_fbp' ),
 	);
+	if ( '' !== $meta( 'cp_tel' ) ) {
+		$client['ph'] = array( hash( 'sha256', comptoir_capi_tel_e164( $meta( 'cp_tel' ) ) ) );
+	}
+	$prenom = strtok( trim( $meta( 'cp_nom' ) ), ' ' );
+	if ( $prenom ) {
+		$client['fn'] = array( hash( 'sha256', mb_strtolower( $prenom, 'UTF-8' ) ) );
+	}
+	$ville = preg_replace( '/[^a-z]/', '', strtolower( remove_accents( $meta( 'cp_ville' ) ) ) );
+	if ( $ville ) {
+		$client['ct'] = array( hash( 'sha256', $ville ) );
+	}
+	if ( preg_match( '/^[a-f0-9]{64}$/', $meta( 'cp_vid' ) ) ) {
+		$client['external_id'][] = $meta( 'cp_vid' );
+	}
+	return array_filter( $client );
+}
 
+/**
+ * Un evenement vers la Conversions API. Jamais au detriment de la commande :
+ * un echec ne se voit pas a l'ecran. Bloquant seulement quand on veut lire
+ * la reponse (l'achat a la livraison, qui ne doit partir qu'une fois).
+ *
+ * @return bool|array|WP_Error Faux si rien n'est parti.
+ */
+function comptoir_capi_envoie( $evenement, $bloquant = false ) {
+	$reglages = comptoir_capi();
+	if ( ! $reglages['pixel_id'] || ! $reglages['token'] || ! comptoir_capi_permise( $reglages ) ) {
+		return false;
+	}
 	$corps = array( 'data' => array( $evenement ) );
 	if ( $reglages['test'] ) {
 		$corps['test_event_code'] = $reglages['test'];
 	}
-
-	wp_remote_post(
+	return wp_remote_post(
 		sprintf(
 			'https://graph.facebook.com/v21.0/%s/events?access_token=%s',
 			rawurlencode( $reglages['pixel_id'] ),
@@ -839,13 +1096,141 @@ function comptoir_capi_achat( $id, $lignes ) {
 		),
 		array(
 			'timeout'  => 8,
-			'blocking' => false,
+			'blocking' => $bloquant,
 			'headers'  => array( 'Content-Type' => 'application/json' ),
 			'body'     => wp_json_encode( $corps ),
 		)
 	);
+}
+
+/** Les references (slugs) d'une commande, lues dans ses lignes. */
+function comptoir_capi_references( $id ) {
+	preg_match_all( '/\(([a-z0-9-]+)\) — /u', (string) get_post_field( 'post_content', $id ), $m );
+	return array_values( array_unique( $m[1] ) );
+}
+
+/**
+ * A l'envoi de la commande : le Lead, meme reference (event_id) que le Lead
+ * du navigateur (boutique.js, commande.js) — Meta ne le compte qu'une fois.
+ * Et l'achat, seulement si la commande est en mode « envoi » (reglage par
+ * defaut) : en mode « livraison », il part quand la commande est livree
+ * (comptoir_capi_livraison).
+ */
+function comptoir_capi_lead( $id, $lignes ) {
+	if ( get_post_meta( $id, 'cp_test', true ) || comptoir_ua_robot( get_post_meta( $id, 'cp_ua', true ) ) ) {
+		return false;
+	}
+	$refs = array();
+	foreach ( (array) $lignes as $ligne ) {
+		if ( isset( $ligne['s'] ) ) {
+			$refs[] = $ligne['s'];
+		}
+	}
+	// La page ou le formulaire a ete envoye : la fiche parfum (commande
+	// express) ou la page commande.
+	$page = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
+	if ( ! $page || wp_parse_url( $page, PHP_URL_HOST ) !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {
+		$page = home_url( '/?commander=1' );
+	}
+	$evenement = array(
+		'event_name'       => 'Lead',
+		'event_time'       => time(),
+		'event_id'         => (string) get_post_meta( $id, 'cp_ref', true ),
+		'action_source'    => 'website',
+		'event_source_url' => $page,
+		'user_data'        => comptoir_capi_client( $id ),
+		'custom_data'      => array(
+			'currency'     => 'MAD',
+			'value'        => (float) get_post_meta( $id, 'cp_total', true ),
+			'num_items'    => (int) get_post_meta( $id, 'cp_articles', true ),
+			'content_type' => 'product',
+			'content_ids'  => $refs,
+		),
+	);
+	$parti = comptoir_capi_envoie( $evenement );
+	if ( 'livraison' !== get_post_meta( $id, 'cp_capi_mode', true ) ) {
+		// Mode « envoi » : l'achat, comme avant, doublon de celui de la page
+		// merci (commande.js), meme reference.
+		$evenement['event_name']       = 'Purchase';
+		$evenement['event_source_url'] = home_url( '/?commander=1&merci=1' );
+		comptoir_capi_envoie( $evenement );
+	}
+	return $parti;
+}
+
+/**
+ * Purchase, une seule fois par commande, quand elle passe a « Livree » :
+ * en paiement a la livraison, c'est le moment ou elle est payee. Meta
+ * apprend ainsi sur les ventes reelles, pas sur des formulaires dont une
+ * partie ne sera jamais livree.
+ *
+ * Ne part pas pour : une commande d'avant ce changement (son achat a deja
+ * ete compte a l'envoi), une commande de test, une commande dont l'achat est
+ * deja parti — d'ici ou de Comptoir OzonExpress, qui envoie le sien a la
+ * livraison si sa CAPI est activee (meta _cox_capi).
+ */
+function comptoir_capi_livraison( $id ) {
+	if ( 'livraison' !== get_post_meta( $id, 'cp_capi_mode', true ) ) {
+		return false;
+	}
+	if ( get_post_meta( $id, 'cp_test', true ) || comptoir_commande_test( $id, false ) ) {
+		return false;
+	}
+	if ( get_post_meta( $id, 'cp_capi_achat', true ) || get_post_meta( $id, '_cox_capi', true ) ) {
+		return false;
+	}
+	$reglages = comptoir_capi();
+	if ( ! $reglages['pixel_id'] || ! $reglages['token'] || ! comptoir_capi_permise( $reglages ) ) {
+		return false;
+	}
+	// Marquee AVANT l'envoi : OzonExpress declenche son propre achat juste
+	// apres avoir change l'etape, dans la meme requete ; il le voit et s'abstient.
+	update_post_meta( $id, 'cp_capi_achat', time() );
+	update_post_meta( $id, '_cox_capi', time() );
+
+	$ref = (string) get_post_meta( $id, 'cp_ref', true );
+	$reponse = comptoir_capi_envoie( array(
+		'event_name'       => 'Purchase',
+		'event_time'       => time(),
+		'event_id'         => $ref,
+		'action_source'    => 'website',
+		'event_source_url' => home_url( '/?commander=1&merci=1' ),
+		'user_data'        => comptoir_capi_client( $id ),
+		'custom_data'      => array(
+			'currency'     => 'MAD',
+			'value'        => (float) get_post_meta( $id, 'cp_total', true ),
+			'num_items'    => (int) get_post_meta( $id, 'cp_articles', true ),
+			'content_type' => 'product',
+			'content_ids'  => comptoir_capi_references( $id ),
+			'order_id'     => $ref,
+		),
+	), true );
+
+	if ( is_wp_error( $reponse ) || ! $reponse || wp_remote_retrieve_response_code( $reponse ) >= 300 ) {
+		// Rien n'est parti : on retire les marques, OzonExpress (s'il est
+		// regle) ou un prochain passage a « Livree » pourront le faire.
+		$motif = is_wp_error( $reponse ) ? $reponse->get_error_message() : wp_remote_retrieve_body( $reponse );
+		delete_post_meta( $id, 'cp_capi_achat' );
+		delete_post_meta( $id, '_cox_capi' );
+		update_post_meta( $id, 'cp_capi_achat_erreur', comptoir_coupe( wp_strip_all_tags( (string) $motif ), 300 ) );
+		return false;
+	}
+	delete_post_meta( $id, 'cp_capi_achat_erreur' );
 	return true;
 }
+
+/**
+ * Declencheur de l'achat : l'etape de suivi (Comptoir Boutique, meta
+ * cpb_suivi) passe a « livree » — a la main dans l'admin, par le webhook du
+ * livreur ou par OzonExpress. added_ : premiere etape enregistree.
+ */
+function comptoir_capi_etape_suivi( $meta_id, $object_id, $meta_key, $meta_value ) {
+	if ( 'cpb_suivi' === $meta_key && 'livree' === $meta_value && 'cp_commande' === get_post_type( $object_id ) ) {
+		comptoir_capi_livraison( (int) $object_id );
+	}
+}
+add_action( 'added_post_meta', 'comptoir_capi_etape_suivi', 10, 4 );
+add_action( 'updated_post_meta', 'comptoir_capi_etape_suivi', 10, 4 );
 
 /**
  * Deuxieme chance, toutes les heures : les commandes que la feuille n'a pas
@@ -912,11 +1297,34 @@ add_action( 'manage_cp_commande_posts_custom_column', function ( $col, $id ) {
 		echo esc_html( get_post_meta( $id, 'cp_etat', true ) );
 	}
 	if ( 'cp_source' === $col ) {
-		$fbclid = get_post_meta( $id, 'cp_fbclid', true );
-		$utm    = get_post_meta( $id, 'cp_utm_source', true );
-		$ref    = get_post_meta( $id, 'cp_referent', true );
-		if ( $fbclid ) {
+		$fbclid  = get_post_meta( $id, 'cp_fbclid', true );
+		$utm     = get_post_meta( $id, 'cp_utm_source', true );
+		$support = strtolower( (string) get_post_meta( $id, 'cp_utm_medium', true ) );
+		$contenu = strtolower( (string) get_post_meta( $id, 'cp_utm_content', true ) );
+		$ref     = get_post_meta( $id, 'cp_referent', true );
+		/* Les UTM passent avant le fbclid : Instagram ajoute lui-meme un fbclid
+		   a tout lien sortant, lien de la bio compris
+		   (?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=...).
+		   Un fbclid sans utm_medium=social reste une publicite. Les pubs Meta
+		   portent utm_medium=paid et utm_content={{ad.name}} : on affiche le nom
+		   de la pub, pour savoir quelle creation a vendu, meme si le fbclid
+		   s'est perdu en route. */
+		if ( 'social' === $support && $utm ) {
+			$reseau = strtolower( $utm );
+			if ( in_array( $reseau, array( 'ig', 'instagram' ), true ) ) {
+				$libelle = 'link_in_bio' === $contenu ? __( 'Instagram (bio)', 'comptoir-parfums' ) : __( 'Instagram', 'comptoir-parfums' );
+			} elseif ( in_array( $reseau, array( 'fb', 'facebook' ), true ) ) {
+				$libelle = __( 'Facebook', 'comptoir-parfums' );
+			} else {
+				$libelle = $utm;
+			}
+			echo esc_html( $libelle );
+		} elseif ( $fbclid || 'paid' === $support ) {
+			$pub = get_post_meta( $id, 'cp_utm_content', true );
 			echo esc_html__( 'Publicité', 'comptoir-parfums' );
+			if ( $pub ) {
+				echo '<br><small>' . esc_html( $pub ) . '</small>';
+			}
 		} elseif ( $utm ) {
 			echo esc_html( $utm );
 		} elseif ( $ref ) {
@@ -991,15 +1399,24 @@ function comptoir_parfums_assets() {
 	wp_enqueue_style( 'comptoir-site', $dir . '/style-site.css', array( 'comptoir-parfums-style' ), $ver_css );
 
 	// Bibliotheques d'animation — memes versions que la maquette de reference.
-	wp_enqueue_script( 'cp-gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js', array(), '3.12.5', true );
-	wp_enqueue_script( 'cp-scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js', array( 'cp-gsap' ), '3.12.5', true );
+	// Sur l'accueil seulement : c'est la seule page mise en scene. La fiche
+	// parfum, la page commande et la page vente, ou arrivent les clics
+	// publicitaires, n'animaient presque rien et payaient quand meme deux
+	// requetes CDN et leur execution sur des telephones d'entree de gamme.
+	// Sans GSAP, theme.js passe en fallbackMode() : en-tete, menu, ancres et
+	// apparitions fonctionnent sans bibliotheque.
+	$cp_anime = comptoir_est_accueil();
+	if ( $cp_anime ) {
+		wp_enqueue_script( 'cp-gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js', array(), '3.12.5', true );
+		wp_enqueue_script( 'cp-scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js', array( 'cp-gsap' ), '3.12.5', true );
+	}
 
 	// three.js ne sert QUE au flacon 3D et a la vitrine du heros, donc a la
 	// seule page d'accueil : le bloc WebGL de theme.js sort immediatement si
 	// #flacon3d est absent. Le charger partout ajoutait 600 Ko inutiles a
 	// chaque fiche parfum, a la page commande et a la page 404 — cher pour
 	// une clientele majoritairement en 4G.
-	$deps_theme = array( 'cp-gsap', 'cp-scrolltrigger', 'comptoir-panier' );
+	$deps_theme = $cp_anime ? array( 'cp-gsap', 'cp-scrolltrigger', 'comptoir-panier' ) : array( 'comptoir-panier' );
 	// Sur telephone (97 % des visites, surtout en 4G), three.js (600 Ko) et la
 	// vitrine ne sont PLUS telecharges : le heros garde l'apercu photo, prevu
 	// comme repli (theme.js teste window.THREE et window.CP_VITRINE). Sur
@@ -1045,24 +1462,28 @@ function comptoir_parfums_assets() {
 	// evenements standards (avec AddToCart, InitiateCheckout, Lead, Purchase)
 	// jamais code, ni cote pixel ni cote CAPI. Meme forme de donnees que
 	// AddToCart dans panier.js, pour que le catalogue Meta rapproche les
-	// deux. 'after' : le code doit s'executer une fois panier.js charge,
-	// sinon window.Panier n'existe pas encore.
+	// deux. Le code doit s'executer une fois panier.js charge, sinon
+	// window.Panier n'existe pas encore. 3.9.8 : il attend DOMContentLoaded,
+	// imprime en pied de page, au lieu d'etre accroche 'after' a panier.js :
+	// WordPress refuse de differer un script suivi d'un tel code, et panier.js
+	// (avec tout ce qui en depend) restait bloquant sur la fiche. Les scripts
+	// differes s'executent avant DOMContentLoaded : meme evenement, meme
+	// identifiant (vc.*), envoye au meme chargement.
 	$cp_vc_slug = comptoir_parfum_slug_demande();
-	if ( $cp_vc_slug ) {
-		$cp_vc_p = comptoir_produit_by_slug( $cp_vc_slug );
-		if ( $cp_vc_p ) {
-			wp_add_inline_script(
-				'comptoir-panier',
-				'window.Panier && window.Panier.mesure("ViewContent",' . wp_json_encode( array(
-					'content_ids'   => array( $cp_vc_p['s'] ),
-					'content_type'  => 'product',
-					'content_name'  => $cp_vc_p['b'] . ' ' . $cp_vc_p['n'],
-					'value'         => comptoir_prix_entier( $cp_vc_p ),
-					'currency'      => 'MAD',
-				) ) . ');',
-				'after'
-			);
-		}
+	// La page vente ouverte sur un parfum ou une offre (?vente=1&p=) montre
+	// elle aussi UN article a acheter : meme ViewContent que la fiche.
+	$cp_vc_p = $cp_vc_slug ? comptoir_produit_by_slug( $cp_vc_slug ) : ( comptoir_vente_demande() ? comptoir_vente_vedette() : null );
+	if ( $cp_vc_p ) {
+		$cp_vc_js = 'window.Panier && window.Panier.mesure("ViewContent",' . wp_json_encode( array(
+			'content_ids'   => array( $cp_vc_p['s'] ),
+			'content_type'  => 'product',
+			'content_name'  => $cp_vc_p['b'] . ' ' . $cp_vc_p['n'],
+			'value'         => comptoir_prix_entier( $cp_vc_p ),
+			'currency'      => 'MAD',
+		) ) . ',window.Panier.idEvenement?window.Panier.idEvenement("vc"):"");';
+		add_action( 'wp_footer', function () use ( $cp_vc_js ) {
+			echo '<script id="cp-viewcontent">(function(){function f(){' . $cp_vc_js . '}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",f);}else{f();}})();</script>' . "\n";
+		}, 100 );
 	}
 
 	// Script du site — MEME fichier que celui charge par la maquette.
@@ -1084,7 +1505,11 @@ function comptoir_parfums_assets() {
 	// ligne cote navigateur (panier.js le fait, comme produits.js cote
 	// maquette) : l'envoyer aussi doublait la charge utile, 135 Ko au lieu de
 	// 66 sur chaque page.
-	$produits = comptoir_produits();
+	// Les offres a prix fixe suivent le catalogue, marquees o:1 : le panier
+	// doit les connaitre sur toutes les pages (un panier se garde d'une page
+	// a l'autre), mais theme.js, panier.js et Comptoir Boutique les sortent
+	// de la grille, des suggestions et de la recherche.
+	$produits = array_merge( comptoir_produits(), comptoir_offres() );
 
 	$cfg = array(
 		'ajax'      => admin_url( 'admin-ajax.php' ),
@@ -1092,11 +1517,18 @@ function comptoir_parfums_assets() {
 		'feuille'   => comptoir_feuille_google(),
 		'wa'        => comptoir_wa_numero(),
 		'livraison' => comptoir_livraison_dh(),
+		'remise'    => comptoir_remise_duo_dh(),
 		'franco'    => comptoir_franco_articles(),
 		'commander' => home_url( '/?commander=1' ),
 		'home'      => home_url( '/' ),
 		'imgBase'   => $dir . '/img/produits/',
 		'imgVer'    => comptoir_version_photos(),
+		// Largeurs reduites presentes (img/produits/360/, 480/) : Comptoir
+		// Boutique ne pose son srcset que si le theme les annonce ici.
+		'imgLarg'   => is_dir( $abs . '/img/produits/' . comptoir_photo_largeurs()[0] ) ? comptoir_photo_largeurs() : array(),
+		// Moment de l'achat Meta (Reglages > Suivi Meta) : la page merci ne
+		// compte l'achat que si ce n'est pas a la livraison.
+		'achatLivraison' => comptoir_achat_a_la_livraison(),
 	);
 
 	wp_add_inline_script(
@@ -1112,6 +1544,201 @@ function comptoir_parfums_assets() {
 add_action( 'wp_enqueue_scripts', 'comptoir_parfums_assets' );
 
 /**
+ * Fiche parfum, page commande et page vente : la feuille du theme bloque le
+ * premier affichage au lieu d'arriver apres lui. Ces trois pages sont servies
+ * depuis l'accueil (?parfum=, ?commander=1, ?vente=1) et Jetpack Boost leur
+ * donne donc le CSS critique de l'accueil, qui ne connait ni .pf-* ni .ck-* :
+ * la page s'affichait sans sa mise en page puis sautait en entier a
+ * l'arrivee de la feuille (CLS 0,33 a 0,48 sur la fiche, mesure PageSpeed).
+ * 35 Ko compresses, en cache un an. Filtre documente par Boost : toute autre
+ * valeur que 'async' ou 'deferred' laisse le chargement normal. Le groupe vise
+ * est celui qui contient comptoir-site (Boost passe les poignees concatenees,
+ * separees par des virgules) ; l'accueil garde son CSS critique.
+ * 3.9.13 : sur la fiche et la page commande, la feuille repart en asynchrone,
+ * mais seulement quand comptoir_css_critique() a imprime leur propre CSS du
+ * premier ecran. La page vente garde la feuille bloquante.
+ */
+add_filter( 'jetpack_boost_async_style', function ( $methode, $poignees ) {
+	if ( ! comptoir_parfum_slug_demande() && ! comptoir_commander_demande() && ! comptoir_vente_demande() ) {
+		return $methode;
+	}
+	if ( ! in_array( 'comptoir-site', array_map( 'trim', explode( ',', (string) $poignees ) ), true ) ) {
+		return $methode;
+	}
+	return '' !== comptoir_css_critique() ? 'async' : false;
+}, 10, 2 );
+
+/**
+ * 3.9.13 : le CSS du premier ecran de la fiche parfum et de la page commande,
+ * imprime dans le <head>. Avec lui, la feuille complete (35 Ko compresses)
+ * n'a plus besoin de bloquer l'affichage : le premier rendu attendait un
+ * aller-retour reseau de plus pour elle.
+ *
+ * css-critique/fiche.css et commande.css sont produits par
+ * outils/css-critique.js, qui ouvre les vraies pages (tailles d'ecran, clair
+ * et sombre, francais et arabe, formulaire express pose) et garde chaque
+ * regle qui touche le premier ecran, dans l'ordre de la feuille. Il verifie
+ * ensuite que la page rendue avec ce seul CSS a la meme mise en page qu'avec
+ * la feuille complete : sans cela, c'est le saut de mise en page d'avant la
+ * 3.9.5 qui revient.
+ *
+ * En tete de chaque fichier, l'empreinte SHA-1 des feuilles d'ou il vient.
+ * Si style-site.css ou boutique.css ont change depuis, rien n'est imprime et
+ * la feuille reste bloquante : une regle modifiee sans relancer l'outil ne
+ * peut pas faire sauter la page.
+ */
+function comptoir_css_critique() {
+	static $css = null;
+	if ( null !== $css ) {
+		return $css;
+	}
+	$css = '';
+	if ( '' !== comptoir_parfum_slug_demande() ) {
+		$nom = 'fiche';
+	} elseif ( comptoir_commander_demande() ) {
+		$nom = 'commande';
+	} else {
+		return $css;
+	}
+	$fichier = get_template_directory() . '/css-critique/' . $nom . '.css';
+	$texte   = is_readable( $fichier ) ? (string) file_get_contents( $fichier ) : '';
+	if ( ! preg_match( '#^/\* critique style-site\.css=([a-f0-9]{40}) boutique\.css=([a-f0-9]{40}) \*/#', $texte, $m ) ) {
+		return $css;
+	}
+	$sources = array(
+		get_template_directory() . '/style-site.css'        => $m[1],
+		WP_PLUGIN_DIR . '/comptoir-boutique/boutique.css' => $m[2],
+	);
+	foreach ( $sources as $chemin => $attendu ) {
+		if ( ! is_readable( $chemin ) || sha1_file( $chemin ) !== $attendu ) {
+			return $css;
+		}
+	}
+	$css = trim( substr( $texte, strlen( $m[0] ) ) );
+	if ( false !== stripos( $css, '</style' ) ) {
+		$css = '';
+	}
+	return $css;
+}
+
+/* Avant les feuilles (wp_print_styles, priorite 8) : le CSS du premier
+   ecran les precede dans la cascade, et la feuille complete, arrivee
+   ensuite, garde le dernier mot regle pour regle. */
+add_action( 'wp_head', function () {
+	$css = comptoir_css_critique();
+	if ( '' !== $css ) {
+		echo '<style id="cp-critique">' . $css . '</style>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSS du theme, sans </style.
+	}
+}, 7 );
+
+/**
+ * 3.9.11 : sur ces trois pages, le CSS critique de Jetpack Boost (celui de
+ * l'accueil, ~31 Ko, 7,7 Ko compresses) n'est plus imprime. La feuille du
+ * theme y bloque le premier affichage (filtre ci-dessus) : ce CSS ne servait
+ * plus a rien, sinon a alourdir la page et son analyse. Boost l'accroche a
+ * wp_head (priorite 0) pendant l'action 'wp' ; on retire ce seul crochet
+ * juste apres, en reconnaissant sa classe (Display_Critical_CSS). Le reste de
+ * Boost (chargement des autres feuilles) ne change pas.
+ */
+add_action( 'wp', function () {
+	if ( ! comptoir_parfum_slug_demande() && ! comptoir_commander_demande() && ! comptoir_vente_demande() ) {
+		return;
+	}
+	global $wp_filter;
+	if ( empty( $wp_filter['wp_head'] ) || empty( $wp_filter['wp_head']->callbacks[0] ) ) {
+		return;
+	}
+	foreach ( $wp_filter['wp_head']->callbacks[0] as $crochet ) {
+		$f = $crochet['function'];
+		if ( is_array( $f ) && is_object( $f[0] ) && 'display_critical_css' === $f[1]
+			&& 'Display_Critical_CSS' === substr( strrchr( '\\' . get_class( $f[0] ), '\\' ), 1 ) ) {
+			remove_action( 'wp_head', $f, 0 );
+		}
+	}
+}, 11 );
+
+/**
+ * Accueil : les scripts du site sont differes (defer). Jetpack Boost les met en
+ * bas de page, mais en scripts ordinaires, que PageSpeed comptait comme
+ * bloquant l'affichage (GSAP et ScrollTrigger sur cdnjs, theme.js, panier.js,
+ * langue.js, boutique.js : 110 Ko). defer garde leur ordre et les execute
+ * avant DOMContentLoaded : boutique.js et theme.js demarrent comme avant.
+ * WordPress refuse lui-meme de differer un script suivi d'un code qui en
+ * depend ('after') ou dont un dependant reste bloquant. Le chargeur de la
+ * vitrine (grand ecran) reste un script en ligne : three.js et vitrine.js
+ * passent toujours avant theme.js.
+ * 3.9.8 : meme chose sur la fiche parfum (langue, descriptions traduites,
+ * panier, theme, boutique), validee par la boutique ; la page commande ne
+ * change pas.
+ * 3.9.12 : la page commande aussi, commande.js compris. mesure.js (Comptoir
+ * Boutique, dependance de panier.js) y restait bloquant malgre sa strategie
+ * defer : WordPress ne differe pas un script dont un dependant est bloquant.
+ * commande.js lit le formulaire et l'ecran merci des son execution ; un
+ * script differe s'execute HTML entierement lu, dans l'ordre (mesure, panier,
+ * commande) : l'achat part au meme moment du parcours, depuis le meme ecran.
+ */
+function comptoir_scripts_differes() {
+	return comptoir_est_accueil() || '' !== comptoir_parfum_slug_demande() || comptoir_commander_demande();
+}
+add_action( 'wp_enqueue_scripts', function () {
+	if ( ! comptoir_scripts_differes() ) {
+		return;
+	}
+	foreach ( array( 'cp-gsap', 'cp-scrolltrigger', 'comptoir-langue', 'comptoir-langue-parfums', 'comptoir-panier', 'comptoir-theme', 'comptoir-commande', 'comptoir-boutique' ) as $poignee ) {
+		if ( wp_script_is( $poignee, 'enqueued' ) || wp_script_is( $poignee, 'registered' ) ) {
+			wp_script_add_data( $poignee, 'strategy', 'defer' );
+		}
+	}
+}, 20 );
+
+/**
+ * Le catalogue (window.PRODUITS, photos, visuels du heros : environ 90 Ko),
+ * sorti du HTML par Comptoir SEO dans un fichier en cache (poignee
+ * cseo-catalogue, dependance de panier.js), part lui aussi en differe sur ces
+ * pages : c'etait le dernier script bloquant signale par PageSpeed sur
+ * l'accueil. Il est enregistre tard (Comptoir SEO, priorite 9999), d'ou ce
+ * second passage ; s'il n'existe pas, rien ne change.
+ */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( comptoir_scripts_differes() && wp_script_is( 'cseo-catalogue', 'registered' ) ) {
+		wp_script_add_data( 'cseo-catalogue', 'strategy', 'defer' );
+	}
+}, 10000 );
+
+/**
+ * Jetpack ouvre des connexions anticipees (preconnect) vers i0.wp.com et
+ * c0.wp.com sur chaque page : c0 ne sert a rien ici, i0 seulement a des
+ * images hors du premier ecran (Comptoir SEO lui garde un dns-prefetch).
+ * Chaque preconnect inutile prend une poignee de main TLS au debut du
+ * chargement, la ou se jouent le premier affichage et le pixel.
+ */
+add_filter( 'wp_resource_hints', function ( $urls, $type ) {
+	if ( 'preconnect' !== $type || ! is_array( $urls ) ) {
+		return $urls;
+	}
+	return array_values( array_filter( $urls, function ( $u ) {
+		$href = is_array( $u ) ? ( isset( $u['href'] ) ? $u['href'] : '' ) : (string) $u;
+		return ! preg_match( '#^(https?:)?//(i0|c0)\.wp\.com\b#', $href );
+	} ) );
+}, 99, 2 );
+
+/**
+ * Bulle WhatsApp (Joinchat) chargee comme Clarity : au premier geste du
+ * visiteur, ou 1,5 s apres le chargement complet (window.cseoPlusTard,
+ * Comptoir SEO). Son script prenait ~90 ms de calcul pendant l'ouverture de
+ * la fiche. La bulle est deja dans le HTML (cachee) et Joinchat demarre
+ * aussitot s'il arrive apres la page ; elle s'affiche donc un peu plus tard
+ * qu'avant, jamais pas du tout. Sans Comptoir SEO, chargement immediat.
+ * Valide par la boutique (etape 4, point 2).
+ */
+add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
+	if ( 'joinchat' !== $handle || is_admin() || ! $src ) {
+		return $tag;
+	}
+	return '<script id="joinchat-js-plus-tard">(window.cseoPlusTard||function(f){f()})(function(){var s=document.createElement("script");s.src=' . wp_json_encode( $src ) . ';s.async=true;document.head.appendChild(s);});</script>' . "\n";
+}, 10, 3 );
+
+/**
  * Noms de fichiers reellement presents dans img/produits/.
  *
  * Cote maquette cette liste est tenue a la main dans le HTML et peut donc
@@ -1124,7 +1751,7 @@ function comptoir_photos_produits() {
 	}
 	$cache = array();
 	$dir   = get_template_directory() . '/img/produits/';
-	foreach ( comptoir_produits() as $p ) {
+	foreach ( array_merge( comptoir_produits(), comptoir_offres() ) as $p ) {
 		if ( file_exists( $dir . $p['s'] . '.webp' ) ) {
 			$cache[] = $p['s'] . '.webp';
 		}
@@ -1400,14 +2027,16 @@ function comptoir_vignette_vide() {
  * et le cadrage changent, jamais la regle de secours.
  */
 function comptoir_vignette_img( $p, $classe, $largeur, $hauteur ) {
-	$photo = comptoir_a_photo( $p['s'] ) ? comptoir_photo_url( $p['s'] ) : '';
+	$photo  = comptoir_a_photo( $p['s'] ) ? comptoir_photo_url( $p['s'] ) : '';
+	$srcset = $photo ? comptoir_photo_srcset( $p['s'] ) : '';
 	return sprintf(
-		'<img class="%s%s" alt="" width="%d" height="%d" loading="lazy" decoding="async" src="%s">',
+		'<img class="%s%s" alt="" width="%d" height="%d" loading="lazy" decoding="async" src="%s"%s>',
 		esc_attr( $classe ),
 		$photo ? '' : ' is-empty',
 		(int) $largeur,
 		(int) $hauteur,
-		$photo ? esc_url( $photo ) : esc_attr( comptoir_vignette_vide() )
+		$photo ? esc_url( $photo ) : esc_attr( comptoir_vignette_vide() ),
+		$srcset ? ' srcset="' . esc_attr( $srcset ) . '" sizes="' . esc_attr( comptoir_photo_sizes( $classe ) ) . '"' : ''
 	);
 }
 
@@ -1449,7 +2078,9 @@ function comptoir_vente_vedette() {
 	// Meme nettoyage que comptoir_parfum_slug_demande(). Pas sanitize_title() :
 	// il reduit « -- » a « - », et « valentino--uomo… » ne trouvait plus rien.
 	$slug = preg_replace( '/[^a-z0-9-]/', '', strtolower( (string) wp_unslash( $_GET['p'] ) ) );
-	return $slug ? comptoir_produit_by_slug( $slug ) : null;
+	// Un parfum, ou une offre a prix fixe (comptoir_offres) : la page vente
+	// est la seule page ou une offre s'affiche.
+	return $slug ? comptoir_article_by_slug( $slug ) : null;
 }
 
 /**
@@ -1559,9 +2190,18 @@ function comptoir_carte_produit( $p ) {
 	<?php
 }
 
-/** La grille complete, dans l'ordre du fichier (maison par maison). */
-function comptoir_rendu_catalogue() {
-	foreach ( comptoir_produits() as $p ) {
+/**
+ * La grille, dans l'ordre du fichier (maison par maison). $limite > 0 : les
+ * $limite premieres cartes seulement — l'accueil n'en rend que 24 (la page
+ * en affichait de toute facon 24 avant « Voir plus ») et theme.js construit
+ * les autres a partir de window.PRODUITS, avec le meme gabarit.
+ */
+function comptoir_rendu_catalogue( $limite = 0 ) {
+	$produits = comptoir_produits();
+	if ( $limite > 0 ) {
+		$produits = array_slice( $produits, 0, (int) $limite );
+	}
+	foreach ( $produits as $p ) {
 		comptoir_carte_produit( $p );
 	}
 }
@@ -1585,10 +2225,13 @@ function comptoir_meta_page() {
 	if ( $slug ) {
 		$p = comptoir_produit_by_slug( $slug );
 		if ( $p ) {
+			// Le prix et le paiement a la livraison d'abord (3.8.0) : Google coupe
+			// vers 155 caracteres, et le prix arrivait en fin de phrase, apres la
+			// pyramide olfactive — il disparaissait des resultats.
 			$desc = sprintf(
-				'%s (%s) — %s Tête : %s. Cœur : %s. Fond : %s. %s, livraison partout au Maroc, paiement à la réception.',
-				$p['n'], $p['b'], $p['d'],
-				implode( ', ', $p['t'] ), implode( ', ', $p['c'] ), implode( ', ', $p['f'] ), $p['pr']
+				'%s %s à %s au Maroc : testeur original, le même parfum qu\'en boutique, sans le coffret. Livraison 24-72 h, paiement à la livraison. %s Tête : %s. Cœur : %s. Fond : %s.',
+				$p['b'], $p['n'], $p['pr'], $p['d'],
+				implode( ', ', $p['t'] ), implode( ', ', $p['c'] ), implode( ', ', $p['f'] )
 			);
 			$cache = array(
 				'titre'     => $p['b'] . ' ' . $p['n'] . ' — ' . $nom,
@@ -1638,6 +2281,17 @@ function comptoir_meta_page() {
 			'type'      => 'website',
 			'indexable' => false,
 		);
+		// Ouverte sur un parfum ou une offre (le lien d'une pub) : l'apercu du
+		// lien (WhatsApp, Messenger) dit le flacon et son prix, avec sa photo.
+		$o = comptoir_vente_vedette();
+		if ( $o ) {
+			$cache['titre'] = $o['b'] . ' ' . $o['n'] . ' — ' . $o['pr'] . ' — ' . $nom;
+			$cache['desc']  = ! empty( $o['o'] )
+				? sprintf( '%s Le pack à %s au lieu de %s DH, + %d DH de livraison. Paiement à la livraison, partout au Maroc.', $o['d'], $o['pr'], comptoir_prix_format( $o['barre'] ), comptoir_livraison_dh() )
+				: sprintf( '%s %s à %s : testeur original, le même parfum qu\'en boutique, sans le coffret. Livraison 24-72 h, paiement à la livraison.', $o['b'], $o['n'], $o['pr'] );
+			$cache['url']   = home_url( '/?vente=1&p=' . rawurlencode( $o['s'] ) );
+			$cache['image'] = comptoir_a_photo( $o['s'] ) ? comptoir_photo_url( $o['s'] ) : '';
+		}
 		return $cache;
 	}
 
@@ -1681,7 +2335,9 @@ add_action( 'wp_head', function () {
 	$h    = 630;
 
 	if ( $meta['image'] ) {
-		$fichier = str_replace( get_template_directory_uri(), get_template_directory(), $meta['image'] );
+		// Sans le « ?v=… » d'empreinte : avec, le fichier n'etait jamais trouve
+		// et chaque fiche annoncait 1200 x 630 pour une photo de 720 x 900.
+		$fichier = str_replace( get_template_directory_uri(), get_template_directory(), strtok( $meta['image'], '?' ) );
 		$taille  = @getimagesize( $fichier );
 		if ( $taille ) {
 			$w = $taille[0];
@@ -1717,6 +2373,32 @@ add_action( 'wp_head', function () {
 	echo '<meta name="twitter:card" content="summary_large_image">' . "\n";
 	echo '<meta name="twitter:image" content="' . esc_url( $img ) . '">' . "\n";
 }, 1 );
+
+// Jetpack ecrit ses propres balises Open Graph. Sur les pages ou le theme
+// ecrit deja les siennes (accueil, fiches, commande, vente), elles se
+// doublaient et se contredisaient : deux og:type (« product » puis
+// « website »), deux og:title. Ailleurs (guides, pages), Jetpack reste seul.
+// Jetpack pose aussi la question au chargement, avant que la page demandee
+// soit connue : comptoir_meta_page() garde son premier resultat, on ne
+// l'appelle donc qu'une fois la requete analysee (action « wp »).
+add_filter( 'jetpack_enable_open_graph', function ( $actif ) {
+	if ( ! did_action( 'wp' ) || is_admin() ) {
+		return $actif;
+	}
+	$meta = comptoir_meta_page();
+	return '' !== $meta['titre'] ? false : $actif;
+}, 99 );
+
+// Le module « Outils SEO » de Jetpack ajoute sa propre description. Sur
+// l'accueil et sur les fiches (servies a la meme adresse), c'est le slogan
+// du site, « L'Art du Parfum » : Google lisait deux descriptions et pouvait
+// garder celle-la. On retire la sienne la ou le theme ecrit deja la notre.
+add_filter( 'jetpack_seo_meta_tags', function ( $meta ) {
+	if ( is_array( $meta ) && ! empty( comptoir_meta_page()['desc'] ) ) {
+		unset( $meta['description'] );
+	}
+	return $meta;
+} );
 
 // Favicon — sceau CP, utilise seulement si aucune icone de site n'est reglee
 // dans Reglages > General.
@@ -1766,18 +2448,20 @@ add_action( 'wp_head', function () {
 		return;
 	}
 
+	// OnlineStore et non Store (v3.6.1) : pour Google, Store est un commerce
+	// local, qui exige une adresse postale ; sans elle, le test des resultats
+	// enrichis signalait une erreur. La boutique n'a pas de magasin. Les
+	// proprietes propres aux commerces locaux (fourchette de prix, devises,
+	// moyens de paiement) n'existent pas sur OnlineStore et partent avec.
 	$data = array(
 		'@context'    => 'https://schema.org',
-		'@type'       => 'Store',
+		'@type'       => 'OnlineStore',
 		'name'        => get_bloginfo( 'name' ),
 		'url'         => home_url( '/' ),
 		'image'       => get_template_directory_uri() . '/og-image.jpg',
 		'description' => 'Testeurs originaux des plus grandes maisons de parfum — même jus qu\'en boutique, sans le coffret.',
 		'areaServed'  => array( '@type' => 'Country', 'name' => 'Maroc' ),
 		'telephone'   => '+' . comptoir_wa_numero(),
-		'priceRange'  => implode( ' – ', comptoir_bornes_prix() ) . ' MAD',
-		'currenciesAccepted' => 'MAD',
-		'paymentAccepted'    => 'Espèces à la livraison',
 	);
 	echo '<script type="application/ld+json">' . wp_json_encode( $data ) . '</script>' . "\n";
 }, 2 );

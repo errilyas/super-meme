@@ -49,14 +49,6 @@
     full.hidden = !items.length;
     empty.hidden = !!items.length;
     if(!items.length) return;
-    if(!checkoutMesure){
-      checkoutMesure = true;
-      P.mesure('InitiateCheckout', {
-        value: P.total(), currency: 'MAD',
-        num_items: P.count(), content_type: 'product',
-        content_ids: items.map(function(x){ return x.p.s; })
-      }, P.idEvenement ? P.idEvenement('ic') : '');
-    }
 
     itemsEl.innerHTML = items.map(function(x){
       return '<div class="ck-item" data-s="'+esc(x.s)+'">'+
@@ -91,6 +83,7 @@
       : (P.cfg.livraison ? P.fmt(P.cfg.livraison) : T('à confirmer'));
     sumsEl.innerHTML =
       '<div class="ck-sum"><span>'+T('Sous-total')+'</span><span>'+P.fmt(P.subtotal())+'</span></div>'+
+      ((P.remise && P.remise()) ? '<div class="ck-sum ck-remise"><span>'+T('Remise duo')+'</span><span>−'+P.fmt(P.remise())+'</span></div>' : '')+
       '<div class="ck-sum"><span>'+T('Livraison')+'</span><span>'+liv+'</span></div>'+
       '<div class="ck-sum tot"><span>'+T('Total')+'</span><b>'+P.fmt(P.total())+'</b></div>';
 
@@ -136,16 +129,45 @@
   /* on efface le rouge dès que l'utilisateur corrige */
   form.addEventListener('input', function(e){
     var f = e.target.closest('.ck-field'); if(f) f.classList.remove('err');
+    /* InitiateCheckout, une fois par page : a la premiere saisie dans le nom
+       ou le telephone, comme la commande express de la fiche. A l'ouverture
+       de la page, il comptait aussi qui venait seulement voir son panier.
+       Une vraie saisie seulement : la reprise des coordonnees (Comptoir
+       Boutique) simule des saisies a l'ouverture. */
+    if(!checkoutMesure && e.isTrusted !== false && (e.target.name === 'tel' || e.target.name === 'nom') && P.count()){
+      checkoutMesure = true;
+      P.mesure('InitiateCheckout', {
+        value: P.total(), currency: 'MAD',
+        num_items: P.count(), content_type: 'product',
+        content_ids: P.items().map(function(x){ return x.p.s; })
+      }, P.idEvenement ? P.idEvenement('ic') : '');
+    }
   });
 
   /* Un numéro marocain : 0X suivi de 8 chiffres, ou +212 / 212 suivi de 9.
      L'ancien test « au moins 8 chiffres » laissait passer un numéro tronqué,
      et un numéro faux, c'est une livraison perdue. */
+  /* Meme lecture que le formulaire express (boutique.js > telChiffres) :
+     chiffres du clavier arabe, marques de sens d'un copier-coller et
+     « +212 06… » etaient refuses ici et acceptes la-bas. */
+  function telChiffres(v){
+    return String(v)
+      .replace(/[٠-٩]/g, function(c){ return String(c.charCodeAt(0) - 0x0660); })
+      .replace(/[۰-۹]/g, function(c){ return String(c.charCodeAt(0) - 0x06F0); })
+      .replace(/[\s().\-‎‏⁦-⁩]/g, '')
+      .replace(/^(?:\+|00)/, '')
+      .replace(/^2120/, '212');
+  }
   function telValide(v){
-    var n = v.replace(/[\s().-]/g,'').replace(/^(?:\+|00)/,'');
+    var n = telChiffres(v);
     if(/^212[5-7][0-9]{8}$/.test(n)) return true;   /* 212 6 12 34 56 78 */
     if(/^0[5-7][0-9]{8}$/.test(n))   return true;   /* 06 12 34 56 78    */
     return false;
+  }
+  /* Ce qui part au serveur et a WhatsApp : 0612345678, que le serveur sait lire. */
+  function telNational(v){
+    var n = telChiffres(v);
+    return /^212[5-7][0-9]{8}$/.test(n) ? '0' + n.slice(3) : n;
   }
 
   function champInvalide(inp){
@@ -180,13 +202,10 @@
     data = data || {};
     c = c || {};
 
-    /* « Merci Youssef » plutot que « Merci » : le prenom suffit, le nom
-       complet sur un ecran de confirmation fait formulaire administratif. */
+    /* Un titre qui dit le fait, le meme pour tous : la commande est recue.
+       « Merci, c'est note » laissait un doute sur ce qui etait note. */
     var titre = document.getElementById('ck-merci-titre');
-    var prenom = data.prenom || (data.nom || '').trim().split(/\s+/)[0];
-    if(titre) titre.textContent = prenom
-      ? T('Merci {prenom}, c\'est noté.', {prenom: prenom})
-      : T('Merci, c\'est noté.');
+    if(titre) titre.textContent = T('Commande reçue ✓');
 
     var ref = document.getElementById('ck-merci-ref');
     if(ref && data.ref) ref.textContent = T('Référence {ref}', {ref: data.ref});
@@ -195,22 +214,35 @@
        c'est la seule trace qui reste a l'ecran. */
     var det = document.getElementById('ck-merci-lignes');
     if(det && c.lignes && c.lignes.length){
+      /* Un prix ne se coupe pas : a cote d'un nom de parfum sur deux
+         lignes, « 359 » restait seul et « DH » passait dessous (ecran de
+         360 px). Ses espaces deviennent insecables, rien d'autre ne change. */
+      var prix = function(n){ return P.fmt(n).replace(/ /g, ' '); };
       var h = c.lignes.map(function(l){
         return '<div class="ck-ml"><span>' + (l.q > 1 ? l.q + '× ' : '') + esc(l.nom)
-          + '</span><span>' + P.fmt(l.prix) + '</span></div>';
+          + '</span><span>' + prix(l.prix) + '</span></div>';
       });
-      h.push('<div class="ck-ml"><span>' + T('Sous-total') + '</span><span>' + P.fmt(c.sousTotal) + '</span></div>');
+      h.push('<div class="ck-ml"><span>' + T('Sous-total') + '</span><span>' + prix(c.sousTotal) + '</span></div>');
+      if (c.remise) { h.push('<div class="ck-ml"><span>' + T('Remise duo') + '</span><span>−' + prix(c.remise) + '</span></div>'); }
       /* La ville s'affiche dans la langue du client ; ce qui est parti au
          carnet de commandes reste le nom francais (cf. CP_VILLE). */
       var villeVue = data.ville && window.CP_VILLE ? window.CP_VILLE(data.ville) : data.ville;
       h.push('<div class="ck-ml"><span>' + T('Livraison') + (villeVue ? ' — ' + esc(villeVue) : '')
-        + '</span><span>' + (c.livraison ? P.fmt(c.livraison) : T('offerte')) + '</span></div>');
-      h.push('<div class="ck-ml tot"><span>' + T('Total à payer au livreur') + '</span><b>' + P.fmt(c.montant) + '</b></div>');
+        + '</span><span>' + (c.livraison ? prix(c.livraison) : T('offerte')) + '</span></div>');
+      h.push('<div class="ck-ml tot"><span>' + T('Total à payer au livreur') + '</span><b>' + prix(c.montant) + '</b></div>');
       det.innerHTML = h.join('');
     }
 
     var wa = document.getElementById('ck-merci-wa');
-    if(wa){ wa.href = c.lien || 'https://wa.me/' + WA; wa.hidden = !c.lien; }
+    /* Une question, pas la commande recopiee : le message pre-rempli
+       « je souhaite commander… » pouvait etre pris pour une deuxieme
+       commande. La reference suffit a la retrouver. */
+    if(wa){
+      wa.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(data.ref
+        ? T('Bonjour, j’ai une question sur ma commande {ref}.', {ref: data.ref})
+        : T('Bonjour, j’ai une question sur ma commande.'));
+      wa.hidden = false;
+    }
 
     /* Le fil d'etapes passe a la confirmation. */
     var fil = document.getElementById('ck-steps');
@@ -234,17 +266,17 @@
 
     window.scrollTo({ top: 0 });
 
-    /* L'achat, au sens des regies publicitaires. Mesure une seule fois par
-       commande : la page de confirmation peut etre rechargee. L'event_id
-       (la reference) part aussi au serveur (CAPI, voir comptoir_capi_achat
-       dans functions.php) : Meta reconnait le doublon et ne compte l'achat
-       qu'une fois. */
-    if(c.montant && data.ref && !dejaFait('cp_achat_' + data.ref)){
+    /* L'achat, au sens des regies publicitaires — seulement quand il est
+       compte a l'envoi (reglage par defaut, Reglages > Suivi Meta). Coche
+       « a la livraison », il part du serveur quand la commande passe a
+       « Livree » (functions.php > comptoir_capi_livraison), et rien ici.
+       Mesure une seule fois par commande : la page peut etre rechargee.
+       L'event_id (la reference) part aussi au serveur (comptoir_capi_lead) :
+       Meta reconnait le doublon et ne compte l'achat qu'une fois. */
+    if(!P.cfg.achatLivraison && c.montant && data.ref && !dejaFait('cp_achat_' + data.ref)){
       marqueFait('cp_achat_' + data.ref);
-      /* content_ids manquait : content_type etait annonce sans dire de quels
-         produits il s'agissait, alors que la copie serveur (CAPI) les envoyait.
-         Les commandes mises de cote avant cette version n'ont pas de slug dans
-         leurs lignes : on n'envoie alors pas le parametre plutot qu'une liste
+      /* Les commandes mises de cote avant la version qui garde les slugs
+         n'en ont pas : on n'envoie alors pas content_ids plutot qu'une liste
          de valeurs vides. */
       var donneesAchat = {
         value: c.montant, currency: 'MAD',
@@ -259,8 +291,8 @@
   /* « Deja fait » pour tout le navigateur, pas pour un seul onglet. Le retour
      depuis WhatsApp rouvre souvent la confirmation dans un NOUVEL onglet, ou
      sessionStorage repart vide : l'achat repartait vers Meta (5 a 6 fois sur
-     les 28 premieres commandes) et WhatsApp se rouvrait. localStorage d'abord,
-     sessionStorage en repli quand il est bloque. */
+     les 28 premieres commandes). localStorage d'abord, sessionStorage en
+     repli quand il est bloque. */
   function dejaFait(key){
     try { if (localStorage.getItem(key)) return true; } catch(e){}
     try { return !!sessionStorage.getItem(key); } catch(e){ return false; }
@@ -285,14 +317,11 @@
       }
     }catch(e){}
 
+    /* WhatsApp ne s'ouvre plus tout seul : la commande est enregistree et
+       nous rappelons le client. L'ouvrir a sa place lui faisait quitter la
+       confirmation pour un message a envoyer, comme si la commande n'etait
+       pas encore passee. Le lien reste, en second (#ck-merci-wa). */
     merci(enregistree || {}, enregistree || {});
-
-    /* WhatsApp part une fois la page bien en place, et une seule fois : si la
-       bascule emporte l'onglet, la confirmation est deja chargee derriere. */
-    if(enregistree && enregistree.lien && !dejaFait('cp_wa_' + enregistree.ref)){
-      marqueFait('cp_wa_' + enregistree.ref);
-      setTimeout(function(){ window.open(enregistree.lien, '_blank', 'noopener'); }, 900);
-    }
   }
 
   /* validation + envoi */
@@ -311,6 +340,7 @@
       f.classList.toggle('err', bad);
       if(bad) ok=false;
     });
+    if(data.tel) data.tel = telNational(data.tel);
     /* La ville envoyee est celle qu'on livre, pas le mot « autre ». */
     if(data.ville === 'autre') data.ville = villeAutre();
     delete data.ville_autre;
@@ -322,9 +352,9 @@
     }
     if(!P.count()) return;
 
-    /* Dans cet ordre, et pas un autre : on depose la commande, on mesure,
-       puis on ouvre WhatsApp — l'ouverture doit rester dans le geste du
-       clic, sinon le navigateur la bloque. */
+    /* Dans cet ordre, et pas un autre : on depose la commande, on attend un
+       eventuel refus du serveur (1,5 s au plus), puis on mesure et on part
+       vers la confirmation. */
     submitting = true;
     data.ref = P.reference();
     var montant = P.total(), articles = P.count(), lien = P.waHref(data);
@@ -336,7 +366,19 @@
     });
     var fraisLiv = P.fraisLivraison(), sousTotal = P.subtotal();
 
-    P.depose(data);
+    var remise = P.remise ? P.remise() : 0;
+    var go = document.getElementById('ck-go');
+    if(go) go.setAttribute('aria-busy', 'true');
+    P.depose(data, function(refus){
+      if(go) go.removeAttribute('aria-busy');
+      /* Refusee par le serveur : rien n'est au carnet. Le panier reste, pas
+         de « Commande reçue » ni d'achat compte, et le client peut l'envoyer
+         sur WhatsApp, ou on le rappellerait pour rien. */
+      if(refus){ submitting = false; refusee(lien); return; }
+      apresDepot();
+    });
+
+    function apresDepot(){
     P.mesure('Lead', {
       value: montant, currency: 'MAD',
       num_items: articles, content_type: 'product',
@@ -353,7 +395,7 @@
     var confirmation = {
         ref: data.ref, prenom: (data.nom||'').trim().split(/\s+/)[0],
         ville: data.ville, lien: lien, montant: montant, articles: articles,
-        lignes: lignes, livraison: fraisLiv, sousTotal: sousTotal, t: Date.now()
+        lignes: lignes, livraison: fraisLiv, sousTotal: sousTotal, remise: remise, t: Date.now()
     };
     var saved = false;
     try{
@@ -369,6 +411,26 @@
     P.clear();
     location.href = (P.cfg.commander || '?commander=1')
       + (String(P.cfg.commander||'').indexOf('?') >= 0 ? '&' : '?') + 'merci=1';
+    }
+  }
+
+  /* Message sous le bouton quand le serveur a refuse la commande. */
+  function refusee(lien){
+    var go = document.getElementById('ck-go'), b = document.getElementById('ck-refus');
+    if(!go) return;
+    if(!b){
+      b = document.createElement('p');
+      b.id = 'ck-refus';
+      /* La couleur d'erreur de Comptoir Boutique (sombre et clair). */
+      b.className = 'cpb-x-err';
+      b.setAttribute('role', 'alert');
+      b.style.cssText = 'margin:12px 0 0;font-size:14px;line-height:1.5';
+      go.parentNode.insertBefore(b, go.nextSibling);
+    }
+    b.innerHTML = esc(T('Votre commande n’a pas pu être enregistrée. Envoyez-la-nous sur WhatsApp, nous la traitons tout de suite.'))
+      + ' <a href="' + esc(lien) + '" style="color:inherit;font-weight:600;text-decoration:underline">'
+      + esc(T('Envoyer ma commande sur WhatsApp')) + '</a>';
+    b.scrollIntoView({block:'center'});
   }
   document.getElementById('ck-go').addEventListener('click', submitOrder);
   form.addEventListener('submit', submitOrder);

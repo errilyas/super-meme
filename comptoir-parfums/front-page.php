@@ -2,14 +2,19 @@
 /**
  * Le Comptoir des Parfums — front-page.php (page d'accueil)
  *
- * Portage des sections 1 a 10 de la maquette comptoirv3-motion.html.
- * Deux blocs ne sont PAS recopies mais generes depuis produits.php, pour
- * qu'aucun chiffre affiche ne puisse mentir :
- *   - « Selection du moment » (les 9 fiches mises en avant) ;
- *   - le catalogue complet (177 references / 37 maisons).
- * Le catalogue est rendu cote serveur : il est indexable et reste lisible
- * sans JavaScript. Le script du pied de page detecte le balisage deja
- * present et se contente de le cabler (accordeon, recherche, filtre maison).
+ * Sept blocs depuis la v3.6 (il y en avait quinze, extensions comprises) :
+ *   1. heros            4. preuves clients
+ *   2. ruban des maisons 5. le testeur explique
+ *   3. catalogue         6. commander : etapes, appel final, garanties
+ *                        7. questions frequentes
+ * Comptoir Boutique ajoute « Nos duos » juste apres le catalogue, et le quiz
+ * en une ligne dans son en-tete. Retires : la selection par famille (le
+ * catalogue a les memes filtres), « Notre approche » et « Ce que vous
+ * trouverez » (dits par le heros et le bloc testeur), les chiffres cles
+ * (deja dans le heros), les engagements (repris dans « Commander »).
+ * Le catalogue est rendu cote serveur, depuis produits.php : il est
+ * indexable, lisible sans JavaScript, et aucun chiffre affiche ne peut
+ * mentir. Le script du pied de page se contente de le cabler.
  */
 
 get_header();
@@ -19,32 +24,26 @@ $cp_wa = 'https://wa.me/' . comptoir_wa_numero();
 // Les compteurs affiches a quatre endroits de la page. Rendus ici, pas
 // ecrits en dur : ajouter ou retirer un parfum ne peut plus laisser un
 // chiffre faux a l'ecran, meme si le JavaScript ne charge pas.
-$cp_nb_refs         = count( comptoir_produits() );
-$cp_nb_maisons      = count( comptoir_catalogue_par_maison() );
-list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
+$cp_nb_refs    = count( comptoir_produits() );
+$cp_nb_maisons = count( comptoir_catalogue_par_maison() );
 ?>
 <main id="cp-main">
 
 <section id="hero" aria-label="Présentation">
 
-  <!-- Atmospheric canvas -->
+  <?php /* Eclairage fixe : grain, ligne de balayage, noms de maisons en
+       filigrane et anneaux en orbite sont retires en v3.6 */ ?>
   <div class="hero-canvas" aria-hidden="true">
     <div class="hc-light-key"></div>
     <div class="hc-light-fill"></div>
     <div class="hc-light-rim"></div>
     <div class="hc-vignette"></div>
-    <div class="hc-grain"></div>
-    <div class="hc-scan"></div>
-    <!-- Ghost brand typography in background -->
-    <div class="h-brand-float" aria-hidden="true" style="font-size:clamp(60px,8vw,120px);bottom:8%;left:-2%;opacity:1">Chanel</div>
-    <div class="h-brand-float" aria-hidden="true" style="font-size:clamp(40px,5vw,80px);top:12%;right:5%;opacity:1">Dior</div>
-    <div class="h-brand-float" aria-hidden="true" style="font-size:clamp(30px,3.5vw,56px);top:55%;right:2%;opacity:1">Xerjoff</div>
   </div>
 
-  <!-- Split grid -->
+  <?php /* Split grid */ ?>
   <div class="hero-inner">
 
-    <!-- LEFT: TEXT -->
+    <?php /* LEFT: TEXT */ ?>
     <div class="hero-text">
 
       <div class="h-eyebrow" id="he">
@@ -52,17 +51,20 @@ list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
         <span class="h-eye-text">Maroc · Livraison 24h · Paiement à réception</span>
       </div>
 
-      <!-- H1: line-by-line clip reveal -->
-      <h1 class="hero-h1" id="hh" aria-label="Le parfum que vous voulez. Au prix qui reste.">
+      <?php /* Accroche : line-by-line clip reveal. Un paragraphe depuis la 3.8 :
+           le titre de la page pour Google est la pastille ci-dessous, qui dit
+           ce que l'on vend. Meme classe, donc meme rendu. */ ?>
+      <p class="hero-h1" id="hh">
         <span class="h1-line"><span class="h1-inner" data-delay="280">Le parfum</span></span>
         <span class="h1-line"><span class="h1-inner" data-delay="420">que vous voulez.</span></span>
         <span class="h1-line"><span class="h1-inner" data-delay="560"><em>Au prix qui reste.</em></span></span>
-      </h1>
+      </p>
 
-      <!-- Value badge -->
+      <?php /* Value badge = H1 de la page (3.8) : « testeurs de parfum originaux
+           au Maroc », la recherche que la boutique veut gagner. */ ?>
       <div class="h-badge" id="hbadge">
         <div class="h-badge-dot" aria-hidden="true"></div>
-        <span class="h-badge-text">Testeurs originaux des grandes maisons</span>
+        <h1 class="h-badge-text">Testeurs de parfum originaux au Maroc</h1>
       </div>
 
       <p class="hero-sub" id="hs">
@@ -71,12 +73,12 @@ list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
 
       <div class="hero-actions" id="ha">
         <a href="#catalogue" class="btn-a" data-cursor-label="Voir le catalogue">Voir le catalogue</a>
-        <a href="#process" class="btn-b">Comment commander</a>
+        <a href="#commander" class="btn-b">Comment commander</a>
       </div>
 
       <?php comptoir_gages( 'gages-hero' ); ?>
 
-      <!-- Trust strip -->
+      <?php /* Trust strip */ ?>
       <div class="hero-trust" id="ht" role="list">
         <div class="ht-item" role="listitem">
           <strong data-refs-total><?php echo (int) $cp_nb_refs; ?></strong>
@@ -94,34 +96,29 @@ list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
         </div>
       </div>
 
-    </div><!-- /hero-text -->
+    </div><?php /* /hero-text */ ?>
 
-    <!-- RIGHT: VISUAL STAGE -->
+    <?php /* RIGHT: VISUAL STAGE */ ?>
     <div class="hero-visual" id="hv" aria-hidden="true">
 
-      <!-- Atmosphere glows -->
+      <?php /* Atmosphere glows */ ?>
       <div class="f-glow-outer"></div>
       <div class="f-glow-inner"></div>
 
-      <!-- Orbit rings -->
-      <div class="f-orbit f-orbit-1"></div>
-      <div class="f-orbit f-orbit-2"></div>
-      <div class="f-orbit f-orbit-3"></div>
-
-      <!-- Logo 3D — flacon-sceau « CP » (WebGL, cf. bloc script en bas de page) -->
+      <?php /* Logo 3D — flacon-sceau « CP » (WebGL, cf. bloc script en bas de page) */ ?>
       <div class="flacon-stage" id="flacon-stage">
         <div class="flacon3d" id="flacon3d">
           <svg class="flacon3d-fallback" viewBox="0 0 96 96" aria-hidden="true"><use href="#cp-seal-full"/></svg>
         </div>
-        <!-- Aperçu : vraie photo produit de la maison survolée/centrée dans le ruban -->
+        <?php /* Aperçu : vraie photo produit de la maison survolée/centrée dans le ruban */ ?>
         <div class="hero-shot" id="hero-shot" aria-hidden="true">
           <span class="hero-shot-floor"></span>
           <img alt="" decoding="async" loading="lazy" width="600" height="600">
         </div>
-      </div><!-- /flacon-stage -->
+      </div><?php /* /flacon-stage */ ?>
 
-      <!-- VITRINE — anneau de flacons (WebGL). Occupe toute la largeur du héros,
-           pas la scène étroite du flacon : une vitrine se regarde en largeur. -->
+      <?php /* VITRINE — anneau de flacons (WebGL). Occupe toute la largeur du héros,
+           pas la scène étroite du flacon : une vitrine se regarde en largeur. */ ?>
       <div class="vitrine" id="vitrine" aria-hidden="true">
         <div class="vitrine-cap">
           <span class="vitrine-maison"></span>
@@ -129,13 +126,13 @@ list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
         </div>
       </div>
 
-      <!-- Reflection at base -->
+      <?php /* Reflection at base */ ?>
       <div class="f-reflect"></div>
       <div class="f-shadow"></div>
 
-      <!-- Floating note cards — nom et prix lus dans produits.php, comme
+      <?php /* Floating note cards — nom et prix lus dans produits.php, comme
            partout ailleurs : un prix ecrit en dur finit par mentir. Une
-           reference retiree du catalogue fait simplement disparaitre sa carte. -->
+           reference retiree du catalogue fait simplement disparaitre sa carte. */ ?>
       <?php
       $cp_cartes = array( 'hnc1' => 'dior--sauvage-elixir', 'hnc2' => 'chanel--coco-mademoiselle' );
       $cp_n      = 0;
@@ -153,157 +150,25 @@ list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
       </div>
       <?php endforeach; ?>
 
-      <!-- Particles container -->
-      <div class="f-particles" id="f-particles" aria-hidden="true"></div>
+    </div><?php /* /hero-visual */ ?>
 
-    </div><!-- /hero-visual -->
+  </div><?php /* /hero-inner */ ?>
 
-  </div><!-- /hero-inner -->
-
-  <!-- Gradient edge into next section -->
+  <?php /* Gradient edge into next section */ ?>
   <div class="hero-edge" aria-hidden="true"></div>
-
-  <!-- Scroll indicator -->
-  <div class="scroll-hint" aria-hidden="true">
-    <div class="scroll-hint-line"></div>
-    <span class="scroll-hint-text">Défiler</span>
-  </div>
 
 </section>
 
-<!-- ════════════════════════════════════════
-     SECTION 2 · MARQUEE
-════════════════════════════════════════ -->
+<?php /* ════════════════════════════════════════
+     2 · RUBAN DES MAISONS
+════════════════════════════════════════ */ ?>
 <nav class="marquee-sect" aria-label="Maisons représentées — raccourci vers le catalogue">
   <div class="marquee-track" id="mq-track"></div>
 </nav>
 
-<!-- ════════════════════════════════════════
-     SECTION 3 · SCENT FAMILIES
-════════════════════════════════════════ -->
-<section class="scents" id="scents" aria-label="Sélection par famille olfactive">
-  <div class="scents-inner">
-    <div class="r">
-      <div class="sect-kicker"><span>Sélection du moment</span></div>
-      <h2 class="sect-h2">Parcourez par univers olfactif.</h2>
-    </div>
-    <div class="scent-tabs" role="tablist" aria-label="Familles olfactives">
-      <button class="stab active" role="tab" aria-selected="true" aria-controls="sp-homme" data-tab="homme">Hommes</button>
-      <button class="stab" role="tab" aria-selected="false" aria-controls="sp-femme" data-tab="femme">Femmes</button>
-      <button class="stab" role="tab" aria-selected="false" aria-controls="sp-niche" data-tab="niche">Niche</button>
-    </div>
-    <div class="scent-panels">
-<?php foreach ( comptoir_selection() as $cp_key => $cp_bloc ) : ?>
-      <div class="scent-panel<?php echo $cp_bloc['actif'] ? ' active' : ''; ?>" id="sp-<?php echo esc_attr( $cp_key ); ?>" role="tabpanel">
-        <?php foreach ( $cp_bloc['parfums'] as $p ) : ?>
-        <a href="<?php echo esc_url( comptoir_parfum_url( $p['s'] ) ); ?>" class="scent-card">
-          <span class="scent-card-photo"><?php echo comptoir_vignette_img( $p, 'scent-card-img', 400, 300 ); ?></span>
-          <div class="scent-card-brand"><?php echo esc_html( $p['b'] ); ?></div>
-          <div class="scent-card-name"><?php echo esc_html( $p['n'] ); ?></div>
-          <div class="scent-card-note"><?php echo esc_html( comptoir_notes_courtes( $p ) ); ?></div>
-          <div class="scent-card-price"><?php echo esc_html( $p['pr'] ); ?></div>
-          <span class="scent-card-wa"><?php comptoir_icone_whatsapp(); ?>Voir la fiche</span>
-        </a>
-        <?php endforeach; ?>
-        <div class="scent-panel-cta"><a href="#catalogue" class="btn-b"><?php echo esc_html( $cp_bloc['cta'] ); ?></a></div>
-      </div>
-<?php endforeach; ?>
-    </div>
-  </div>
-</section>
-
-<?php /* Preuves clients juste apres la selection : le visiteur vient de voir
-         les flacons, il voit ensuite qu'ils arrivent vraiment. */ ?>
-<div class="preuves-home"><?php comptoir_bloc_preuves(); ?></div>
-
-<!-- ════════════════════════════════════════
-     SECTION 4 · DISTINCTION
-════════════════════════════════════════ -->
-<section class="distinction" id="distinction" aria-label="Notre approche">
-  <div class="dist-inner">
-    <div class="dist-header r">
-      <div class="sect-kicker"><span>Acheter un parfum au Maroc</span></div>
-      <h2 class="sect-h2">Le même parfum.<br>Sans le prix boutique.</h2>
-      <p class="sect-body">Une seule chose, et elle est authentique : des testeurs officiels. Le flacon que la maison fabrique pour ses propres comptoirs — même jus, même concentration, même tenue que celui du rayon. Ce que vous ne payez pas, c'est le coffret. Et pas un dirham avant d'avoir le colis en main.</p>
-    </div>
-    <div class="dist-compare r">
-      <div class="dist-col">
-        <div class="dist-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </div>
-        <div class="dist-col-tag">Le Comptoir des Parfums</div>
-        <div class="dist-col-name">Testeur original</div>
-        <ul class="dist-list">
-          <li>Le flacon de la maison, le jus exact du rayon</li>
-          <li><span data-prix-min><?php echo esc_html( $cp_prix_min ); ?></span> – <span data-prix-max><?php echo esc_html( $cp_prix_max ); ?></span> DH, le prix est sur chaque fiche</li>
-          <li>Vous payez le livreur en main propre, en cash</li>
-          <li>Livré en 24–72 h, de Tanger à Agadir</li>
-          <li>Le colis ne vous convient pas ? Refusé sans frais, ou remboursé</li>
-          <li>Un doute avant de commander ? Réponse sur WhatsApp</li>
-        </ul>
-      </div>
-      <div class="dist-col">
-        <div class="dist-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-        </div>
-        <div class="dist-col-tag">Boutique officielle</div>
-        <div class="dist-col-name">Coffret de boutique</div>
-        <ul class="dist-list">
-          <li>Le même jus, dans un coffret cartonné</li>
-          <li>1 200 – 4 000 DH le flacon</li>
-          <li>En boutique, dans quelques villes seulement</li>
-          <li>En ligne : avance, douane, semaines d'attente</li>
-          <li>Retour rarement accepté une fois ouvert</li>
-          <li>Les références rares n'arrivent pas jusqu'ici</li>
-        </ul>
-      </div>
-    </div>
-    <div class="dist-cta">
-      <p>La vraie question : payez-vous le jus, ou la vitrine ?</p>
-      <a href="#catalogue" class="btn-b">Voir les <?php echo (int) $cp_nb_refs; ?> parfums</a>
-    </div>
-  </div>
-</section>
-
-<div class="testeur-home"><?php comptoir_bloc_testeur(); ?></div>
-
-<!-- ════════════════════════════════════════
-     SECTION 5 · NOTRE SÉLECTION
-════════════════════════════════════════ -->
-<section class="pick" aria-label="Ce que vous trouverez">
-  <div class="pick-inner">
-    <div class="pick-head">
-      <div class="sect-kicker"><span>Ce que vous trouverez</span></div>
-      <h2 class="sect-h2">Une sélection, pas un catalogue au hasard.</h2>
-    </div>
-    <div class="pick-grid">
-      <div class="pick-item">
-        <div class="pick-fig"><?php echo (int) $cp_nb_maisons; ?> maisons</div>
-        <h3>Du classique à la niche</h3>
-        <p>Chanel, Dior, Tom Ford, Armani — et Kurkdjian, Xerjoff, Nishane, Parfums de Marly, que presque personne n'importe au Maroc.</p>
-      </div>
-      <div class="pick-item">
-        <div class="pick-fig"><?php echo (int) comptoir_compte_genre( 'Femme' ); ?> · <?php echo (int) comptoir_compte_genre( 'Homme' ); ?> · <?php echo (int) comptoir_compte_genre( 'Mixte' ); ?></div>
-        <h3>Pour elle, pour lui, mixtes</h3>
-        <p>Floral, ambré, boisé, aromatique, chypré : toutes les familles sont là, du frais de bureau au sillage de soirée.</p>
-      </div>
-      <div class="pick-item">
-        <div class="pick-fig"><?php echo esc_html( $cp_prix_min ); ?> – <?php echo esc_html( $cp_prix_max ); ?> DH</div>
-        <h3>Le prix du jus</h3>
-        <p>Le même parfum qu'un flacon vendu 1 200 à 4 000 DH. Ce que vous ne payez pas, c'est la vitrine.</p>
-      </div>
-      <div class="pick-item">
-        <div class="pick-fig">100 % testeurs</div>
-        <h3>Le parfum, pas une approche</h3>
-        <p>Chaque flacon sort de la maison qui l'a créé. Pas une imitation, pas une interprétation : le parfum lui-même, dans son flacon de démonstration.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════
-     SECTION 6 · CATALOGUE
-════════════════════════════════════════ -->
+<?php /* ════════════════════════════════════════
+     3 · CATALOGUE
+════════════════════════════════════════ */ ?>
 <section class="catalogue" id="catalogue" aria-label="Catalogue complet">
   <div class="cat-inner">
     <div class="r">
@@ -341,6 +206,9 @@ list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
         <label for="cat-search">Rechercher</label>
         <input type="search" id="cat-search" autocomplete="off" placeholder="Un parfum, une maison…">
       </p>
+      <?php /* Telephone (3.9) : les quatre listes se replient derriere ce
+               bouton, la recherche reste visible. Cache sur ordinateur. */ ?>
+      <button type="button" class="cat-filtres-btn" id="cat-filtres-btn" aria-expanded="false">Filtrer et trier <span class="cat-filtres-nb" id="cat-filtres-nb"></span></button>
       <p class="cat-champ">
         <label for="cat-maison">Maison</label>
         <select id="cat-maison"><option value="">Toutes les maisons</option>
@@ -381,104 +249,94 @@ list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
       <button type="button" class="cat-reset" id="cat-reset" hidden>Tout afficher</button>
     </div>
 
-    <div class="cat-grille" id="cat-list" role="list">
-<?php comptoir_rendu_catalogue(); ?>
+    <?php /* 24 cartes dans la page au lieu de 209 : l'accueil pesait 550 Ko
+             de HTML et plus de 3 000 elements a analyser sur un telephone
+             d'entree de gamme. theme.js construit les autres (data-partiel)
+             au premier filtre, tri, recherche ou « Voir plus », sinon quand
+             le navigateur est libre. Chaque fiche reste dans le plan du site.
+             data-vedettes : la selection du moment (ses trois blocs), premier
+             rayon du catalogue sur telephone (3.9). */
+    $cp_vedettes = array();
+    foreach ( comptoir_selection() as $cp_bloc ) {
+    	foreach ( $cp_bloc['parfums'] as $cp_p ) {
+    		$cp_vedettes[] = $cp_p['s'];
+    	}
+    }
+    ?>
+    <div class="cat-grille" id="cat-list" role="list" data-partiel="24" data-vedettes="<?php echo esc_attr( implode( ',', $cp_vedettes ) ); ?>">
+<?php comptoir_rendu_catalogue( 24 ); ?>
     </div>
     <p class="cat-vide" id="cat-vide" hidden>Aucun parfum ne correspond. Essayez le nom de la maison, ou <button type="button" class="cat-vide-reset">affichez tout le catalogue</button>.</p>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════
-     SECTION 7 · PROCESS
-════════════════════════════════════════ -->
-<section class="process" id="process" aria-label="Comment commander">
+<?php /* Preuves clients juste apres le catalogue et les duos : le visiteur
+         vient de voir les flacons, il voit ensuite qu'ils arrivent vraiment. */ ?>
+<div class="preuves-home"><?php comptoir_bloc_preuves(); ?></div>
+
+<div class="testeur-home"><?php comptoir_bloc_testeur(); ?></div>
+
+<?php /* ════════════════════════════════════════
+     6 · COMMANDER — les etapes, puis l'appel final.
+     v3.6 : reunit « Comment commander », « Nos engagements » et
+     « Commander maintenant », qui disaient trois fois la meme chose
+     (paiement a la livraison, partout au Maroc, satisfait ou rembourse :
+     c'est dans les etapes 03 et 04).
+════════════════════════════════════════ */ ?>
+<section class="commande-home" id="commander" aria-label="Commander">
   <div class="proc-inner">
     <div class="r">
       <div class="sect-kicker"><span>Comment commander</span></div>
-      <h2 class="sect-h2">Simple comme un message.</h2>
+      <h2 class="sect-h2">Commandez en 30 secondes, payez à la livraison.</h2>
     </div>
     <div class="proc-steps">
       <div class="proc-step r d1">
-        <div class="proc-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <div class="proc-num" aria-hidden="true">01</div>
-        <h3>Choisissez sur WhatsApp</h3>
-        <p>Parcourez le catalogue et écrivez-nous le parfum voulu. Hésitation ? Dites-nous ce que vous portez déjà.</p>
+        <div class="proc-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div class="proc-num" aria-hidden="true" data-n="01"></div>
+        <h3>Choisissez votre parfum</h3>
+        <p>Parcourez le catalogue ou faites le quiz en 4 questions. Vous hésitez ? Dites-nous sur WhatsApp ce que vous portez déjà, nous vous conseillons.</p>
       </div>
       <div class="proc-step r d2">
         <div class="proc-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-        <div class="proc-num" aria-hidden="true">02</div>
-        <h3>Confirmation sous 1h</h3>
-        <p>Nous vérifions la disponibilité et confirmons le prix. Aucune avance demandée à cette étape.</p>
+        <div class="proc-num" aria-hidden="true" data-n="02"></div>
+        <h3>Envoyez votre commande</h3>
+        <p>Laissez votre nom, votre téléphone et votre adresse. Rien à payer en ligne : nous vous appelons pour confirmer la commande.</p>
       </div>
       <div class="proc-step r d3">
         <div class="proc-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-        <div class="proc-num" aria-hidden="true">03</div>
+        <div class="proc-num" aria-hidden="true" data-n="03"></div>
         <h3>Livraison 24–72h</h3>
         <p>Casablanca, Rabat, Marrakech, Tanger et toutes les villes. Transporteur partenaire suivi.</p>
       </div>
       <div class="proc-step r d4">
         <div class="proc-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
-        <div class="proc-num" aria-hidden="true">04</div>
+        <div class="proc-num" aria-hidden="true" data-n="04"></div>
         <h3>Cash à réception</h3>
         <p>Vous payez le livreur en main propre. Si le colis ne convient pas, vous le refusez — et si vous changez d'avis ensuite, vous êtes remboursé.</p>
       </div>
     </div>
   </div>
-</section>
-
-<!-- ════════════════════════════════════════
-     SECTION 8 · TRUST
-════════════════════════════════════════ -->
-<section class="trust" id="trust" aria-label="Nos engagements">
-  <div class="trust-inner">
-    <div class="r-left">
-      <div class="sect-kicker"><span>Nos engagements</span></div>
-      <h2 class="sect-h2">Ce que vous ne remettrez jamais en question.</h2>
-      <div class="g-list">
-        <div class="g-item">
-          <div class="g-num">01</div>
-          <div class="g-body"><h4>Cash on delivery, sans exception</h4><p>Aucun virement, aucun acompte. Vous payez uniquement quand le colis est entre vos mains.</p></div>
-        </div>
-        <div class="g-item">
-          <div class="g-num">02</div>
-          <div class="g-body"><h4>Satisfait ou remboursé</h4><p>Refusez le colis au livreur, ou changez d'avis après l'avoir ouvert : nous vous remboursons. Sans discussion.</p></div>
-        </div>
-        <div class="g-item">
-          <div class="g-num">03</div>
-          <div class="g-body"><h4>Livraison partout au Maroc</h4><p>De Tanger à Dakhla, du centre-ville aux zones rurales — nos transporteurs couvrent tout le Royaume.</p></div>
-        </div>
-        <div class="g-item">
-          <div class="g-num">04</div>
-          <div class="g-body"><h4>Conseil olfactif offert</h4><p>Dites-nous ce que vous portez. Nous vous orientons vers le parfum le plus proche de votre sensibilité — gratuitement.</p></div>
-        </div>
-      </div>
+  <div class="fin-inner r">
+    <h3 class="fin-h2">Un grand parfum livré chez vous demain.</h3>
+    <p class="fin-body">Choisissez vos flacons, laissez votre nom et votre téléphone — et payez seulement quand le colis est entre vos mains, en 24 à 72h.</p>
+    <div class="fin-actions">
+      <a href="<?php echo esc_url( home_url( '/?commander=1' ) ); ?>" class="btn-fin">Commander maintenant</a>
+      <a href="#catalogue" class="btn-fin-g">Parcourir le catalogue</a>
     </div>
-    <div class="r-right">
-      <div class="g-card">
-        <h4>Vous ne savez pas quoi choisir ?</h4>
-        <p>Impossible de sentir un parfum à travers un écran. C'est pourquoi nous avons mis en place un conseil par messages : dites-nous vos parfums habituels, vos matières préférées (oud, vanille, agrumes, floral, boisé) et nous vous proposons deux ou trois options adaptées.</p>
-        <p>Tous nos flacons sont des <span class="hl">testeurs officiels</span>, donc le jus est celui de la boutique, à l'identique. Notre conseil porte sur le choix du parfum, jamais sur sa fidélité — il n'y a rien à rapprocher.</p>
-        <a href="<?php echo esc_url( $cp_wa ); ?>" class="wa-cta" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
-      </div>
-    </div>
+    <?php /* Un seul chemin pour commander : le formulaire, qui inscrit la
+         commande au carnet et la fait compter par le pixel. WhatsApp sert aux
+         questions (3.9.17) : « ou commandez directement sur WhatsApp » ouvrait
+         un second chemin, qui faisait hesiter et que Meta ne voyait pas. */ ?>
+    <p class="fin-ou">
+      <a href="<?php echo esc_url( $cp_wa ); ?>" target="_blank" rel="noopener">
+        <?php comptoir_icone_whatsapp(); ?>Un doute avant de commander ? Réponse sur WhatsApp</a>
+    </p>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════
-     SECTION 9 · NUMBERS
-════════════════════════════════════════ -->
-<div class="numbers" aria-label="Chiffres clés">
-  <div class="numbers-inner">
-    <div class="nb-item r"><span class="nb-num" data-refs-total><?php echo (int) $cp_nb_refs; ?></span><span class="nb-label">Références en stock</span></div>
-    <div class="nb-item r d1"><span class="nb-num" data-maisons-total><?php echo (int) $cp_nb_maisons; ?></span><span class="nb-label">Maisons représentées</span></div>
-    <div class="nb-item r d2"><span class="nb-num">24h</span><span class="nb-label">Livraison grandes villes</span></div>
-    <div class="nb-item r d3"><span class="nb-num">0 DH</span><span class="nb-label">Avance requise</span></div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════
-     SECTION 10 · FAQ
-════════════════════════════════════════ -->
+<?php /* ════════════════════════════════════════
+     7 · QUESTIONS FREQUENTES
+════════════════════════════════════════ */ ?>
 <section class="faq" id="faq" aria-label="Questions fréquentes">
   <div class="faq-inner">
     <div class="faq-sidebar r-left">
@@ -486,7 +344,7 @@ list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
       <h2 class="sect-h2">Ce qu'on nous demande le plus.</h2>
       <p class="sect-body">Une réponse manque ? Écrivez-nous directement.</p>
       <div class="wa-block">
-        <p>Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, commandes.</p>
+        <p>Notre équipe répond sur WhatsApp en moins de 2h — conseils, disponibilités, suivi de commande.</p>
         <a href="<?php echo esc_url( $cp_wa ); ?>" class="wa-cta" target="_blank" rel="noopener">Poser une question</a>
       </div>
     </div>
@@ -513,56 +371,12 @@ list( $cp_prix_min, $cp_prix_max ) = comptoir_bornes_prix();
       </div>
       <div class="faq-item" role="listitem">
         <button class="faq-btn" aria-expanded="false">Livrez-vous partout au Maroc ?<span class="faq-ico" aria-hidden="true"></span></button>
-        <div class="faq-ans"><p>Oui — de Tanger à Dakhla, en passant par toutes les villes et zones rurales. Casablanca, Rabat, Marrakech et les grandes agglomérations sont livrées en 24 à 48h. Le reste du Royaume en 2 à 4 jours ouvrables via nos transporteurs partenaires.</p></div>
+        <div class="faq-ans"><p>Oui — de Tanger à Dakhla, toutes les villes et les zones rurales sont livrées en 24 à 72 h par nos transporteurs partenaires.</p></div>
       </div>
       <div class="faq-item" role="listitem">
         <button class="faq-btn" aria-expanded="false">Les prix affichés sont-ils définitifs ?<span class="faq-ico" aria-hidden="true"></span></button>
-        <div class="faq-ans"><p>Les prix du catalogue sont indicatifs et régulièrement mis à jour. Le prix ferme est confirmé par message au moment de votre commande, selon disponibilité et volume. Aucune surprise à la livraison.</p></div>
+        <div class="faq-ans"><p>Oui. Le prix affiché est celui que vous payez : pas d'acompte, pas de frais cachés. Seule la livraison s'ajoute, offerte dès le deuxième parfum, et le total exact s'affiche avant l'envoi de votre commande. Vous le réglez au livreur, colis en main.</p></div>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════
-     SECTION 11 · FINAL CTA
-════════════════════════════════════════ -->
-<section class="finale" id="commander" aria-label="Commander">
-  <div class="fin-inner r">
-    <span class="fin-mark" aria-hidden="true">
-      <svg viewBox="0 0 96 96"><use href="#cp-seal"/></svg>
-      <span class="fin-mark-serif">Le Comptoir</span>
-      <span class="fin-mark-sans">des Parfums</span>
-    </span>
-    <div class="fin-kicker">Commander maintenant</div>
-    <h2 class="fin-h2">Un grand parfum livré chez vous demain.</h2>
-    <p class="fin-body">Choisissez vos flacons, laissez votre adresse, confirmez d'un message — et payez seulement quand le colis est entre vos mains, en 24 à 72h.</p>
-    <div class="fin-actions">
-      <a href="<?php echo esc_url( home_url( '/?commander=1' ) ); ?>" class="btn-fin">Commander maintenant</a>
-      <a href="#catalogue" class="btn-fin-g">Parcourir le catalogue</a>
-    </div>
-    <!-- Le formulaire reste le chemin principal : c'est lui qui inscrit la
-         commande au carnet. Mais on ne force personne a le remplir. -->
-    <p class="fin-ou">
-      <a href="<?php echo esc_url( $cp_wa ); ?>" target="_blank" rel="noopener">
-        <?php comptoir_icone_whatsapp(); ?>ou commandez directement sur WhatsApp</a>
-    </p>
-    <div class="fin-trust" aria-label="Garanties">
-      <span class="fin-trust-item">
-        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        Cash à réception
-      </span>
-      <span class="fin-trust-item">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Livraison 24–72h
-      </span>
-      <span class="fin-trust-item">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-        Tout le Maroc
-      </span>
-      <span class="fin-trust-item">
-        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Satisfait ou remboursé
-      </span>
     </div>
   </div>
 </section>
