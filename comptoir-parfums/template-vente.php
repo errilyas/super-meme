@@ -255,7 +255,7 @@ get_header();
         </div>
         <div class="faq-item" role="listitem">
           <button class="faq-btn" aria-expanded="false">Comment savoir que c'est un vrai ?<span class="faq-ico" aria-hidden="true"></span></button>
-          <div class="faq-ans"><p>Chaque flacon porte le code de lot de la maison. Tapez-le sur un site de vérification comme CheckFresh : il vous donne sa date de fabrication. Et vous ne payez qu'à la livraison, colis en main.</p></div>
+          <div class="faq-ans"><p>Chaque flacon porte le code de lot de la maison. Tapez-le sur un site de vérification comme <a href="https://www.checkfresh.com/" target="_blank" rel="noopener">CheckFresh</a> : il vous donne sa date de fabrication. Et vous ne payez qu'à la livraison, colis en main.</p></div>
         </div>
         <div class="faq-item" role="listitem">
           <button class="faq-btn" aria-expanded="false">Et si le parfum ne me convient pas ?<span class="faq-ico" aria-hidden="true"></span></button>

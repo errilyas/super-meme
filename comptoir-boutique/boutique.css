@@ -440,18 +440,6 @@ html.cpb-lock .joinchat{display:none!important}
   background:linear-gradient(180deg,rgba(var(--au-rgb),.06),transparent 70%),var(--deep);
 }
 .cpb-express .cpb-titre-petit{margin-bottom:16px}
-.cpb-x-qte{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.cpb-x-q{position:relative;cursor:pointer}
-.cpb-x-q input{position:absolute;opacity:0;pointer-events:none}
-.cpb-x-q span{
-  display:flex;flex-direction:column;gap:3px;min-height:64px;justify-content:center;
-  padding:10px 14px;border:1px solid var(--line2);border-radius:2px;
-  font-size:13px;color:var(--text-dim);transition:border-color .2s,background .2s;
-}
-.cpb-x-q b{font-weight:500;color:var(--bone);font-size:15px}
-.cpb-x-q em{font-style:normal;font-size:11px;color:var(--ember);letter-spacing:.06em}
-.cpb-x-q input:checked + span{border-color:var(--ember);background:rgba(var(--au-rgb),.1)}
-.cpb-x-q input:focus-visible + span{outline:2px solid var(--ember);outline-offset:2px}
 .cpb-x-champ{display:block;margin-bottom:12px}
 .cpb-x-champ > span{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--smoke);margin-bottom:6px}
 [data-lang="ar"] .cpb-x-champ > span{letter-spacing:0;font-size:13px;text-transform:none}
@@ -466,7 +454,6 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-x-champ.err input,.cpb-x-champ.err select{border-color:#e0766a}
 .cpb-x-champ.err small{display:block}
 .cpb-x-recap{font-size:13px;line-height:1.6;color:var(--text-dim);margin:4px 0 14px}
-.cpb-x-q1-label{font-weight:400}
 .cpb-x-panier-note{font-size:13px;line-height:1.6;margin:0 0 16px;color:var(--text-dim)}
 .cpb-x-panier-note p{margin:0}
 .cpb-x-modifier{background:none;border:0;color:var(--ember);text-decoration:underline;text-underline-offset:3px;padding:8px 0;min-height:44px;text-align:start;cursor:pointer;font:inherit}
@@ -481,10 +468,9 @@ html.cpb-lock .joinchat{display:none!important}
 .cpb-x-note{font-size:12px;line-height:1.6;color:var(--smoke);margin:10px 0 0}
 @media(max-width:600px){ .cpb-express{padding:18px 16px 14px} }
 
-/* Deuxieme parfum au choix (commande express) */
-.cpb-x-q2{font-size:13px!important;color:var(--ember)!important}
+/* Deuxieme parfum au choix (commande express) : un lien sous le total */
+.cpb-x-duo{display:block;width:100%;background:none;border:0;color:var(--ember);text-decoration:underline;text-underline-offset:3px;padding:8px 0;min-height:44px;margin:-6px 0 8px;text-align:start;cursor:pointer;font:inherit;font-size:14px}
 .cpb-x-second{margin:-4px 0 16px;padding:14px;border:1px dashed rgba(var(--au-rgb),.4);background:rgba(var(--au-rgb),.04)}
-.cpb-x-second.err{border-color:#e0766a;border-style:solid}
 .cpb-x-sous-titre{font-size:13px;color:var(--bone);margin:0 0 10px}
 .cpb-x-cherche{width:100%;min-height:44px;padding:0 12px;margin-bottom:10px;border:1px solid var(--line2);border-radius:2px;background:var(--void);color:var(--bone);font:400 16px/1.2 var(--sans)}
 [data-lang="ar"] .cpb-x-cherche{font-family:var(--arabe)}

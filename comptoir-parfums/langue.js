@@ -296,11 +296,14 @@
     'Pourquoi moins cher ?': 'لماذا أرخص؟',
     'Dans le prix d\'un parfum de luxe, vous payez aussi le coffret, la publicité et la vitrine. Un testeur n\'a ni coffret ni vitrine : vous ne payez que le parfum.': 'في ثمن عطر فاخر، تدفع أيضًا العلبة والإشهار والواجهة. التستر بلا علبة فاخرة ولا واجهة: تدفع ثمن العطر فقط.',
     'Comment vérifier ?': 'كيف تتحقق؟',
-    'Chaque flacon porte le code de lot de la maison. Tapez-le sur un site de vérification comme CheckFresh : il vous donne sa date de fabrication.': 'كل قارورة تحمل رمز الدفعة الخاص بالدار. اكتبه في موقع تحقق مثل CheckFresh: يعطيك تاريخ صنعها.',
+    /* « CheckFresh » est un lien : la phrase arrive en deux morceaux, de
+       part et d'autre. Le second existe en deux versions (testeur, FAQ). */
+    'Chaque flacon porte le code de lot de la maison. Tapez-le sur un site de vérification comme': 'كل قارورة تحمل رمز الدفعة الخاص بالدار. اكتبه في موقع تحقق مثل',
+    ': il vous donne sa date de fabrication.': ': يعطيك تاريخ صنعها.',
     'Et si ça ne va pas ?': 'وإذا كان هناك مشكل؟',
     'Vous payez à la livraison, jamais avant. Un souci après ouverture ? Écrivez-nous, nous vous remboursons.': 'تدفع عند الاستلام، أبدًا قبل ذلك. مشكل بعد الفتح؟ راسلنا ونعيد لك مالك.',
     'Comment savoir que c\'est un vrai ?': 'كيف أعرف أنه أصلي؟',
-    'Chaque flacon porte le code de lot de la maison. Tapez-le sur un site de vérification comme CheckFresh : il vous donne sa date de fabrication. Et vous ne payez qu\'à la livraison, colis en main.': 'كل قارورة تحمل رمز الدفعة الخاص بالدار. اكتبه في موقع تحقق مثل CheckFresh: يعطيك تاريخ صنعها. ولا تدفع إلا عند الاستلام، والطرد بين يديك.',
+    ': il vous donne sa date de fabrication. Et vous ne payez qu\'à la livraison, colis en main.': ': يعطيك تاريخ صنعها. ولا تدفع إلا عند الاستلام، والطرد بين يديك.',
     'Ils ont reçu leur parfum': 'توصّلوا بعطرهم',
     'Messages et colis de nos clients, tels quels.': 'رسائل وطرود زبائننا، كما هي.',
     'Notes et fiche complète': 'المكوّنات والبطاقة الكاملة',
