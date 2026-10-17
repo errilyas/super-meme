@@ -1779,9 +1779,10 @@
         ou commande interrompue) retrouve son telephone, son nom, sa ville
         et son adresse deja remplis, dans la commande express comme sur la
         page commande. Gardees sur son telephone seulement, effacables.
-     2. Date de livraison estimee, selon la ville et la promesse affichee
-        par le theme : Casablanca 24 a 48 h, ailleurs 2 a 4 jours ouvrables
-        (le dimanche ne compte pas).
+     2. Date de livraison estimee, selon la promesse affichee par le
+        theme : 24 a 72 h partout au Maroc, soit 1 a 3 jours ouvrables (le
+        dimanche ne compte pas). La meme pour toutes les villes : la fiche,
+        la page commande et la confirmation n'annoncent plus qu'un delai.
      3. Fiche parfum : la barre fixe « Commander » menait a la page
         commande, un second parcours plus long, et restait par-dessus le
         formulaire express. Elle y mene maintenant, et s'efface pendant
@@ -1898,10 +1899,9 @@
       return d.getDate() + '/' + (d.getMonth() + 1);
     }
   }
-  function fenetreLivraison(ville) {
-    var casa = memeVille(ville, 'Casablanca');
+  function fenetreLivraison() {
     var auj = new Date();
-    return [plusJoursOuvrables(auj, casa ? 1 : 2), plusJoursOuvrables(auj, casa ? 2 : 4)];
+    return [plusJoursOuvrables(auj, 1), plusJoursOuvrables(auj, 3)];
   }
 
   function estimeLivraison(form, avant) {
@@ -1916,7 +1916,7 @@
     var maj = function () {
       var v = sel.value === 'autre' ? '' : sel.value;
       if (!v) { p.hidden = true; return; }
-      var f = fenetreLivraison(v);
+      var f = fenetreLivraison();
       p.innerHTML = SVG.camion + '<span>' + esc(t('Livraison estimée : entre {a} et {b}', { a: dateCourte(f[0]), b: dateCourte(f[1]) })) + '</span>';
       p.hidden = false;
     };

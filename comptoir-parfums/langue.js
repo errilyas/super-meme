@@ -229,7 +229,7 @@
     'Comment choisir sans pouvoir sentir le parfum ?': 'كيف أختار دون أن أشمّ العطر؟',
     'Écrivez-nous les parfums que vous portez actuellement ou que vous aimez. Nous vous orientons vers des testeurs dont les notes partagent le même ADN olfactif, en expliquant les différences. Ce service est gratuit et sans engagement.': 'اكتب لنا العطور التي ترتديها حاليًا أو التي تحبّها. نوجّهك إلى عطور مطابقة أو تستر تشترك نوتاتها في نفس البصمة العطرية، مع شرح الفروق. هذه الخدمة مجانية وبلا التزام.',
     'Livrez-vous partout au Maroc ?': 'هل توصّلون إلى كل المغرب؟',
-    'Oui — de Tanger à Dakhla, en passant par toutes les villes et zones rurales. Casablanca, Rabat, Marrakech et les grandes agglomérations sont livrées en 24 à 48h. Le reste du Royaume en 2 à 4 jours ouvrables via nos transporteurs partenaires.': 'نعم — من طنجة إلى الداخلة، مرورًا بكل المدن والقرى. الدار البيضاء والرباط ومراكش والمدن الكبرى خلال 24 إلى 48 ساعة، وباقي المملكة خلال 2 إلى 4 أيام عمل عبر شركائنا في التوصيل.',
+    'Oui — de Tanger à Dakhla, toutes les villes et les zones rurales sont livrées en 24 à 72 h par nos transporteurs partenaires.': 'نعم — من طنجة إلى الداخلة، كل المدن والقرى يصلها التوصيل خلال 24 إلى 72 ساعة عبر شركائنا في التوصيل.',
     'Les prix affichés sont-ils définitifs ?': 'هل الأسعار المعروضة نهائية؟',
     'Oui. Le prix affiché est celui que vous payez : pas d\'acompte, pas de frais cachés. Seule la livraison s\'ajoute, offerte dès le deuxième parfum, et le total exact s\'affiche avant l\'envoi de votre commande. Vous le réglez au livreur, colis en main.': 'نعم. السعر المعروض هو الذي تدفعه: لا عربون ولا مصاريف خفية. يُضاف فقط ثمن التوصيل، وهو مجاني ابتداءً من العطر الثاني، ويظهر المجموع النهائي قبل إرسال طلبك. تدفعه لعامل التوصيل والطرد بين يديك.',
 
@@ -358,7 +358,7 @@
     'C\'est cette adresse que le livreur suivra.': 'هذا هو العنوان الذي سيقصده عامل التوصيل.',
     'Paiement à la livraison.': 'الدفع عند الاستلام.',
     'Vous réglez en espèces au livreur, à la réception de votre colis. Ce site ne demande aucune carte bancaire.': 'تدفع نقدًا لعامل التوصيل عند استلام طردك. هذا الموقع لا يطلب أي بطاقة بنكية.',
-    'Casablanca en 24 à 48 heures.': 'الدار البيضاء خلال 24 إلى 48 ساعة.',
+    'Livraison en 24 à 72 h partout au Maroc.': 'التوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
     'Envoyer ma commande': 'إرسال طلبي',
     'La demande est transmise au site avant l’ouverture de WhatsApp. Confirmez ensuite la disponibilité avec nous par message.': 'يتم إرسال الطلب إلى الموقع قبل فتح واتساب. ثم أكدوا معنا توفر العطر عبر رسالة.',
     'Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.': 'لا شيء تدفعه الآن. سنتصل بك لتأكيد الطلب، والتوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
@@ -385,7 +385,7 @@
     'Vous confirmez sur WhatsApp': 'تؤكّد عبر واتساب',
     '— le message est déjà écrit, un appui suffit.': '— الرسالة مكتوبة سلفًا، ضغطة واحدة تكفي.',
     'Nous expédions': 'نرسل الطرد',
-    '— Casablanca en 24 à 48 h, le reste du Maroc en 2 à 4 jours.': '— الدار البيضاء خلال 24 إلى 48 ساعة، وباقي المغرب خلال 2 إلى 4 أيام.',
+    '— livraison en 24 à 72 h partout au Maroc.': '— التوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
     'Vous payez à la remise': 'تدفع عند التسليم',
     '— en espèces, au livreur. Rien n\'est payé à l\'avance.': '— نقدًا لعامل التوصيل. لا شيء يُدفع مسبقًا.',
     'Votre récapitulatif est prêt. Envoyez le message sur WhatsApp pour confirmer votre demande et vérifier la disponibilité.': 'ملخص طلبك جاهز. أرسل الرسالة عبر واتساب لتأكيد طلبك والتحقق من توفر العطر.',
@@ -620,8 +620,8 @@
     [/^(\d+) maisons$/, '$1 دار عطور'],
     [/^(\d+) parmi (\d+)$/, '$1 من $2'],
     [/^(\d+) maisons, de (.+) à (.+) DH\. Chaque flacon a sa fiche complète : pyramide olfactive, prix, disponibilité\.$/, '$1 دار عطور، من $2 إلى $3 درهم. لكل قارورة بطاقتها الكاملة: الهرم العطري، السعر، التوفر.'],
-    [/^Le reste du Maroc en 2 à 4 jours ouvrables\. (\d+) DH de livraison, partout — offerte dès le deuxième parfum\.$/, 'باقي المغرب خلال 2 إلى 4 أيام عمل. التوصيل بـ$1 درهم في كل المغرب — مجاني ابتداءً من العطر الثاني.'],
-    [/^(\d+) DH de livraison, partout\.$/, 'التوصيل بـ$1 درهم في كل المغرب.'],
+    [/^(\d+) DH de livraison — offerte dès le deuxième parfum\.$/, 'التوصيل بـ$1 درهم — مجاني ابتداءً من العطر الثاني.'],
+    [/^(\d+) DH de livraison\.$/, 'التوصيل بـ$1 درهم.'],
     [/^Le lien est peut-être incomplet, ou la page a été retirée\. Le catalogue, lui, est toujours là : (\d+) parfums, (\d+) maisons, livrés partout au Maroc\.$/, 'ربما الرابط غير مكتمل، أو أُزيلت الصفحة. أمّا الكتالوج فما زال هنا: $1 عطر و$2 دار عطور، مع التوصيل إلى كل المغرب.'],
     [/^Frais de livraison confirmés à la commande\.$/, 'تُحدَّد رسوم التوصيل عند الطلب.']
   ];
@@ -629,10 +629,21 @@
   /* ══════════════════════════════════════════════════════════════
      ÉTAT
   ══════════════════════════════════════════════════════════════ */
+  /* Dans l'ordre : ?lang= dans l'adresse, puis le choix fait avec le bouton
+     AR / FR, puis la langue du telephone. Les publicites parlent darija :
+     un telephone regle en arabe ouvrait pourtant le site en francais,
+     faute de choix memorise. La langue du telephone n'est pas memorisee :
+     seul un choix du client l'est, et il passe devant. Meme regle dans le
+     script pose en tete de page (header.php). */
   function lire() {
     var url = new URLSearchParams(location.search).get('lang');
     if (url === 'ar' || url === 'fr') { ecrire(url); return url; }
-    try { return localStorage.getItem(CLE) === 'ar' ? 'ar' : 'fr'; } catch (e) { return 'fr'; }
+    try {
+      var choix = localStorage.getItem(CLE);
+      if (choix === 'ar' || choix === 'fr') { return choix; }
+    } catch (e) {}
+    var tel = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+    return /^ar\b/i.test(tel) ? 'ar' : 'fr';
   }
   function ecrire(l) { try { localStorage.setItem(CLE, l); } catch (e) {} }
 

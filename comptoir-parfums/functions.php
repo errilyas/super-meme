@@ -118,7 +118,9 @@ function comptoir_photo_sizes( $classe ) {
 	return isset( $tailles[ $classe ] ) ? $tailles[ $classe ] : '(max-width: 900px) 45vw, 300px';
 }
 
-/** La phrase des frais de livraison, ecrite une fois pour toutes les pages. */
+/** La phrase des frais de livraison, ecrite une fois pour toutes les pages.
+ *  Sans « partout » : la page commande la pose juste apres « Livraison en
+ *  24 a 72 h partout au Maroc. », le mot y etait deux fois. */
 function comptoir_note_livraison() {
 	$frais  = comptoir_livraison_dh();
 	$franco = comptoir_franco_articles();
@@ -127,11 +129,11 @@ function comptoir_note_livraison() {
 	}
 	if ( $franco > 1 ) {
 		return sprintf(
-			'%s DH de livraison, partout — offerte dès le deuxième parfum.',
+			'%s DH de livraison — offerte dès le deuxième parfum.',
 			comptoir_prix_format( $frais )
 		);
 	}
-	return comptoir_prix_format( $frais ) . ' DH de livraison, partout.';
+	return comptoir_prix_format( $frais ) . ' DH de livraison.';
 }
 
 /**
@@ -631,6 +633,20 @@ add_filter( 'body_class', function ( $classes ) {
 	}
 	return $classes;
 } );
+
+/**
+ * Verification Google Search Console. C'est Site Kit qui la posait ; le
+ * theme la reprend pour que Site Kit puisse etre desactive (sa balise Google
+ * pesait 178 Kio sur chaque page) sans que la propriete Search Console perde
+ * sa verification. Tant que Site Kit est actif, il la pose lui-meme : pas de
+ * doublon. Valeur publique, lisible dans le code de chaque page.
+ */
+add_action( 'wp_head', function () {
+	if ( defined( 'GOOGLESITEKIT_VERSION' ) ) {
+		return;
+	}
+	echo '<meta name="google-site-verification" content="gYE7mbuwc_Ki8aPw2PBGusYBGFdGrsXPhMcTc__HleU">' . "\n";
+}, 1 );
 
 /**
  * Balises de mesure dans <head>. Rien n'est imprime tant que comptoir_mesure()

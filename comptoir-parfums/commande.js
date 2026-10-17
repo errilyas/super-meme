@@ -198,18 +198,22 @@
        c'est la seule trace qui reste a l'ecran. */
     var det = document.getElementById('ck-merci-lignes');
     if(det && c.lignes && c.lignes.length){
+      /* Un prix ne se coupe pas : a cote d'un nom de parfum sur deux
+         lignes, « 359 » restait seul et « DH » passait dessous (ecran de
+         360 px). Ses espaces deviennent insecables, rien d'autre ne change. */
+      var prix = function(n){ return P.fmt(n).replace(/ /g, ' '); };
       var h = c.lignes.map(function(l){
         return '<div class="ck-ml"><span>' + (l.q > 1 ? l.q + '× ' : '') + esc(l.nom)
-          + '</span><span>' + P.fmt(l.prix) + '</span></div>';
+          + '</span><span>' + prix(l.prix) + '</span></div>';
       });
-      h.push('<div class="ck-ml"><span>' + T('Sous-total') + '</span><span>' + P.fmt(c.sousTotal) + '</span></div>');
-      if (c.remise) { h.push('<div class="ck-ml"><span>' + T('Remise duo') + '</span><span>−' + P.fmt(c.remise) + '</span></div>'); }
+      h.push('<div class="ck-ml"><span>' + T('Sous-total') + '</span><span>' + prix(c.sousTotal) + '</span></div>');
+      if (c.remise) { h.push('<div class="ck-ml"><span>' + T('Remise duo') + '</span><span>−' + prix(c.remise) + '</span></div>'); }
       /* La ville s'affiche dans la langue du client ; ce qui est parti au
          carnet de commandes reste le nom francais (cf. CP_VILLE). */
       var villeVue = data.ville && window.CP_VILLE ? window.CP_VILLE(data.ville) : data.ville;
       h.push('<div class="ck-ml"><span>' + T('Livraison') + (villeVue ? ' — ' + esc(villeVue) : '')
-        + '</span><span>' + (c.livraison ? P.fmt(c.livraison) : T('offerte')) + '</span></div>');
-      h.push('<div class="ck-ml tot"><span>' + T('Total à payer au livreur') + '</span><b>' + P.fmt(c.montant) + '</b></div>');
+        + '</span><span>' + (c.livraison ? prix(c.livraison) : T('offerte')) + '</span></div>');
+      h.push('<div class="ck-ml tot"><span>' + T('Total à payer au livreur') + '</span><b>' + prix(c.montant) + '</b></div>');
       det.innerHTML = h.join('');
     }
 

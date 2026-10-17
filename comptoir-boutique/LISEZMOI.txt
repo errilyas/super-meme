@@ -60,8 +60,9 @@ Ce qu'elle ajoute au site, sans modifier le thème :
    - Un client qui revient retrouve téléphone, nom, ville et adresse déjà
      remplis (commande express et page commande), gardés sur son téléphone
      seulement, avec un bouton « Effacer ».
-   - Date de livraison estimée dès que la ville est choisie : Casablanca
-     24 à 48 h, ailleurs 2 à 4 jours ouvrables (dimanche exclu).
+   - Date de livraison estimée dès que la ville est choisie : 1 à 3 jours
+     ouvrables partout (dimanche exclu), soit les « 24 à 72 h » du site
+     (1.31.3 ; avant, Casablanca 24 à 48 h et ailleurs 2 à 4 jours).
    - Fiche parfum : la barre fixe « Commander » amène au formulaire express
      au lieu d'ouvrir la page commande, et s'efface pendant qu'il est à
      l'écran (avant, elle le recouvrait).
@@ -373,3 +374,12 @@ Mode d'aperçu : CPB_MODE = 'apercu' n'affiche les nouveautés qu'avec
      reçue », le pixel comptait l'achat, et la commande n'existait nulle
      part. Elle part maintenant avec la mention « (à préciser lors de
      l'appel) » après ce que le client a écrit.
+   (1.31.3) Reprend tout la 1.31.2, plus :
+   - Un seul délai partout, celui du site : « 24 à 72 h partout au
+     Maroc ». La date estimée de la commande express et de la page
+     commande compte 1 à 3 jours ouvrables pour toutes les villes, la page
+     de suivi d'une commande expédiée annonce « sous 24 à 72 h », et les
+     fiches déclarent à Google 1 à 3 jours (préparation 0 à 1 jour,
+     transport 1 à 2).
+   À mettre en ligne avec le thème 3.9.20, qui retire les « 2 à 4 jours »
+   de ses propres textes.

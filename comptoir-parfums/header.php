@@ -37,8 +37,12 @@ $cp_is_home = comptoir_est_accueil();
    visiteur. Le filet de securite ci-dessous reste en bas : son minuteur
    partirait sinon avant GSAP et couperait les animations du heros. */ ?>
 <script data-jetpack-boost="ignore">/* langue memorisee, posee avant le rendu : sans cela la page s'affiche
-   en francais puis saute en arabe sous les yeux du visiteur. */
-try{var cpL=new URLSearchParams(location.search).get('lang')||localStorage.getItem('cp_langue');
+   en francais puis saute en arabe sous les yeux du visiteur. Sans choix
+   memorise, la langue du telephone decide : regle en arabe, il ouvre le
+   site en arabe (meme regle que lire() dans langue.js). */
+try{var cpL=new URLSearchParams(location.search).get('lang');
+if(cpL!=='ar'&&cpL!=='fr'){cpL=null;try{cpL=localStorage.getItem('cp_langue');}catch(e){}}
+if(cpL!=='ar'&&cpL!=='fr'&&/^ar\b/i.test((navigator.languages&&navigator.languages[0])||navigator.language||'')){cpL='ar';}
 if(cpL==='ar'){document.documentElement.setAttribute('data-lang','ar');document.documentElement.setAttribute('lang','ar');document.documentElement.setAttribute('dir','rtl');}}catch(e){}</script>
 <script data-jetpack-boost="ignore">/* Theme pose avant le rendu (sans flash). Par defaut il suit le jour : clair
    entre le lever et le coucher du soleil au Maroc (heures moyennes du mois,

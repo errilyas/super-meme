@@ -53,7 +53,7 @@ get_header();
     </div>
     <ol class="ck-merci-suite">
       <li><b>Nous vous appelons</b> — pour confirmer la commande et noter l'adresse de livraison.</li>
-      <li><b>Nous expédions</b> — Casablanca en 24 à 48 h, le reste du Maroc en 2 à 4 jours.</li>
+      <li><b>Nous expédions</b> — livraison en 24 à 72 h partout au Maroc.</li>
       <li><b>Vous payez à la remise</b> — en espèces, au livreur. Rien n'est payé à l'avance.</li>
     </ol>
     <div class="ck-merci-actions">
@@ -150,7 +150,7 @@ get_header();
           <span class="ck-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M1.5 16.5V6.5h12v10M13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>
           </span>
-          <p><b>Casablanca en 24 à 48 heures.</b> Le reste du Maroc en 2 à 4 jours ouvrables. <?php echo esc_html( comptoir_note_livraison() ); ?></p>
+          <p><b>Livraison en 24 à 72 h partout au Maroc.</b> <?php echo esc_html( comptoir_note_livraison() ); ?></p>
         </div>
 
         <?php /* Un sac, pas la bulle WhatsApp : ce bouton passe la commande, il

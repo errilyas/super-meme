@@ -371,7 +371,7 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
       </div>
       <div class="faq-item" role="listitem">
         <button class="faq-btn" aria-expanded="false">Livrez-vous partout au Maroc ?<span class="faq-ico" aria-hidden="true"></span></button>
-        <div class="faq-ans"><p>Oui — de Tanger à Dakhla, en passant par toutes les villes et zones rurales. Casablanca, Rabat, Marrakech et les grandes agglomérations sont livrées en 24 à 48h. Le reste du Royaume en 2 à 4 jours ouvrables via nos transporteurs partenaires.</p></div>
+        <div class="faq-ans"><p>Oui — de Tanger à Dakhla, toutes les villes et les zones rurales sont livrées en 24 à 72 h par nos transporteurs partenaires.</p></div>
       </div>
       <div class="faq-item" role="listitem">
         <button class="faq-btn" aria-expanded="false">Les prix affichés sont-ils définitifs ?<span class="faq-ico" aria-hidden="true"></span></button>

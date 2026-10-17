@@ -310,7 +310,6 @@ function cpb_suivi_page( $id, $erreur, $ref_vue ) {
 	$ref    = (string) get_post_meta( $id, 'cp_ref', true );
 	$e      = cpb_suivi_etat( $id );
 	$dates  = cpb_suivi_dates( $id );
-	$ville  = (string) get_post_meta( $id, 'cp_ville', true );
 	$post   = get_post( $id );
 	printf( '<h1><span data-cpb-ar="الطلب">Commande</span> %s</h1>', esc_html( $ref ) );
 	if ( 'annulee' === $e ) {
@@ -334,9 +333,7 @@ function cpb_suivi_page( $id, $erreur, $ref_vue ) {
 		}
 		echo '</ol>';
 		if ( 'expediee' === $e ) {
-			$casa = function_exists( 'remove_accents' ) && 'casablanca' === strtolower( remove_accents( $ville ) );
-			echo '<p class="cpb-suivi-note" data-cpb-ar="' . esc_attr( $casa ? 'التوصيل المتوقع خلال 1 إلى 2 أيام عمل. الموزع غادي يتاصل بيك.' : 'التوصيل المتوقع خلال 2 إلى 4 أيام عمل. الموزع غادي يتاصل بيك.' ) . '">'
-				. esc_html( $casa ? 'Livraison prévue sous 1 à 2 jours ouvrés. Le livreur vous appellera.' : 'Livraison prévue sous 2 à 4 jours ouvrés. Le livreur vous appellera.' ) . '</p>';
+			echo '<p class="cpb-suivi-note" data-cpb-ar="التوصيل المتوقع خلال 24 إلى 72 ساعة. الموزع غادي يتاصل بيك.">Livraison prévue sous 24 à 72 h. Le livreur vous appellera.</p>';
 		} elseif ( 'livree' === $e ) {
 			echo '<p class="cpb-suivi-note" data-cpb-ar="شكرا على ثقتك! عجبك العطر؟ قل لنا رأيك على واتساب.">Merci pour votre confiance ! Votre parfum vous plaît ? Dites-le-nous sur WhatsApp.</p>';
 		} else {
