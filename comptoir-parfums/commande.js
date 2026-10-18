@@ -244,6 +244,25 @@
       wa.hidden = false;
     }
 
+    /* Une question en un toucher, rattachee a la commande par sa reference.
+       Le serveur ne garde que la premiere reponse (comptoir_recoit_frein). */
+    var frein = document.getElementById('ck-frein');
+    if(frein && data.ref && P.cfg.ajax && navigator.sendBeacon){
+      frein.hidden = false;
+      frein.addEventListener('click', function(e){
+        var a = e.target.closest('[data-frein]');
+        if(!a) return;
+        e.preventDefault();
+        var d = new FormData();
+        d.append('action', 'cp_frein');
+        d.append('ref', data.ref);
+        d.append('frein', a.getAttribute('data-frein'));
+        navigator.sendBeacon(P.cfg.ajax, d);
+        frein.querySelector('.ck-frein-choix').hidden = true;
+        document.getElementById('ck-frein-merci').hidden = false;
+      });
+    }
+
     /* Le fil d'etapes passe a la confirmation. */
     var fil = document.getElementById('ck-steps');
     if(fil){

@@ -56,6 +56,16 @@ get_header();
       <li><b>Nous expédions</b> — livraison en 24 à 72 h partout au Maroc.</li>
       <li><b>Vous payez à la remise</b> — en espèces, au livreur. Rien n'est payé à l'avance.</li>
     </ol>
+    <?php /* Une question en un toucher : la reponse va sur la commande (colonne
+         « Frein » de la liste). A une dizaine de commandes par semaine, elle
+         se lit en themes, pas en pourcentages. Montree par commande.js. */ ?>
+    <div class="ck-frein" id="ck-frein" hidden>
+      <p class="ck-merci-detail-titre">Qu’est-ce qui a failli vous empêcher de commander ?</p>
+      <div class="ck-merci-actions ck-frein-choix"><?php foreach ( comptoir_freins() as $cp_cle => $cp_libelle ) : ?>
+        <a class="ck-add" href="#" role="button" data-frein="<?php echo esc_attr( $cp_cle ); ?>"><?php echo esc_html( $cp_libelle ); ?></a>
+      <?php endforeach; ?></div>
+      <p class="ck-merci-sous" id="ck-frein-merci" hidden>Merci, c’est noté.</p>
+    </div>
     <div class="ck-merci-actions">
       <a class="ck-merci-retour" href="<?php echo esc_url( home_url( '/#catalogue' ) ); ?>">Retour au catalogue</a>
       <a class="ck-merci-retour" id="ck-merci-wa" href="#" target="_blank" rel="noopener" hidden>Une question sur votre commande ? Écrivez-nous sur WhatsApp</a>
@@ -152,6 +162,12 @@ get_header();
             <svg viewBox="0 0 24 24"><path d="M1.5 16.5V6.5h12v10M13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>
           </span>
           <p><b>Livraison en 24 à 72 h partout au Maroc.</b> <?php echo esc_html( comptoir_note_livraison() ); ?></p>
+        </div>
+        <div class="ck-rassure">
+          <span class="ck-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg>
+          </span>
+          <p><b>Satisfait ou remboursé.</b> Refusez le colis à la porte sans rien payer, ou écrivez-nous après ouverture : nous vous remboursons.</p>
         </div>
 
         <?php /* Un sac, pas la bulle WhatsApp : ce bouton passe la commande, il

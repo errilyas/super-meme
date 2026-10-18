@@ -901,6 +901,46 @@ function comptoir_recoit_commande() {
 add_action( 'wp_ajax_cp_commande', 'comptoir_recoit_commande' );
 add_action( 'wp_ajax_nopriv_cp_commande', 'comptoir_recoit_commande' );
 
+/** Reponses possibles a « Qu'est-ce qui a failli vous empecher de commander ? ». */
+function comptoir_freins() {
+	return array(
+		'prix'  => 'Le prix',
+		'faux'  => 'Peur d’un faux',
+		'delai' => 'Le délai de livraison',
+		'rien'  => 'Rien, tout était clair',
+		'autre' => 'Autre chose',
+	);
+}
+
+/**
+ * La reponse de l'ecran de remerciement, rangee sur la commande (colonne
+ * « Frein » de la liste). Pas de jeton : la page peut venir du cache. A la
+ * place, des valeurs fixes, une seule reponse par commande, et seulement sur
+ * une commande de moins de 6 heures, la duree de vie de l'ecran.
+ */
+function comptoir_recoit_frein() {
+	$ref   = isset( $_POST['ref'] ) && is_string( $_POST['ref'] ) ? comptoir_coupe( sanitize_text_field( wp_unslash( $_POST['ref'] ) ), 24 ) : '';
+	$frein = isset( $_POST['frein'] ) && is_string( $_POST['frein'] ) ? sanitize_key( wp_unslash( $_POST['frein'] ) ) : '';
+	if ( '' === $ref || ! isset( comptoir_freins()[ $frein ] ) ) {
+		wp_send_json_error( 'frein', 400 );
+	}
+	$ids = get_posts( array(
+		'post_type'      => 'cp_commande',
+		'fields'         => 'ids',
+		'posts_per_page' => 1,
+		'meta_key'       => 'cp_ref',
+		'meta_value'     => $ref,
+		'date_query'     => array( array( 'column' => 'post_date_gmt', 'after' => gmdate( 'Y-m-d H:i:s', time() - 6 * HOUR_IN_SECONDS ) ) ),
+	) );
+	if ( ! $ids || get_post_meta( $ids[0], 'cp_frein', true ) ) {
+		wp_send_json_error( 'frein', 400 );
+	}
+	update_post_meta( $ids[0], 'cp_frein', $frein );
+	wp_send_json_success();
+}
+add_action( 'wp_ajax_cp_frein', 'comptoir_recoit_frein' );
+add_action( 'wp_ajax_nopriv_cp_frein', 'comptoir_recoit_frein' );
+
 /**
  * Relais vers la feuille Google, cote serveur.
  *
@@ -1285,6 +1325,7 @@ add_filter( 'manage_cp_commande_posts_columns', function ( $cols ) {
 	$out['cp_source'] = __( 'Source', 'comptoir-parfums' );
 	$out['cp_clic']   = __( 'Clic', 'comptoir-parfums' );
 	$out['cp_feuille'] = __( 'Feuille', 'comptoir-parfums' );
+	$out['cp_frein']   = __( 'Frein', 'comptoir-parfums' );
 	$out['date']     = $cols['date'];
 	return $out;
 } );
@@ -1295,6 +1336,11 @@ add_action( 'manage_cp_commande_posts_custom_column', function ( $col, $id ) {
 	}
 	if ( 'cp_etat' === $col ) {
 		echo esc_html( get_post_meta( $id, 'cp_etat', true ) );
+	}
+	if ( 'cp_frein' === $col ) {
+		$f = comptoir_freins();
+		$v = get_post_meta( $id, 'cp_frein', true );
+		echo esc_html( isset( $f[ $v ] ) ? $f[ $v ] : '' );
 	}
 	if ( 'cp_source' === $col ) {
 		$fbclid  = get_post_meta( $id, 'cp_fbclid', true );
@@ -2119,7 +2165,9 @@ function comptoir_bloc_preuves( $classe = '' ) {
 	$base = get_template_directory_uri() . '/img/preuves/';
 	echo '<section class="preuves' . ( $classe ? ' ' . esc_attr( $classe ) : '' ) . '" aria-label="Clients livrés">';
 	echo '<div class="preuves-head"><h2>Ils ont reçu leur parfum</h2>'
-		. '<p>Messages et colis de nos clients, tels quels.</p></div>';
+		// Les captures sont recadrees (numeros, pseudos) : la story a la une
+		// « Avis clients » les montre entieres, pour qui veut verifier.
+		. '<p>Messages et colis de nos clients, tels quels. <a href="https://www.instagram.com/stories/highlights/18117549625749287/" target="_blank" rel="noopener">Voir tous les avis sur Instagram</a></p></div>';
 	// tabindex + nom : la rangee defile, et une zone qui defile sans rien de
 	// focalisable ne se parcourt pas au clavier.
 	echo '<div class="preuves-rang" role="region" tabindex="0" aria-label="Captures de clients, faites défiler">';
