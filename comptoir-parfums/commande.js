@@ -172,9 +172,9 @@
 
   function champInvalide(inp){
     var v = inp.value.trim();
+    if(inp.name === 'adresse') return false;   /* facultative : precisee a l'appel */
     if(!v) return true;
     if(inp.name === 'tel')     return !telValide(v);
-    if(inp.name === 'adresse') return v.length < 8;   /* « rue » seul ne suffit pas */
     if(inp.name === 'ville')   return v === 'autre' && !villeAutre();
     return false;
   }

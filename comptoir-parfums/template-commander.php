@@ -135,9 +135,10 @@ get_header();
           <label class="ck-field" data-f="ville-autre" id="ck-ville-autre" hidden><span>Laquelle ?</span>
             <input type="text" name="ville_autre" autocomplete="address-level2" placeholder="Nom de votre ville">
             <small class="fe">Indiquez le nom de votre ville.</small></label>
-          <label class="ck-field" data-f="adresse"><span>Adresse complète *</span>
-            <input type="text" name="adresse" autocomplete="street-address" enterkeyhint="send" placeholder="Rue, numéro, immeuble, étage" required>
-            <small class="fe">C'est cette adresse que le livreur suivra.</small></label>
+          <?php /* Facultative, comme dans le formulaire de la fiche : elle se
+               precise a l'appel de confirmation (Panier.depose complete). */ ?>
+          <label class="ck-field" data-f="adresse"><span>Adresse (facultatif)</span>
+            <input type="text" name="adresse" autocomplete="street-address" enterkeyhint="send" placeholder="Rue, numéro, immeuble, étage"></label>
         </form>
 
         <div class="ck-rassure">

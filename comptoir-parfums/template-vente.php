@@ -280,7 +280,7 @@ get_header();
         <span class="fin-mark-sans">des Parfums</span>
       </span>
       <div class="fin-kicker">Commander maintenant</div>
-      <h2 class="fin-h2">Un grand parfum livré chez vous demain.</h2>
+      <h2 class="fin-h2">Un grand parfum livré chez vous.</h2>
       <p class="fin-body">Choisissez vos flacons, laissez votre nom et votre téléphone — et payez seulement quand le colis est entre vos mains, en 24 à 72h.</p>
       <div class="fin-actions">
         <a href="<?php echo esc_url( home_url( '/?commander=1' ) ); ?>" class="btn-fin">Commander maintenant</a>

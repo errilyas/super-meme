@@ -187,12 +187,9 @@
     'conditions de vente': 'شروط البيع',
     'Livraison estimée : entre {a} et {b}': 'التوصيل المتوقع: بين {a} و{b}',
     '2 parfums': 'عطران',
-    '+ un 2e parfum au choix': '+ عطر ثانٍ من اختيارك',
-    'Choisissez votre 2e parfum': 'اختر عطرك الثاني',
     'Chercher un autre parfum…': 'ابحث عن عطر آخر…',
     'Choisissez votre deuxième parfum dans la liste.': 'اختر عطرك الثاني من القائمة.',
     'Aucun parfum trouvé.': 'لم يتم العثور على أي عطر.',
-    '2e parfum : {nom}': 'العطر الثاني: {nom}',
     'Livraison offerte': 'التوصيل مجاني',
     'Téléphone': 'الهاتف',
     'Nom complet': 'الاسم الكامل',
@@ -216,6 +213,7 @@
     'Envoyer ma commande sur WhatsApp': 'أرسل طلبي عبر واتساب',
     'Agrandir la photo': 'تكبير الصورة',
     'Ajouter un 2e parfum': 'أضف عطرًا ثانيًا',
+    'Ajouter un autre parfum': 'أضف عطرًا آخر',
     '−{r} par duo': 'خصم {r} لكل عطرين',
     'Articles de cette commande': 'منتجات هذا الطلب',
     'Votre panier est inclus dans cette commande.': 'سلتك مشمولة في هذا الطلب.',
@@ -1533,8 +1531,9 @@
          le premier clic des fiches, et 17 visiteurs sur 21 qui l'ouvraient
          repartaient sans commander (Clarity, 7 jours au 17 octobre). Le
          second est un AUTRE parfum, proche du premier ou trouve par la
-         recherche ; sans choix, la commande part avec un flacon. */
-      '<button type="button" class="cpb-x-duo" aria-expanded="false">+ ' + esc(t('Ajouter un 2e parfum')) +
+         recherche ; sans choix, la commande part avec un flacon. Sur une
+         offre (pack), le flacon ajoute n'est pas le 2e. */
+      '<button type="button" class="cpb-x-duo" aria-expanded="false">+ ' + esc(t(ref.o ? 'Ajouter un autre parfum' : 'Ajouter un 2e parfum')) +
         (c.remise > 0 ? ' · ' + esc(t('−{r} par duo', { r: P.fmt(c.remise) })) : (deuxOffert ? ' · ' + esc(t('Livraison offerte')) : '')) + '</button>' +
       '<div class="cpb-x-second" hidden>' +
         '<p class="cpb-x-sous-titre">' + esc(t('Choisissez le parfum à ajouter')) + '</p>' +

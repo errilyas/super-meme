@@ -236,7 +236,7 @@
     /* Bloc final */
     'Commander maintenant': 'اطلب الآن',
     'ou commandez directement sur WhatsApp': 'أو اطلب مباشرة عبر واتساب',
-    'Un grand parfum livré chez vous demain.': 'عطر كبير يصلك غدًا.',
+    'Un grand parfum livré chez vous.': 'عطر كبير يصلك إلى بيتك.',
     'Choisissez vos flacons, laissez votre nom et votre téléphone — et payez seulement quand le colis est entre vos mains, en 24 à 72h.': 'اختر قواريرك، اترك اسمك وهاتفك — وادفع فقط حين يصل الطرد إلى يديك، خلال 24 إلى 72 ساعة.',
     'Parcourir le catalogue': 'تصفّح الكتالوج',
     'Parcourir le catalogue →': 'تصفّح الكتالوج ←',
@@ -360,7 +360,7 @@
     'Choisissez votre ville dans la liste.': 'اختر مدينتك من القائمة.',
     'Laquelle ?': 'أيّ مدينة؟',
     'Indiquez le nom de votre ville.': 'اكتب اسم مدينتك.',
-    'Adresse complète *': 'العنوان الكامل *',
+    'Adresse (facultatif)': 'العنوان (اختياري)',
     'C\'est cette adresse que le livreur suivra.': 'هذا هو العنوان الذي سيقصده عامل التوصيل.',
     'Paiement à la livraison.': 'الدفع عند الاستلام.',
     'Vous réglez en espèces au livreur, à la réception de votre colis. Ce site ne demande aucune carte bancaire.': 'تدفع نقدًا لعامل التوصيل عند استلام طردك. هذا الموقع لا يطلب أي بطاقة بنكية.',
