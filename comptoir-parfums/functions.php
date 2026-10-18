@@ -1079,7 +1079,7 @@ function comptoir_capi_ids_requete() {
 }
 
 /**
- * Les donnees client d'une commande, au format de Meta : telephone, prenom,
+ * Les donnees client d'une commande, au format de Meta : telephone, prenom, nom,
  * ville et pays haches ; identifiants (numero de commande haché, cp_vid deja
  * haché), fbc, fbp, IP et navigateur tels que gardes a l'envoi.
  */
@@ -1098,9 +1098,20 @@ function comptoir_capi_client( $id ) {
 	if ( '' !== $meta( 'cp_tel' ) ) {
 		$client['ph'] = array( hash( 'sha256', comptoir_capi_tel_e164( $meta( 'cp_tel' ) ) ) );
 	}
-	$prenom = strtok( trim( $meta( 'cp_nom' ) ), ' ' );
-	if ( $prenom ) {
-		$client['fn'] = array( hash( 'sha256', mb_strtolower( $prenom, 'UTF-8' ) ) );
+	// « Nom complet » : le premier mot est le prenom, le reste le nom de
+	// famille (« El Amrani » -> elamrani). Meta les veut en minuscules, sans
+	// ponctuation ; les lettres arabes passent telles quelles.
+	$lettres = function ( $s ) {
+		return preg_replace( '/[^\p{L}]+/u', '', mb_strtolower( $s, 'UTF-8' ) );
+	};
+	$mots   = preg_split( '/\s+/u', trim( $meta( 'cp_nom' ) ), -1, PREG_SPLIT_NO_EMPTY );
+	$prenom = $mots ? $lettres( array_shift( $mots ) ) : '';
+	$nom    = $lettres( implode( '', $mots ) );
+	if ( '' !== $prenom ) {
+		$client['fn'] = array( hash( 'sha256', $prenom ) );
+	}
+	if ( '' !== $nom ) {
+		$client['ln'] = array( hash( 'sha256', $nom ) );
 	}
 	$ville = preg_replace( '/[^a-z]/', '', strtolower( remove_accents( $meta( 'cp_ville' ) ) ) );
 	if ( $ville ) {
