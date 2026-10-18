@@ -73,7 +73,7 @@
     'Paiement à la livraison': 'الدفع عند الاستلام',
 
     /* Heros. Trois lignes revelees l'une apres l'autre : elles doivent tenir ensemble. */
-    'Maroc · Livraison 24h · Paiement à réception': 'المغرب · التوصيل خلال 24 ساعة · الدفع عند الاستلام',
+    'Maroc · Livraison 24 à 72 h · Paiement à réception': 'المغرب · التوصيل خلال 24 إلى 72 ساعة · الدفع عند الاستلام',
     'Le parfum': 'العطر',
     'que vous voulez.': 'الذي تريده.',
     'Au prix qui reste.': 'بثمن يناسبك.',
@@ -633,6 +633,7 @@
   var PATRONS = [
     [/^(.+) DH — paiement à la réception$/, '$1 درهم — الدفع عند الاستلام'],
     [/^(.*\d) DH$/, '$1 درهم'],
+    [/^Dès (.*\d) DH\.$/, 'ابتداءً من $1 درهم.'],
     [/^Sinon (\d+) DH, partout au Maroc\.$/, 'وإلا $1 درهم، في كل المغرب.'],
     [/^(\d+) parfums?$/, '$1 عطر'],
     [/^Voir les (\d+) parfums$/, 'شاهد $1 عطر'],
