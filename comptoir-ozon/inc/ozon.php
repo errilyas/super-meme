@@ -104,20 +104,118 @@ function cox_city_overrides() {
 			continue;
 		}
 		list( $a, $b ) = array_map( 'trim', explode( '=', $line, 2 ) );
-		if ( $a && ctype_digit( $b ) ) {
-			$map[ cox_norm( $a ) ] = (int) $b;
+		// Une ville ecrite en arabe (« العروي = 886 ») a sa propre cle : cox_norm() la reduisait a rien.
+		$cle = '' !== cox_norm( $a ) ? cox_norm( $a ) : cox_norm_ar( $a );
+		if ( '' !== $cle && ctype_digit( $b ) ) {
+			$map[ $cle ] = (int) $b;
 		}
 	}
 	return $map;
 }
 
+/**
+ * Villes ecrites en arabe dans « Autre ville… » : le nom latin qu'OzonExpress
+ * connait. Sans elles, « بنسليمان » ne correspondait a aucune ville et le colis
+ * n'etait jamais cree. Cles normalisees par cox_norm_ar().
+ */
+function cox_villes_arabes() {
+	static $map = null;
+	if ( null === $map ) {
+		$map = array();
+		foreach ( array(
+			'الدار البيضاء' => 'Casablanca', 'البيضاء' => 'Casablanca', 'كازا' => 'Casablanca',
+			'الرباط' => 'Rabat', 'سلا' => 'Salé', 'تمارة' => 'Témara', 'القنيطرة' => 'Kénitra',
+			'المحمدية' => 'Mohammedia', 'بوزنيقة' => 'Bouznika', 'بنسليمان' => 'Benslimane',
+			'الصخيرات' => 'Skhirat', 'الخميسات' => 'Khemisset', 'تيفلت' => 'Tiflet',
+			'فاس' => 'Fès', 'مكناس' => 'Meknès', 'افران' => 'Ifrane', 'ازرو' => 'Azrou',
+			'صفرو' => 'Sefrou', 'تازة' => 'Taza', 'تاونات' => 'Taounate', 'الحاجب' => 'ElHajeb VILLE',
+			'خنيفرة' => 'Khenifra', 'ميدلت' => 'Midelt',
+			'طنجة' => 'Tanger', 'تطوان' => 'Tétouan', 'العرائش' => 'Larache', 'القصر الكبير' => 'Ksar El Kebir',
+			'اصيلة' => 'Asilah', 'المضيق' => 'Mdiq', 'الفنيدق' => 'Fnideq', 'مرتيل' => 'Martil',
+			'شفشاون' => 'Chefchaouen', 'وزان' => 'Ouezzane',
+			'الحسيمة' => 'Al Hoceïma', 'الناظور' => 'Nador', 'وجدة' => 'Oujda', 'بركان' => 'Berkane',
+			'تاوريرت' => 'Taourirt', 'العروي' => 'Al Aroui', 'جرادة' => 'Jerada',
+			'مراكش' => 'Marrakech', 'اسفي' => 'Safi', 'الصويرة' => 'Essaouira', 'الجديدة' => 'El Jadida',
+			'سيدي بنور' => 'Sidi Bennour', 'اليوسفية' => 'Youssoufia', 'قلعة السراغنة' => 'Kelaa des Sraghna',
+			'ابن جرير' => 'Ben Guerir', 'بن جرير' => 'Ben Guerir',
+			'سطات' => 'Settat', 'برشيد' => 'Berrechid', 'خريبكة' => 'Khouribga', 'بني ملال' => 'Béni Mellal',
+			'الفقيه بن صالح' => 'Fquih Ben Salah', 'ازيلال' => 'Azilal', 'وادي زم' => 'Oued Zem', 'ابي الجعد' => 'Bejaad',
+			'اكادير' => 'Agadir', 'انزكان' => 'Inezgane', 'ايت ملول' => 'Ait Melloul', 'تارودانت' => 'Taroudant',
+			'تيزنيت' => 'Tiznit', 'كلميم' => 'Guelmim', 'طانطان' => 'Tan-Tan', 'العيون' => 'Laâyoune',
+			'الداخلة' => 'Dakhla', 'السمارة' => 'Smara', 'طرفاية' => 'Tarfaya',
+			'ورزازات' => 'Ouarzazate', 'الراشيدية' => 'Errachidia', 'زاكورة' => 'Zagora', 'تنغير' => 'Tinghir',
+			'كلميمة' => 'Goulmima',
+			'سيدي سليمان' => 'Sidi Slimane', 'سيدي قاسم' => 'Sidi Kacem', 'سوق الاربعاء' => 'Souk El Arbaa',
+			'مشرع بلقصيري' => 'BELKSIRI',
+		) as $ar => $latin ) {
+			$map[ cox_norm_ar( $ar ) ] = $latin;
+		}
+	}
+	return $map;
+}
+
+/**
+ * Le squelette d'un nom : sans « el » / « al » / « ville », sans voyelles ni
+ * lettres doublees. « El ksar elkbir » et « Ksar El Kebir » donnent ksrkbr.
+ */
+function cox_squelette( $str ) {
+	$mots = preg_split( '/[^a-z0-9]+/', strtolower( remove_accents( (string) $str ) ), -1, PREG_SPLIT_NO_EMPTY );
+	$out  = '';
+	foreach ( $mots as $m ) {
+		if ( in_array( $m, array( 'el', 'al', 'ville' ), true ) ) {
+			continue;
+		}
+		$out .= preg_replace( '/^(el|al)(?=[^aeiouy])/', '', $m );
+	}
+	return preg_replace( '/(.)\1+/', '$1', preg_replace( '/[aeiouy]/', '', $out ) );
+}
+
+/**
+ * Dernier recours : la seule ville OzonExpress qui a le meme squelette (ou la
+ * seule sans quartier, « -… », parmi elles). Plusieurs possibles, ou un
+ * squelette trop court : 0, et la commande attend qu'un humain choisisse —
+ * mieux qu'un colis envoye dans la mauvaise ville.
+ */
+function cox_city_squelette( $city, $cities ) {
+	$sq = cox_squelette( $city );
+	if ( strlen( $sq ) < 4 ) {
+		return 0;
+	}
+	$toutes = array();
+	$villes = array();
+	foreach ( $cities as $id => $c ) {
+		if ( cox_squelette( $c['name'] ) !== $sq ) {
+			continue;
+		}
+		$toutes[] = (int) $id;
+		if ( ! preg_match( '/[-_–]/u', $c['name'] ) ) {
+			$villes[] = (int) $id;
+		}
+	}
+	if ( 1 === count( $toutes ) ) {
+		return $toutes[0];
+	}
+	return 1 === count( $villes ) ? $villes[0] : 0;
+}
+
 /** Retourne l'ID OzonExpress de la ville, ou 0 si introuvable. */
 function cox_city_id( $city ) {
+	$ov = cox_city_overrides();
+	// Ecrite en arabe : correspondance saisie a la main, sinon le nom latin connu.
+	$ar = cox_norm_ar( $city );
+	if ( '' !== $ar ) {
+		if ( isset( $ov[ $ar ] ) ) {
+			return $ov[ $ar ];
+		}
+		$noms = cox_villes_arabes();
+		if ( isset( $noms[ $ar ] ) ) {
+			$city = $noms[ $ar ];
+		}
+	}
 	$n = cox_norm( $city );
 	if ( ! $n ) {
 		return 0;
 	}
-	$ov = cox_city_overrides();
 	if ( isset( $ov[ $n ] ) ) {
 		return $ov[ $n ];
 	}
@@ -135,9 +233,15 @@ function cox_city_id( $city ) {
 		'laayoune'    => 'laayoune',
 		'elayoun'     => 'laayoune',
 		'beni mellal' => 'benimellal',
+		'elhajeb'        => 'elhajebville',
+		'mechrabelksiri' => 'belksiri',
 	);
 	if ( isset( $aliases[ $n ] ) ) {
 		$n = $aliases[ $n ];
+		// « Casa » -> casablanca : la correspondance saisie pour Casablanca vaut aussi.
+		if ( isset( $ov[ $n ] ) ) {
+			return $ov[ $n ];
+		}
 	}
 	$cities = cox_cities();
 	$best   = 0;
@@ -154,12 +258,35 @@ function cox_city_id( $city ) {
 		}
 	}
 	// Une petite faute de frappe (≤ 2 lettres sur un nom assez long) est acceptée.
-	return ( $bestd <= 2 && strlen( $n ) >= 5 ) ? $best : 0;
+	if ( $bestd <= 2 && strlen( $n ) >= 5 ) {
+		return $best;
+	}
+	return cox_city_squelette( $city, $cities );
 }
 
 /* ------------------------------------------------------------------ */
 /* Création du colis                                                   */
 /* ------------------------------------------------------------------ */
+
+/**
+ * Une commande confirmee qui ne devient pas un colis restait des jours sans
+ * que personne le voie (un « ⚠ à vérifier » dans la liste ; six jours pour
+ * une commande du 12 octobre 2026). Un e-mail part a l'administrateur du
+ * site, une seule fois par commande ; les commandes de test n'en envoient pas.
+ */
+function cox_alerte( $order_id, $msg ) {
+	if ( get_post_meta( $order_id, '_cox_alerte', true ) || get_post_meta( $order_id, 'cp_test', true ) ) {
+		return;
+	}
+	update_post_meta( $order_id, '_cox_alerte', time() );
+	$ref = (string) get_post_meta( $order_id, 'cp_ref', true );
+	wp_mail(
+		get_option( 'admin_email' ),
+		'Colis non créé chez OzonExpress — ' . ( $ref ? $ref : 'commande ' . $order_id ),
+		$msg . "\n\nOuvrir la commande : " . admin_url( 'post.php?post=' . (int) $order_id . '&action=edit' )
+		. "\n\nCorrigez la ville (ou ajoutez-la dans Réglages › OzonExpress › Villes), puis cliquez sur « Envoyer / relier à OzonExpress »."
+	);
+}
 
 add_action( 'cox_create_parcel', 'cox_create_parcel' );
 
@@ -199,6 +326,7 @@ function cox_create_parcel( $order_id ) {
 		$msg = 'Colis non créé : ' . implode( ', ', $errors ) . '.';
 		update_post_meta( $order_id, '_cox_error', $msg );
 		cox_log( $order_id, $msg );
+		cox_alerte( $order_id, $msg );
 		delete_transient( 'cox_lock_' . $order_id );
 		return new WP_Error( 'cox_data', $msg );
 	}
@@ -235,6 +363,7 @@ function cox_create_parcel( $order_id ) {
 	if ( is_wp_error( $json ) ) {
 		update_post_meta( $order_id, '_cox_error', $json->get_error_message() );
 		cox_log( $order_id, 'Échec création colis : ' . $json->get_error_message() );
+		cox_alerte( $order_id, 'Échec création colis : ' . $json->get_error_message() );
 		return $json;
 	}
 	$err      = cox_api_error( $json );
@@ -243,6 +372,7 @@ function cox_create_parcel( $order_id ) {
 		$msg = 'OzonExpress a refusé le colis : ' . ( $err ? $err : 'pas de n° de suivi dans la réponse' );
 		update_post_meta( $order_id, '_cox_error', $msg );
 		cox_log( $order_id, $msg );
+		cox_alerte( $order_id, $msg );
 		return new WP_Error( 'cox_api', $msg );
 	}
 
