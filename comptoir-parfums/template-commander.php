@@ -46,7 +46,7 @@ get_header();
   <section class="ck-merci" id="ck-merci" hidden aria-live="polite">
     <h2 id="ck-merci-titre">Commande reçue ✓</h2>
     <p class="ck-merci-ref" id="ck-merci-ref"></p>
-    <p class="ck-merci-sous">Nous vous appelons sous peu pour confirmer votre commande et l'adresse de livraison.</p>
+    <p class="ck-merci-sous">Nous vous appelons dans les 2 heures, de 9 h à 21 h, pour confirmer votre commande et l'adresse de livraison.</p>
     <div class="ck-merci-detail">
       <p class="ck-merci-detail-titre">Ce que vous avez commandé</p>
       <div id="ck-merci-lignes"></div>
@@ -163,7 +163,7 @@ get_header();
           <?php /* Le montant du au livreur, sur le bouton : rien a decouvrir a la porte. */ ?>
           <b class="ck-go-total" data-ck-total></b>
         </button>
-        <p class="ck-mini">Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.<br>
+        <p class="ck-mini">Rien à payer maintenant. Appel de confirmation sous 2 h (9 h–21 h), livraison en 24 à 72 h partout au Maroc.<br>
         Une question avant ? <a href="#" id="ck-ask">Écrivez-nous</a></p>
       </section>
 

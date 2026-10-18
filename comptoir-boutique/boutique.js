@@ -219,7 +219,7 @@
     'Votre panier est inclus dans cette commande.': 'سلتك مشمولة في هذا الطلب.',
     'Modifier les quantités du panier': 'تعديل كميات السلة',
     'Choisissez le parfum à ajouter': 'اختر العطر الذي تريد إضافته',
-    'Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.': 'لا شيء تدفعه الآن. سنتصل بك لتأكيد الطلب، والتوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
+    'Rien à payer maintenant. Appel de confirmation sous 2 h (9 h–21 h), livraison en 24 à 72 h partout au Maroc.': 'لا شيء تدفعه الآن. نتصل بك خلال ساعتين (من 9 إلى 21) للتأكيد، والتوصيل خلال 24 إلى 72 ساعة في كل المغرب.',
     'Livraison : {l}': 'التوصيل: {l}',
     'offerte': 'مجاني',
     '+ {n} parfum(s) déjà dans votre panier': '+ {n} عطر موجود في سلتك',
@@ -1545,7 +1545,7 @@
          (un appel), au lieu de « confirmez la disponibilite par message »,
          qui laissait croire que la commande n'etait pas passee. */
       '<button type="submit" class="cpb-btn-plein cpb-x-go">' + SVG.sac + '<span>' + esc(t('Envoyer ma commande')) + '</span><b class="cpb-x-total"></b></button>' +
-      '<p class="cpb-x-note">' + esc(t('Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.')) + '</p>';
+      '<p class="cpb-x-note">' + esc(t('Rien à payer maintenant. Appel de confirmation sous 2 h (9 h–21 h), livraison en 24 à 72 h partout au Maroc.')) + '</p>';
     /* Telephone (900 px et moins) : le formulaire juste sous le prix. Pose
        sous « Ajouter au panier » et la phrase de reassurance, son bouton
        d'envoi tombait a pres de deux ecrans du haut de la fiche, et deux

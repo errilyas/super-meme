@@ -367,7 +367,7 @@
     'Livraison en 24 à 72 h partout au Maroc.': 'التوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
     'Envoyer ma commande': 'إرسال طلبي',
     'La demande est transmise au site avant l’ouverture de WhatsApp. Confirmez ensuite la disponibilité avec nous par message.': 'يتم إرسال الطلب إلى الموقع قبل فتح واتساب. ثم أكدوا معنا توفر العطر عبر رسالة.',
-    'Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.': 'لا شيء تدفعه الآن. سنتصل بك لتأكيد الطلب، والتوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
+    'Rien à payer maintenant. Appel de confirmation sous 2 h (9 h–21 h), livraison en 24 à 72 h partout au Maroc.': 'لا شيء تدفعه الآن. نتصل بك خلال ساعتين (من 9 إلى 21) للتأكيد، والتوصيل خلال 24 إلى 72 ساعة في كل المغرب.',
     'Confirmer la commande': 'أكّد الطلب',
     'WhatsApp s\'ouvre avec votre commande et votre adresse déjà écrites. Un dernier envoi et c\'est confirmé.': 'يفتح واتساب ومعه طلبك وعنوانك مكتوبان مسبقًا. إرسال أخير ويكون الطلب مؤكَّدًا.',
     'Une question avant ?': 'سؤال قبل ذلك؟',
@@ -378,7 +378,7 @@
 
     /* Page de remerciement */
     'Commande reçue ✓': 'تم استلام طلبك ✓',
-    'Nous vous appelons sous peu pour confirmer votre commande et l\'adresse de livraison.': 'سنتصل بك قريبًا لتأكيد طلبك وعنوان التوصيل.',
+    'Nous vous appelons dans les 2 heures, de 9 h à 21 h, pour confirmer votre commande et l\'adresse de livraison.': 'سنتصل بك خلال ساعتين، من 9 صباحًا إلى 9 مساءً، لتأكيد طلبك وعنوان التوصيل.',
     'Nous vous appelons': 'نتصل بك',
     '— pour confirmer la commande et noter l\'adresse de livraison.': '— لتأكيد الطلب وتسجيل عنوان التوصيل.',
     'Une question sur votre commande ? Écrivez-nous sur WhatsApp': 'سؤال حول طلبك؟ راسلنا عبر واتساب',
