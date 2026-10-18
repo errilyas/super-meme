@@ -156,15 +156,24 @@ function produits(panier) {
   }).filter(String).join('\n');
 }
 
-/** En-têtes figés, filtre, largeurs, couleurs par état. */
+/** Remet la mise en forme de l'onglet. À lancer depuis l'éditeur si elle a été abîmée. */
+function mettreEnForme() {
+  miseEnForme(onglet());
+}
+
+/** En-têtes figés, filtre, largeurs, alignements, couleurs par état. */
 function miseEnForme(f) {
   var n = COLONNES.length;
   f.setFrozenRows(1);
   f.getRange(1, 1, 1, n).setFontWeight('bold').setBackground('#2b1a2e').setFontColor('#f5f0e8');
-  var largeurs = [130, 120, 150, 120, 110, 220, 260, 90, 110, 200, 110, 220];
+  var largeurs = [130, 120, 150, 120, 110, 220, 260, 135, 110, 200, 110, 220];
   for (var i = 0; i < n; i++) f.setColumnWidth(i + 1, largeurs[i]);
   f.getRange('A:A').setNumberFormat('dd/mm hh:mm');
   f.getRange('F:G').setWrap(true);
+  f.getRange(1, 1, f.getMaxRows(), n).setVerticalAlignment('middle');
+  // Texte à gauche, même un nom saisi au clavier arabe ou une adresse en chiffres.
+  f.getRange('B:G').setHorizontalAlignment('left');
+  f.getRange('I:L').setHorizontalAlignment('left');
   if (!f.getFilter()) f.getRange(1, 1, Math.max(2, f.getMaxRows()), n).createFilter();
 
   var etats = f.getRange('I2:I');
@@ -173,6 +182,8 @@ function miseEnForme(f) {
       .setBackground(fond).setRanges([etats]).build();
   };
   var afaire = f.getRange('K2:K');
+  // Pas de règle à formule : sa syntaxe dépend de la langue de la feuille. La
+  // première règle qui correspond l'emporte : « — » en gris, le reste en rouge.
   f.setConditionalFormatRules([
     couleur('À confirmer', '#fde7c2'),
     couleur('Sans réponse', '#f8c9c4'),
@@ -181,7 +192,7 @@ function miseEnForme(f) {
     couleur('Livrée', '#d4ecd5'),
     couleur('Annulée', '#e6e6e6'),
     SpreadsheetApp.newConditionalFormatRule().whenTextEqualTo('—').setFontColor('#9e9e9e').setRanges([afaire]).build(),
-    SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=AND($K2<>"",$K2<>"—")')
+    SpreadsheetApp.newConditionalFormatRule().whenCellNotEmpty()
       .setBold(true).setFontColor('#b3261e').setRanges([afaire]).build()
   ]);
 }
