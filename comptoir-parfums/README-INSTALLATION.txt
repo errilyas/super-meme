@@ -499,7 +499,7 @@ Une commande est enregistrée AVANT que WhatsApp ne s'ouvre, à deux endroits :
      c'est le thème qui crée le menu.
 
   2. Dans une feuille Google, consultable du téléphone et exportable en Excel
-     pour le transporteur. Le script est dans tools/feuille-commandes.gs et la
+     pour le transporteur. Le script est dans outils/feuille-commandes.gs (dépôt super-meme) et la
      marche à suivre est écrite en tête de ce fichier ; il n'y a ensuite qu'à
      coller l'URL du déploiement dans comptoir_feuille_google(), en haut de
      functions.php.

@@ -168,8 +168,8 @@ function comptoir_note_franco( $classe = '' ) {
 
 /**
  * Adresse du script Google qui recoit les commandes dans une feuille.
- * Vide = pas d'envoi. Le code du script est dans tools/feuille-commandes.gs,
- * et la marche a suivre dans le README.
+ * Vide = pas d'envoi. Le code du script et la marche a suivre sont dans
+ * outils/feuille-commandes.gs (depot super-meme).
  *
  * La commande part aux DEUX endroits : le registre WordPress et la feuille.
  * L'un se consulte depuis l'admin, l'autre depuis un telephone, et deux
@@ -1010,6 +1010,147 @@ function comptoir_envoie_feuille( $id ) {
 }
 
 /**
+ * Cle des mises a jour de la feuille (etat, colis), tiree au hasard une fois
+ * et gardee en base : le depot du theme est public. Le script la lit dans ses
+ * proprietes (CLE_MAJ) et refuse une mise a jour sans elle ; elle s'affiche
+ * apres « Mettre la feuille a jour », pour l'y coller.
+ */
+function comptoir_feuille_cle() {
+	$cle = (string) get_option( 'comptoir_feuille_cle', '' );
+	if ( '' === $cle ) {
+		$cle = wp_generate_password( 32, false );
+		update_option( 'comptoir_feuille_cle', $cle, false );
+	}
+	return $cle;
+}
+
+/**
+ * Ce que la feuille montre d'une commande : son etat lisible, son colis et ce
+ * qu'il reste a faire. Une seule regle, lue dans les memes champs que la liste
+ * des commandes (cpb_suivi pour les etapes, cp_etat pour WhatsApp, _cox_* pour
+ * OzonExpress).
+ */
+function comptoir_feuille_etat( $id ) {
+	$suivi = (string) get_post_meta( $id, 'cpb_suivi', true );
+	$wa    = (string) get_post_meta( $id, 'cp_etat', true );
+	if ( 'livree' === $suivi ) {
+		$etat = 'Livrée';
+	} elseif ( 'annulee' === $suivi || 'annulee' === $wa ) {
+		$etat = 'Annulée';
+	} elseif ( 'expediee' === $suivi ) {
+		$etat = 'Expédiée';
+	} elseif ( 'confirmee' === $suivi || 'confirmee' === $wa ) {
+		$etat = 'Confirmée';
+	} elseif ( 'sans-reponse-whatsapp' === $wa ) {
+		$etat = 'Sans réponse';
+	} else {
+		$etat = 'À confirmer';
+	}
+	$afaire = array( 'À confirmer' => 'Confirmer', 'Sans réponse' => 'Appeler' );
+	$afaire = isset( $afaire[ $etat ] ) ? $afaire[ $etat ] : '—';
+
+	$colis = (string) get_post_meta( $id, '_cox_tracking', true );
+	if ( $colis ) {
+		$statut = (string) get_post_meta( $id, '_cox_status', true );
+		$colis  = $statut ? $colis . ' · ' . $statut : $colis;
+	} elseif ( 'Confirmée' === $etat && get_post_meta( $id, '_cox_error', true ) ) {
+		// Confirmee mais pas de colis (ville inconnue d'OzonExpress…).
+		$colis  = '⚠ à vérifier';
+		$afaire = 'Créer le colis';
+	}
+	return array( 'etat' => $etat, 'colis' => $colis, 'afaire' => $afaire );
+}
+
+/**
+ * Un changement d'etat ou de colis programme une mise a jour de la ligne, une
+ * minute apres : plusieurs changements rapproches (confirmation, puis colis)
+ * ne font qu'un envoi.
+ */
+function comptoir_feuille_suivre( $meta_id, $id, $cle ) {
+	if ( ! in_array( $cle, array( 'cp_etat', 'cpb_suivi', '_cox_tracking', '_cox_status', '_cox_error' ), true )
+		|| 'cp_commande' !== get_post_type( $id ) || ! comptoir_feuille_google() ) {
+		return;
+	}
+	if ( ! wp_next_scheduled( 'comptoir_feuille_maj', array( (int) $id ) ) ) {
+		wp_schedule_single_event( time() + 60, 'comptoir_feuille_maj', array( (int) $id ) );
+	}
+}
+add_action( 'added_post_meta', 'comptoir_feuille_suivre', 10, 3 );
+add_action( 'updated_post_meta', 'comptoir_feuille_suivre', 10, 3 );
+
+/** Envoie etat, colis et « a faire » de la commande a sa ligne de la feuille. */
+function comptoir_feuille_maj( $id ) {
+	$url = comptoir_feuille_google();
+	$ref = (string) get_post_meta( $id, 'cp_ref', true );
+	if ( ! $url || '' === $ref ) {
+		return false;
+	}
+	$e = comptoir_feuille_etat( $id );
+	// Le script ecrit pendant le POST ; sa reponse est derriere une redirection
+	// que l'on ne suit pas : ici, rien n'attend la reponse.
+	$r = wp_remote_post( $url, array(
+		'timeout'     => 8,
+		'redirection' => 0,
+		'body'        => array(
+			'action' => 'maj',
+			'cle'    => comptoir_feuille_cle(),
+			'ref'    => $ref,
+			'etat'   => $e['etat'],
+			'colis'  => $e['colis'],
+			'afaire' => $e['afaire'],
+		),
+	) );
+	return ! is_wp_error( $r );
+}
+add_action( 'comptoir_feuille_maj', 'comptoir_feuille_maj' );
+
+/**
+ * « Mettre la feuille à jour », en tete de la liste des commandes : remet
+ * l'etat des 200 dernieres commandes dans la feuille (apres sa
+ * reorganisation, ou si des envois se sont perdus). Les envois sont etales de
+ * deux secondes, le script n'en traite qu'un a la fois.
+ */
+add_filter( 'views_edit-cp_commande', function ( $vues ) {
+	if ( current_user_can( 'manage_options' ) && comptoir_feuille_google() ) {
+		$vues['cp_feuille'] = sprintf(
+			'<a href="%s">Mettre la feuille à jour</a>',
+			esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=comptoir_feuille_resync' ), 'comptoir_feuille_resync' ) )
+		);
+	}
+	return $vues;
+} );
+add_action( 'admin_post_comptoir_feuille_resync', function () {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( 'Accès refusé.' );
+	}
+	check_admin_referer( 'comptoir_feuille_resync' );
+	$ids = get_posts( array(
+		'post_type'      => 'cp_commande',
+		'post_status'    => array( 'publish', 'private' ),
+		'posts_per_page' => 200,
+		'fields'         => 'ids',
+	) );
+	foreach ( array_values( $ids ) as $i => $id ) {
+		if ( ! wp_next_scheduled( 'comptoir_feuille_maj', array( (int) $id ) ) ) {
+			wp_schedule_single_event( time() + 10 + 2 * $i, 'comptoir_feuille_maj', array( (int) $id ) );
+		}
+	}
+	wp_safe_redirect( add_query_arg( 'cp_feuille_resync', count( $ids ), admin_url( 'edit.php?post_type=cp_commande' ) ) );
+	exit;
+} );
+add_action( 'admin_notices', function () {
+	$ecran = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( isset( $_GET['cp_feuille_resync'] ) && $ecran && 'edit-cp_commande' === $ecran->id ) {
+		printf(
+			'<div class="notice notice-success is-dismissible"><p>%s</p><p>%s <code>%s</code></p></div>',
+			esc_html( sprintf( 'Mise à jour de la feuille lancée pour %d commandes : elle se termine en quelques minutes.', (int) $_GET['cp_feuille_resync'] ) ),
+			esc_html( 'Si les colonnes État et Colis ne bougent pas : dans Apps Script, Paramètres du projet > Propriétés du script, posez la propriété CLE_MAJ avec cette valeur, puis relancez.' ),
+			esc_html( comptoir_feuille_cle() )
+		);
+	}
+} );
+
+/**
  * Commande de test : rien ne part vers Meta pour elle (ni l'achat serveur ici,
  * ni Lead/Purchase cote navigateur, filtres dans panier.js > commandeTest()).
  * C'est un test si : un administrateur connecte passe la commande ; l'appareil
@@ -1324,7 +1465,7 @@ add_action( 'admin_notices', function () {
 		return;
 	}
 	echo '<div class="notice notice-warning"><p>'
-		. esc_html__( 'Les commandes ne partent pas vers la feuille Google : collez l\'adresse du script dans comptoir_feuille_google(), en haut de functions.php. La marche à suivre est dans tools/feuille-commandes.gs.', 'comptoir-parfums' )
+		. esc_html__( 'Les commandes ne partent pas vers la feuille Google : collez l\'adresse du script dans comptoir_feuille_google(), en haut de functions.php. La marche à suivre est dans outils/feuille-commandes.gs (dépôt super-meme).', 'comptoir-parfums' )
 		. '</p></div>';
 } );
 
