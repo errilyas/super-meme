@@ -187,12 +187,9 @@
     'conditions de vente': 'شروط البيع',
     'Livraison estimée : entre {a} et {b}': 'التوصيل المتوقع: بين {a} و{b}',
     '2 parfums': 'عطران',
-    '+ un 2e parfum au choix': '+ عطر ثانٍ من اختيارك',
-    'Choisissez votre 2e parfum': 'اختر عطرك الثاني',
     'Chercher un autre parfum…': 'ابحث عن عطر آخر…',
     'Choisissez votre deuxième parfum dans la liste.': 'اختر عطرك الثاني من القائمة.',
     'Aucun parfum trouvé.': 'لم يتم العثور على أي عطر.',
-    '2e parfum : {nom}': 'العطر الثاني: {nom}',
     'Livraison offerte': 'التوصيل مجاني',
     'Téléphone': 'الهاتف',
     'Nom complet': 'الاسم الكامل',
@@ -216,12 +213,13 @@
     'Envoyer ma commande sur WhatsApp': 'أرسل طلبي عبر واتساب',
     'Agrandir la photo': 'تكبير الصورة',
     'Ajouter un 2e parfum': 'أضف عطرًا ثانيًا',
+    'Ajouter un autre parfum': 'أضف عطرًا آخر',
     '−{r} par duo': 'خصم {r} لكل عطرين',
     'Articles de cette commande': 'منتجات هذا الطلب',
     'Votre panier est inclus dans cette commande.': 'سلتك مشمولة في هذا الطلب.',
     'Modifier les quantités du panier': 'تعديل كميات السلة',
     'Choisissez le parfum à ajouter': 'اختر العطر الذي تريد إضافته',
-    'Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.': 'لا شيء تدفعه الآن. سنتصل بك لتأكيد الطلب، والتوصيل خلال 24 إلى 72 ساعة في جميع أنحاء المغرب.',
+    'Rien à payer maintenant. Appel de confirmation sous 2 h (9 h–21 h), livraison en 24 à 72 h partout au Maroc.': 'لا شيء تدفعه الآن. نتصل بك خلال ساعتين (من 9 إلى 21) للتأكيد، والتوصيل خلال 24 إلى 72 ساعة في كل المغرب.',
     'Livraison : {l}': 'التوصيل: {l}',
     'offerte': 'مجاني',
     '+ {n} parfum(s) déjà dans votre panier': '+ {n} عطر موجود في سلتك',
@@ -1533,8 +1531,9 @@
          le premier clic des fiches, et 17 visiteurs sur 21 qui l'ouvraient
          repartaient sans commander (Clarity, 7 jours au 17 octobre). Le
          second est un AUTRE parfum, proche du premier ou trouve par la
-         recherche ; sans choix, la commande part avec un flacon. */
-      '<button type="button" class="cpb-x-duo" aria-expanded="false">+ ' + esc(t('Ajouter un 2e parfum')) +
+         recherche ; sans choix, la commande part avec un flacon. Sur une
+         offre (pack), le flacon ajoute n'est pas le 2e. */
+      '<button type="button" class="cpb-x-duo" aria-expanded="false">+ ' + esc(t(ref.o ? 'Ajouter un autre parfum' : 'Ajouter un 2e parfum')) +
         (c.remise > 0 ? ' · ' + esc(t('−{r} par duo', { r: P.fmt(c.remise) })) : (deuxOffert ? ' · ' + esc(t('Livraison offerte')) : '')) + '</button>' +
       '<div class="cpb-x-second" hidden>' +
         '<p class="cpb-x-sous-titre">' + esc(t('Choisissez le parfum à ajouter')) + '</p>' +
@@ -1546,7 +1545,7 @@
          (un appel), au lieu de « confirmez la disponibilite par message »,
          qui laissait croire que la commande n'etait pas passee. */
       '<button type="submit" class="cpb-btn-plein cpb-x-go">' + SVG.sac + '<span>' + esc(t('Envoyer ma commande')) + '</span><b class="cpb-x-total"></b></button>' +
-      '<p class="cpb-x-note">' + esc(t('Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.')) + '</p>';
+      '<p class="cpb-x-note">' + esc(t('Rien à payer maintenant. Appel de confirmation sous 2 h (9 h–21 h), livraison en 24 à 72 h partout au Maroc.')) + '</p>';
     /* Telephone (900 px et moins) : le formulaire juste sous le prix. Pose
        sous « Ajouter au panier » et la phrase de reassurance, son bouton
        d'envoi tombait a pres de deux ecrans du haut de la fiche, et deux

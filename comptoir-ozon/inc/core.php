@@ -71,6 +71,17 @@ function cox_norm( $str ) {
 	return preg_replace( '/[^a-z0-9]/', '', $str );
 }
 
+/**
+ * Le pendant de cox_norm() pour l'arabe, que cox_norm() efface : sans voyelles
+ * courtes ni tatouil, alifs et ta marbouta unifies, espaces retires.
+ * « بن سليمان » et « بنسليمان » donnent la meme cle.
+ */
+function cox_norm_ar( $str ) {
+	$str = preg_replace( '/[\x{064B}-\x{065F}\x{0670}\x{0640}]/u', '', (string) $str );
+	$str = strtr( $str, array( 'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ى' => 'ي', 'ة' => 'ه' ) );
+	return (string) preg_replace( '/[^\x{0621}-\x{064A}]/u', '', $str );
+}
+
 /** Numéro marocain au format international sans « + » : 212XXXXXXXXX */
 function cox_phone_intl( $phone ) {
 	$d = preg_replace( '/\D/', '', (string) $phone );

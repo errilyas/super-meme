@@ -456,6 +456,12 @@
         var panier = P.items().map(function (x) {
           return x.q + '× ' + x.p.b + ' ' + x.p.n + ' (' + x.p.s + ') — ' + x.p.pr;
         }).join('\n');
+        /* L'adresse est facultative (fiche et page commande) mais le serveur
+           en veut 8 caracteres : vide ou courte, on dit qu'elle se precise a
+           l'appel, comme le formulaire de la fiche le fait deja. */
+        var adresse = String(client.adresse || '').trim();
+        if (!adresse) { adresse = 'À préciser lors de l’appel de confirmation'; }
+        else if (adresse.length < 8) { adresse += ' (à préciser lors de l’appel)'; }
 
         var remplir = function (d, avecJeton) {
           if (avecJeton) { d.append('action', 'cp_commande'); d.append('nonce', CFG.nonce); }
@@ -463,7 +469,7 @@
           d.append('nom', client.nom || '');
           d.append('tel', client.tel || '');
           d.append('ville', client.ville || '');
-          d.append('adresse', client.adresse || '');
+          d.append('adresse', adresse);
           d.append('total', P.total());
           d.append('livraison', P.fraisLivraison());
           d.append('remise', P.remise());

@@ -46,7 +46,7 @@ get_header();
   <section class="ck-merci" id="ck-merci" hidden aria-live="polite">
     <h2 id="ck-merci-titre">Commande reçue ✓</h2>
     <p class="ck-merci-ref" id="ck-merci-ref"></p>
-    <p class="ck-merci-sous">Nous vous appelons sous peu pour confirmer votre commande et l'adresse de livraison.</p>
+    <p class="ck-merci-sous">Nous vous appelons dans les 2 heures, de 9 h à 21 h, pour confirmer votre commande et l'adresse de livraison.</p>
     <div class="ck-merci-detail">
       <p class="ck-merci-detail-titre">Ce que vous avez commandé</p>
       <div id="ck-merci-lignes"></div>
@@ -56,6 +56,16 @@ get_header();
       <li><b>Nous expédions</b> — livraison en 24 à 72 h partout au Maroc.</li>
       <li><b>Vous payez à la remise</b> — en espèces, au livreur. Rien n'est payé à l'avance.</li>
     </ol>
+    <?php /* Une question en un toucher : la reponse va sur la commande (colonne
+         « Frein » de la liste). A une dizaine de commandes par semaine, elle
+         se lit en themes, pas en pourcentages. Montree par commande.js. */ ?>
+    <div class="ck-frein" id="ck-frein" hidden>
+      <p class="ck-merci-detail-titre">Qu’est-ce qui a failli vous empêcher de commander ?</p>
+      <div class="ck-merci-actions ck-frein-choix"><?php foreach ( comptoir_freins() as $cp_cle => $cp_libelle ) : ?>
+        <a class="ck-add" href="#" role="button" data-frein="<?php echo esc_attr( $cp_cle ); ?>"><?php echo esc_html( $cp_libelle ); ?></a>
+      <?php endforeach; ?></div>
+      <p class="ck-merci-sous" id="ck-frein-merci" hidden>Merci, c’est noté.</p>
+    </div>
     <div class="ck-merci-actions">
       <a class="ck-merci-retour" href="<?php echo esc_url( home_url( '/#catalogue' ) ); ?>">Retour au catalogue</a>
       <a class="ck-merci-retour" id="ck-merci-wa" href="#" target="_blank" rel="noopener" hidden>Une question sur votre commande ? Écrivez-nous sur WhatsApp</a>
@@ -135,9 +145,10 @@ get_header();
           <label class="ck-field" data-f="ville-autre" id="ck-ville-autre" hidden><span>Laquelle ?</span>
             <input type="text" name="ville_autre" autocomplete="address-level2" placeholder="Nom de votre ville">
             <small class="fe">Indiquez le nom de votre ville.</small></label>
-          <label class="ck-field" data-f="adresse"><span>Adresse complète *</span>
-            <input type="text" name="adresse" autocomplete="street-address" enterkeyhint="send" placeholder="Rue, numéro, immeuble, étage" required>
-            <small class="fe">C'est cette adresse que le livreur suivra.</small></label>
+          <?php /* Facultative, comme dans le formulaire de la fiche : elle se
+               precise a l'appel de confirmation (Panier.depose complete). */ ?>
+          <label class="ck-field" data-f="adresse"><span>Adresse (facultatif)</span>
+            <input type="text" name="adresse" autocomplete="street-address" enterkeyhint="send" placeholder="Rue, numéro, immeuble, étage"></label>
         </form>
 
         <div class="ck-rassure">
@@ -152,6 +163,12 @@ get_header();
           </span>
           <p><b>Livraison en 24 à 72 h partout au Maroc.</b> <?php echo esc_html( comptoir_note_livraison() ); ?></p>
         </div>
+        <div class="ck-rassure">
+          <span class="ck-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg>
+          </span>
+          <p><b>Satisfait ou remboursé.</b> Refusez le colis à la porte sans rien payer, ou écrivez-nous après ouverture : nous vous remboursons.</p>
+        </div>
 
         <?php /* Un sac, pas la bulle WhatsApp : ce bouton passe la commande, il
              n'ouvre pas une discussion. Meme pictogramme que la commande
@@ -162,7 +179,7 @@ get_header();
           <?php /* Le montant du au livreur, sur le bouton : rien a decouvrir a la porte. */ ?>
           <b class="ck-go-total" data-ck-total></b>
         </button>
-        <p class="ck-mini">Rien à payer maintenant. Nous vous appelons pour confirmer, livraison en 24 à 72 h partout au Maroc.<br>
+        <p class="ck-mini">Rien à payer maintenant. Appel de confirmation sous 2 h (9 h–21 h), livraison en 24 à 72 h partout au Maroc.<br>
         Une question avant ? <a href="#" id="ck-ask">Écrivez-nous</a></p>
       </section>
 

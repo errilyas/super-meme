@@ -29,6 +29,11 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
 ?>
 <main id="cp-main">
 
+<?php /* Telephone : le bloc visuel du heros (sceau CP, ou photo de la maison
+     centree dans le ruban ; la vitrine 3D n'y tourne pas) poussait le
+     catalogue a pres de 2 ecrans. Masque ici, dans la page, pour qu'il ne
+     s'affiche jamais avant d'etre retire : pas de saut de mise en page. */ ?>
+<style>@media(max-width:900px){#hv{display:none!important}}</style>
 <section id="hero" aria-label="Présentation">
 
   <?php /* Eclairage fixe : grain, ligne de balayage, noms de maisons en
@@ -48,7 +53,7 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
 
       <div class="h-eyebrow" id="he">
         <div class="h-eye-line" aria-hidden="true"></div>
-        <span class="h-eye-text">Maroc · Livraison 24h · Paiement à réception</span>
+        <span class="h-eye-text">Maroc · Livraison 24 à 72 h · Paiement à réception</span>
       </div>
 
       <?php /* Accroche : line-by-line clip reveal. Un paragraphe depuis la 3.8 :
@@ -67,8 +72,11 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
         <h1 class="h-badge-text">Testeurs de parfum originaux au Maroc</h1>
       </div>
 
+      <?php /* Le titre promet un prix : le premier ecran en donne un, le plus bas
+           du catalogue (lu dans produits.php, jamais ecrit en dur). */
+      list( $cp_lo ) = comptoir_bornes_prix(); ?>
       <p class="hero-sub" id="hs">
-        Les grands parfums de Chanel, Dior, Tom Ford, Xerjoff — livrés chez vous en 24 à 72h, partout au Maroc. Vous payez à la réception. Pas avant.
+        <?php if ( $cp_lo ) : ?><strong>Dès <?php echo esc_html( $cp_lo ); ?> DH.</strong> <?php endif; ?>Les grands parfums de Chanel, Dior, Tom Ford, Xerjoff — livrés chez vous en 24 à 72h, partout au Maroc. Vous payez à la réception. Pas avant.
       </p>
 
       <div class="hero-actions" id="ha">
@@ -317,7 +325,7 @@ $cp_nb_maisons = count( comptoir_catalogue_par_maison() );
     </div>
   </div>
   <div class="fin-inner r">
-    <h3 class="fin-h2">Un grand parfum livré chez vous demain.</h3>
+    <h3 class="fin-h2">Un grand parfum livré chez vous.</h3>
     <p class="fin-body">Choisissez vos flacons, laissez votre nom et votre téléphone — et payez seulement quand le colis est entre vos mains, en 24 à 72h.</p>
     <div class="fin-actions">
       <a href="<?php echo esc_url( home_url( '/?commander=1' ) ); ?>" class="btn-fin">Commander maintenant</a>
